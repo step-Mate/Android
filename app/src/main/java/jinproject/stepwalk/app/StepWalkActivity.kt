@@ -1,0 +1,80 @@
+package jinproject.stepwalk.app
+
+import android.os.Bundle
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
+import androidx.compose.foundation.layout.consumeWindowInsets
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.only
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawing
+import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.core.view.WindowCompat
+import androidx.navigation.compose.rememberNavController
+import dagger.hilt.android.AndroidEntryPoint
+import jinproject.stepwalk.app.ui.navigation.Router
+import jinproject.stepwalk.app.ui.navigation.BottomNavigationGraph
+import jinproject.stepwalk.app.ui.navigation.NavigationGraph
+import jinproject.stepwalk.design.theme.StepWalkTheme
+
+@AndroidEntryPoint
+class StepWalkActivity : ComponentActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+
+        super.onCreate(savedInstanceState)
+
+        WindowCompat.setDecorFitsSystemWindows(window,false)
+
+        setContent {
+            StepWalkTheme {
+                StepWalkApp()
+            }
+        }
+    }
+
+    @OptIn(ExperimentalLayoutApi::class)
+    @Composable
+    private fun StepWalkApp() {
+        val navController = rememberNavController()
+        val router = remember(navController){ Router(navController) }
+
+        Surface(
+            modifier = Modifier.fillMaxSize(),
+            color = Color.Transparent
+        ) {
+            Scaffold(
+                modifier = Modifier.fillMaxSize(),
+                containerColor = MaterialTheme.colorScheme.background,
+                contentColor = MaterialTheme.colorScheme.onBackground,
+                bottomBar = {
+                    BottomNavigationGraph(
+                        router = router,
+                        modifier = Modifier
+                    )
+                }
+            ) { paddingValues ->
+                NavigationGraph(
+                    navController = navController,
+                    modifier = Modifier.fillMaxSize()
+                        .padding(paddingValues)
+                        .consumeWindowInsets(paddingValues)
+                        .windowInsetsPadding(
+                            WindowInsets.safeDrawing.only(
+                                WindowInsetsSides.Vertical
+                            )
+                        )
+                )
+            }
+        }
+    }
+}
