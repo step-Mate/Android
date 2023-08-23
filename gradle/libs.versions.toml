@@ -58,6 +58,7 @@ compose-foundation = { group = "androidx.compose.foundation", name = "foundation
 compose-ui = { group = "androidx.compose.ui", name = "ui" }
 compose-ui-preview = { group = "androidx.compose.ui", name = "ui-tooling-preview" }
 compose-ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling" }
+compose-ui-util = { group = "androidx.compose.ui", name = "ui-util" }
 compose-viewBinding = { group = "androidx.compose.ui", name = "ui-viewbinding" }
 
 # Room
@@ -116,7 +117,7 @@ billing-ktx = { group = "com.android.billingclient", name = "billing-ktx", versi
 
 [bundles]
 navigation = ["navigation-fragment", "navigation-ui", "navigation-compose"]
-compose = ["compose-material3", "compose-material", "compose-foundation", "compose-ui", "compose-ui-preview", "compose-viewBinding"]
+compose = ["compose-material3", "compose-material", "compose-foundation", "compose-ui", "compose-ui-preview", "compose-viewBinding", "compose-ui-util"]
 lifecycle = ["lifecycle-compose", "lifecycle-viewmodel-ktx", "lifecycle-runtime-ktx", "lifecycle-runtime-compose", "lifecycle-service"]
 coroutines = ["coroutines"]
 hilt = ["dagger-hilt-android"]

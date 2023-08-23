@@ -30,6 +30,29 @@ value class MiscellaneousToolColor private constructor(val color: Color){
         private val deepRed = MiscellaneousToolColor(Color(0xFF800006))
         @Stable
         val blue = MiscellaneousToolColor(Color(0xFF007AFF))
+        @Stable
+        val yellow_200 = MiscellaneousToolColor(Color(0xFFFFF59D))
+        @Stable
+        val yellow_300 = MiscellaneousToolColor(Color(0xFFFFF176))
+        @Stable
+        val yellow_400 = MiscellaneousToolColor(Color(0xFFFFEE58))
+        @Stable
+        val yellow_500 = MiscellaneousToolColor(Color(0xFFFFEB3B))
+        @Stable
+        val yellow_600 = MiscellaneousToolColor(Color(0xFFFDD835))
+        @Stable
+        val yellow_700 = MiscellaneousToolColor(Color(0xFFFBC02D))
+
+        @Stable
+        val orange_200 = MiscellaneousToolColor(Color(0xFFFFCC80))
+        @Stable
+        val orange_300 = MiscellaneousToolColor(Color(0xFFFFB74D))
+        @Stable
+        val orange_400 = MiscellaneousToolColor(Color(0xFFFFA726))
+        @Stable
+        val orange_500 = MiscellaneousToolColor(Color(0xFFFF9800))
+        @Stable
+        val orange_600 = MiscellaneousToolColor(Color(0xFFFB8C00))
 
         val light_primary = primary
         val light_onPrimary = white
@@ -43,6 +66,7 @@ value class MiscellaneousToolColor private constructor(val color: Color){
         val light_onBackground = lightBlack
         val light_surface = white
         val light_onSurface = lightBlack
+        val light_onSurfaceVariant = lightBlack
         val light_scrim = mediumGray
         val light_outline = mediumGray
 
@@ -58,6 +82,7 @@ value class MiscellaneousToolColor private constructor(val color: Color){
         val dark_onBackground = lightGray
         val dark_surface = lightBlack // 상단바 색상
         val dark_onSurface = lightGray
+        val dark_onSurfaceVariant = deepGray
         val dark_scrim = lightGray
         val dark_outline = lightGray
     }

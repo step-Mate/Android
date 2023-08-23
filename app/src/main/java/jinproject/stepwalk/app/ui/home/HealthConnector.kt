@@ -35,9 +35,8 @@ class HealthConnector(
 
     suspend fun readStepsByTimeRange(
         startTime: Instant,
-        endTime: Instant,
-        changeStep:(Long) -> Unit
-    ) {
+        endTime: Instant
+    ): Long? =
         kotlin.runCatching {
             var steps = 0L
             val response =
@@ -51,12 +50,12 @@ class HealthConnector(
                 for (stepRecord in response.records) {
                     steps += stepRecord.count
                 }
-                changeStep(steps)
             }
+            steps
         }.onFailure {
 
-        }
-    }
+        }.getOrNull()
+
 
     private fun getHealthClient(context: Context): HealthConnectClient? = run {
         val providerPackageName = "com.google.android.apps.healthdata"

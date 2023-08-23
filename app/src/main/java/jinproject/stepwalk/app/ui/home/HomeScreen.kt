@@ -1,29 +1,23 @@
 package jinproject.stepwalk.app.ui.home
 
 import android.content.Context
-import android.content.Intent
-import android.net.Uri
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.Stable
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.health.connect.client.HealthConnectClient
 import androidx.health.connect.client.permission.HealthPermission
 import androidx.health.connect.client.records.StepsRecord
-import androidx.health.connect.client.request.ReadRecordsRequest
-import androidx.health.connect.client.time.TimeRangeFilter
-import jinproject.stepwalk.app.ui.home.component.UserSteps
+import jinproject.stepwalk.app.ui.home.component.UserPager
+import jinproject.stepwalk.app.ui.home.state.HealthState
 import jinproject.stepwalk.design.theme.StepWalkTheme
 import java.time.Instant
-import java.time.ZoneOffset
 import java.time.temporal.ChronoUnit
-import javax.inject.Inject
 
 private val PERMISSIONS =
     setOf(
@@ -38,8 +32,8 @@ fun HomeScreen(
     val healthConnector = remember {
         HealthConnector(context)
     }
-    val steps = remember {
-        mutableStateOf(0L)
+    val steps = rememberSaveable {
+        mutableLongStateOf(0L)
     }
     val permissionLauncher = rememberLauncherForActivityResult(contract = ActivityResultContracts.RequestMultiplePermissions()) { result ->
         if(result.all { permission -> permission.value }) {
@@ -55,11 +49,10 @@ fun HomeScreen(
             if (granted.containsAll(PERMISSIONS)) {
                 Log.d("test","권한 있음")
                 healthConnector.insertSteps()
-                healthConnector.readStepsByTimeRange(
+                steps.longValue = healthConnector.readStepsByTimeRange(
                     startTime = Instant.now().minus(30,ChronoUnit.DAYS),
-                    endTime = Instant.now(),
-                    changeStep = {step -> steps.value = step}
-                )
+                    endTime = Instant.now()
+                ) ?: 0L
             } else {
                 Log.d("test","권한 없음")
                 permissionLauncher.launch((PERMISSIONS).toTypedArray())
@@ -68,13 +61,36 @@ fun HomeScreen(
     }
 
     HomeScreen(
-        steps = steps.value
+        steps = steps.longValue
     )
 }
 
 @Composable
 private fun HomeScreen(steps: Long) {
-    UserSteps(step = steps)
+    UserPager(
+        pages = listOf(
+            HealthState(
+                name = "걷기",
+                figure = 2000,
+                max = 5000
+            ),
+            HealthState(
+                name = "심박수",
+                figure = 100,
+                max = 200
+            ),
+            HealthState(
+                name = "물 섭취량",
+                figure = 2500,
+                max = 2000
+            ),
+            HealthState(
+                name = "산소포화도",
+                figure = 10,
+                max = 100
+            )
+        )
+    )
 }
 
 @Composable

@@ -23,6 +23,7 @@ import jinproject.stepwalk.design.theme.MiscellaneousToolColor.Companion.dark_on
 import jinproject.stepwalk.design.theme.MiscellaneousToolColor.Companion.dark_onPrimary
 import jinproject.stepwalk.design.theme.MiscellaneousToolColor.Companion.dark_onSecondary
 import jinproject.stepwalk.design.theme.MiscellaneousToolColor.Companion.dark_onSurface
+import jinproject.stepwalk.design.theme.MiscellaneousToolColor.Companion.dark_onSurfaceVariant
 import jinproject.stepwalk.design.theme.MiscellaneousToolColor.Companion.dark_outline
 import jinproject.stepwalk.design.theme.MiscellaneousToolColor.Companion.dark_primary
 import jinproject.stepwalk.design.theme.MiscellaneousToolColor.Companion.dark_scrim
@@ -35,6 +36,7 @@ import jinproject.stepwalk.design.theme.MiscellaneousToolColor.Companion.light_o
 import jinproject.stepwalk.design.theme.MiscellaneousToolColor.Companion.light_onPrimary
 import jinproject.stepwalk.design.theme.MiscellaneousToolColor.Companion.light_onSecondary
 import jinproject.stepwalk.design.theme.MiscellaneousToolColor.Companion.light_onSurface
+import jinproject.stepwalk.design.theme.MiscellaneousToolColor.Companion.light_onSurfaceVariant
 import jinproject.stepwalk.design.theme.MiscellaneousToolColor.Companion.light_outline
 import jinproject.stepwalk.design.theme.MiscellaneousToolColor.Companion.light_primary
 import jinproject.stepwalk.design.theme.MiscellaneousToolColor.Companion.light_scrim
@@ -51,6 +53,7 @@ private val DarkColorScheme = darkColorScheme(
     onBackground = dark_onBackground.color,
     surface = dark_surface.color,
     onSurface = dark_onSurface.color,
+    onSurfaceVariant = dark_onSurfaceVariant.color,
     error = dark_error.color,
     onError = dark_onError.color,
     scrim = dark_scrim.color,
@@ -67,6 +70,7 @@ private val LightColorScheme = lightColorScheme(
     onBackground = light_onBackground.color,
     surface = light_surface.color,
     onSurface = light_onSurface.color,
+    onSurfaceVariant = light_onSurfaceVariant.color,
     error = light_error.color,
     onError = light_onError.color,
     scrim = light_scrim.color,
@@ -77,7 +81,7 @@ private val LightColorScheme = lightColorScheme(
 fun StepWalkTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     // Dynamic color is available on Android 12+
-    dynamicColor: Boolean = true,
+    dynamicColor: Boolean = false,
     content: @Composable () -> Unit
 ) {
 

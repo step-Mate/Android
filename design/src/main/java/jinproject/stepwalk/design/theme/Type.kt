@@ -22,16 +22,34 @@ val Typography @Composable get() = Typography(
     headlineLarge = TextStyle(
         fontFamily = font,
         fontWeight = FontWeight.Bold,
+        fontSize = 30.tu,
+        lineHeight = 31.tu
+    ),
+    headlineMedium = TextStyle(
+        fontFamily = font,
+        fontWeight = FontWeight.Bold,
+        fontSize = 27.tu,
+        lineHeight = 29.tu
+    ),
+    headlineSmall = TextStyle(
+        fontFamily = font,
+        fontWeight = FontWeight.Bold,
+        fontSize = 25.tu,
+        lineHeight = 27.tu
+    ),
+    titleLarge = TextStyle(
+        fontFamily = font,
+        fontWeight = FontWeight.Bold,
         fontSize = 24.tu,
         lineHeight = 26.tu
     ),
-    headlineMedium = TextStyle(
+    titleMedium = TextStyle(
         fontFamily = font,
         fontWeight = FontWeight.Bold,
         fontSize = 21.tu,
         lineHeight = 23.tu
     ),
-    headlineSmall = TextStyle(
+    titleSmall = TextStyle(
         fontFamily = font,
         fontWeight = FontWeight.Bold,
         fontSize = 18.tu,
