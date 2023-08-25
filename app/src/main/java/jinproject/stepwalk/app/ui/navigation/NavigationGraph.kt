@@ -19,12 +19,14 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import jinproject.stepwalk.app.ui.home.HomeScreen
+import jinproject.stepwalk.app.ui.core.SnackBarMessage
 
 
 @Composable
 fun NavigationGraph(
     navController: NavHostController,
-    modifier: Modifier
+    modifier: Modifier = Modifier,
+    showSnackBar: (SnackBarMessage) -> Unit
 ) {
     NavHost(
         navController = navController,
@@ -41,7 +43,7 @@ fun NavigationGraph(
             Column(modifier = Modifier.fillMaxSize()) {
                 Image(
                     painter = painterResource(id = jinproject.stepwalk.design.R.drawable.ic_setting),
-                    contentDescription = null
+                    contentDescription = "settingIcon"
                 )
             }
         }

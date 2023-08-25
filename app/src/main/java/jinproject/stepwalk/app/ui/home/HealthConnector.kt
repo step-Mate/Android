@@ -3,11 +3,14 @@ package jinproject.stepwalk.app.ui.home
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.util.Log
 import androidx.compose.runtime.Stable
 import androidx.health.connect.client.HealthConnectClient
 import androidx.health.connect.client.records.StepsRecord
 import androidx.health.connect.client.request.ReadRecordsRequest
 import androidx.health.connect.client.time.TimeRangeFilter
+import jinproject.stepwalk.app.ui.home.state.Step
+import jinproject.stepwalk.domain.METs
 import java.time.Instant
 import java.time.ZoneOffset
 import java.time.temporal.ChronoUnit
@@ -18,12 +21,15 @@ class HealthConnector(
 ) {
     val healthConnectClient = getHealthClient(context)
 
-    suspend fun insertSteps() {
+    suspend fun insertSteps(
+        startTime: Instant,
+        endTime: Instant
+    ) {
         kotlin.runCatching {
             val stepsRecord = StepsRecord(
                 count = 120,
-                startTime = Instant.now().minus(1, ChronoUnit.HOURS),
-                endTime = Instant.now(),
+                startTime = startTime,
+                endTime = endTime,
                 startZoneOffset = ZoneOffset.of("+9"),
                 endZoneOffset = ZoneOffset.of("+9"),
             )
@@ -35,10 +41,13 @@ class HealthConnector(
 
     suspend fun readStepsByTimeRange(
         startTime: Instant,
-        endTime: Instant
-    ): Long? =
+        endTime: Instant,
+        type: METs
+    ): Step? =
         kotlin.runCatching {
             var steps = 0L
+            var minutes = 0
+
             val response =
                 healthConnectClient?.readRecords(
                     ReadRecordsRequest(
@@ -49,9 +58,19 @@ class HealthConnector(
             response?.let {
                 for (stepRecord in response.records) {
                     steps += stepRecord.count
+
+                    val seconds = stepRecord.endTime.epochSecond - stepRecord.startTime.epochSecond
+                    minutes += when(seconds < 60) {
+                        true ->  1
+                        false -> (seconds / 60).toInt()
+                    }
                 }
             }
-            steps
+            Step(
+                distance = steps,
+                minutes = minutes,
+                type = type
+            )
         }.onFailure {
 
         }.getOrNull()
@@ -59,7 +78,7 @@ class HealthConnector(
 
     private fun getHealthClient(context: Context): HealthConnectClient? = run {
         val providerPackageName = "com.google.android.apps.healthdata"
-        val availabilityStatus = HealthConnectClient.getSdkStatus(context, providerPackageName)
+        val availabilityStatus = HealthConnectClient.sdkStatus(context, providerPackageName)
         if (availabilityStatus == HealthConnectClient.SDK_UNAVAILABLE) {
             return null// early return as there is no viable integration
         }

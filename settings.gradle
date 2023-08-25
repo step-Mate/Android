@@ -15,3 +15,4 @@ dependencyResolutionManagement {
 rootProject.name = "Stepwalk"
 include ':app'
 include ':design'
+include ':domain'

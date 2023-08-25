@@ -57,8 +57,8 @@ value class MiscellaneousToolColor private constructor(val color: Color){
         val light_primary = primary
         val light_onPrimary = white
         @Stable
-        val light_secondary = MiscellaneousToolColor(Color(0xFF91E4E1))
-        val light_onSecondary = mediumGray
+        val light_secondary = lightGray
+        val light_onSecondary = lightBlack
         val light_error = red
         @Stable
         val light_onError = MiscellaneousToolColor(Color(0xFF410001))
@@ -73,7 +73,7 @@ value class MiscellaneousToolColor private constructor(val color: Color){
         val dark_primary = deep_primary
         val dark_onPrimary = lightGray
         @Stable
-        val dark_secondary = MiscellaneousToolColor(Color(0xFFD599E3))
+        val dark_secondary = deepGray
         val dark_onSecondary = lightGray
         @Stable
         val dark_error = MiscellaneousToolColor(Color(0xFFFFB4A9))

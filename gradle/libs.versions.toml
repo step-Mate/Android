@@ -24,8 +24,7 @@ mockk = "1.13.5"
 gms-service-ads = "22.1.0"
 glide = "4.15.1"
 billing-version = "6.0.1"
-health-client = "1.0.0-alpha03"
-health-connect = "1.1.0-alpha02"
+health-connect = "1.0.0-alpha11"
 
 # plugin
 androidStudioGradlePlugin = "7.4.2"
@@ -74,7 +73,6 @@ lifecycle-runtime-compose = { group = "androidx.lifecycle", name = "lifecycle-ru
 lifecycle-service = { group = "androidx.lifecycle", name = "lifecycle-service", version.ref = "lifecycle" }
 
 # Health Client
-health-client = { group = "androidx.health", name = "health-connect-client", version.ref = "health-client" }
 health-connect = { group = "androidx.health.connect", name = "connect-client", version.ref = "health-connect" }
 
 # Kotlin

@@ -4,7 +4,7 @@ import androidx.compose.runtime.Stable
 
 @Stable
 data class HealthState(
-    val name: String,
+    val type: Page,
     val figure: Int,
     val max: Int
 )

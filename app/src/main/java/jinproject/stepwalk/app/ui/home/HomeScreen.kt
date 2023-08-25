@@ -3,19 +3,28 @@ package jinproject.stepwalk.app.ui.home
 import android.content.Context
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.mutableLongStateOf
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import androidx.health.connect.client.PermissionController
 import androidx.health.connect.client.permission.HealthPermission
 import androidx.health.connect.client.records.StepsRecord
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import jinproject.stepwalk.app.ui.home.component.HomeTopAppBar
 import jinproject.stepwalk.app.ui.home.component.UserPager
 import jinproject.stepwalk.app.ui.home.state.HealthState
+import jinproject.stepwalk.app.ui.home.state.Page
+import jinproject.stepwalk.app.ui.home.state.Step
+import jinproject.stepwalk.design.component.DefaultLayout
 import jinproject.stepwalk.design.theme.StepWalkTheme
+import jinproject.stepwalk.domain.METs
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 
@@ -27,76 +36,78 @@ private val PERMISSIONS =
 
 @Composable
 fun HomeScreen(
-    context: Context = LocalContext.current
+    context: Context = LocalContext.current,
+    homeViewModel: HomeViewModel = hiltViewModel()
 ) {
     val healthConnector = remember {
         HealthConnector(context)
     }
-    val steps = rememberSaveable {
-        mutableLongStateOf(0L)
-    }
-    val permissionLauncher = rememberLauncherForActivityResult(contract = ActivityResultContracts.RequestMultiplePermissions()) { result ->
-        if(result.all { permission -> permission.value }) {
-            Log.d("test","권한 수락")
-        } else {
-            Log.d("test","권한 거부")
-        }
-    }
 
-    LaunchedEffect(key1 = healthConnector) {
+    val permissionLauncher =
+        rememberLauncherForActivityResult(contract = PermissionController.createRequestPermissionResultContract()) { result ->
+            if (PERMISSIONS.containsAll(result)) {
+                Log.d("test", "권한 수락")
+            } else {
+                Log.d("test", "권한 거부")
+            }
+        }
+
+    val uiState by homeViewModel.uiState.collectAsStateWithLifecycle()
+
+    LaunchedEffect(Unit) {
         healthConnector.healthConnectClient?.let { client ->
             val granted = client.permissionController.getGrantedPermissions()
             if (granted.containsAll(PERMISSIONS)) {
-                Log.d("test","권한 있음")
-                healthConnector.insertSteps()
-                steps.longValue = healthConnector.readStepsByTimeRange(
-                    startTime = Instant.now().minus(30,ChronoUnit.DAYS),
+                Log.d("test", "권한 있음")
+                /*healthConnector.insertSteps(
+                    startTime = Instant.now().minus(1, ChronoUnit.HOURS),
                     endTime = Instant.now()
-                ) ?: 0L
+                )*/
+                homeViewModel::setStep.invoke(
+                    healthConnector.readStepsByTimeRange(
+                        startTime = Instant.now().minus(30, ChronoUnit.DAYS),
+                        endTime = Instant.now(),
+                        type = METs.Walk
+                    ) ?: Step.getInitValues()
+                )
             } else {
-                Log.d("test","권한 없음")
-                permissionLauncher.launch((PERMISSIONS).toTypedArray())
+                Log.d("test", "권한 없음")
+                permissionLauncher.launch(PERMISSIONS)
             }
         }
     }
 
     HomeScreen(
-        steps = steps.longValue
+        uiState = uiState
     )
 }
 
 @Composable
-private fun HomeScreen(steps: Long) {
-    UserPager(
-        pages = listOf(
-            HealthState(
-                name = "걷기",
-                figure = 2000,
-                max = 5000
-            ),
-            HealthState(
-                name = "심박수",
-                figure = 100,
-                max = 200
-            ),
-            HealthState(
-                name = "물 섭취량",
-                figure = 2500,
-                max = 2000
-            ),
-            HealthState(
-                name = "산소포화도",
-                figure = 10,
-                max = 100
+private fun HomeScreen(
+    uiState: HomeUiState
+) {
+    DefaultLayout(
+        modifier = Modifier,
+        contentPaddingValues = PaddingValues(horizontal = 8.dp, vertical = 10.dp),
+        topBar = {
+            HomeTopAppBar(
+                modifier = Modifier,
+                onBackClick = { },
+                onClickIcon1 = {},
+                onClickIcon2 = {}
             )
+        },
+    ) {
+        UserPager(
+            uiState = uiState
         )
-    )
+    }
 }
 
 @Composable
 @Preview
 private fun PreviewHomeScreen() = StepWalkTheme {
     HomeScreen(
-        steps = 100L
+        uiState = HomeUiState.getInitValues()
     )
 }
