@@ -1,6 +1,6 @@
-package jinproject.stepwalk.app.ui.home.utils
+package jinproject.stepwalk.home.utils
 
-import jinproject.stepwalk.app.ui.home.state.AchievementDegree
+import jinproject.stepwalk.home.state.AchievementDegree
 
 fun Float.toAchievementDegree() = when (this) {
     in 0.75f..Float.MAX_VALUE -> AchievementDegree.Perfect

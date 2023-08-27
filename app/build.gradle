@@ -4,8 +4,8 @@ plugins {
     alias(libs.plugins.hilt)
     //alias(libs.plugins.gms.google.service)
     //alias(libs.plugins.kotlin.ksp)
-    id 'kotlin-kapt'
-    id 'kotlin-parcelize'
+    alias(libs.plugins.kotlin.kapt)
+    alias(libs.plugins.kotlin.parcelize)
 }
 
 android {
@@ -55,6 +55,7 @@ dependencies {
 
     implementation project(":design")
     implementation project(":domain")
+    implementation project(":feature:home")
 
     implementation(libs.core.ktx)
     implementation(libs.appcompat)

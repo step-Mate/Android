@@ -1,4 +1,4 @@
-package jinproject.stepwalk.app.ui.home
+package jinproject.stepwalk.home
 
 import android.content.Context
 import android.util.Log
@@ -17,11 +17,9 @@ import androidx.health.connect.client.permission.HealthPermission
 import androidx.health.connect.client.records.StepsRecord
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import jinproject.stepwalk.app.ui.home.component.HomeTopAppBar
-import jinproject.stepwalk.app.ui.home.component.UserPager
-import jinproject.stepwalk.app.ui.home.state.HealthState
-import jinproject.stepwalk.app.ui.home.state.Page
-import jinproject.stepwalk.app.ui.home.state.Step
+import jinproject.stepwalk.home.component.HomeTopAppBar
+import jinproject.stepwalk.home.component.UserPager
+import jinproject.stepwalk.home.state.Step
 import jinproject.stepwalk.design.component.DefaultLayout
 import jinproject.stepwalk.design.theme.StepWalkTheme
 import jinproject.stepwalk.domain.METs
@@ -101,6 +99,8 @@ private fun HomeScreen(
         UserPager(
             uiState = uiState
         )
+
+
     }
 }
 

@@ -1,4 +1,4 @@
-package jinproject.stepwalk.app.ui.home.state
+package jinproject.stepwalk.home.state
 
 import androidx.compose.runtime.Stable
 import jinproject.stepwalk.design.theme.MiscellaneousToolColor

@@ -18,8 +18,8 @@ import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import jinproject.stepwalk.app.ui.home.HomeScreen
 import jinproject.stepwalk.app.ui.core.SnackBarMessage
+import jinproject.stepwalk.home.navigation.homeScreen
 
 
 @Composable
@@ -33,11 +33,7 @@ fun NavigationGraph(
         startDestination = BottomNavigationDestination.HOME.route,
         modifier = modifier
     ) {
-        composable(route = BottomNavigationDestination.HOME.route) {
-            HomeScreen(
-
-            )
-        }
+        homeScreen()
 
         composable(route = BottomNavigationDestination.SETTING.route) {
             Column(modifier = Modifier.fillMaxSize()) {

@@ -1,8 +1,8 @@
-package jinproject.stepwalk.app.ui.home.state
+package jinproject.stepwalk.home.state
 
 import androidx.compose.runtime.Stable
-import jinproject.stepwalk.app.ui.home.HealthMenu
-import jinproject.stepwalk.app.ui.home.MenuDetail
+import jinproject.stepwalk.home.HealthMenu
+import jinproject.stepwalk.home.MenuDetail
 import jinproject.stepwalk.design.R
 import jinproject.stepwalk.domain.METs
 

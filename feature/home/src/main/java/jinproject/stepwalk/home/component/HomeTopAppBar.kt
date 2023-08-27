@@ -1,4 +1,4 @@
-package jinproject.stepwalk.app.ui.home.component
+package jinproject.stepwalk.home.component
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.interaction.MutableInteractionSource

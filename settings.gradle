@@ -16,3 +16,5 @@ rootProject.name = "Stepwalk"
 include ':app'
 include ':design'
 include ':domain'
+include ':feature'
+include ':feature:home'

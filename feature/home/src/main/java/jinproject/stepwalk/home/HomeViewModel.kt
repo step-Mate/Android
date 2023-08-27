@@ -1,16 +1,13 @@
-package jinproject.stepwalk.app.ui.home
+package jinproject.stepwalk.home
 
 import androidx.annotation.DrawableRes
 import androidx.compose.runtime.Stable
 import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
-import jinproject.stepwalk.app.R
-import jinproject.stepwalk.app.ui.home.state.Step
-import jinproject.stepwalk.domain.METs
+import jinproject.stepwalk.home.state.Step
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
-import java.lang.IllegalStateException
 import javax.inject.Inject
 
 @Stable

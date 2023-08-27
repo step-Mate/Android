@@ -1,19 +1,17 @@
-package jinproject.stepwalk.app.ui.home
+package jinproject.stepwalk.home
 
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
-import android.util.Log
 import androidx.compose.runtime.Stable
 import androidx.health.connect.client.HealthConnectClient
 import androidx.health.connect.client.records.StepsRecord
 import androidx.health.connect.client.request.ReadRecordsRequest
 import androidx.health.connect.client.time.TimeRangeFilter
-import jinproject.stepwalk.app.ui.home.state.Step
+import jinproject.stepwalk.home.state.Step
 import jinproject.stepwalk.domain.METs
 import java.time.Instant
 import java.time.ZoneOffset
-import java.time.temporal.ChronoUnit
 
 @Stable
 class HealthConnector(

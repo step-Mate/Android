@@ -8,7 +8,7 @@ import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavOptions
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.navOptions
-import jinproject.stepwalk.app.ui.home.navigation.navigateToHome
+import jinproject.stepwalk.home.navigation.navigateToHome
 
 @Stable
 class Router(private val navController: NavController) {
