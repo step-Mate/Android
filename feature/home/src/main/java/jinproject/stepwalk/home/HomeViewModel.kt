@@ -4,6 +4,7 @@ import androidx.annotation.DrawableRes
 import androidx.compose.runtime.Stable
 import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
+import jinproject.stepwalk.domain.METs
 import jinproject.stepwalk.home.state.Step
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -12,13 +13,20 @@ import javax.inject.Inject
 
 @Stable
 data class HomeUiState(
-    val steps: Step,
+    val steps: List<Step>,
     val user: User
 
 ) {
     companion object {
         fun getInitValues() = HomeUiState(
-            steps = Step.getInitValues(),
+            steps = listOf(
+                Step(
+                    distance = 0,
+                    start = 0,
+                    end = 0,
+                    type = METs.Walk
+                )
+            ),
             user = User.getInitValues()
         )
     }
@@ -62,7 +70,7 @@ class HomeViewModel @Inject constructor() : ViewModel() {
         MutableStateFlow(HomeUiState.getInitValues())
     val uiState get() = _uiState.asStateFlow()
 
-    fun setStep(step: Step) = _uiState.update { state ->
-        state.copy(steps = step)
+    fun setSteps(steps: List<Step>) = _uiState.update { state ->
+        state.copy(steps = steps)
     }
 }

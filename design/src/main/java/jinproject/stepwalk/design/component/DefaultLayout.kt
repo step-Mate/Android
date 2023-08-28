@@ -25,7 +25,7 @@ fun DefaultLayout(
     ) {
         topBar()
         VerticalSpacer(height = 8.dp)
-        Column(modifier = Modifier.padding(contentPaddingValues)) {
+        Column(modifier = Modifier.fillMaxSize().padding(contentPaddingValues)) {
             content()
         }
     }

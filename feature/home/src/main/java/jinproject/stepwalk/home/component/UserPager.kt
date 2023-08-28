@@ -3,20 +3,25 @@ package jinproject.stepwalk.home.component
 import android.content.res.Configuration
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.LayoutScopeMarker
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PageSize
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
@@ -33,29 +38,35 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.ParentDataModifier
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.lerp
-import jinproject.stepwalk.home.HomeUiState
-import jinproject.stepwalk.home.MenuDetail
-import jinproject.stepwalk.home.User
-import jinproject.stepwalk.home.state.HealthState
-import jinproject.stepwalk.home.state.Page
-import jinproject.stepwalk.home.state.Step
-import jinproject.stepwalk.home.utils.toAchievementDegree
 import jinproject.stepwalk.design.PreviewStepWalkTheme
 import jinproject.stepwalk.design.component.HorizontalSpacer
 import jinproject.stepwalk.design.component.VerticalSpacer
+import jinproject.stepwalk.design.theme.StepWalkColor
 import jinproject.stepwalk.domain.METs
+import jinproject.stepwalk.home.HomeUiState
+import jinproject.stepwalk.home.MenuDetail
+import jinproject.stepwalk.home.User
+import jinproject.stepwalk.home.component.GraphScope.setGraphParentData
+import jinproject.stepwalk.home.state.HealthState
+import jinproject.stepwalk.home.state.Page
+import jinproject.stepwalk.home.state.Step
+import jinproject.stepwalk.home.state.getMenuDetails
+import jinproject.stepwalk.home.state.toGraphItems
+import jinproject.stepwalk.home.utils.toAchievementDegree
 import java.text.DecimalFormat
-import java.time.LocalDateTime
-import java.time.temporal.ChronoUnit
 import kotlin.math.absoluteValue
 import kotlin.math.roundToInt
 
@@ -67,7 +78,10 @@ internal fun UserPager(
     val pages = mutableListOf(
         HealthState(
             type = Page.Step,
-            figure = uiState.steps.distance.toInt(),
+            figure = uiState.steps
+                .map { it.distance }
+                .reduce { acc, step -> acc + step }
+                .toInt(),
             max = 5000
         ),
         HealthState(
@@ -96,8 +110,7 @@ internal fun UserPager(
 
         when (pages[pagerState.currentPage % pages.size].type) {
             Page.Step -> {
-                uiState.steps.setMenuDetails(55f)
-                MenuDetails(details = uiState.steps.details)
+                MenuDetails(details = uiState.steps.getMenuDetails(55f))
             }
 
             Page.HeartRate -> {
@@ -110,9 +123,13 @@ internal fun UserPager(
         }
 
         VerticalSpacer(height = 20.dp)
+
+        val scrollState = rememberScrollState()
         MenuDetailGraph(
             itemsCount = 24,
-            modifier = Modifier,
+            modifier = Modifier
+                .horizontalScroll(scrollState)
+                .wrapContentSize(),
             horizontalAxis = {
                 StepGraphTail()
             },
@@ -120,21 +137,64 @@ internal fun UserPager(
                 StepGraphHeader()
             },
             bar = { index ->
+                val item = uiState.steps.toGraphItems()
 
-
+                StepBar(
+                    step = item[index] ?: 0,
+                    modifier = Modifier.setGraphParentData(value = item[index] ?: 0, maxValue = item.values.max())
+                )
             }
         )
     }
 }
 
 @Composable
+private fun StepBar(
+    step: Long,
+    modifier: Modifier = Modifier,
+) {
+    Spacer(
+        modifier = modifier
+            .drawBehind {
+                /*
+                drawLine(
+                    color = StepWalkColor.blue.color,
+                    start = Offset(0f, 0f),
+                    end = Offset(0f, -(step.stepToGraphSize())),
+                    strokeWidth = 10f,
+                    cap = StrokeCap.Round
+                )
+                 */
+                val brush = Brush.verticalGradient(
+                    colors = listOf(
+                        StepWalkColor.blue_300.color,
+                        StepWalkColor.blue_400.color,
+                        StepWalkColor.blue_500.color,
+                        StepWalkColor.blue_600.color,
+                        StepWalkColor.blue_700.color,
+                        StepWalkColor.blue_800.color,
+                        StepWalkColor.blue_900.color
+                    )
+                )
+                drawRoundRect(
+                    brush = brush,
+                    cornerRadius = CornerRadius(10f, 10f)
+                )
+            }
+            .width(16.dp)
+    )
+}
+
+@Composable
 private fun StepGraphTail() {
-    Row {
+    Row(modifier = Modifier.height(24.dp)) {
         (0..23).forEach { hour ->
             Text(
                 text = hour.toString(),
+                textAlign = TextAlign.Center,
                 style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onBackground
+                color = MaterialTheme.colorScheme.onBackground,
+                modifier = Modifier.width(24.dp)
             )
         }
     }
@@ -143,7 +203,7 @@ private fun StepGraphTail() {
 @Composable
 private fun StepGraphHeader() {
     Column {
-
+        Text(text = "걸음 수")
     }
 }
 
@@ -275,7 +335,7 @@ fun MenuDetailGraph(
     modifier: Modifier = Modifier,
     horizontalAxis: @Composable () -> Unit,
     verticalAxis: @Composable () -> Unit,
-    bar: @Composable (Int) -> Unit,
+    bar: @Composable (Int) -> Unit
 ) {
     val bars = @Composable { repeat(itemsCount) { bar(it) } }
 
@@ -291,16 +351,16 @@ fun MenuDetailGraph(
         val horizontalPlacable = horizontalMeasurables.first().measure(constraints)
         val verticalPlacable = verticalMeasurables.first().measure(constraints)
 
-        val totalWidth = horizontalPlacable.width
+        val totalWidth = horizontalPlacable.width + verticalPlacable.width
 
         val barPlacable = barMeasurables.map { barMeasurable ->
             val barParentData = barMeasurable.parentData as GraphParentData
-            val barHeight = (barParentData.value * 10).roundToInt()
+            val barHeight = (barParentData.value).roundToInt()
 
             val barPlacable = barMeasurable.measure(
                 constraints.copy(
                     minHeight = barHeight,
-                    maxHeight = barHeight
+                    maxHeight = barHeight,
                 )
             )
 
@@ -311,14 +371,15 @@ fun MenuDetailGraph(
 
         layout(totalWidth, totalHeight) {
             var xPos = verticalPlacable.width
-            val yPos = horizontalPlacable.height
+            val yPos = verticalPlacable.height
 
-            verticalPlacable.place(0, yPos)
-            horizontalPlacable.place(xPos, 0)
+            verticalPlacable.place(0, totalHeight - (yPos * 2))
+            horizontalPlacable.place(xPos, totalHeight - yPos)
 
             barPlacable.forEach { placeable ->
-                placeable.place(xPos, yPos)
-                xPos += placeable.width
+                val barOffset = xPos + 4.dp.roundToPx()
+                placeable.place(barOffset, totalHeight - yPos - placeable.height)
+                xPos += placeable.width + 8.dp.roundToPx()
             }
         }
     }
@@ -329,15 +390,16 @@ fun MenuDetailGraph(
 object GraphScope {
     @Stable
     fun Modifier.setGraphParentData(
-        value: Float
+        value: Long,
+        maxValue: Long
     ): Modifier {
         return then(
-            GraphParentData(
-                value = value
-            )
+            GraphParentData(value.stepToGraphSize(maxValue))
         )
     }
 }
+
+fun Long.stepToGraphSize(max: Long) = if (this >= max) 300f else this / (max / 300f)
 
 class GraphParentData(
     val value: Float
@@ -353,10 +415,25 @@ class GraphParentData(
 fun PreviewUserSteps() = PreviewStepWalkTheme {
     UserPager(
         uiState = HomeUiState(
-            steps = Step(
-                distance = 2000,
-                minutes = 120,
-                type = METs.Walk
+            steps = listOf(
+                Step(
+                    distance = 2000,
+                    start = 120,
+                    end = 160,
+                    type = METs.Walk
+                ),
+                Step(
+                    distance = 500,
+                    start = 120,
+                    end = 160,
+                    type = METs.Walk
+                ),
+                Step(
+                    distance = 800,
+                    start = 120,
+                    end = 160,
+                    type = METs.Walk
+                )
             ),
             user = User.getInitValues()
         )

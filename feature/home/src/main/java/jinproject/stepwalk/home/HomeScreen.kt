@@ -24,6 +24,10 @@ import jinproject.stepwalk.design.component.DefaultLayout
 import jinproject.stepwalk.design.theme.StepWalkTheme
 import jinproject.stepwalk.domain.METs
 import java.time.Instant
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.LocalTime
+import java.time.temporal.ChronoField
 import java.time.temporal.ChronoUnit
 
 private val PERMISSIONS =
@@ -57,17 +61,21 @@ fun HomeScreen(
             val granted = client.permissionController.getGrantedPermissions()
             if (granted.containsAll(PERMISSIONS)) {
                 Log.d("test", "권한 있음")
-                /*healthConnector.insertSteps(
-                    startTime = Instant.now().minus(1, ChronoUnit.HOURS),
-                    endTime = Instant.now()
-                )*/
-                homeViewModel::setStep.invoke(
+                /*repeat(24) { count ->
+                    healthConnector.insertSteps(
+                        step = count * 100L,
+                        startTime = Instant.now().minus(count.toLong(), ChronoUnit.HOURS),
+                        endTime = Instant.now().minus(count.toLong(), ChronoUnit.HOURS).plus(30, ChronoUnit.MINUTES)
+                    )
+                }*/
+                homeViewModel::setSteps.invoke(
                     healthConnector.readStepsByTimeRange(
-                        startTime = Instant.now().minus(30, ChronoUnit.DAYS),
+                        startTime = Instant.now().truncatedTo(ChronoUnit.DAYS),
                         endTime = Instant.now(),
                         type = METs.Walk
-                    ) ?: Step.getInitValues()
+                    ) ?: emptyList()
                 )
+
             } else {
                 Log.d("test", "권한 없음")
                 permissionLauncher.launch(PERMISSIONS)
@@ -99,8 +107,6 @@ private fun HomeScreen(
         UserPager(
             uiState = uiState
         )
-
-
     }
 }
 

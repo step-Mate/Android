@@ -3,13 +3,14 @@ package jinproject.stepwalk.home
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.util.Log
 import androidx.compose.runtime.Stable
 import androidx.health.connect.client.HealthConnectClient
 import androidx.health.connect.client.records.StepsRecord
 import androidx.health.connect.client.request.ReadRecordsRequest
 import androidx.health.connect.client.time.TimeRangeFilter
-import jinproject.stepwalk.home.state.Step
 import jinproject.stepwalk.domain.METs
+import jinproject.stepwalk.home.state.Step
 import java.time.Instant
 import java.time.ZoneOffset
 
@@ -20,12 +21,13 @@ class HealthConnector(
     val healthConnectClient = getHealthClient(context)
 
     suspend fun insertSteps(
+        step: Long,
         startTime: Instant,
         endTime: Instant
     ) {
         kotlin.runCatching {
             val stepsRecord = StepsRecord(
-                count = 120,
+                count = step,
                 startTime = startTime,
                 endTime = endTime,
                 startZoneOffset = ZoneOffset.of("+9"),
@@ -41,11 +43,8 @@ class HealthConnector(
         startTime: Instant,
         endTime: Instant,
         type: METs
-    ): Step? =
+    ): List<Step>? =
         kotlin.runCatching {
-            var steps = 0L
-            var minutes = 0
-
             val response =
                 healthConnectClient?.readRecords(
                     ReadRecordsRequest(
@@ -53,26 +52,20 @@ class HealthConnector(
                         timeRangeFilter = TimeRangeFilter.between(startTime, endTime)
                     )
                 )
-            response?.let {
-                for (stepRecord in response.records) {
-                    steps += stepRecord.count
 
-                    val seconds = stepRecord.endTime.epochSecond - stepRecord.startTime.epochSecond
-                    minutes += when(seconds < 60) {
-                        true ->  1
-                        false -> (seconds / 60).toInt()
-                    }
+            response?.let {
+                response.records.map { record ->
+                    Step(
+                        distance = record.count,
+                        start = (record.startTime.epochSecond / 60).toInt(),
+                        end = (record.endTime.epochSecond / 60).toInt(),
+                        type = type
+                    )
                 }
             }
-            Step(
-                distance = steps,
-                minutes = minutes,
-                type = type
-            )
-        }.onFailure {
+        }.onFailure { e ->
 
         }.getOrNull()
-
 
     private fun getHealthClient(context: Context): HealthConnectClient? = run {
         val providerPackageName = "com.google.android.apps.healthdata"
