@@ -27,6 +27,7 @@ import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
+import java.time.ZoneId
 import java.time.temporal.ChronoField
 import java.time.temporal.ChronoUnit
 
@@ -37,7 +38,7 @@ private val PERMISSIONS =
     )
 
 @Composable
-fun HomeScreen(
+internal fun HomeScreen(
     context: Context = LocalContext.current,
     homeViewModel: HomeViewModel = hiltViewModel()
 ) {
@@ -68,10 +69,12 @@ fun HomeScreen(
                         endTime = Instant.now().minus(count.toLong(), ChronoUnit.HOURS).plus(30, ChronoUnit.MINUTES)
                     )
                 }*/
+                val instant = Instant.now().atZone(ZoneId.of("Asia/Seoul"))
+
                 homeViewModel::setSteps.invoke(
                     healthConnector.readStepsByTimeRange(
-                        startTime = Instant.now().truncatedTo(ChronoUnit.DAYS),
-                        endTime = Instant.now(),
+                        startTime = instant.truncatedTo(ChronoUnit.DAYS).toInstant(),
+                        endTime = instant.toInstant(),
                         type = METs.Walk
                     ) ?: emptyList()
                 )

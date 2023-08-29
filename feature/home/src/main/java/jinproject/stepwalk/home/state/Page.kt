@@ -3,7 +3,13 @@ package jinproject.stepwalk.home.state
 import androidx.compose.runtime.Stable
 
 @Stable
-enum class Page {
+internal data class PageState(
+    val menu: HealthMenu,
+    val title: String
+)
+
+@Stable
+internal enum class Page {
     Step,
     HeartRate,
     DrinkWater;

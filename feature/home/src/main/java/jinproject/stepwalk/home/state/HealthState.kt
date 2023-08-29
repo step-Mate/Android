@@ -3,8 +3,8 @@ package jinproject.stepwalk.home.state
 import androidx.compose.runtime.Stable
 
 @Stable
-data class HealthState(
-    val type: Page,
+internal data class HealthState(
+    val type: PageState,
     val figure: Int,
     val max: Int
 )

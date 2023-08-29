@@ -7,7 +7,6 @@ import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.LayoutScopeMarker
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -32,8 +31,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.Immutable
-import androidx.compose.runtime.Stable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
@@ -42,13 +39,10 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.layout.Layout
-import androidx.compose.ui.layout.ParentDataModifier
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.lerp
 import jinproject.stepwalk.design.PreviewStepWalkTheme
@@ -57,50 +51,51 @@ import jinproject.stepwalk.design.component.VerticalSpacer
 import jinproject.stepwalk.design.theme.StepWalkColor
 import jinproject.stepwalk.domain.METs
 import jinproject.stepwalk.home.HomeUiState
-import jinproject.stepwalk.home.MenuDetail
 import jinproject.stepwalk.home.User
 import jinproject.stepwalk.home.component.GraphScope.setGraphParentData
+import jinproject.stepwalk.home.state.HealthMenu
 import jinproject.stepwalk.home.state.HealthState
-import jinproject.stepwalk.home.state.Page
+import jinproject.stepwalk.home.state.MenuDetail
 import jinproject.stepwalk.home.state.Step
-import jinproject.stepwalk.home.state.getMenuDetails
-import jinproject.stepwalk.home.state.toGraphItems
-import jinproject.stepwalk.home.utils.toAchievementDegree
+import jinproject.stepwalk.home.state.StepMenu
+import jinproject.stepwalk.home.state.toAchievementDegree
 import java.text.DecimalFormat
+import java.util.SortedMap
 import kotlin.math.absoluteValue
-import kotlin.math.roundToInt
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 internal fun UserPager(
-    uiState: HomeUiState
+    uiState: HomeUiState,
+    modifier: Modifier = Modifier
 ) {
-    val pages = mutableListOf(
-        HealthState(
-            type = Page.Step,
-            figure = uiState.steps
-                .map { it.distance }
-                .reduce { acc, step -> acc + step }
-                .toInt(),
-            max = 5000
-        ),
-        HealthState(
-            type = Page.HeartRate,
-            figure = 100,
-            max = 200
-        ),
-        HealthState(
-            type = Page.DrinkWater,
-            figure = 2500,
-            max = 2000
-        ),
-    )
+    val pages = uiState.toHealthStateList()
 
     val pagerState = rememberPagerState(initialPage = Int.MAX_VALUE / 2) {
         Integer.MAX_VALUE
     }
 
-    Column {
+    PageMenu(
+        pages = pages,
+        pagerState = pagerState,
+        modifier = modifier
+    )
+
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+private fun PageMenu(
+    modifier: Modifier = Modifier,
+    pages: List<HealthState>,
+    pagerState: PagerState
+) {
+    val currentPage = pages[pagerState.currentPage % pages.size].type
+    val menu = currentPage.menu
+
+    Column(
+        modifier = modifier
+    ) {
         MenuPager(
             pages = pages,
             pagerState = pagerState
@@ -108,40 +103,30 @@ internal fun UserPager(
 
         VerticalSpacer(height = 20.dp)
 
-        when (pages[pagerState.currentPage % pages.size].type) {
-            Page.Step -> {
-                MenuDetails(details = uiState.steps.getMenuDetails(55f))
-            }
+        MenuDetails(
+            details = menu.details
+        )
 
-            Page.HeartRate -> {
+        VerticalSpacer(height = 40.dp)
 
-            }
-
-            Page.DrinkWater -> {
-
-            }
-        }
-
-        VerticalSpacer(height = 20.dp)
-
-        val scrollState = rememberScrollState()
-        MenuDetailGraph(
-            itemsCount = 24,
+        PagerGraph(
+            itemsCount = currentPage.menu.graphItems.keys.size,
             modifier = Modifier
-                .horizontalScroll(scrollState)
+                .horizontalScroll(rememberScrollState())
                 .wrapContentSize(),
             horizontalAxis = {
-                StepGraphTail()
+                StepGraphTail(
+                    items = currentPage.menu.graphItems.keys.toList()
+                )
             },
             verticalAxis = {
-                StepGraphHeader()
+                StepGraphHeader(currentPage.title)
             },
             bar = { index ->
-                val item = uiState.steps.toGraphItems()
-
                 StepBar(
-                    step = item[index] ?: 0,
-                    modifier = Modifier.setGraphParentData(value = item[index] ?: 0, maxValue = item.values.max())
+                    item = menu.graphItems,
+                    index = index,
+                    modifier = Modifier
                 )
             }
         )
@@ -150,11 +135,16 @@ internal fun UserPager(
 
 @Composable
 private fun StepBar(
-    step: Long,
+    item: SortedMap<Int, Long>,
+    index: Int,
     modifier: Modifier = Modifier,
 ) {
     Spacer(
         modifier = modifier
+            .setGraphParentData(
+                value = item[index] ?: 0,
+                maxValue = item.values.max()
+            )
             .drawBehind {
                 /*
                 drawLine(
@@ -186,11 +176,13 @@ private fun StepBar(
 }
 
 @Composable
-private fun StepGraphTail() {
+private fun StepGraphTail(
+    items: List<Int>
+) {
     Row(modifier = Modifier.height(24.dp)) {
-        (0..23).forEach { hour ->
+        items.forEach { item ->
             Text(
-                text = hour.toString(),
+                text = item.toString(),
                 textAlign = TextAlign.Center,
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onBackground,
@@ -201,9 +193,15 @@ private fun StepGraphTail() {
 }
 
 @Composable
-private fun StepGraphHeader() {
+private fun StepGraphHeader(
+    title: String
+) {
     Column {
-        Text(text = "걸음 수")
+        Text(
+            text = title,
+            style = MaterialTheme.typography.titleMedium,
+            color = MaterialTheme.colorScheme.onBackground
+        )
     }
 }
 
@@ -262,7 +260,7 @@ private fun MenuPager(
                     modifier = Modifier
                         .fillMaxSize()
                         .wrapContentSize(),
-                    horizontalAlignment = Alignment.CenterHorizontally
+                    horizontalAlignment = CenterHorizontally
                 ) {
                     Text(
                         text = DecimalFormat("#,###").format(currentPage.figure),
@@ -271,7 +269,7 @@ private fun MenuPager(
                     )
                     VerticalSpacer(height = 4.dp)
                     Text(
-                        text = currentPage.type.display(),
+                        text = currentPage.type.title,
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -330,109 +328,30 @@ private fun MenuDetails(
 }
 
 @Composable
-fun MenuDetailGraph(
-    itemsCount: Int,
-    modifier: Modifier = Modifier,
-    horizontalAxis: @Composable () -> Unit,
-    verticalAxis: @Composable () -> Unit,
-    bar: @Composable (Int) -> Unit
-) {
-    val bars = @Composable { repeat(itemsCount) { bar(it) } }
-
-    Layout(
-        contents = listOf(horizontalAxis, verticalAxis, bars),
-        modifier = modifier
-    ) { (horizontalMeasurables, verticalMeasurables, barMeasurables), constraints ->
-
-        require(horizontalMeasurables.size == 1 && verticalMeasurables.size == 1) {
-            "가로축과 세로축은 반드시 하나만 존재해야 함"
-        }
-
-        val horizontalPlacable = horizontalMeasurables.first().measure(constraints)
-        val verticalPlacable = verticalMeasurables.first().measure(constraints)
-
-        val totalWidth = horizontalPlacable.width + verticalPlacable.width
-
-        val barPlacable = barMeasurables.map { barMeasurable ->
-            val barParentData = barMeasurable.parentData as GraphParentData
-            val barHeight = (barParentData.value).roundToInt()
-
-            val barPlacable = barMeasurable.measure(
-                constraints.copy(
-                    minHeight = barHeight,
-                    maxHeight = barHeight,
-                )
-            )
-
-            barPlacable
-        }
-
-        val totalHeight = horizontalPlacable.height + barPlacable.maxOf { it.height }
-
-        layout(totalWidth, totalHeight) {
-            var xPos = verticalPlacable.width
-            val yPos = verticalPlacable.height
-
-            verticalPlacable.place(0, totalHeight - (yPos * 2))
-            horizontalPlacable.place(xPos, totalHeight - yPos)
-
-            barPlacable.forEach { placeable ->
-                val barOffset = xPos + 4.dp.roundToPx()
-                placeable.place(barOffset, totalHeight - yPos - placeable.height)
-                xPos += placeable.width + 8.dp.roundToPx()
-            }
-        }
-    }
-}
-
-@LayoutScopeMarker
-@Immutable
-object GraphScope {
-    @Stable
-    fun Modifier.setGraphParentData(
-        value: Long,
-        maxValue: Long
-    ): Modifier {
-        return then(
-            GraphParentData(value.stepToGraphSize(maxValue))
-        )
-    }
-}
-
-fun Long.stepToGraphSize(max: Long) = if (this >= max) 300f else this / (max / 300f)
-
-class GraphParentData(
-    val value: Float
-) : ParentDataModifier {
-    override fun Density.modifyParentData(parentData: Any?): Any? =
-        this@GraphParentData
-
-}
-
-
-@Composable
 @Preview
 fun PreviewUserSteps() = PreviewStepWalkTheme {
     UserPager(
         uiState = HomeUiState(
-            steps = listOf(
-                Step(
-                    distance = 2000,
-                    start = 120,
-                    end = 160,
-                    type = METs.Walk
-                ),
-                Step(
-                    distance = 500,
-                    start = 120,
-                    end = 160,
-                    type = METs.Walk
-                ),
-                Step(
-                    distance = 800,
-                    start = 120,
-                    end = 160,
-                    type = METs.Walk
+            step = StepMenu(
+                steps = listOf(
+                    Step(
+                        distance = 2000,
+                        start = 120,
+                        end = 160,
+                        type = METs.Walk
+                    ),
+                    Step(
+                        distance = 500,
+                        start = 120,
+                        end = 160,
+                        type = METs.Walk
+                    ),
+                    Step(
+                        distance = 800,
+                        start = 120,
+                        end = 160,
+                        type = METs.Walk
+                    )
                 )
             ),
             user = User.getInitValues()

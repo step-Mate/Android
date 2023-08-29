@@ -21,7 +21,7 @@ import androidx.compose.ui.unit.dp
 import jinproject.stepwalk.design.PreviewStepWalkTheme
 
 @Composable
-fun HomeTopAppBar(
+internal fun HomeTopAppBar(
     modifier: Modifier = Modifier,
     onBackClick: () -> Unit,
     onClickIcon1: () -> Unit,

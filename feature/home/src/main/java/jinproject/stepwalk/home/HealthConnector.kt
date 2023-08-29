@@ -15,7 +15,7 @@ import java.time.Instant
 import java.time.ZoneOffset
 
 @Stable
-class HealthConnector(
+internal class HealthConnector(
     context: Context
 ) {
     val healthConnectClient = getHealthClient(context)
