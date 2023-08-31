@@ -62,19 +62,21 @@ internal fun HomeScreen(
             val granted = client.permissionController.getGrantedPermissions()
             if (granted.containsAll(PERMISSIONS)) {
                 Log.d("test", "권한 있음")
-                /*repeat(24) { count ->
+
+                val instant = Instant.now().atZone(ZoneId.of("Asia/Seoul"))
+
+                /*(0..23).forEach { count ->
                     healthConnector.insertSteps(
-                        step = count * 100L,
-                        startTime = Instant.now().minus(count.toLong(), ChronoUnit.HOURS),
-                        endTime = Instant.now().minus(count.toLong(), ChronoUnit.HOURS).plus(30, ChronoUnit.MINUTES)
+                        step = count * 100L + 100L,
+                        startTime = instant.truncatedTo(ChronoUnit.DAYS).toInstant().plus(count.toLong(), ChronoUnit.HOURS),
+                        endTime = instant.truncatedTo(ChronoUnit.DAYS).toInstant().plus(count.toLong(), ChronoUnit.HOURS).plus(30L,ChronoUnit.MINUTES)
                     )
                 }*/
-                val instant = Instant.now().atZone(ZoneId.of("Asia/Seoul"))
 
                 homeViewModel::setSteps.invoke(
                     healthConnector.readStepsByTimeRange(
                         startTime = instant.truncatedTo(ChronoUnit.DAYS).toInstant(),
-                        endTime = instant.toInstant(),
+                        endTime = instant.withHour(23).toInstant(),
                         type = METs.Walk
                     ) ?: emptyList()
                 )

@@ -8,6 +8,7 @@ import jinproject.stepwalk.home.state.Page
 import jinproject.stepwalk.home.state.PageState
 import jinproject.stepwalk.home.state.Step
 import jinproject.stepwalk.home.state.StepMenu
+import jinproject.stepwalk.home.state.total
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -28,11 +29,8 @@ internal data class HomeUiState(
                             menu = step,
                             title = page.display()
                         ),
-                        figure = step.steps
-                            .map { it.distance }
-                            .reduce { acc, step -> acc + step }
-                            .toInt(),
-                        max = 5000
+                        figure = step.steps.total().toInt(),
+                        max = 1500
                     )
                 }
                 Page.DrinkWater -> {

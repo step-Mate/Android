@@ -1,5 +1,6 @@
 package jinproject.stepwalk.home.state
 
+import android.util.Log
 import androidx.compose.runtime.Stable
 import jinproject.stepwalk.design.R
 import jinproject.stepwalk.domain.METs
@@ -30,11 +31,11 @@ internal data class StepMenu(
         items.toSortedMap(compareBy { it })
     }
 
-    private fun getMenuDetails(kg: Float) = kotlin.run {
+    private fun getMenuDetails(kg: Float) = kotlin.runCatching {
         val details = mutableMapOf<String, MenuDetail>()
-        val type = steps.first().type
-        val minutes = steps.map { it.end - it.start }.reduce { acc, i -> acc + i }
-        val steps = steps.map { it.distance }.reduce { acc, l -> acc + l }
+        val type = steps.firstOrNull()?.type ?: METs.Walk
+        val minutes = steps.map { it.end - it.start }.fold(0) { acc, i -> acc + i }
+        val steps = steps.total()
 
         details.apply {
             set(
@@ -59,7 +60,12 @@ internal data class StepMenu(
                 )
             )
         }
+    }.onFailure { e ->
+        Log.e("test","error: ${e.printStackTrace()}")
+    }.getOrElse {
+        mutableMapOf<String, MenuDetail>()
     }
+
     companion object {
         fun getInitValues() = StepMenu(
             steps = listOf(
@@ -91,3 +97,5 @@ internal data class Step(
         )
     }
 }
+
+internal fun List<Step>.total() = this.map { it.distance }.fold(0L) { acc, l -> acc + l }

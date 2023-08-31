@@ -1,6 +1,7 @@
 package jinproject.stepwalk.home.component
 
 import android.content.res.Configuration
+import android.util.Log
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
@@ -12,7 +13,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
@@ -24,20 +25,30 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.draw.drawWithCache
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.geometry.RoundRect
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.PathEffect
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.StrokeJoin
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.drawscope.clipPath
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
@@ -53,7 +64,6 @@ import jinproject.stepwalk.domain.METs
 import jinproject.stepwalk.home.HomeUiState
 import jinproject.stepwalk.home.User
 import jinproject.stepwalk.home.component.GraphScope.setGraphParentData
-import jinproject.stepwalk.home.state.HealthMenu
 import jinproject.stepwalk.home.state.HealthState
 import jinproject.stepwalk.home.state.MenuDetail
 import jinproject.stepwalk.home.state.Step
@@ -62,6 +72,7 @@ import jinproject.stepwalk.home.state.toAchievementDegree
 import java.text.DecimalFormat
 import java.util.SortedMap
 import kotlin.math.absoluteValue
+import kotlin.math.roundToInt
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -109,41 +120,59 @@ private fun PageMenu(
 
         VerticalSpacer(height = 40.dp)
 
-        PagerGraph(
-            itemsCount = currentPage.menu.graphItems.keys.size,
+        val graphItems = currentPage.menu.graphItems
+
+        Column(
             modifier = Modifier
-                .horizontalScroll(rememberScrollState())
-                .wrapContentSize(),
-            horizontalAxis = {
-                StepGraphTail(
-                    items = currentPage.menu.graphItems.keys.toList()
-                )
-            },
-            verticalAxis = {
-                StepGraphHeader(currentPage.title)
-            },
-            bar = { index ->
-                StepBar(
-                    item = menu.graphItems,
-                    index = index,
-                    modifier = Modifier
-                )
-            }
-        )
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(10.dp))
+                .background(MaterialTheme.colorScheme.secondary)
+                .padding(start = 30.dp, end = 30.dp, bottom = 30.dp, top = 50.dp)
+        ) {
+            PagerGraph(
+                itemsCount = graphItems.keys.size,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(10.dp))
+                    .background(MaterialTheme.colorScheme.background)
+                    .padding(horizontal = 10.dp),
+                horizontalAxis = { index ->
+                    StepGraphTail(
+                        item = graphItems.keys.toList()[index]
+                    )
+                },
+                verticalAxis = {
+                    StepGraphHeader(
+                        max = graphItems.values.max().toString(),
+                        avg = graphItems.values.average().toString()
+                    )
+                },
+                bar = { index ->
+                    StepBar(
+                        item = menu.graphItems,
+                        key = index,
+                        goal = pages[pagerState.currentPage % pages.size].max.toLong(),
+                        modifier = Modifier
+                    )
+                }
+            )
+        }
     }
 }
 
 @Composable
 private fun StepBar(
     item: SortedMap<Int, Long>,
-    index: Int,
+    key: Int,
+    goal: Long,
     modifier: Modifier = Modifier,
 ) {
     Spacer(
         modifier = modifier
             .setGraphParentData(
-                value = item[index] ?: 0,
-                maxValue = item.values.max()
+                data = item,
+                key = key,
+                goal = goal
             )
             .drawBehind {
                 /*
@@ -171,38 +200,33 @@ private fun StepBar(
                     cornerRadius = CornerRadius(10f, 10f)
                 )
             }
-            .width(16.dp)
+            .width(6.dp)
     )
 }
 
 @Composable
 private fun StepGraphTail(
-    items: List<Int>
+    item: Int
 ) {
-    Row(modifier = Modifier.height(24.dp)) {
-        items.forEach { item ->
-            Text(
-                text = item.toString(),
-                textAlign = TextAlign.Center,
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onBackground,
-                modifier = Modifier.width(24.dp)
-            )
-        }
-    }
+    Text(
+        text = item.toString(),
+        textAlign = TextAlign.Left,
+        style = MaterialTheme.typography.bodySmall,
+        color = MaterialTheme.colorScheme.onBackground,
+        modifier = Modifier.size(24.dp)
+    )
 }
 
 @Composable
 private fun StepGraphHeader(
-    title: String
+    max: String,
+    avg: String
 ) {
-    Column {
-        Text(
-            text = title,
-            style = MaterialTheme.typography.titleMedium,
-            color = MaterialTheme.colorScheme.onBackground
-        )
-    }
+    Text(
+        text = max,
+        style = MaterialTheme.typography.bodySmall,
+        color = MaterialTheme.colorScheme.onBackground
+    )
 }
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -239,11 +263,12 @@ private fun MenuPager(
                         stop = 1f,
                         fraction = 1f - pageOffset.coerceIn(0f, 1f)
                     )
-                }
-                .clip(CircleShape),
+                    shape = CircleShape
+                    clip = true
+                    shadowElevation = 30f
+                },
 
-            elevation = CardDefaults.cardElevation(defaultElevation = 10.dp)
-        ) {
+            ) {
             Box(modifier = Modifier.background(MaterialTheme.colorScheme.surface)) {
                 val currentPage = pages[page % pages.size]
                 val progress = currentPage.figure.toFloat() / currentPage.max.toFloat()
@@ -336,20 +361,20 @@ fun PreviewUserSteps() = PreviewStepWalkTheme {
                 steps = listOf(
                     Step(
                         distance = 2000,
-                        start = 120,
-                        end = 160,
+                        start = 0,
+                        end = 1,
                         type = METs.Walk
                     ),
                     Step(
                         distance = 500,
-                        start = 120,
-                        end = 160,
+                        start = 30,
+                        end = 50,
                         type = METs.Walk
                     ),
                     Step(
                         distance = 800,
-                        start = 120,
-                        end = 160,
+                        start = 60,
+                        end = 80,
                         type = METs.Walk
                     )
                 )
