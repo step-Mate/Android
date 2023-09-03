@@ -5,6 +5,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import jinproject.stepwalk.home.state.HealthState
+import jinproject.stepwalk.home.state.HeartRate
+import jinproject.stepwalk.home.state.HeartRateMenu
 import jinproject.stepwalk.home.state.Page
 import jinproject.stepwalk.home.state.PageState
 import jinproject.stepwalk.home.state.Step
@@ -14,10 +16,12 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import javax.inject.Inject
+import kotlin.math.roundToInt
 
 @Stable
 internal data class HomeUiState(
     val step: StepMenu,
+    val heartRate: HeartRateMenu,
     val user: User
 
 ) {
@@ -47,10 +51,10 @@ internal data class HomeUiState(
                 Page.HeartRate -> {
                     HealthState(
                         type = PageState(
-                            menu = step,
+                            menu = heartRate,
                             title = page.display()
                         ),
-                        figure = 100,
+                        figure = heartRate.heartRates.map { it.perMinutes }.average().roundToInt(),
                         max = 200
                     )
                 }
@@ -61,6 +65,7 @@ internal data class HomeUiState(
     companion object {
         fun getInitValues() = HomeUiState(
             step = StepMenu.getInitValues(),
+            heartRate = HeartRateMenu.getInitValues(),
             user = User.getInitValues()
         )
     }
@@ -100,4 +105,8 @@ internal class HomeViewModel @Inject constructor() : ViewModel() {
     }
 
     fun setSelectedStepOnGraph(step: Long) = _selectedStepOnGraph.update { step }
+
+    fun setHeartRates(heartRates: List<HeartRate>) = _uiState.update { state ->
+        state.copy(heartRate = HeartRateMenu(heartRates))
+    }
 }

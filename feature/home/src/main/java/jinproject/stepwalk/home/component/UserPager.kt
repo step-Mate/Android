@@ -68,6 +68,8 @@ import jinproject.stepwalk.domain.METs
 import jinproject.stepwalk.home.HomeUiState
 import jinproject.stepwalk.home.User
 import jinproject.stepwalk.home.state.HealthState
+import jinproject.stepwalk.home.state.HeartRate
+import jinproject.stepwalk.home.state.HeartRateMenu
 import jinproject.stepwalk.home.state.MenuDetail
 import jinproject.stepwalk.home.state.Step
 import jinproject.stepwalk.home.state.StepMenu
@@ -475,7 +477,8 @@ fun PreviewUserSteps() = PreviewStepWalkTheme {
                     )
                 )
             ),
-            user = User.getInitValues()
+            user = User.getInitValues(),
+            heartRate = HeartRateMenu.getInitValues()
         ),
         selectedStepOnGraph = 0L,
         setSelectedStepOnGraph = {}

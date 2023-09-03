@@ -6,10 +6,12 @@ import android.net.Uri
 import android.util.Log
 import androidx.compose.runtime.Stable
 import androidx.health.connect.client.HealthConnectClient
+import androidx.health.connect.client.records.HeartRateRecord
 import androidx.health.connect.client.records.StepsRecord
 import androidx.health.connect.client.request.ReadRecordsRequest
 import androidx.health.connect.client.time.TimeRangeFilter
 import jinproject.stepwalk.domain.METs
+import jinproject.stepwalk.home.state.HeartRate
 import jinproject.stepwalk.home.state.Step
 import java.time.Instant
 import java.time.ZoneOffset
@@ -36,6 +38,30 @@ internal class HealthConnector(
             healthConnectClient?.insertRecords(listOf(stepsRecord))
         }.onFailure {
 
+        }
+    }
+
+    suspend fun insertHeartRates(
+        heartRate: Long,
+        startTime: Instant,
+        endTime: Instant
+    ) {
+        kotlin.runCatching {
+            val heartRateRecord = HeartRateRecord(
+                startTime = startTime,
+                endTime = endTime,
+                startZoneOffset = ZoneOffset.of("+9"),
+                endZoneOffset = ZoneOffset.of("+9"),
+                samples = listOf(
+                    HeartRateRecord.Sample(
+                        time = startTime,
+                        beatsPerMinute = heartRate
+                    )
+                )
+            )
+            healthConnectClient?.insertRecords(listOf(heartRateRecord))
+        }.onFailure { e ->
+            Log.e("test","${e.printStackTrace()}")
         }
     }
 
@@ -67,6 +93,31 @@ internal class HealthConnector(
 
         }.getOrNull()
 
+    suspend fun readHeartRatesByTimeRange(
+        startTime: Instant,
+        endTime: Instant
+    ): List<HeartRate>? = kotlin.runCatching {
+        val response = healthConnectClient?.readRecords(
+            ReadRecordsRequest(
+                HeartRateRecord::class,
+                timeRangeFilter = TimeRangeFilter.between(startTime, endTime)
+            )
+        )
+
+        response?.let { heartRateResponse ->
+            heartRateResponse.records.map { record ->
+                val heartRate = record.samples.first()
+
+                HeartRate(
+                    time = heartRate.time,
+                    perMinutes = heartRate.beatsPerMinute.toInt()
+                )
+            }
+        }
+    }.onFailure { e ->
+
+    }.getOrNull()
+
     private fun getHealthClient(context: Context): HealthConnectClient? = run {
         val providerPackageName = "com.google.android.apps.healthdata"
         val availabilityStatus = HealthConnectClient.sdkStatus(context, providerPackageName)
@@ -75,7 +126,8 @@ internal class HealthConnector(
         }
         if (availabilityStatus == HealthConnectClient.SDK_UNAVAILABLE_PROVIDER_UPDATE_REQUIRED) {
             // Optionally redirect to package installer to find a provider, for example:
-            val uriString = "market://details?id=$providerPackageName&url=healthconnect%3A%2F%2Fonboarding"
+            val uriString =
+                "market://details?id=$providerPackageName&url=healthconnect%3A%2F%2Fonboarding"
             context.startActivity(
                 Intent(Intent.ACTION_VIEW).apply {
                     setPackage("com.android.vending")

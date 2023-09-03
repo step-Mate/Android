@@ -14,6 +14,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.health.connect.client.PermissionController
 import androidx.health.connect.client.permission.HealthPermission
+import androidx.health.connect.client.records.HeartRateRecord
 import androidx.health.connect.client.records.StepsRecord
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -34,7 +35,9 @@ import java.time.temporal.ChronoUnit
 private val PERMISSIONS =
     setOf(
         HealthPermission.getReadPermission(StepsRecord::class),
-        HealthPermission.getWritePermission(StepsRecord::class)
+        HealthPermission.getWritePermission(StepsRecord::class),
+        HealthPermission.getReadPermission(HeartRateRecord::class),
+        HealthPermission.getWritePermission(HeartRateRecord::class)
     )
 
 @Composable
@@ -79,6 +82,21 @@ internal fun HomeScreen(
                         startTime = instant.truncatedTo(ChronoUnit.DAYS).toInstant(),
                         endTime = instant.withHour(23).toInstant(),
                         type = METs.Walk
+                    ) ?: emptyList()
+                )
+
+                /*(0..23).forEach { count ->
+                    healthConnector.insertHeartRates(
+                        heartRate = (count % 4) * 40L,
+                        startTime = instant.truncatedTo(ChronoUnit.DAYS).toInstant().plus(count.toLong(), ChronoUnit.HOURS),
+                        endTime = instant.truncatedTo(ChronoUnit.DAYS).toInstant().plus(count.toLong(), ChronoUnit.HOURS).plus(30L,ChronoUnit.MINUTES)
+                    )
+                }*/
+
+                homeViewModel::setHeartRates.invoke(
+                    healthConnector.readHeartRatesByTimeRange(
+                        startTime = instant.truncatedTo(ChronoUnit.DAYS).toInstant(),
+                        endTime = instant.withHour(23).toInstant()
                     ) ?: emptyList()
                 )
 
