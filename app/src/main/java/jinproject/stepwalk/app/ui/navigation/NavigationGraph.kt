@@ -12,6 +12,7 @@ import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.navigation.NavDestination
 import androidx.navigation.NavDestination.Companion.hierarchy
@@ -53,7 +54,9 @@ fun BottomNavigationGraph(
     modifier: Modifier = Modifier
 ) {
     NavigationBar(
-        modifier = modifier
+        modifier = modifier,
+        containerColor = Color.Transparent,
+        contentColor = MaterialTheme.colorScheme.onBackground
     ) {
         BottomNavigationDestination.values.forEach { destination ->
             val selected = router.currentDestination.isTopLevelDestinationInHierarchy(destination)
@@ -99,6 +102,7 @@ private fun RowScope.NavigationBarItem(
         colors = NavigationBarItemDefaults.colors(
             selectedIconColor = NavigationDefaults.navigationSelectedItemColor(),
             unselectedIconColor = NavigationDefaults.navigationContentColor(),
+            indicatorColor = NavigationDefaults.navigationIndicatorColor()
         ),
     )
 }
@@ -112,5 +116,5 @@ private object NavigationDefaults {
     fun navigationSelectedItemColor() = MaterialTheme.colorScheme.onPrimaryContainer
 
     @Composable
-    fun navigationIndicatorColor() = MaterialTheme.colorScheme.primaryContainer
+    fun navigationIndicatorColor() = MaterialTheme.colorScheme.background
 }

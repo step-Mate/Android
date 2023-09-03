@@ -56,6 +56,7 @@ internal fun HomeScreen(
         }
 
     val uiState by homeViewModel.uiState.collectAsStateWithLifecycle()
+    val selectedStepOnGraph by homeViewModel.selectedStepOnGraph.collectAsStateWithLifecycle()
 
     LaunchedEffect(Unit) {
         healthConnector.healthConnectClient?.let { client ->
@@ -89,13 +90,17 @@ internal fun HomeScreen(
     }
 
     HomeScreen(
-        uiState = uiState
+        uiState = uiState,
+        selectedStepOnGraph = selectedStepOnGraph,
+        setSelectedStepOnGraph = homeViewModel::setSelectedStepOnGraph
     )
 }
 
 @Composable
 private fun HomeScreen(
-    uiState: HomeUiState
+    uiState: HomeUiState,
+    selectedStepOnGraph: Long,
+    setSelectedStepOnGraph: (Long) -> Unit
 ) {
     DefaultLayout(
         modifier = Modifier,
@@ -110,7 +115,9 @@ private fun HomeScreen(
         },
     ) {
         UserPager(
-            uiState = uiState
+            uiState = uiState,
+            selectedStepOnGraph = selectedStepOnGraph,
+            setSelectedStepOnGraph = setSelectedStepOnGraph
         )
     }
 }
@@ -119,6 +126,8 @@ private fun HomeScreen(
 @Preview
 private fun PreviewHomeScreen() = StepWalkTheme {
     HomeScreen(
-        uiState = HomeUiState.getInitValues()
+        uiState = HomeUiState.getInitValues(),
+        selectedStepOnGraph = 0L,
+        setSelectedStepOnGraph = {}
     )
 }

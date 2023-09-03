@@ -1,6 +1,7 @@
 package jinproject.stepwalk.home
 
 import androidx.compose.runtime.Stable
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import jinproject.stepwalk.home.state.HealthState
@@ -91,7 +92,12 @@ internal class HomeViewModel @Inject constructor() : ViewModel() {
         MutableStateFlow(HomeUiState.getInitValues())
     val uiState get() = _uiState.asStateFlow()
 
+    private val _selectedStepOnGraph = MutableStateFlow(0L)
+    val selectedStepOnGraph get() = _selectedStepOnGraph.asStateFlow()
+
     fun setSteps(steps: List<Step>) = _uiState.update { state ->
         state.copy(step = StepMenu(steps))
     }
+
+    fun setSelectedStepOnGraph(step: Long) = _selectedStepOnGraph.update { step }
 }
