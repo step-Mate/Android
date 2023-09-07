@@ -6,38 +6,45 @@ import jinproject.stepwalk.design.R
 import jinproject.stepwalk.domain.METs
 import java.time.Instant
 import java.time.ZoneId
+import java.time.ZonedDateTime
+import java.time.temporal.ChronoField
+import java.time.temporal.TemporalAdjusters
+import java.time.temporal.TemporalAmount
+import java.time.temporal.TemporalField
+import java.time.temporal.TemporalUnit
 import java.util.SortedMap
+import kotlin.time.Duration.Companion.days
+import kotlin.time.toJavaDuration
 
 @Stable
 internal data class StepMenu(
-    val steps: List<Step>
+    val steps: List<Step>,
 ): HealthMenu {
-    override val details: MutableMap<String, MenuDetail> = getMenuDetails(55f)
-    override val graphItems: SortedMap<Int, Long> = toGraphItems()
+    override var details: Map<String, MenuDetail>? = null
+    override var graphItems: SortedMap<Int, Long>? = null
 
-    private fun toGraphItems() = kotlin.run {
+    fun setGraphItems(time: Time) = kotlin.run {
         val items = mutableMapOf<Int, Long>().apply {
-            repeat(24) { hour ->
-                this[hour] = 0
+            repeat(time.toRepeatTimes()) { repeatTime ->
+                this[repeatTime] = 0
             }
         }
 
         steps.forEach { step ->
-            val instant = Instant.ofEpochSecond(step.end.toLong() * 60L)
-            val key = instant.atZone(ZoneId.of("Asia/Seoul")).hour
+            val instant = Instant.ofEpochSecond(step.start.toLong() * 60L)
+            val key = time.toZonedOffset(instant)
             items[key] = (items[key] ?: 0) + step.distance
         }
 
-        items.toSortedMap(compareBy { it })
+        graphItems = items.toSortedMap(compareBy { it })
     }
 
-    private fun getMenuDetails(kg: Float) = kotlin.runCatching {
-        val details = mutableMapOf<String, MenuDetail>()
+    fun setMenuDetails(kg: Float) = kotlin.runCatching {
         val type = steps.firstOrNull()?.type ?: METs.Walk
         val minutes = steps.map { it.end - it.start }.fold(0) { acc, i -> acc + i }
         val steps = steps.total()
 
-        details.apply {
+        details = mutableMapOf<String, MenuDetail>().apply {
             set(
                 "calories", MenuDetail(
                     value = type.getMetsWeight() * 3.5f * kg * minutes * 5f / 1000,
@@ -62,8 +69,6 @@ internal data class StepMenu(
         }
     }.onFailure { e ->
         Log.e("test","error: ${e.printStackTrace()}")
-    }.getOrElse {
-        mutableMapOf<String, MenuDetail>()
     }
 
     companion object {
@@ -75,7 +80,7 @@ internal data class StepMenu(
                     end = 0,
                     type = METs.Walk
                 )
-            )
+            ),
         )
     }
 }

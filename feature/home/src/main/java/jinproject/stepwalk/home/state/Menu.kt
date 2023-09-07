@@ -6,10 +6,10 @@ import java.util.SortedMap
 
 internal interface HealthMenu {
     @Stable
-    val details: MutableMap<String, MenuDetail>
+    val details: Map<String, MenuDetail>?
 
     @Stable
-    val graphItems: SortedMap<Int, Long>
+    val graphItems: SortedMap<Int, Long>?
 }
 
 @Stable

@@ -23,7 +23,7 @@ import jinproject.stepwalk.design.PreviewStepWalkTheme
 @Composable
 internal fun HomeTopAppBar(
     modifier: Modifier = Modifier,
-    onBackClick: () -> Unit,
+    onClickTimeIcon: () -> Unit,
     onClickIcon1: () -> Unit,
     onClickIcon2: () -> Unit
 ) {
@@ -37,7 +37,7 @@ internal fun HomeTopAppBar(
         IconButton(
             modifier = Modifier
                 .align(Alignment.CenterStart),
-            onClick = onBackClick,
+            onClick = onClickTimeIcon,
             interactionSource = remember { MutableInteractionSource() }
         ) {
             Icon(
@@ -74,7 +74,7 @@ private fun PreviewHomeTopAppBar() =
     PreviewStepWalkTheme {
         HomeTopAppBar(
             modifier = Modifier,
-            onBackClick = {},
+            onClickTimeIcon = {},
             onClickIcon1 = {},
             onClickIcon2 = {}
         )

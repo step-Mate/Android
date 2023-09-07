@@ -9,33 +9,32 @@ import java.util.SortedMap
 internal data class HeartRateMenu(
     val heartRates: List<HeartRate>
 ): HealthMenu {
-    override val details: MutableMap<String, MenuDetail> = getMenuDetails()
-    override val graphItems: SortedMap<Int, Long> = toGraphItems()
+    override var details: MutableMap<String, MenuDetail>? = null
+    override var graphItems: SortedMap<Int, Long>? = null
 
-    private fun toGraphItems() = kotlin.run {
+    fun setGraphItems(time: Time) = kotlin.run {
         val items = mutableMapOf<Int, Long>().apply {
-            repeat(24) { hour ->
+            repeat(time.toRepeatTimes()) { hour ->
                 this[hour] = 0
             }
         }
 
         heartRates.forEach { heart ->
             val instant = heart.time
-            val key = instant.atZone(ZoneId.of("Asia/Seoul")).hour
+            val key = time.toZonedOffset(instant)
             items[key] = (items[key] ?: 0) + heart.perMinutes
         }
 
-        items.toSortedMap(compareBy { it })
+        graphItems = items.toSortedMap(compareBy { it })
     }
 
-    private fun getMenuDetails() = kotlin.runCatching {
-        val details = mutableMapOf<String, MenuDetail>()
+    fun setMenuDetails() = kotlin.runCatching {
         val hearts = heartRates.map { it.perMinutes }
 
-        details.apply {
+        details = mutableMapOf<String, MenuDetail>().apply {
             set(
                 "min", MenuDetail(
-                    value = hearts.min().toFloat(),
+                    value = hearts.minOrNull()?.toFloat() ?: 0f,
                     img = R.drawable.ic_heart_solid,
                     intro = "최소(분)"
                 )
@@ -49,16 +48,14 @@ internal data class HeartRateMenu(
             )
             set(
                 "max", MenuDetail(
-                    value = hearts.max().toFloat(),
+                    value = hearts.maxOrNull()?.toFloat() ?: 0f,
                     img = R.drawable.ic_heart_solid,
                     intro = "최대(분)"
                 )
             )
         }
     }.onFailure { e ->
-        Log.e("test","error: ${e.printStackTrace()}")
-    }.getOrElse {
-        mutableMapOf<String, MenuDetail>()
+        Log.e("test","error: ${e.message}")
     }
 
     companion object {

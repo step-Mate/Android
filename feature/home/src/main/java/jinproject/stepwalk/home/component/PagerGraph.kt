@@ -15,8 +15,11 @@ internal fun PagerGraph(
     bar: @Composable (Int) -> Unit
 ) {
     val bars = @Composable { repeat(itemsCount) { bar(it) } }
+
+    val horizontalItemCount = if(itemsCount >= 16) itemsCount / 2 else itemsCount
+    val horizontalStep = if(itemsCount == horizontalItemCount) 1 else 2
     val horizontalItems = @Composable {
-        for (i in 0 until itemsCount step 2) {
+        for (i in 0 until itemsCount step horizontalStep) {
             horizontalAxis(i)
         }
     }
@@ -36,7 +39,7 @@ internal fun PagerGraph(
             constraints.toLoose()
         )
 
-        val itemWidth = (totalWidth - verticalPlacable.width) / (itemsCount / 2)
+        val itemWidth = (totalWidth - verticalPlacable.width) / horizontalItemCount
 
         val horizontalPlacables = horizontalMeasurables.map { measurable ->
             measurable.measure(
@@ -48,6 +51,8 @@ internal fun PagerGraph(
             )
         }
 
+        val barWidth = if(itemsCount == horizontalItemCount) itemWidth else itemWidth / 2
+
         val barPlaceables = barMeasurables.map { barMeasurable ->
             val barHeight = totalHeight - horizontalPlacables.first().height
 
@@ -55,7 +60,8 @@ internal fun PagerGraph(
                 constraints.copy(
                     minHeight = barHeight,
                     maxHeight = barHeight,
-                    minWidth = 0,
+                    minWidth = barWidth,
+                    maxWidth = barWidth
                 )
             )
         }
@@ -70,8 +76,8 @@ internal fun PagerGraph(
 
             barPlaceables.forEachIndexed { index, placeable ->
 
-                if (index % 2 == 0) {
-                    val horizontalPlaceable = horizontalPlacables[index / 2]
+                if (index % 2 == 0 || itemsCount == horizontalItemCount) {
+                    val horizontalPlaceable = horizontalPlacables[index / horizontalStep]
                     horizontalPlaceable.place(xPos, totalHeight - horizontalPlaceable.height)
                 }
 
@@ -80,7 +86,7 @@ internal fun PagerGraph(
                     totalHeight - horizontalPlacables.first().height - placeable.height
                 )
 
-                xPos += horizontalPlacables.first().width / 2
+                xPos += horizontalPlacables.first().width / horizontalStep
             }
         }
     }

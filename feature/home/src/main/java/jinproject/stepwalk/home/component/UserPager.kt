@@ -73,7 +73,9 @@ import jinproject.stepwalk.home.state.HeartRateMenu
 import jinproject.stepwalk.home.state.MenuDetail
 import jinproject.stepwalk.home.state.Step
 import jinproject.stepwalk.home.state.StepMenu
+import jinproject.stepwalk.home.state.Time
 import jinproject.stepwalk.home.state.toAchievementDegree
+import jinproject.stepwalk.home.state.weekToString
 import java.text.DecimalFormat
 import java.util.SortedMap
 import kotlin.math.absoluteValue
@@ -96,6 +98,7 @@ internal fun UserPager(
         pages = pages,
         pagerState = pagerState,
         modifier = modifier,
+        pageTime = uiState.time,
         selectedStepOnGraph = selectedStepOnGraph,
         setSelectedStepOnGraph = setSelectedStepOnGraph
     )
@@ -108,6 +111,7 @@ private fun PageMenu(
     modifier: Modifier = Modifier,
     pages: List<HealthState>,
     pagerState: PagerState,
+    pageTime: Time,
     selectedStepOnGraph: Long,
     setSelectedStepOnGraph: (Long) -> Unit
 ) {
@@ -130,7 +134,9 @@ private fun PageMenu(
 
         VerticalSpacer(height = 40.dp)
 
-        val graphItems = currentPage.menu.graphItems
+        val graphItems = menu.graphItems
+        val graphHorizontalItems = graphItems?.keys?.toList() ?: (0 until pageTime.toRepeatTimes()).toList()
+        val graphVerticalMax = graphItems?.values?.maxOrNull() ?: 0
         val popUpState = remember { mutableStateOf(false) }
         val popUpOffset = remember {
             mutableStateOf(Offset(0F, 0F))
@@ -144,7 +150,7 @@ private fun PageMenu(
                 .padding(start = 10.dp, end = 10.dp, bottom = 10.dp, top = 50.dp)
         ) {
             PagerGraph(
-                itemsCount = graphItems.keys.size,
+                itemsCount = graphHorizontalItems.size,
                 modifier = Modifier
                     .fillMaxSize()
                     .clip(RoundedCornerShape(10.dp))
@@ -152,19 +158,25 @@ private fun PageMenu(
                     .padding(10.dp),
                 horizontalAxis = { index ->
                     StepGraphTail(
-                        item = graphItems.keys.toList()[index]
+                        item = when (pageTime == Time.Week) {
+                            true -> graphHorizontalItems[index].weekToString()
+                            else -> graphHorizontalItems[index].toString()
+                        }
                     )
                 },
                 verticalAxis = {
                     StepGraphHeader(
-                        max = graphItems.values.max().toString(),
-                        avg = (graphItems.values.max() / 2).toString()
+                        max = graphVerticalMax.toString(),
+                        avg = (graphVerticalMax / 2).toString()
                     )
                 },
                 bar = { index ->
                     StepBar(
-                        item = menu.graphItems,
-                        key = index,
+                        index = index,
+                        item = graphItems?.get(index) ?: 0L,
+                        nextItem = graphItems?.get(index + 1) ?: 0L,
+                        maxItem = graphVerticalMax,
+                        horizontalSize = graphHorizontalItems.size,
                         setSelectedStepOnGraph = { step -> setSelectedStepOnGraph(step) },
                         setPopUpState = { popUpState.value = true },
                         setPopUpOffset = { offset -> popUpOffset.value = offset }
@@ -184,8 +196,11 @@ private fun PageMenu(
 
 @Composable
 private fun StepBar(
-    item: SortedMap<Int, Long>,
-    key: Int,
+    index: Int,
+    item: Long,
+    nextItem: Long,
+    maxItem: Long,
+    horizontalSize: Int,
     modifier: Modifier = Modifier,
     setSelectedStepOnGraph: (Long) -> Unit,
     setPopUpState: () -> Unit,
@@ -200,7 +215,7 @@ private fun StepBar(
     Spacer(
         modifier = modifier
             .clickable {
-                setSelectedStepOnGraph(item[key] ?: 0L)
+                setSelectedStepOnGraph(item)
                 setPopUpState()
                 clickState.value = true
             }
@@ -234,25 +249,25 @@ private fun StepBar(
                     )
                 )
 
-                height.floatValue = this@drawWithCache.size.height - item[key]!!.stepToSizeByMax(
+                height.floatValue = this@drawWithCache.size.height - item.stepToSizeByMax(
                     barHeight = this@drawWithCache.size.height,
-                    max = item.values.max()
+                    max = maxItem
                 )
 
                 val path = Path().apply {
                     moveTo(
                         x = 10f,
-                        y = this@drawWithCache.size.height - item[key]!!.stepToSizeByMax(
+                        y = this@drawWithCache.size.height - item.stepToSizeByMax(
                             barHeight = this@drawWithCache.size.height,
-                            max = item.values.max()
+                            max = maxItem
                         )
                     )
-                    if (key < item.keys.size - 1) {
+                    if (index < horizontalSize - 1) {
                         lineTo(
-                            x = this@drawWithCache.size.width * 2 + 10f,
-                            y = this@drawWithCache.size.height - item[key + 1]!!.stepToSizeByMax(
+                            x = this@drawWithCache.size.width + 10f,
+                            y = this@drawWithCache.size.height - nextItem.stepToSizeByMax(
                                 barHeight = this@drawWithCache.size.height,
-                                max = item.values.max()
+                                max = maxItem
                             )
                         )
                     }
@@ -260,9 +275,9 @@ private fun StepBar(
 
                 val filledPath = Path().apply {
                     addPath(path)
-                    if (key < item.keys.size - 1) {
+                    if (index < horizontalSize - 1) {
                         lineTo(
-                            x = this@drawWithCache.size.width * 2 + 10f,
+                            x = this@drawWithCache.size.width + 10f,
                             y = this@drawWithCache.size.height
                         )
                         lineTo(
@@ -281,28 +296,26 @@ private fun StepBar(
                         radius = 10f,
                         center = Offset(
                             x = 10f,
-                            y = this.size.height - item[key]!!.stepToSizeByMax(
+                            y = this.size.height - item.stepToSizeByMax(
                                 barHeight = this@drawWithCache.size.height,
-                                max = item.values.max()
+                                max = maxItem
                             )
                         )
                     )
                 }
             }
-            .width(6.dp)
     )
 }
 
 @Composable
 private fun StepGraphTail(
-    item: Int
+    item: String
 ) {
     Text(
-        text = item.toString(),
+        text = item,
         textAlign = TextAlign.Left,
         style = MaterialTheme.typography.bodySmall,
-        color = MaterialTheme.colorScheme.onBackground,
-        modifier = Modifier.width(24.dp)
+        color = MaterialTheme.colorScheme.onBackground
     )
 }
 
@@ -404,12 +417,13 @@ private fun MenuPager(
 
 @Composable
 private fun MenuDetails(
-    details: Map<String, MenuDetail>,
+    details: Map<String, MenuDetail>?,
     configuration: Configuration = LocalConfiguration.current
 ) {
-    val menuList = details.toList()
-    val cardSpacerSize = (details.size - 1) * 24
-    val cardSize = (configuration.screenWidthDp - cardSpacerSize - 16) / details.size
+    val menuList = details?.toList() ?: emptyList()
+    val menuCounter = details?.size ?: 3
+    val cardSpacerSize = (menuCounter - 1) * 24
+    val cardSize = (configuration.screenWidthDp - cardSpacerSize - 16) / menuCounter
 
     Row(modifier = Modifier.fillMaxWidth()) {
         menuList.forEachIndexed { index, item ->
@@ -429,9 +443,9 @@ private fun MenuDetails(
                         contentDescription = "IconDetail"
                     )
                     Text(
-                        text = when (item.first) {
-                            "minutes" -> item.second.value.toInt().toString()
-                            else -> String.format("%.2f", item.second.value)
+                        text = when (item.second.intro.contains("분")) {
+                            true -> item.second.value.toInt().toString()
+                            false -> String.format("%.2f", item.second.value)
                         },
                         style = MaterialTheme.typography.titleSmall,
                         color = MaterialTheme.colorScheme.onBackground
@@ -452,7 +466,7 @@ private fun MenuDetails(
 
 @Composable
 @Preview
-fun PreviewUserSteps() = PreviewStepWalkTheme {
+fun PreviewUserStepsByHour() = PreviewStepWalkTheme {
     UserPager(
         uiState = HomeUiState(
             step = StepMenu(
@@ -476,9 +490,52 @@ fun PreviewUserSteps() = PreviewStepWalkTheme {
                         type = METs.Walk
                     )
                 )
-            ),
+            ).apply {
+                setMenuDetails(55f)
+                setGraphItems(Time.Week)
+            },
             user = User.getInitValues(),
-            heartRate = HeartRateMenu.getInitValues()
+            heartRate = HeartRateMenu.getInitValues(),
+            time = Time.Week
+        ),
+        selectedStepOnGraph = 0L,
+        setSelectedStepOnGraph = {}
+    )
+}
+
+@Composable
+@Preview
+fun PreviewUserStepsByWeek() = PreviewStepWalkTheme {
+    UserPager(
+        uiState = HomeUiState(
+            step = StepMenu(
+                steps = listOf(
+                    Step(
+                        distance = 2000,
+                        start = 0,
+                        end = 1,
+                        type = METs.Walk
+                    ),
+                    Step(
+                        distance = 500,
+                        start = 30,
+                        end = 50,
+                        type = METs.Walk
+                    ),
+                    Step(
+                        distance = 800,
+                        start = 60,
+                        end = 80,
+                        type = METs.Walk
+                    )
+                )
+            ).apply {
+                setMenuDetails(55f)
+                setGraphItems(Time.Day)
+            },
+            user = User.getInitValues(),
+            heartRate = HeartRateMenu.getInitValues(),
+            time = Time.Day
         ),
         selectedStepOnGraph = 0L,
         setSelectedStepOnGraph = {}
