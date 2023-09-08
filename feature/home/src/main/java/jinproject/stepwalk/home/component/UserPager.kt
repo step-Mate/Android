@@ -1,7 +1,6 @@
 package jinproject.stepwalk.home.component
 
 import android.content.res.Configuration
-import android.content.res.Resources
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -15,7 +14,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PageSize
@@ -30,12 +28,10 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -44,22 +40,17 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
-import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInWindow
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.lerp
-import androidx.core.content.res.ResourcesCompat
-import androidx.core.graphics.drawable.toBitmap
 import jinproject.stepwalk.design.PreviewStepWalkTheme
 import jinproject.stepwalk.design.component.HorizontalSpacer
 import jinproject.stepwalk.design.component.VerticalSpacer
@@ -68,7 +59,6 @@ import jinproject.stepwalk.domain.METs
 import jinproject.stepwalk.home.HomeUiState
 import jinproject.stepwalk.home.User
 import jinproject.stepwalk.home.state.HealthState
-import jinproject.stepwalk.home.state.HeartRate
 import jinproject.stepwalk.home.state.HeartRateMenu
 import jinproject.stepwalk.home.state.MenuDetail
 import jinproject.stepwalk.home.state.Step
@@ -77,7 +67,6 @@ import jinproject.stepwalk.home.state.Time
 import jinproject.stepwalk.home.state.toAchievementDegree
 import jinproject.stepwalk.home.state.weekToString
 import java.text.DecimalFormat
-import java.util.SortedMap
 import kotlin.math.absoluteValue
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -147,7 +136,7 @@ private fun PageMenu(
                 .fillMaxWidth()
                 .clip(RoundedCornerShape(10.dp))
                 .background(MaterialTheme.colorScheme.secondary)
-                .padding(start = 10.dp, end = 10.dp, bottom = 10.dp, top = 50.dp)
+                .padding(start = 10.dp, end = 10.dp, bottom = 10.dp, top = 10.dp)
         ) {
             PagerGraph(
                 itemsCount = graphHorizontalItems.size,
@@ -158,8 +147,9 @@ private fun PageMenu(
                     .padding(10.dp),
                 horizontalAxis = { index ->
                     StepGraphTail(
-                        item = when (pageTime == Time.Week) {
-                            true -> graphHorizontalItems[index].weekToString()
+                        item = when (pageTime) {
+                            Time.Week -> graphHorizontalItems[index].weekToString()
+                            Time.Year -> (graphHorizontalItems[index] + 1).toString()
                             else -> graphHorizontalItems[index].toString()
                         }
                     )

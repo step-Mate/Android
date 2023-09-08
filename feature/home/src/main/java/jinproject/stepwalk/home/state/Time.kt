@@ -1,15 +1,12 @@
 package jinproject.stepwalk.home.state
 
-import androidx.compose.ui.text.TextStyle
 import java.time.Instant
 import java.time.LocalDate
-import java.time.LocalDateTime
+import java.time.Period
 import java.time.ZoneId
 import java.time.temporal.ChronoField
 import java.time.temporal.TemporalAdjusters
-import java.time.temporal.WeekFields
 import java.util.Locale
-import javax.annotation.meta.When
 
 internal enum class Time {
     Day,
@@ -34,17 +31,25 @@ internal enum class Time {
         when (this) {
             Day -> zonedDateTime.hour
             Week -> zonedDateTime.dayOfWeek.value
-            Month -> zonedDateTime.monthValue
-            Year -> zonedDateTime.year
+            Month -> zonedDateTime.dayOfMonth
+            Year -> zonedDateTime.monthValue
         }
     }
 
     fun display() = when(this) {
-        Year -> "년"
-        Month -> "달"
-        Week -> "주"
-        Day -> "일"
+        Year -> "올해"
+        Month -> "이번달"
+        Week -> "이번주"
+        Day -> "오늘"
     }
+
+    fun toPeriod(): Period = when(this) {
+        Year -> Period.ofYears(1)
+        Month -> Period.ofMonths(1)
+        Week -> Period.ofWeeks(1)
+        else -> throw IllegalStateException("Period 로 변환할수 없는 $this 입니다.")
+    }
+
 }
 
 internal fun Int.weekToString() = LocalDate

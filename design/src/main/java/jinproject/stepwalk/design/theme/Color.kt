@@ -19,11 +19,29 @@ value class StepWalkColor private constructor(val color: Color){
         @Stable
         private val white = StepWalkColor(Color(0XFFFFFFFF))
         @Stable
-        private val lightGray = StepWalkColor(Color(0xFFDADDE1))
+        private val lightGrey = StepWalkColor(Color(0xFFDADDE1))
         @Stable
-        private val mediumGray = StepWalkColor(Color(0xFF8A8A8A))
+        private val mediumGrey = StepWalkColor(Color(0xFF8A8A8A))
         @Stable
-        private val deepGray = StepWalkColor(Color(0xFF575757))
+        private val deepGrey = StepWalkColor(Color(0xFF575757))
+        @Stable
+        private val grey_100 = StepWalkColor(Color(0xFFF5F5F5))
+        @Stable
+        private val grey_200 = StepWalkColor(Color(0xFFEEEEEE))
+        @Stable
+        private val grey_300 = StepWalkColor(Color(0xFFE0E0E0))
+        @Stable
+        private val grey_400 = StepWalkColor(Color(0xFFBDBDBD))
+        @Stable
+        private val grey_500 = StepWalkColor(Color(0xFF9E9E9E))
+        @Stable
+        private val grey_600 = StepWalkColor(Color(0xFF757575))
+        @Stable
+        private val grey_700 = StepWalkColor(Color(0xFF616161))
+        @Stable
+        private val grey_800 = StepWalkColor(Color(0xFF424242))
+        @Stable
+        private val grey_900 = StepWalkColor(Color(0xFF212121))
         @Stable
         val red = StepWalkColor(Color(0xFFE0302D))
         @Stable
@@ -71,7 +89,7 @@ value class StepWalkColor private constructor(val color: Color){
         val light_primary = primary
         val light_onPrimary = white
         @Stable
-        val light_secondary = lightGray
+        val light_secondary = grey_300
         val light_onSecondary = lightBlack
         val light_error = red
         @Stable
@@ -81,23 +99,23 @@ value class StepWalkColor private constructor(val color: Color){
         val light_surface = white
         val light_onSurface = lightBlack
         val light_onSurfaceVariant = lightBlack
-        val light_scrim = mediumGray
-        val light_outline = mediumGray
+        val light_scrim = mediumGrey
+        val light_outline = mediumGrey
 
         val dark_primary = deep_primary
-        val dark_onPrimary = lightGray
+        val dark_onPrimary = lightGrey
         @Stable
-        val dark_secondary = deepGray
-        val dark_onSecondary = lightGray
+        val dark_secondary = deepGrey
+        val dark_onSecondary = lightGrey
         @Stable
         val dark_error = StepWalkColor(Color(0xFFFFB4A9))
         val dark_onError = deepRed
         val dark_background = black // 컨테이너 색상
-        val dark_onBackground = lightGray
+        val dark_onBackground = lightGrey
         val dark_surface = lightBlack // 상단바 색상
-        val dark_onSurface = lightGray
-        val dark_onSurfaceVariant = deepGray
-        val dark_scrim = lightGray
-        val dark_outline = lightGray
+        val dark_onSurface = lightGrey
+        val dark_onSurfaceVariant = deepGrey
+        val dark_scrim = lightGrey
+        val dark_outline = lightGrey
     }
 }

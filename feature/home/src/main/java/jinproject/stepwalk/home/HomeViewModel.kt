@@ -1,7 +1,6 @@
 package jinproject.stepwalk.home
 
 import androidx.compose.runtime.Stable
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import jinproject.stepwalk.home.state.HealthState
@@ -17,7 +16,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import javax.inject.Inject
-import kotlin.math.roundToInt
 
 @Stable
 internal data class HomeUiState(
@@ -61,7 +59,7 @@ internal data class HomeUiState(
                             title = page.display()
                         ),
                         figure = heartRate.heartRates
-                            .map { it.perMinutes }
+                            .map { it.avg }
                             .average()
                             .toInt(),
                         max = 200
@@ -94,7 +92,7 @@ internal data class User(
             uid = 0L,
             name = "",
             age = 0,
-            kg = 0f,
+            kg = 55f,
             height = 0f
         )
     }
@@ -131,6 +129,12 @@ internal class HomeViewModel @Inject constructor() : ViewModel() {
     }
 
     fun setTime(time: Time) = _uiState.update { state ->
-        state.copy(time = time, step = state.step.copy(), heartRate = state.heartRate.copy())
+        state.copy(time = time, step = state.step.copy().apply {
+            setGraphItems(time)
+            setMenuDetails(state.user.kg)
+        }, heartRate = state.heartRate.copy().apply {
+            setGraphItems(time)
+            setMenuDetails()
+        })
     }
 }

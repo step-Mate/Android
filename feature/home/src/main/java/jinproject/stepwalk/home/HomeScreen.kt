@@ -3,12 +3,16 @@ package jinproject.stepwalk.home
 import android.content.Context
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.compose.animation.core.MutableTransitionState
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.updateTransition
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -19,12 +23,9 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.layout.positionInWindow
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
@@ -50,8 +51,8 @@ import jinproject.stepwalk.home.component.UserPager
 import jinproject.stepwalk.home.state.HeartRate
 import jinproject.stepwalk.home.state.Step
 import jinproject.stepwalk.home.state.Time
+import jinproject.stepwalk.home.utils.onKorea
 import java.time.Instant
-import java.time.ZoneId
 import java.time.temporal.ChronoUnit
 
 private val PERMISSIONS =
@@ -89,7 +90,7 @@ internal fun HomeScreen(
             if (granted.containsAll(PERMISSIONS)) {
                 Log.d("test", "권한 있음")
 
-                val instant = Instant.now().atZone(ZoneId.of("Asia/Seoul"))
+                val instant = Instant.now().onKorea()
 
                 /*(0..23).forEach { count ->
                     healthConnector.insertSteps(
@@ -97,9 +98,9 @@ internal fun HomeScreen(
                         startTime = instant.truncatedTo(ChronoUnit.DAYS).toInstant().plus(count.toLong(), ChronoUnit.HOURS),
                         endTime = instant.truncatedTo(ChronoUnit.DAYS).toInstant().plus(count.toLong(), ChronoUnit.HOURS).plus(30L,ChronoUnit.MINUTES)
                     )
-                }*/
+                }
 
-                /*(0..23).forEach { count ->
+                (0..23).forEach { count ->
                     healthConnector.insertHeartRates(
                         heartRate = (count % 4) * 40L,
                         startTime = instant.truncatedTo(ChronoUnit.DAYS).toInstant().plus(count.toLong(), ChronoUnit.HOURS),
@@ -107,20 +108,60 @@ internal fun HomeScreen(
                     )
                 }*/
 
-                homeViewModel::setSteps.invoke(
-                    healthConnector.readStepsByTimeRange(
-                        startTime = instant.truncatedTo(ChronoUnit.DAYS).toInstant(),
-                        endTime = instant.withHour(23).toInstant(),
-                        type = METs.Walk
-                    ) ?: listOf(Step.getInitValues())
-                )
 
-                homeViewModel::setHeartRates.invoke(
-                    healthConnector.readHeartRatesByTimeRange(
-                        startTime = instant.truncatedTo(ChronoUnit.DAYS).toInstant(),
-                        endTime = instant.withHour(23).toInstant()
-                    ) ?: listOf(HeartRate.getInitValues())
-                )
+                val endTime = instant
+                    .withHour(23)
+                    .withMinute(59)
+                    .toInstant()
+
+                when (val time = uiState.time) {
+                    Time.Day -> {
+                        homeViewModel::setSteps.invoke(
+                            healthConnector.readStepsByHours(
+                                startTime = instant
+                                    .truncatedTo(ChronoUnit.DAYS)
+                                    .toInstant(),
+                                endTime = endTime,
+                                type = METs.Walk
+                            ) ?: listOf(Step.getInitValues())
+                        )
+
+                        homeViewModel::setHeartRates.invoke(
+                            healthConnector.readHeartRatesByHours(
+                                startTime = instant
+                                    .truncatedTo(ChronoUnit.DAYS)
+                                    .toInstant(),
+                                endTime = endTime
+                            ) ?: listOf(HeartRate.getInitValues())
+                        )
+                    }
+
+                    else -> {
+                        val startTime = when (time) {
+                            Time.Year -> instant.minusYears(1L)
+                            else -> instant.minusDays(time.toRepeatTimes().toLong())
+                        }
+                            .truncatedTo(ChronoUnit.DAYS)
+                            .toInstant()
+
+                        homeViewModel::setSteps.invoke(
+                            healthConnector.readStepsByPeriods(
+                                startTime = startTime,
+                                endTime = endTime,
+                                type = METs.Walk,
+                                period = time.toPeriod()
+                            ) ?: listOf(Step.getInitValues())
+                        )
+
+                        homeViewModel::setHeartRates.invoke(
+                            healthConnector.readHeartRatesByPeriods(
+                                startTime = startTime,
+                                endTime = endTime,
+                                period = time.toPeriod()
+                            ) ?: listOf(HeartRate.getInitValues())
+                        )
+                    }
+                }
 
             } else {
                 Log.d("test", "권한 없음")
@@ -178,7 +219,47 @@ private fun PopUpWindow(
     offPopUp: () -> Unit,
     onClickPopUpItem: (Time) -> Unit
 ) {
-    if (popUpState) {
+    val transitionState = remember {
+        MutableTransitionState(false)
+    }
+    transitionState.targetState = popUpState
+    val transition = updateTransition(transitionState, label = "PopupTransition")
+
+    val scale by transition.animateFloat(
+        transitionSpec = {
+            if (false isTransitioningTo true) {
+                tween(durationMillis = 300)
+            } else {
+                tween(durationMillis = 250)
+            }
+        },
+        label = "PopupScale"
+    ) {
+        if (it) {
+            1f
+        } else {
+            0f
+        }
+    }
+
+    val alpha by transition.animateFloat(
+        transitionSpec = {
+            if (false isTransitioningTo true) {
+                tween(durationMillis = 300)
+            } else {
+                tween(durationMillis = 250)
+            }
+        },
+        label = "PopupAlpha"
+    ) {
+        if (it) {
+            1f
+        } else {
+            0f
+        }
+    }
+
+    if (transitionState.currentState || transitionState.targetState) {
         Popup(
             popupPositionProvider = object : PopupPositionProvider {
                 override fun calculatePosition(
@@ -193,12 +274,17 @@ private fun PopUpWindow(
                     )
                 }
             },
-            properties = PopupProperties(),
+            properties = PopupProperties(focusable = true),
             onDismissRequest = offPopUp
         ) {
             Column(
                 modifier = Modifier
-                    .width(50.dp)
+                    .graphicsLayer {
+                        scaleX = scale
+                        scaleY = scale
+                        this.alpha = alpha
+                    }
+                    .width(100.dp)
                     .shadow(5.dp, RoundedCornerShape(10.dp))
                     .background(MaterialTheme.colorScheme.background)
                     .padding(horizontal = 8.dp, vertical = 8.dp),
@@ -209,12 +295,14 @@ private fun PopUpWindow(
                         text = time.display(),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onBackground,
-                        modifier = Modifier.clickable {
-                            onClickPopUpItem(time)
-                        }
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable {
+                                onClickPopUpItem(time)
+                            }
                     )
-                    if(index != Time.values().lastIndex) {
-                        VerticalSpacer(height = 4.dp)
+                    if (index != Time.values().lastIndex) {
+                        VerticalSpacer(height = 10.dp)
                     }
                 }
             }

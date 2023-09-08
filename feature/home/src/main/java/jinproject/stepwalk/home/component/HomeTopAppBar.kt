@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -30,9 +31,10 @@ internal fun HomeTopAppBar(
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .height(56.dp)
+            .height(76.dp)
             .shadow(4.dp, RectangleShape, clip = false)
             .background(MaterialTheme.colorScheme.surface)
+            .padding(top = 20.dp)
     ) {
         IconButton(
             modifier = Modifier

@@ -74,7 +74,7 @@ class StepWalkActivity : ComponentActivity() {
         }
 
         Surface(
-            modifier = Modifier.fillMaxSize().safeDrawingPadding(),
+            modifier = Modifier.fillMaxSize(),
             color = Color.Transparent
         ) {
             Scaffold(
@@ -103,7 +103,7 @@ class StepWalkActivity : ComponentActivity() {
                         .consumeWindowInsets(paddingValues)
                         .windowInsetsPadding(
                             WindowInsets.safeDrawing.only(
-                                WindowInsetsSides.Vertical
+                                WindowInsetsSides.Horizontal
                             )
                         ),
                     showSnackBar = { snackBarMessage ->
