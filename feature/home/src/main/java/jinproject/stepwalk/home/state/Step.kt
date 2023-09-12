@@ -3,18 +3,9 @@ package jinproject.stepwalk.home.state
 import android.util.Log
 import androidx.compose.runtime.Stable
 import jinproject.stepwalk.design.R
-import jinproject.stepwalk.domain.METs
+import jinproject.stepwalk.domain.model.METs
 import java.time.Instant
-import java.time.ZoneId
-import java.time.ZonedDateTime
-import java.time.temporal.ChronoField
-import java.time.temporal.TemporalAdjusters
-import java.time.temporal.TemporalAmount
-import java.time.temporal.TemporalField
-import java.time.temporal.TemporalUnit
 import java.util.SortedMap
-import kotlin.time.Duration.Companion.days
-import kotlin.time.toJavaDuration
 
 @Stable
 internal data class StepMenu(
@@ -86,7 +77,7 @@ internal data class StepMenu(
 }
 
 @Stable
-internal data class Step(
+data class Step(
     val distance: Long,
     val start: Int,
     val end: Int,

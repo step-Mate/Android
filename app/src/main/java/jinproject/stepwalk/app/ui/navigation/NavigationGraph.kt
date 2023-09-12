@@ -20,6 +20,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import jinproject.stepwalk.app.ui.core.SnackBarMessage
+import jinproject.stepwalk.home.HealthConnector
 import jinproject.stepwalk.home.navigation.homeScreen
 
 
@@ -27,6 +28,7 @@ import jinproject.stepwalk.home.navigation.homeScreen
 fun NavigationGraph(
     navController: NavHostController,
     modifier: Modifier = Modifier,
+    healthConnector: HealthConnector,
     showSnackBar: (SnackBarMessage) -> Unit
 ) {
     NavHost(
@@ -34,7 +36,7 @@ fun NavigationGraph(
         startDestination = BottomNavigationDestination.HOME.route,
         modifier = modifier
     ) {
-        homeScreen()
+        homeScreen(healthConnector)
 
         composable(route = BottomNavigationDestination.SETTING.route) {
             Column(modifier = Modifier.fillMaxSize()) {

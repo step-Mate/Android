@@ -55,7 +55,7 @@ import jinproject.stepwalk.design.PreviewStepWalkTheme
 import jinproject.stepwalk.design.component.HorizontalSpacer
 import jinproject.stepwalk.design.component.VerticalSpacer
 import jinproject.stepwalk.design.theme.StepWalkColor
-import jinproject.stepwalk.domain.METs
+import jinproject.stepwalk.domain.model.METs
 import jinproject.stepwalk.home.HomeUiState
 import jinproject.stepwalk.home.User
 import jinproject.stepwalk.home.state.HealthState

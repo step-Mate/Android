@@ -1,5 +1,6 @@
 package jinproject.stepwalk.home.state
 
+import jinproject.stepwalk.home.utils.onKorea
 import java.time.Instant
 import java.time.LocalDate
 import java.time.Period
@@ -27,7 +28,7 @@ internal enum class Time {
     }
 
     fun toZonedOffset(today: Instant) = run {
-        val zonedDateTime = today.atZone(ZoneId.of("Asia/Seoul"))
+        val zonedDateTime = today.onKorea()
         when (this) {
             Day -> zonedDateTime.hour
             Week -> zonedDateTime.dayOfWeek.value

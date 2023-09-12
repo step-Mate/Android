@@ -1,4 +1,4 @@
-package jinproject.stepwalk.domain
+package jinproject.stepwalk.domain.model
 
 enum class METs {
     Walk,

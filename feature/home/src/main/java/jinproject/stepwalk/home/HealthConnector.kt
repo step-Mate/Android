@@ -12,7 +12,12 @@ import androidx.health.connect.client.records.metadata.DataOrigin
 import androidx.health.connect.client.request.AggregateGroupByDurationRequest
 import androidx.health.connect.client.request.AggregateGroupByPeriodRequest
 import androidx.health.connect.client.time.TimeRangeFilter
-import jinproject.stepwalk.domain.METs
+import dagger.Module
+import dagger.Provides
+import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
+import dagger.hilt.components.SingletonComponent
+import jinproject.stepwalk.domain.model.METs
 import jinproject.stepwalk.home.state.HeartRate
 import jinproject.stepwalk.home.state.Step
 import jinproject.stepwalk.home.utils.onKorea
@@ -20,10 +25,20 @@ import java.time.Duration
 import java.time.Instant
 import java.time.Period
 import java.time.ZoneOffset
+import javax.inject.Inject
+import javax.inject.Singleton
+
+@Module
+@InstallIn(SingletonComponent::class)
+object HealthConnectorModule {
+    @Singleton
+    @Provides
+    fun providesHealthConnector(@ApplicationContext context: Context): HealthConnector = HealthConnector(context)
+}
 
 @Stable
-internal class HealthConnector(
-    context: Context
+class HealthConnector @Inject constructor(
+    @ApplicationContext context: Context
 ) {
     val healthConnectClient = getHealthClient(context)
 

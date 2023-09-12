@@ -2,7 +2,9 @@ package jinproject.stepwalk.home
 
 import androidx.compose.runtime.Stable
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import jinproject.stepwalk.domain.usecase.GetStepUseCase
 import jinproject.stepwalk.home.state.HealthState
 import jinproject.stepwalk.home.state.HeartRate
 import jinproject.stepwalk.home.state.HeartRateMenu
@@ -14,7 +16,11 @@ import jinproject.stepwalk.home.state.Time
 import jinproject.stepwalk.home.state.total
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @Stable
@@ -99,7 +105,9 @@ internal data class User(
 }
 
 @HiltViewModel
-internal class HomeViewModel @Inject constructor() : ViewModel() {
+internal class HomeViewModel @Inject constructor(
+    private val getStepUseCase: GetStepUseCase
+) : ViewModel() {
 
     private val _uiState: MutableStateFlow<HomeUiState> =
         MutableStateFlow(HomeUiState.getInitValues())
@@ -107,6 +115,13 @@ internal class HomeViewModel @Inject constructor() : ViewModel() {
 
     private val _selectedStepOnGraph = MutableStateFlow(0L)
     val selectedStepOnGraph get() = _selectedStepOnGraph.asStateFlow()
+
+    private val _stepThisHour = MutableStateFlow(0)
+    val stepThisHour get() = _stepThisHour.asStateFlow()
+
+    init {
+        getStepThisHour()
+    }
 
     fun setSteps(steps: List<Step>) = _uiState.update { state ->
         state.copy(
@@ -116,6 +131,12 @@ internal class HomeViewModel @Inject constructor() : ViewModel() {
             }
         )
     }
+
+    private fun getStepThisHour() = getStepUseCase
+        .invoke()
+        .onEach { step ->
+            _stepThisHour.update { step }
+        }.launchIn(viewModelScope)
 
     fun setSelectedStepOnGraph(step: Long) = _selectedStepOnGraph.update { step }
 

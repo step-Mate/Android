@@ -1,6 +1,7 @@
 package jinproject.stepwalk.home
 
 import android.content.Context
+import android.content.Intent
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.compose.animation.core.MutableTransitionState
@@ -45,9 +46,10 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import jinproject.stepwalk.design.component.DefaultLayout
 import jinproject.stepwalk.design.component.VerticalSpacer
 import jinproject.stepwalk.design.theme.StepWalkTheme
-import jinproject.stepwalk.domain.METs
+import jinproject.stepwalk.domain.model.METs
 import jinproject.stepwalk.home.component.HomeTopAppBar
 import jinproject.stepwalk.home.component.UserPager
+import jinproject.stepwalk.home.service.StepService
 import jinproject.stepwalk.home.state.HeartRate
 import jinproject.stepwalk.home.state.Step
 import jinproject.stepwalk.home.state.Time
@@ -66,11 +68,9 @@ private val PERMISSIONS =
 @Composable
 internal fun HomeScreen(
     context: Context = LocalContext.current,
+    healthConnector: HealthConnector,
     homeViewModel: HomeViewModel = hiltViewModel()
 ) {
-    val healthConnector = remember {
-        HealthConnector(context)
-    }
 
     val permissionLauncher =
         rememberLauncherForActivityResult(contract = PermissionController.createRequestPermissionResultContract()) { result ->
@@ -90,6 +90,7 @@ internal fun HomeScreen(
             if (granted.containsAll(PERMISSIONS)) {
                 Log.d("test", "권한 있음")
 
+                context.startForegroundService(Intent(context,StepService::class.java))
                 val instant = Instant.now().onKorea()
 
                 /*(0..23).forEach { count ->

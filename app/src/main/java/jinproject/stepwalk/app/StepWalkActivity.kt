@@ -1,8 +1,15 @@
 package jinproject.stepwalk.app
 
+import android.Manifest
+import android.content.Intent
+import android.os.Build
 import android.os.Bundle
+import android.util.Log
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.WindowInsets
@@ -35,14 +42,33 @@ import jinproject.stepwalk.app.ui.navigation.BottomNavigationGraph
 import jinproject.stepwalk.app.ui.navigation.NavigationGraph
 import jinproject.stepwalk.design.component.SnackBarHostCustom
 import jinproject.stepwalk.design.theme.StepWalkTheme
+import jinproject.stepwalk.home.HealthConnector
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class StepWalkActivity : ComponentActivity() {
+
+    @Inject lateinit var healthConnector: HealthConnector
+
+    private val permissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestMultiplePermissions()
+    ) { result ->
+        if (result.filter { it.value.not() }.isNotEmpty()) {
+            Toast.makeText(
+                applicationContext,
+                "권한 설정에 동의하셔야 합니다.",
+                Toast.LENGTH_LONG
+            ).show()
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
 
         super.onCreate(savedInstanceState)
+
+        permissionLauncher.launch(PERMISSIONS)
 
         WindowCompat.setDecorFitsSystemWindows(window,false)
 
@@ -106,11 +132,24 @@ class StepWalkActivity : ComponentActivity() {
                                 WindowInsetsSides.Horizontal
                             )
                         ),
+                    healthConnector = healthConnector,
                     showSnackBar = { snackBarMessage ->
                         showSnackBar(snackBarMessage)
                     }
                 )
             }
+        }
+    }
+
+    companion object {
+        val PERMISSIONS = when(Build.VERSION.SDK_INT >= 33) {
+            true -> arrayOf(
+                Manifest.permission.POST_NOTIFICATIONS,
+                Manifest.permission.ACTIVITY_RECOGNITION
+            )
+            false -> arrayOf(
+                Manifest.permission.ACTIVITY_RECOGNITION
+            )
         }
     }
 }

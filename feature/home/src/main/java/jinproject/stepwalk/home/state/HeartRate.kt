@@ -72,7 +72,7 @@ internal data class HeartRateMenu(
     }
 }
 
-internal data class HeartRate(
+data class HeartRate(
     val startTime: Instant,
     val endTime: Instant,
     val min: Int,

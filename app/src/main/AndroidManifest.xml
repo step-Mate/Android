@@ -7,6 +7,10 @@
     <uses-permission android:name="android.permission.health.WRITE_STEPS"/>
     <uses-permission android:name="android.permission.health.READ_HEART_RATE"/>
     <uses-permission android:name="android.permission.health.WRITE_HEART_RATE"/>
+    <uses-permission android:name="android.permission.ACTIVITY_RECOGNITION" android:minSdkVersion="29"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" android:minSdkVersion="33" />
 
     <application
         android:name=".StepWalkApplication"
@@ -29,7 +33,16 @@
                 <category android:name="android.intent.category.LAUNCHER" />
                 <action android:name="androidx.health.ACTION_SHOW_PERMISSIONS_RATIONALE" />
             </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="step_walk"
+                    android:host="home" />
+            </intent-filter>
         </activity>
+
+        <service android:name="jinproject.stepwalk.home.service.StepService" android:exported="false"/>
     </application>
 
     <queries>
