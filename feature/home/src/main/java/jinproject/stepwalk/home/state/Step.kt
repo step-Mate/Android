@@ -12,22 +12,28 @@ internal data class StepMenu(
     val steps: List<Step>,
 ): HealthMenu {
     override var details: Map<String, MenuDetail>? = null
-    override var graphItems: SortedMap<Int, Long>? = null
+    override var graphItems: List<Long>? = null
 
     fun setGraphItems(time: Time) = kotlin.run {
-        val items = mutableMapOf<Int, Long>().apply {
-            repeat(time.toRepeatTimes()) { repeatTime ->
-                this[repeatTime] = 0
+        val items = ArrayList<Long>(time.toRepeatTimes()).apply {
+            repeat(time.toRepeatTimes()) { index ->
+                add(index, 0L)
             }
         }
 
         steps.forEach { step ->
             val instant = Instant.ofEpochSecond(step.start.toLong() * 60L)
             val key = time.toZonedOffset(instant)
-            items[key] = (items[key] ?: 0) + step.distance
+            when (time) {
+                Time.Day -> items[key] = step.distance
+                else -> items[key - 1] = step.distance
+            }
         }
 
-        graphItems = items.toSortedMap(compareBy { it })
+        graphItems = when(time) {
+            Time.Week -> items.sortDayOfWeek()
+            else -> items
+        }
     }
 
     fun setMenuDetails(kg: Float) = kotlin.runCatching {
@@ -72,7 +78,10 @@ internal data class StepMenu(
                     type = METs.Walk
                 )
             ),
-        )
+        ).apply {
+            setGraphItems(Time.Day)
+            setMenuDetails(55f)
+        }
     }
 }
 

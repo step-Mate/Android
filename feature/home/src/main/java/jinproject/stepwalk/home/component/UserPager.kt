@@ -64,6 +64,7 @@ import jinproject.stepwalk.home.state.MenuDetail
 import jinproject.stepwalk.home.state.Step
 import jinproject.stepwalk.home.state.StepMenu
 import jinproject.stepwalk.home.state.Time
+import jinproject.stepwalk.home.state.sortDayOfWeek
 import jinproject.stepwalk.home.state.toAchievementDegree
 import jinproject.stepwalk.home.state.weekToString
 import java.text.DecimalFormat
@@ -87,7 +88,6 @@ internal fun UserPager(
         pages = pages,
         pagerState = pagerState,
         modifier = modifier,
-        pageTime = uiState.time,
         selectedStepOnGraph = selectedStepOnGraph,
         setSelectedStepOnGraph = setSelectedStepOnGraph
     )
@@ -100,7 +100,6 @@ private fun PageMenu(
     modifier: Modifier = Modifier,
     pages: List<HealthState>,
     pagerState: PagerState,
-    pageTime: Time,
     selectedStepOnGraph: Long,
     setSelectedStepOnGraph: (Long) -> Unit
 ) {
@@ -124,8 +123,8 @@ private fun PageMenu(
         VerticalSpacer(height = 40.dp)
 
         val graphItems = menu.graphItems
-        val graphHorizontalItems = graphItems?.keys?.toList() ?: (0 until pageTime.toRepeatTimes()).toList()
-        val graphVerticalMax = graphItems?.values?.maxOrNull() ?: 0
+        val graphHorizontalItems = (0L until (graphItems?.size?.toLong() ?: 0L)).toList()
+        val graphVerticalMax = graphItems?.maxOrNull() ?: 0
         val popUpState = remember { mutableStateOf(false) }
         val popUpOffset = remember {
             mutableStateOf(Offset(0F, 0F))
@@ -147,10 +146,13 @@ private fun PageMenu(
                     .padding(10.dp),
                 horizontalAxis = { index ->
                     StepGraphTail(
-                        item = when (pageTime) {
-                            Time.Week -> graphHorizontalItems[index].weekToString()
-                            Time.Year -> (graphHorizontalItems[index] + 1).toString()
-                            else -> graphHorizontalItems[index].toString()
+                        item = when (graphHorizontalItems.size) {
+                            Time.Week.toRepeatTimes() -> graphHorizontalItems
+                                .sortDayOfWeek()[index]
+                                .weekToString()
+
+                            Time.Day.toRepeatTimes() -> graphHorizontalItems[index].toString()
+                            else -> (graphHorizontalItems[index] + 1).toString()
                         }
                     )
                 },
@@ -164,7 +166,8 @@ private fun PageMenu(
                     StepBar(
                         index = index,
                         item = graphItems?.get(index) ?: 0L,
-                        nextItem = graphItems?.get(index + 1) ?: 0L,
+                        nextItem = kotlin.runCatching { graphItems?.get(index + 1) ?: 0L }
+                            .getOrDefault(0L),
                         maxItem = graphVerticalMax,
                         horizontalSize = graphHorizontalItems.size,
                         setSelectedStepOnGraph = { step -> setSelectedStepOnGraph(step) },
@@ -471,6 +474,30 @@ fun PreviewUserStepsByHour() = PreviewStepWalkTheme {
                         distance = 500,
                         start = 30,
                         end = 50,
+                        type = METs.Walk
+                    ),
+                    Step(
+                        distance = 800,
+                        start = 60,
+                        end = 80,
+                        type = METs.Walk
+                    ),
+                    Step(
+                        distance = 800,
+                        start = 60,
+                        end = 80,
+                        type = METs.Walk
+                    ),
+                    Step(
+                        distance = 800,
+                        start = 60,
+                        end = 80,
+                        type = METs.Walk
+                    ),
+                    Step(
+                        distance = 800,
+                        start = 60,
+                        end = 80,
                         type = METs.Walk
                     ),
                     Step(

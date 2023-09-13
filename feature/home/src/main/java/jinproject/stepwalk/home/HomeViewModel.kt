@@ -16,11 +16,9 @@ import jinproject.stepwalk.home.state.Time
 import jinproject.stepwalk.home.state.total
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @Stable
@@ -150,12 +148,6 @@ internal class HomeViewModel @Inject constructor(
     }
 
     fun setTime(time: Time) = _uiState.update { state ->
-        state.copy(time = time, step = state.step.copy().apply {
-            setGraphItems(time)
-            setMenuDetails(state.user.kg)
-        }, heartRate = state.heartRate.copy().apply {
-            setGraphItems(time)
-            setMenuDetails()
-        })
+        state.copy(time = time)
     }
 }

@@ -9,7 +9,7 @@ internal interface HealthMenu {
     val details: Map<String, MenuDetail>?
 
     @Stable
-    val graphItems: SortedMap<Int, Long>?
+    val graphItems: List<Long>?
 }
 
 @Stable

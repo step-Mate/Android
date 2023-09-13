@@ -6,6 +6,8 @@ import java.time.ZoneId
 import java.time.ZoneOffset
 import java.time.ZonedDateTime
 
-fun LocalDateTime.onKorea(): ZonedDateTime = this.atZone(ZoneOffset.of("Asia/Seoul"))
+fun LocalDateTime.onKorea(): ZonedDateTime = this.atZone(ZoneOffset.of("+9"))
 
-fun Instant.onKorea(): ZonedDateTime = this.atZone(ZoneId.of("Asia/Seoul"))
+fun Instant.onKorea(): ZonedDateTime = this.atZone(ZoneOffset.of("+9"))
+
+fun Instant.toLocalDateTime(): LocalDateTime = this.onKorea().toLocalDateTime()

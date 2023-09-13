@@ -23,8 +23,10 @@ import jinproject.stepwalk.home.state.Step
 import jinproject.stepwalk.home.utils.onKorea
 import java.time.Duration
 import java.time.Instant
+import java.time.LocalDateTime
 import java.time.Period
 import java.time.ZoneOffset
+import java.time.temporal.ChronoUnit
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -33,7 +35,8 @@ import javax.inject.Singleton
 object HealthConnectorModule {
     @Singleton
     @Provides
-    fun providesHealthConnector(@ApplicationContext context: Context): HealthConnector = HealthConnector(context)
+    fun providesHealthConnector(@ApplicationContext context: Context): HealthConnector =
+        HealthConnector(context)
 }
 
 @Stable
@@ -43,7 +46,8 @@ class HealthConnector @Inject constructor(
     val healthConnectClient = getHealthClient(context)
 
     private val stepMetrics = setOf(StepsRecord.COUNT_TOTAL)
-    private val heartRateMetrics = setOf(HeartRateRecord.BPM_MAX, HeartRateRecord.BPM_MIN, HeartRateRecord.BPM_AVG)
+    private val heartRateMetrics =
+        setOf(HeartRateRecord.BPM_MAX, HeartRateRecord.BPM_MIN, HeartRateRecord.BPM_AVG)
 
     suspend fun insertSteps(
         step: Long,
@@ -59,8 +63,8 @@ class HealthConnector @Inject constructor(
                 endZoneOffset = ZoneOffset.of("+9"),
             )
             healthConnectClient?.insertRecords(listOf(stepsRecord))
-        }.onFailure {
-
+        }.onFailure { e ->
+            Log.e("test", "error occurred while inserting steps : ${e.message}")
         }
     }
 
@@ -89,8 +93,8 @@ class HealthConnector @Inject constructor(
     }
 
     suspend fun readStepsByPeriods(
-        startTime: Instant,
-        endTime: Instant,
+        startTime: LocalDateTime,
+        endTime: LocalDateTime,
         type: METs,
         period: Period
     ): List<Step>? = kotlin.runCatching {
@@ -115,7 +119,7 @@ class HealthConnector @Inject constructor(
             }
         }
     }.onFailure { e ->
-
+        Log.d("test", "byPeriods error: ${e.message}")
     }.getOrNull()
 
     suspend fun readStepsByHours(
@@ -144,8 +148,28 @@ class HealthConnector @Inject constructor(
             }
         }
     }.onFailure { e ->
-
+        Log.d("test", "byHours error: ${e.message}")
     }.getOrNull()
+
+    suspend fun getTotalStepToday(
+        type: METs
+    ): Long = kotlin.run {
+        val instant = Instant
+            .now()
+            .onKorea()
+            .truncatedTo(ChronoUnit.DAYS)
+            .toInstant()
+
+        val steps = readStepsByHours(
+            startTime = instant,
+            endTime = instant
+                .plus(23, ChronoUnit.HOURS)
+                .plus(59, ChronoUnit.MINUTES),
+            type = type
+        )
+
+        steps?.sumOf { it.distance } ?: 0L
+    }
 
     suspend fun readHeartRatesByHours(
         startTime: Instant,
@@ -176,8 +200,8 @@ class HealthConnector @Inject constructor(
     }.getOrNull()
 
     suspend fun readHeartRatesByPeriods(
-        startTime: Instant,
-        endTime: Instant,
+        startTime: LocalDateTime,
+        endTime: LocalDateTime,
         period: Period
     ): List<HeartRate>? = kotlin.runCatching {
         val response =

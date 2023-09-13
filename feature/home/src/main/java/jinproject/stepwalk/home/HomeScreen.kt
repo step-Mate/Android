@@ -1,7 +1,6 @@
 package jinproject.stepwalk.home
 
 import android.content.Context
-import android.content.Intent
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.compose.animation.core.MutableTransitionState
@@ -43,19 +42,23 @@ import androidx.health.connect.client.records.HeartRateRecord
 import androidx.health.connect.client.records.StepsRecord
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.work.ExistingPeriodicWorkPolicy
+import androidx.work.PeriodicWorkRequestBuilder
+import androidx.work.WorkManager
 import jinproject.stepwalk.design.component.DefaultLayout
 import jinproject.stepwalk.design.component.VerticalSpacer
 import jinproject.stepwalk.design.theme.StepWalkTheme
 import jinproject.stepwalk.domain.model.METs
 import jinproject.stepwalk.home.component.HomeTopAppBar
 import jinproject.stepwalk.home.component.UserPager
-import jinproject.stepwalk.home.service.StepService
 import jinproject.stepwalk.home.state.HeartRate
 import jinproject.stepwalk.home.state.Step
 import jinproject.stepwalk.home.state.Time
 import jinproject.stepwalk.home.utils.onKorea
+import jinproject.stepwalk.home.worker.StartServiceWorker
 import java.time.Instant
 import java.time.temporal.ChronoUnit
+import java.util.concurrent.TimeUnit
 
 private val PERMISSIONS =
     setOf(
@@ -84,13 +87,26 @@ internal fun HomeScreen(
     val uiState by homeViewModel.uiState.collectAsStateWithLifecycle()
     val selectedStepOnGraph by homeViewModel.selectedStepOnGraph.collectAsStateWithLifecycle()
 
-    LaunchedEffect(Unit) {
+    LaunchedEffect(key1 = Unit) {
+        val workRequest =
+            PeriodicWorkRequestBuilder<StartServiceWorker>(1, TimeUnit.HOURS)
+                .build()
+
+        WorkManager
+            .getInstance(context)
+            .enqueueUniquePeriodicWork(
+                "startServiceWork",
+                ExistingPeriodicWorkPolicy.UPDATE,
+                workRequest
+            )
+    }
+
+    LaunchedEffect(uiState.time) {
         healthConnector.healthConnectClient?.let { client ->
             val granted = client.permissionController.getGrantedPermissions()
             if (granted.containsAll(PERMISSIONS)) {
                 Log.d("test", "권한 있음")
 
-                context.startForegroundService(Intent(context,StepService::class.java))
                 val instant = Instant.now().onKorea()
 
                 /*(0..23).forEach { count ->
@@ -113,7 +129,6 @@ internal fun HomeScreen(
                 val endTime = instant
                     .withHour(23)
                     .withMinute(59)
-                    .toInstant()
 
                 when (val time = uiState.time) {
                     Time.Day -> {
@@ -122,7 +137,7 @@ internal fun HomeScreen(
                                 startTime = instant
                                     .truncatedTo(ChronoUnit.DAYS)
                                     .toInstant(),
-                                endTime = endTime,
+                                endTime = endTime.toInstant(),
                                 type = METs.Walk
                             ) ?: listOf(Step.getInitValues())
                         )
@@ -132,23 +147,30 @@ internal fun HomeScreen(
                                 startTime = instant
                                     .truncatedTo(ChronoUnit.DAYS)
                                     .toInstant(),
-                                endTime = endTime
+                                endTime = endTime.toInstant()
                             ) ?: listOf(HeartRate.getInitValues())
                         )
                     }
 
                     else -> {
                         val startTime = when (time) {
-                            Time.Year -> instant.minusYears(1L)
-                            else -> instant.minusDays(time.toRepeatTimes().toLong())
+                            Time.Year -> instant
+                                .minusMonths(instant.month.value.toLong() - 1)
+                                .minusDays(instant.dayOfMonth.toLong() - 1)
+
+                            Time.Week -> instant
+                                .minusDays(time.toRepeatTimes().toLong() - 1)
+
+                            else -> instant.minusDays(instant.dayOfMonth.toLong() - 1)
                         }
                             .truncatedTo(ChronoUnit.DAYS)
-                            .toInstant()
+
+                        startTime.hour
 
                         homeViewModel::setSteps.invoke(
                             healthConnector.readStepsByPeriods(
-                                startTime = startTime,
-                                endTime = endTime,
+                                startTime = startTime.toLocalDateTime(),
+                                endTime = endTime.toLocalDateTime(),
                                 type = METs.Walk,
                                 period = time.toPeriod()
                             ) ?: listOf(Step.getInitValues())
@@ -156,8 +178,8 @@ internal fun HomeScreen(
 
                         homeViewModel::setHeartRates.invoke(
                             healthConnector.readHeartRatesByPeriods(
-                                startTime = startTime,
-                                endTime = endTime,
+                                startTime = startTime.toLocalDateTime(),
+                                endTime = endTime.toLocalDateTime(),
                                 period = time.toPeriod()
                             ) ?: listOf(HeartRate.getInitValues())
                         )

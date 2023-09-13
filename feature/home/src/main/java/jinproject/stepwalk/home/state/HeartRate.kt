@@ -9,23 +9,28 @@ internal data class HeartRateMenu(
     val heartRates: List<HeartRate>
 ) : HealthMenu {
     override var details: MutableMap<String, MenuDetail>? = null
-    override var graphItems: SortedMap<Int, Long>? = null
+    override var graphItems: List<Long>? = null
 
     fun setGraphItems(time: Time) = kotlin.run {
-        val items = mutableMapOf<Int, Long>().apply {
-            repeat(time.toRepeatTimes()) { hour ->
-                this[hour] = 0
+        val items = ArrayList<Long>(time.toRepeatTimes()).apply {
+            repeat(time.toRepeatTimes()) { index ->
+                add(index, 0L)
             }
         }
 
         heartRates.forEach { heart ->
             val instant = heart.startTime
             val key = time.toZonedOffset(instant)
-            val divider = if(items[key]?.toInt() == 0) 1 else 2
-            items[key] = ((items[key] ?: 0) + heart.avg) / divider
+            when (time) {
+                Time.Day -> items[key] = heart.avg.toLong()
+                else -> items[key - 1] = heart.avg.toLong()
+            }
         }
 
-        graphItems = items.toSortedMap(compareBy { it })
+        graphItems = when(time) {
+            Time.Week -> items.sortDayOfWeek()
+            else -> items
+        }
     }
 
     fun setMenuDetails() = kotlin.runCatching {

@@ -59,4 +59,5 @@ dependencies {
     implementation(libs.bundles.lifecycle)
 
     implementation(libs.health.connect)
+    implementation(libs.work)
 }
