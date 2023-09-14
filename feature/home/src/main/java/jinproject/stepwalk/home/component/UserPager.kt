@@ -74,11 +74,12 @@ import kotlin.math.absoluteValue
 @Composable
 internal fun UserPager(
     uiState: HomeUiState,
+    stepThisHour: Int,
     selectedStepOnGraph: Long,
     modifier: Modifier = Modifier,
     setSelectedStepOnGraph: (Long) -> Unit
 ) {
-    val pages = uiState.toHealthStateList()
+    val pages = uiState.toHealthStateList(stepThisHour)
 
     val pagerState = rememberPagerState(initialPage = Int.MAX_VALUE / 2) {
         Integer.MAX_VALUE
@@ -515,6 +516,7 @@ fun PreviewUserStepsByHour() = PreviewStepWalkTheme {
             heartRate = HeartRateMenu.getInitValues(),
             time = Time.Week
         ),
+        stepThisHour = 100,
         selectedStepOnGraph = 0L,
         setSelectedStepOnGraph = {}
     )
@@ -554,6 +556,7 @@ fun PreviewUserStepsByWeek() = PreviewStepWalkTheme {
             heartRate = HeartRateMenu.getInitValues(),
             time = Time.Day
         ),
+        stepThisHour = 800,
         selectedStepOnGraph = 0L,
         setSelectedStepOnGraph = {}
     )

@@ -50,7 +50,8 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class StepWalkActivity : ComponentActivity() {
 
-    @Inject lateinit var healthConnector: HealthConnector
+    @Inject
+    lateinit var healthConnector: HealthConnector
 
     private val permissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
@@ -58,9 +59,11 @@ class StepWalkActivity : ComponentActivity() {
         if (result.filter { it.value.not() }.isNotEmpty()) {
             Toast.makeText(
                 applicationContext,
-                "권한 설정에 동의하셔야 합니다.",
+                "권한 설정에 동의하지 않으시면 이용하실 수 없습니다.",
                 Toast.LENGTH_LONG
             ).show()
+
+            finish()
         }
     }
 
@@ -70,7 +73,7 @@ class StepWalkActivity : ComponentActivity() {
 
         permissionLauncher.launch(PERMISSIONS)
 
-        WindowCompat.setDecorFitsSystemWindows(window,false)
+        WindowCompat.setDecorFitsSystemWindows(window, false)
 
         setContent {
             StepWalkTheme {
@@ -85,7 +88,7 @@ class StepWalkActivity : ComponentActivity() {
         coroutineScope: CoroutineScope = rememberCoroutineScope()
     ) {
         val navController = rememberNavController()
-        val router = remember(navController){ Router(navController) }
+        val router = remember(navController) { Router(navController) }
 
         val snackBarHostState = remember { SnackbarHostState() }
 
@@ -111,11 +114,12 @@ class StepWalkActivity : ComponentActivity() {
                 bottomBar = {
                     BottomNavigationGraph(
                         router = router,
-                        modifier = Modifier
+                        modifier = Modifier,
                     )
                 },
                 snackbarHost = {
-                    SnackBarHostCustom(headerMessage = snackBarHostState.currentSnackbarData?.message ?: "",
+                    SnackBarHostCustom(headerMessage = snackBarHostState.currentSnackbarData?.message
+                        ?: "",
                         contentMessage = snackBarHostState.currentSnackbarData?.actionLabel ?: "",
                         snackBarHostState = snackBarHostState,
                         disMissSnackBar = { snackBarHostState.currentSnackbarData?.dismiss() })
@@ -142,12 +146,13 @@ class StepWalkActivity : ComponentActivity() {
     }
 
     companion object {
-        val PERMISSIONS = when(Build.VERSION.SDK_INT >= 33) {
-            true -> arrayOf(
+        val PERMISSIONS = when {
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU -> arrayOf(
                 Manifest.permission.POST_NOTIFICATIONS,
                 Manifest.permission.ACTIVITY_RECOGNITION
             )
-            false -> arrayOf(
+
+            else -> arrayOf(
                 Manifest.permission.ACTIVITY_RECOGNITION
             )
         }

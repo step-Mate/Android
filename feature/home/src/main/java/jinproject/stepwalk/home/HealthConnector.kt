@@ -244,6 +244,7 @@ class HealthConnector @Inject constructor(
                     data = Uri.parse(uriString)
                     putExtra("overlay", true)
                     putExtra("callerId", context.packageName)
+                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                 }
             )
             return null

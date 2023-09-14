@@ -1,6 +1,7 @@
 package jinproject.stepwalk.home
 
 import android.content.Context
+import android.content.Intent
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.compose.animation.core.MutableTransitionState
@@ -23,6 +24,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.graphicsLayer
@@ -42,23 +44,19 @@ import androidx.health.connect.client.records.HeartRateRecord
 import androidx.health.connect.client.records.StepsRecord
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.work.ExistingPeriodicWorkPolicy
-import androidx.work.PeriodicWorkRequestBuilder
-import androidx.work.WorkManager
 import jinproject.stepwalk.design.component.DefaultLayout
 import jinproject.stepwalk.design.component.VerticalSpacer
 import jinproject.stepwalk.design.theme.StepWalkTheme
 import jinproject.stepwalk.domain.model.METs
 import jinproject.stepwalk.home.component.HomeTopAppBar
 import jinproject.stepwalk.home.component.UserPager
+import jinproject.stepwalk.home.service.StepService
 import jinproject.stepwalk.home.state.HeartRate
 import jinproject.stepwalk.home.state.Step
 import jinproject.stepwalk.home.state.Time
 import jinproject.stepwalk.home.utils.onKorea
-import jinproject.stepwalk.home.worker.StartServiceWorker
 import java.time.Instant
 import java.time.temporal.ChronoUnit
-import java.util.concurrent.TimeUnit
 
 private val PERMISSIONS =
     setOf(
@@ -74,6 +72,7 @@ internal fun HomeScreen(
     healthConnector: HealthConnector,
     homeViewModel: HomeViewModel = hiltViewModel()
 ) {
+    val permissionState = rememberSaveable { mutableStateOf(false) }
 
     val permissionLauncher =
         rememberLauncherForActivityResult(contract = PermissionController.createRequestPermissionResultContract()) { result ->
@@ -82,26 +81,18 @@ internal fun HomeScreen(
             } else {
                 Log.d("test", "권한 거부")
             }
+            permissionState.value = !permissionState.value
         }
 
     val uiState by homeViewModel.uiState.collectAsStateWithLifecycle()
     val selectedStepOnGraph by homeViewModel.selectedStepOnGraph.collectAsStateWithLifecycle()
+    val stepThisHour by homeViewModel.stepThisHour.collectAsStateWithLifecycle()
 
-    LaunchedEffect(key1 = Unit) {
-        val workRequest =
-            PeriodicWorkRequestBuilder<StartServiceWorker>(1, TimeUnit.HOURS)
-                .build()
-
-        WorkManager
-            .getInstance(context)
-            .enqueueUniquePeriodicWork(
-                "startServiceWork",
-                ExistingPeriodicWorkPolicy.UPDATE,
-                workRequest
-            )
+    LaunchedEffect(Unit) {
+        context.startForegroundService(Intent(context,StepService::class.java))
     }
 
-    LaunchedEffect(uiState.time) {
+    LaunchedEffect(uiState.time, permissionState.value) {
         healthConnector.healthConnectClient?.let { client ->
             val granted = client.permissionController.getGrantedPermissions()
             if (granted.containsAll(PERMISSIONS)) {
@@ -195,6 +186,7 @@ internal fun HomeScreen(
 
     HomeScreen(
         uiState = uiState,
+        stepThisHour = stepThisHour,
         selectedStepOnGraph = selectedStepOnGraph,
         setSelectedStepOnGraph = homeViewModel::setSelectedStepOnGraph,
         setTimeOnGraph = homeViewModel::setTime
@@ -204,6 +196,7 @@ internal fun HomeScreen(
 @Composable
 private fun HomeScreen(
     uiState: HomeUiState,
+    stepThisHour: Int,
     selectedStepOnGraph: Long,
     setSelectedStepOnGraph: (Long) -> Unit,
     setTimeOnGraph: (Time) -> Unit
@@ -225,6 +218,7 @@ private fun HomeScreen(
     ) {
         UserPager(
             uiState = uiState,
+            stepThisHour = stepThisHour,
             selectedStepOnGraph = selectedStepOnGraph,
             setSelectedStepOnGraph = setSelectedStepOnGraph
         )
@@ -338,6 +332,7 @@ private fun PopUpWindow(
 private fun PreviewHomeScreen() = StepWalkTheme {
     HomeScreen(
         uiState = HomeUiState.getInitValues(),
+        stepThisHour = 100,
         selectedStepOnGraph = 0L,
         setSelectedStepOnGraph = {},
         setTimeOnGraph = {}

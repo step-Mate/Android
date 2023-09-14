@@ -24,4 +24,13 @@ class StepRepositoryImpl @Inject constructor(
     override fun getStep(): Flow<Int> = data.map { prefs ->
         prefs.step
     }
+
+    override suspend fun setStep(step: Long) {
+        prefs.updateData { pref ->
+            pref
+                .toBuilder()
+                .setStep(step.toInt())
+                .build()
+        }
+    }
 }

@@ -3,17 +3,23 @@ package jinproject.stepwalk.app.ui.navigation
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarDefaults
 import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationBarItemColors
 import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.vectorResource
 import androidx.navigation.NavDestination
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavHostController
@@ -58,7 +64,6 @@ fun BottomNavigationGraph(
     NavigationBar(
         modifier = modifier,
         containerColor = Color.Transparent,
-        contentColor = MaterialTheme.colorScheme.onBackground
     ) {
         BottomNavigationDestination.values.forEach { destination ->
             val selected = router.currentDestination.isTopLevelDestinationInHierarchy(destination)
@@ -67,10 +72,18 @@ fun BottomNavigationGraph(
                 selected = selected,
                 onClick = { router.navigate(destination) },
                 icon = {
-                    Icon(painter = painterResource(id = destination.icon), contentDescription = "clickedIcon")
+                    Icon(
+                        imageVector = ImageVector.vectorResource(id = destination.icon),
+                        contentDescription = "clickedIcon",
+                        tint = MaterialTheme.colorScheme.onBackground
+                    )
                 },
                 iconClicked = {
-                    Icon(painter = painterResource(id = destination.iconClicked), contentDescription = "clickedIcon")
+                    Icon(
+                        imageVector = ImageVector.vectorResource(id = destination.iconClicked),
+                        contentDescription = "clickedIcon",
+                        tint = MaterialTheme.colorScheme.onBackground
+                    )
                 }
             )
         }
@@ -102,21 +115,13 @@ private fun RowScope.NavigationBarItem(
         label = label,
         alwaysShowLabel = alwaysShowLabel,
         colors = NavigationBarItemDefaults.colors(
-            selectedIconColor = NavigationDefaults.navigationSelectedItemColor(),
-            unselectedIconColor = NavigationDefaults.navigationContentColor(),
             indicatorColor = NavigationDefaults.navigationIndicatorColor()
-        ),
+        )
     )
 }
 
 @Stable
 private object NavigationDefaults {
     @Composable
-    fun navigationContentColor() = MaterialTheme.colorScheme.onSurfaceVariant
-
-    @Composable
-    fun navigationSelectedItemColor() = MaterialTheme.colorScheme.onPrimaryContainer
-
-    @Composable
-    fun navigationIndicatorColor() = MaterialTheme.colorScheme.background
+    fun navigationIndicatorColor() =  MaterialTheme.colorScheme.background
 }

@@ -4,8 +4,8 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.hilt)
     //alias(libs.plugins.gms.google.service)
-    //alias(libs.plugins.kotlin.ksp)
-    alias(libs.plugins.kotlin.kapt)
+    alias(libs.plugins.kotlin.ksp)
+    //alias(libs.plugins.kotlin.kapt)
     alias(libs.plugins.kotlin.parcelize)
 }
 
@@ -20,11 +20,11 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_11
+        targetCompatibility = JavaVersion.VERSION_11
     }
     kotlinOptions {
-        jvmTarget = "1.8"
+        jvmTarget = "11"
     }
 
     buildFeatures {
@@ -53,11 +53,12 @@ dependencies {
     debugImplementation(libs.compose.ui.tooling)
 
     implementation(libs.bundles.hilt)
-    kapt(libs.dagger.hilt.compiler)
+    ksp(libs.dagger.hilt.compiler)
     implementation(libs.hilt.navigation.compose)
 
     implementation(libs.bundles.lifecycle)
 
     implementation(libs.health.connect)
-    implementation(libs.work)
+    implementation(libs.bundles.work)
+    ksp(libs.work.hilt.compiler)
 }

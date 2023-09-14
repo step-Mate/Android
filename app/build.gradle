@@ -3,8 +3,8 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.hilt)
     //alias(libs.plugins.gms.google.service)
-    //alias(libs.plugins.kotlin.ksp)
-    alias(libs.plugins.kotlin.kapt)
+    alias(libs.plugins.kotlin.ksp)
+    //alias(libs.plugins.kotlin.kapt)
     alias(libs.plugins.kotlin.parcelize)
 }
 
@@ -64,7 +64,7 @@ dependencies {
     implementation(libs.activity.compose)
 
     implementation(libs.bundles.hilt)
-    kapt(libs.dagger.hilt.compiler)
+    ksp(libs.dagger.hilt.compiler)
     implementation(libs.hilt.navigation.compose)
 
     implementation(libs.bundles.navigation)
@@ -89,5 +89,7 @@ dependencies {
     implementation(libs.bundles.billing)
 
     implementation(libs.health.connect)
+    implementation(libs.bundles.work)
+    ksp(libs.work.hilt.compiler)
 
 }

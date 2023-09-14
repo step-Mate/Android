@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import jinproject.stepwalk.domain.usecase.GetStepUseCase
+import jinproject.stepwalk.domain.usecase.SetStepUseCase
 import jinproject.stepwalk.home.state.HealthState
 import jinproject.stepwalk.home.state.HeartRate
 import jinproject.stepwalk.home.state.HeartRateMenu
@@ -19,6 +20,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @Stable
@@ -29,7 +31,7 @@ internal data class HomeUiState(
     val time: Time
 
 ) {
-    fun toHealthStateList() = this.run {
+    fun toHealthStateList(stepThisHour: Int) = this.run {
         Page.values().map { page ->
             when (page) {
                 Page.Step -> {
@@ -38,9 +40,7 @@ internal data class HomeUiState(
                             menu = step,
                             title = page.display()
                         ),
-                        figure = step.steps
-                            .total()
-                            .toInt(),
+                        figure = stepThisHour,
                         max = 1500
                     )
                 }
@@ -104,7 +104,8 @@ internal data class User(
 
 @HiltViewModel
 internal class HomeViewModel @Inject constructor(
-    private val getStepUseCase: GetStepUseCase
+    private val getStepUseCase: GetStepUseCase,
+    private val setStepUseCase: SetStepUseCase
 ) : ViewModel() {
 
     private val _uiState: MutableStateFlow<HomeUiState> =
@@ -135,6 +136,12 @@ internal class HomeViewModel @Inject constructor(
         .onEach { step ->
             _stepThisHour.update { step }
         }.launchIn(viewModelScope)
+
+    fun setStepThisHour(step: Long) {
+        viewModelScope.launch {
+            setStepUseCase(step)
+        }
+    }
 
     fun setSelectedStepOnGraph(step: Long) = _selectedStepOnGraph.update { step }
 

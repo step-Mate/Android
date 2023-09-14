@@ -26,9 +26,10 @@ glide = "4.15.1"
 billing-version = "6.0.1"
 health-connect = "1.0.0-alpha11"
 work = "2.8.1"
+work-hilt = "1.1.0-alpha01"
 
 # plugin
-androidStudioGradlePlugin = "7.4.2"
+androidStudioGradlePlugin = "8.1.0"
 kotlin = "1.9.0"
 kotlin-ksp = "1.9.0-1.0.12"
 androidNavigationSafeargs = "2.5.3"
@@ -75,6 +76,8 @@ lifecycle-service = { group = "androidx.lifecycle", name = "lifecycle-service", 
 
 # WorkManager
 work = { group = "androidx.work", name = "work-runtime-ktx", version.ref = "work" }
+work-hilt = { group = "androidx.hilt", name = "hilt-work", version.ref = "work-hilt" }
+work-hilt-compiler = { group = "androidx.hilt", name = "hilt-compiler", version.ref = "work-hilt" }
 
 # Health Client
 health-connect = { group = "androidx.health.connect", name = "connect-client", version.ref = "health-connect" }
@@ -127,6 +130,7 @@ datastore = ["datastore", "protobuf"]
 testing = ["jUnit", "test-ext", "test-espresso", "coroutines-test", "junit-jupiter-api", "io-mockk"]
 billing = ["billing-client", "billing-ktx"]
 kotest = ["io-kotest-junit", "io-kotest-assertions"]
+work = ["work", "work-hilt"]
 
 [plugins]
 

@@ -44,14 +44,14 @@ internal data class StepMenu(
         details = mutableMapOf<String, MenuDetail>().apply {
             set(
                 "calories", MenuDetail(
-                    value = type.getMetsWeight() * 3.5f * kg * minutes * 5f / 1000,
+                    value = (steps * 3).toFloat() / 1000,
                     img = R.drawable.ic_fire,
                     intro = "칼로리(kg)"
                 )
             )
             set(
                 "minutes", MenuDetail(
-                    value = minutes.toFloat(),
+                    value = (steps.toFloat() * 0.0008).toFloat() * 15,
                     img = R.drawable.ic_time,
                     intro = "시간(분)"
                 )
