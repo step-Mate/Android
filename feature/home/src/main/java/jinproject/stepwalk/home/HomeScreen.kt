@@ -156,8 +156,6 @@ internal fun HomeScreen(
                         }
                             .truncatedTo(ChronoUnit.DAYS)
 
-                        startTime.hour
-
                         homeViewModel::setSteps.invoke(
                             healthConnector.readStepsByPeriods(
                                 startTime = startTime.toLocalDateTime(),

@@ -22,7 +22,7 @@ internal data class StepMenu(
         }
 
         steps.forEach { step ->
-            val instant = Instant.ofEpochSecond(step.start.toLong() * 60L)
+            val instant = Instant.ofEpochSecond(step.start)
             val key = time.toZonedOffset(instant)
             when (time) {
                 Time.Day -> items[key] = step.distance
@@ -38,7 +38,7 @@ internal data class StepMenu(
 
     fun setMenuDetails(kg: Float) = kotlin.runCatching {
         val type = steps.firstOrNull()?.type ?: METs.Walk
-        val minutes = steps.map { it.end - it.start }.fold(0) { acc, i -> acc + i }
+        val minutes = steps.sumOf { it.end - it.start }
         val steps = steps.total()
 
         details = mutableMapOf<String, MenuDetail>().apply {
@@ -88,8 +88,8 @@ internal data class StepMenu(
 @Stable
 data class Step(
     val distance: Long,
-    val start: Int,
-    val end: Int,
+    val start: Long,
+    val end: Long,
     val type: METs
 ) {
 

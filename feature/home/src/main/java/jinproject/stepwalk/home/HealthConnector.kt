@@ -7,10 +7,12 @@ import android.util.Log
 import androidx.compose.runtime.Stable
 import androidx.health.connect.client.HealthConnectClient
 import androidx.health.connect.client.records.HeartRateRecord
+import androidx.health.connect.client.records.StepsCadenceRecord
 import androidx.health.connect.client.records.StepsRecord
 import androidx.health.connect.client.records.metadata.DataOrigin
 import androidx.health.connect.client.request.AggregateGroupByDurationRequest
 import androidx.health.connect.client.request.AggregateGroupByPeriodRequest
+import androidx.health.connect.client.request.ReadRecordsRequest
 import androidx.health.connect.client.time.TimeRangeFilter
 import dagger.Module
 import dagger.Provides
@@ -112,8 +114,8 @@ class HealthConnector @Inject constructor(
             result.map { record ->
                 Step(
                     distance = record.result[StepsRecord.COUNT_TOTAL] ?: 0L,
-                    start = (record.startTime.onKorea().toInstant().epochSecond / 60).toInt(),
-                    end = (record.endTime.onKorea().toInstant().epochSecond / 60).toInt(),
+                    start = record.startTime.onKorea().toInstant().epochSecond,
+                    end = record.endTime.onKorea().toInstant().epochSecond,
                     type = type
                 )
             }
@@ -141,8 +143,8 @@ class HealthConnector @Inject constructor(
             result.map { record ->
                 Step(
                     distance = record.result[StepsRecord.COUNT_TOTAL] ?: 0L,
-                    start = (record.startTime.epochSecond / 60).toInt(),
-                    end = (record.endTime.epochSecond / 60).toInt(),
+                    start = record.startTime.onKorea().toInstant().epochSecond,
+                    end = record.endTime.onKorea().toInstant().epochSecond,
                     type = type
                 )
             }
@@ -151,6 +153,42 @@ class HealthConnector @Inject constructor(
         Log.d("test", "byHours error: ${e.message}")
     }.getOrNull()
 
+    suspend fun readStepsByHour(
+        startTime: Instant,
+        endTime: Instant,
+        type: METs
+    ): List<Step>? =
+        kotlin.runCatching {
+            val response =
+                healthConnectClient?.readRecords(
+                    ReadRecordsRequest(
+                        StepsRecord::class,
+                        timeRangeFilter = TimeRangeFilter.between(startTime, endTime)
+                    )
+                )
+
+            response?.let {
+                var idx = 0
+                var hour = 0
+                while (idx < response.records.size)
+                for(index in idx until response.records.size) {
+                    if (response.records[index].endTime.onKorea().hour > hour ) {
+                        idx = index - 1
+                    }
+                }
+                response.records.map { record ->
+                    Step(
+                        distance = record.count,
+                        start = record.startTime.epochSecond,
+                        end = record.endTime.epochSecond,
+                        type = type
+                    )
+                }
+            }
+        }.onFailure { e ->
+
+        }.getOrNull()
+
     suspend fun getTotalStepToday(
         type: METs
     ): Long = kotlin.run {
@@ -158,14 +196,16 @@ class HealthConnector @Inject constructor(
             .now()
             .onKorea()
             .truncatedTo(ChronoUnit.DAYS)
-            .toInstant()
+            .toLocalDateTime()
 
-        val steps = readStepsByHours(
+        val steps = readStepsByPeriods(
             startTime = instant,
             endTime = instant
                 .plus(23, ChronoUnit.HOURS)
-                .plus(59, ChronoUnit.MINUTES),
-            type = type
+                .plus(59, ChronoUnit.MINUTES)
+                .plus(59,ChronoUnit.SECONDS),
+            type = type,
+            period = Period.ofDays(1)
         )
 
         steps?.sumOf { it.distance } ?: 0L
@@ -187,8 +227,8 @@ class HealthConnector @Inject constructor(
         response?.let { result ->
             result.map { record ->
                 HeartRate(
-                    startTime = record.startTime,
-                    endTime = record.endTime,
+                    startTime = record.startTime.onKorea().toInstant(),
+                    endTime = record.endTime.onKorea().toInstant(),
                     min = record.result[HeartRateRecord.BPM_MAX]?.toInt() ?: 0,
                     max = record.result[HeartRateRecord.BPM_MIN]?.toInt() ?: 0,
                     avg = record.result[HeartRateRecord.BPM_AVG]?.toInt() ?: 0

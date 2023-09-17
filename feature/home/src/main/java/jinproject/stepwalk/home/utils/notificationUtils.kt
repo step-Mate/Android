@@ -1,12 +1,10 @@
 package jinproject.stepwalk.home.utils
 
-import android.annotation.SuppressLint
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
-import android.graphics.Color
 import android.net.Uri
 import androidx.core.app.NotificationCompat
 
@@ -42,13 +40,12 @@ internal fun NotificationManager.sendNotification(
 internal fun NotificationManager.createChannel() {
     val name = "만보기"
     val descriptionText = "만보기의 채널이에요."
-    val importance = NotificationManager.IMPORTANCE_HIGH
+    val importance = NotificationManager.IMPORTANCE_LOW
     val channel = NotificationChannel(StepWalkChannelId, name, importance).apply {
         description = descriptionText
-        enableVibration(true)
+        enableVibration(false)
         setShowBadge(true)
-        enableLights(true)
-        lightColor = Color.BLUE
+        enableLights(false)
     }
 
     createNotificationChannel(channel)
