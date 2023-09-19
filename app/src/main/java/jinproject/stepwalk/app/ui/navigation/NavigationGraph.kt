@@ -3,21 +3,17 @@ package jinproject.stepwalk.app.ui.navigation
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.RowScope
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarDefaults
 import androidx.compose.material3.NavigationBarItem
-import androidx.compose.material3.NavigationBarItemColors
 import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.vectorResource
 import androidx.navigation.NavDestination
@@ -27,7 +23,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import jinproject.stepwalk.app.ui.core.SnackBarMessage
 import jinproject.stepwalk.home.HealthConnector
-import jinproject.stepwalk.home.navigation.homeScreen
+import jinproject.stepwalk.home.navigation.homeNavGraph
 
 
 @Composable
@@ -42,7 +38,9 @@ fun NavigationGraph(
         startDestination = BottomNavigationDestination.HOME.route,
         modifier = modifier
     ) {
-        homeScreen(healthConnector)
+        homeNavGraph(
+            healthConnector = healthConnector
+        )
 
         composable(route = BottomNavigationDestination.SETTING.route) {
             Column(modifier = Modifier.fillMaxSize()) {
@@ -74,7 +72,7 @@ fun BottomNavigationGraph(
                 icon = {
                     Icon(
                         imageVector = ImageVector.vectorResource(id = destination.icon),
-                        contentDescription = "clickedIcon",
+                        contentDescription = "clickIcon",
                         tint = MaterialTheme.colorScheme.onBackground
                     )
                 },

@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PageSize
@@ -134,6 +135,7 @@ private fun PageMenu(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
+                .wrapContentHeight()
                 .clip(RoundedCornerShape(10.dp))
                 .background(MaterialTheme.colorScheme.secondary)
                 .padding(start = 10.dp, end = 10.dp, bottom = 10.dp, top = 10.dp)

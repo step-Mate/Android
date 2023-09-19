@@ -13,6 +13,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
@@ -70,7 +71,8 @@ private val PERMISSIONS =
 internal fun HomeScreen(
     context: Context = LocalContext.current,
     healthConnector: HealthConnector,
-    homeViewModel: HomeViewModel = hiltViewModel()
+    homeViewModel: HomeViewModel = hiltViewModel(),
+    navigateToCalendar: () -> Unit = {},
 ) {
     val permissionState = rememberSaveable { mutableStateOf(false) }
 
@@ -187,7 +189,8 @@ internal fun HomeScreen(
         stepThisHour = stepThisHour,
         selectedStepOnGraph = selectedStepOnGraph,
         setSelectedStepOnGraph = homeViewModel::setSelectedStepOnGraph,
-        setTimeOnGraph = homeViewModel::setTime
+        setTimeOnGraph = homeViewModel::setTime,
+        navigateToCalendar = navigateToCalendar
     )
 }
 
@@ -197,11 +200,13 @@ private fun HomeScreen(
     stepThisHour: Int,
     selectedStepOnGraph: Long,
     setSelectedStepOnGraph: (Long) -> Unit,
-    setTimeOnGraph: (Time) -> Unit
+    setTimeOnGraph: (Time) -> Unit,
+    navigateToCalendar: () -> Unit,
 ) {
     val popUpState = remember {
         mutableStateOf(false)
     }
+
     DefaultLayout(
         modifier = Modifier,
         contentPaddingValues = PaddingValues(horizontal = 8.dp, vertical = 10.dp),
@@ -209,12 +214,13 @@ private fun HomeScreen(
             HomeTopAppBar(
                 modifier = Modifier,
                 onClickTimeIcon = { popUpState.value = true },
-                onClickIcon1 = {},
+                onClickIcon1 = navigateToCalendar,
                 onClickIcon2 = {}
             )
         },
     ) {
         UserPager(
+            modifier = Modifier.fillMaxSize(),
             uiState = uiState,
             stepThisHour = stepThisHour,
             selectedStepOnGraph = selectedStepOnGraph,
@@ -333,6 +339,7 @@ private fun PreviewHomeScreen() = StepWalkTheme {
         stepThisHour = 100,
         selectedStepOnGraph = 0L,
         setSelectedStepOnGraph = {},
-        setTimeOnGraph = {}
+        setTimeOnGraph = {},
+        navigateToCalendar = {}
     )
 }

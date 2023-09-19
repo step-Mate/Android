@@ -8,8 +8,11 @@ import jinproject.stepwalk.home.HealthConnector
 import jinproject.stepwalk.home.HomeScreen
 
 const val homeRoute = "home"
+const val calendarRoute = "calendar"
 
-fun NavGraphBuilder.homeScreen(healthConnector: HealthConnector) {
+fun NavGraphBuilder.homeNavGraph(
+    healthConnector: HealthConnector,
+) {
     composable(route = homeRoute) {
         HomeScreen(
             healthConnector = healthConnector

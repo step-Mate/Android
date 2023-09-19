@@ -92,7 +92,7 @@ internal fun PagerGraph(
     }
 }
 
-private fun Constraints.toLoose() = this.copy(
+internal fun Constraints.toLoose() = this.copy(
     minWidth = 0,
     minHeight = 0
 )
