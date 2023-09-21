@@ -5,17 +5,27 @@ import androidx.compose.runtime.Stable
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination
 import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.navigation.NavHostController
 import androidx.navigation.NavOptions
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.navOptions
+import jinproject.stepwalk.home.navigation.homeRoute
+import jinproject.stepwalk.home.navigation.navigateToCalendar
 import jinproject.stepwalk.home.navigation.navigateToHome
 
 @Stable
-class Router(private val navController: NavController) {
+class Router(val navController: NavHostController) {
 
     val currentDestination: NavDestination?
         @Composable get() = navController
             .currentBackStackEntryAsState().value?.destination
+
+    val isTopLevelDestination: Boolean
+        @Composable get() =
+            currentDestination?.route in BottomNavigationDestination.values
+                .map { it.route }
+                .toMutableList()
+                .apply { add(homeRoute) }
 
     fun navigate(destination: BottomNavigationDestination) {
         val navOptions = navOptions {
@@ -31,6 +41,11 @@ class Router(private val navController: NavController) {
             BottomNavigationDestination.SETTING -> navController.navigateToSetting(navOptions)
         }
     }
+
+    fun navigateToCalendar() {
+        navController.navigateToCalendar()
+    }
+
 }
 
 fun NavController.navigateToSetting(navOptions: NavOptions?) {

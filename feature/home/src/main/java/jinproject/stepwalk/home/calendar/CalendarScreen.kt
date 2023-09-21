@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -13,7 +14,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import jinproject.stepwalk.design.theme.StepWalkTheme
 import jinproject.stepwalk.home.utils.onKorea
 import jinproject.stepwalk.home.utils.toDayOfWeekString
@@ -26,7 +29,8 @@ internal fun CalendarScreen(
     popBackStack: () -> Unit
 ) {
     Calendar(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier
+            .fillMaxWidth(),
         header = { Header() },
         dayLabel = { dayOfWeek -> Label(dayOfWeek = dayOfWeek) },
         day = { day -> Day(day = day, month = LocalDateTime.now().onKorea().monthValue) }
@@ -87,21 +91,24 @@ private fun Day(
             Text(
                 text = day.toString(),
                 style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.scrim
+                color = MaterialTheme.colorScheme.scrim,
+                modifier = Modifier.height(40.dp)
             )
         }
         day > lastDayOfMonth + lastDayOfWeekOnLastMonth + 1 -> {
             Text(
                 text = (day - (lastDayOfMonth + lastDayOfWeekOnLastMonth + 1)).toString(),
                 style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.scrim
+                color = MaterialTheme.colorScheme.scrim,
+                modifier = Modifier.height(40.dp)
             )
         }
         else -> {
             Text(
                 text = (day - lastDayOfWeekOnLastMonth - 1).toString(),
                 style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onBackground
+                color = MaterialTheme.colorScheme.onBackground,
+                modifier = Modifier.height(40.dp)
             )
         }
     }

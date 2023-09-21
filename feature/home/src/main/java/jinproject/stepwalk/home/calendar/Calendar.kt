@@ -36,7 +36,6 @@ internal fun Calendar(
         }
 
         val maxWidth = constraints.maxWidth
-        val maxHeight = constraints.maxHeight
 
         val headerPlaceable = headerMeasurable
             .first()
@@ -63,7 +62,9 @@ internal fun Calendar(
             )
         }
 
-        layout(maxWidth, maxHeight) {
+        val totalHeight = headerPlaceable.height + dayLabelPlaceable.first().height + dayPlaceable.first().height * 6
+
+        layout(maxWidth, totalHeight) {
             headerPlaceable.place(0, 0)
 
             var xPos = 0

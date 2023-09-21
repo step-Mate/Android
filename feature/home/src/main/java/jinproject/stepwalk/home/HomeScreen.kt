@@ -72,7 +72,7 @@ internal fun HomeScreen(
     context: Context = LocalContext.current,
     healthConnector: HealthConnector,
     homeViewModel: HomeViewModel = hiltViewModel(),
-    navigateToCalendar: () -> Unit = {},
+    navigateToCalendar: () -> Unit,
 ) {
     val permissionState = rememberSaveable { mutableStateOf(false) }
 

@@ -11,6 +11,7 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -21,25 +22,32 @@ import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
 import jinproject.stepwalk.app.ui.core.SnackBarMessage
 import jinproject.stepwalk.home.HealthConnector
+import jinproject.stepwalk.home.navigation.calendarRoute
 import jinproject.stepwalk.home.navigation.homeNavGraph
+import jinproject.stepwalk.home.navigation.navigateToCalendar
 
 
 @Composable
 fun NavigationGraph(
-    navController: NavHostController,
+    router: Router,
     modifier: Modifier = Modifier,
     healthConnector: HealthConnector,
     showSnackBar: (SnackBarMessage) -> Unit
 ) {
+    val navController = router.navController
+
     NavHost(
         navController = navController,
         startDestination = BottomNavigationDestination.HOME.route,
         modifier = modifier
     ) {
         homeNavGraph(
-            healthConnector = healthConnector
+            healthConnector = healthConnector,
+            navigateToCalendar = navController::navigateToCalendar,
+            popBackStack = navController::popBackStack
         )
 
         composable(route = BottomNavigationDestination.SETTING.route) {
@@ -59,31 +67,35 @@ fun BottomNavigationGraph(
     router: Router,
     modifier: Modifier = Modifier
 ) {
-    NavigationBar(
-        modifier = modifier,
-        containerColor = Color.Transparent,
-    ) {
-        BottomNavigationDestination.values.forEach { destination ->
-            val selected = router.currentDestination.isTopLevelDestinationInHierarchy(destination)
+    when {
+        router.isTopLevelDestination -> {
+            NavigationBar(
+                modifier = modifier,
+                containerColor = Color.Transparent,
+            ) {
+                BottomNavigationDestination.values.forEach { destination ->
+                    val selected = router.currentDestination.isTopLevelDestinationInHierarchy(destination)
 
-            NavigationBarItem(
-                selected = selected,
-                onClick = { router.navigate(destination) },
-                icon = {
-                    Icon(
-                        imageVector = ImageVector.vectorResource(id = destination.icon),
-                        contentDescription = "clickIcon",
-                        tint = MaterialTheme.colorScheme.onBackground
-                    )
-                },
-                iconClicked = {
-                    Icon(
-                        imageVector = ImageVector.vectorResource(id = destination.iconClicked),
-                        contentDescription = "clickedIcon",
-                        tint = MaterialTheme.colorScheme.onBackground
+                    NavigationBarItem(
+                        selected = selected,
+                        onClick = { router.navigate(destination) },
+                        icon = {
+                            Icon(
+                                imageVector = ImageVector.vectorResource(id = destination.icon),
+                                contentDescription = "clickIcon",
+                                tint = MaterialTheme.colorScheme.onBackground
+                            )
+                        },
+                        iconClicked = {
+                            Icon(
+                                imageVector = ImageVector.vectorResource(id = destination.iconClicked),
+                                contentDescription = "clickedIcon",
+                                tint = MaterialTheme.colorScheme.onBackground
+                            )
+                        }
                     )
                 }
-            )
+            }
         }
     }
 }
