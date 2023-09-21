@@ -1,0 +1,8 @@
+syntax = "proto3";
+
+option java_package = "jinproject.stepwalk.data";
+option java_multiple_files = true;
+
+message StepWalkPreferences {
+  int32 step = 1;
+}
