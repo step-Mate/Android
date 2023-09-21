@@ -72,7 +72,7 @@ internal fun HomeScreen(
     context: Context = LocalContext.current,
     healthConnector: HealthConnector,
     homeViewModel: HomeViewModel = hiltViewModel(),
-    navigateToCalendar: () -> Unit,
+    navigateToCalendar: (Long) -> Unit,
 ) {
     val permissionState = rememberSaveable { mutableStateOf(false) }
 
@@ -91,7 +91,7 @@ internal fun HomeScreen(
     val stepThisHour by homeViewModel.stepThisHour.collectAsStateWithLifecycle()
 
     LaunchedEffect(Unit) {
-        context.startForegroundService(Intent(context,StepService::class.java))
+        context.startForegroundService(Intent(context, StepService::class.java))
     }
 
     LaunchedEffect(uiState.time, permissionState.value) {
@@ -201,7 +201,7 @@ private fun HomeScreen(
     selectedStepOnGraph: Long,
     setSelectedStepOnGraph: (Long) -> Unit,
     setTimeOnGraph: (Time) -> Unit,
-    navigateToCalendar: () -> Unit,
+    navigateToCalendar: (Long) -> Unit,
 ) {
     val popUpState = remember {
         mutableStateOf(false)
@@ -214,7 +214,15 @@ private fun HomeScreen(
             HomeTopAppBar(
                 modifier = Modifier,
                 onClickTimeIcon = { popUpState.value = true },
-                onClickIcon1 = navigateToCalendar,
+                onClickIcon1 = {
+                    val today = Instant.now().onKorea().toEpochSecond()
+                    navigateToCalendar(
+                        kotlin.math.min(
+                            uiState.step.steps.minOfOrNull { it.start } ?: today,
+                            uiState.heartRate.heartRates.minOfOrNull { it.startTime.epochSecond } ?: today
+                        )
+                    )
+                },
                 onClickIcon2 = {}
             )
         },

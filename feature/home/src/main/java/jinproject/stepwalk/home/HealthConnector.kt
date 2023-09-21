@@ -109,7 +109,6 @@ class HealthConnector @Inject constructor(
                     dataOriginFilter = setOf(DataOrigin("jinproject.stepwalk.app"))
                 )
             )
-
         response?.let { result ->
             result.map { record ->
                 Step(

@@ -42,10 +42,6 @@ class Router(val navController: NavHostController) {
         }
     }
 
-    fun navigateToCalendar() {
-        navController.navigateToCalendar()
-    }
-
 }
 
 fun NavController.navigateToSetting(navOptions: NavOptions?) {

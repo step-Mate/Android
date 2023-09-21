@@ -5,7 +5,6 @@ plugins {
     alias(libs.plugins.hilt)
     //alias(libs.plugins.gms.google.service)
     alias(libs.plugins.kotlin.ksp)
-    //alias(libs.plugins.kotlin.kapt)
     alias(libs.plugins.kotlin.parcelize)
 }
 
@@ -55,6 +54,7 @@ dependencies {
     implementation(libs.bundles.hilt)
     ksp(libs.dagger.hilt.compiler)
     implementation(libs.hilt.navigation.compose)
+    implementation(libs.navigation.compose)
 
     implementation(libs.bundles.lifecycle)
 
