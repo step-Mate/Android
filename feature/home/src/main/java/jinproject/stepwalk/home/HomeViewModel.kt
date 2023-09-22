@@ -31,7 +31,7 @@ internal data class HomeUiState(
     val time: Time
 
 ) {
-    fun toHealthStateList(stepThisHour: Int) = this.run {
+    fun toHealthStateList(stepThisHour: Int) =
         Page.values().map { page ->
             when (page) {
                 Page.Step -> {
@@ -42,7 +42,7 @@ internal data class HomeUiState(
                         ),
                         figure = stepThisHour,
                         max = 1500
-                    )
+                    ).copy()
                 }
 
                 Page.DrinkWater -> {
@@ -71,7 +71,7 @@ internal data class HomeUiState(
                 }
             }
         }
-    }
+
 
     companion object {
         fun getInitValues() = HomeUiState(

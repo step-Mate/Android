@@ -7,6 +7,7 @@ import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.viewModels
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
@@ -22,13 +23,17 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.core.view.WindowCompat
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.rememberNavController
 import dagger.hilt.android.AndroidEntryPoint
+import jinproject.stepwalk.app.ui.StepWalkViewModel
 import jinproject.stepwalk.app.ui.core.SnackBarMessage
 import jinproject.stepwalk.app.ui.navigation.BottomNavigationGraph
 import jinproject.stepwalk.app.ui.navigation.NavigationGraph
@@ -45,6 +50,8 @@ class StepWalkActivity : ComponentActivity() {
 
     @Inject
     lateinit var healthConnector: HealthConnector
+
+    private val stepWalkViewModel: StepWalkViewModel by viewModels()
 
     private val permissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
@@ -75,13 +82,17 @@ class StepWalkActivity : ComponentActivity() {
         }
     }
 
-    @OptIn(ExperimentalLayoutApi::class)
     @Composable
     private fun StepWalkApp(
         coroutineScope: CoroutineScope = rememberCoroutineScope()
     ) {
         val navController = rememberNavController()
         val router = remember(navController) { Router(navController) }
+        val networkState by stepWalkViewModel.state.collectAsStateWithLifecycle()
+
+        LaunchedEffect(key1 = networkState) {
+            
+        }
 
         val snackBarHostState = remember { SnackbarHostState() }
 

@@ -5,7 +5,7 @@ import jinproject.stepwalk.design.R
 import java.time.Instant
 import java.util.SortedMap
 
-internal data class HeartRateMenu(
+internal class HeartRateMenu(
     val heartRates: List<HeartRate>
 ) : HealthMenu {
     override var details: MutableMap<String, MenuDetail>? = null

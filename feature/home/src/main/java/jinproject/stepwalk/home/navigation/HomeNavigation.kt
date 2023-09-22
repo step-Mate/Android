@@ -46,7 +46,7 @@ fun NavGraphBuilder.homeNavGraph(
             val today = ZonedTime(Instant.now().onKorea())
             val start = ZonedTime(
                 Instant.ofEpochSecond(
-                    navBackStackEntry.arguments?.getString("start")?.toLong() ?: today.time.toEpochSecond()
+                    navBackStackEntry.arguments?.getLong("start") ?: today.time.toEpochSecond()
                 ).onKorea()
             )
 

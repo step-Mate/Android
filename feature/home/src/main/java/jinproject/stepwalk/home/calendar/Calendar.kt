@@ -3,6 +3,7 @@ package jinproject.stepwalk.home.calendar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.Layout
+import androidx.compose.ui.unit.dp
 import jinproject.stepwalk.home.component.toLoose
 import java.time.LocalDate
 import java.time.temporal.TemporalAdjusters
@@ -44,8 +45,8 @@ internal fun Calendar(
         val dayLabelPlaceable = dayLabelMeasurables.map { measurable ->
             measurable.measure(
                 constraints.copy(
-                    maxWidth = (maxWidth / 7f).roundToInt(),
-                    minWidth = (maxWidth / 7f).roundToInt(),
+                    maxWidth = ((maxWidth - 16.dp.roundToPx()) / 7f).roundToInt(),
+                    minWidth = ((maxWidth - 16.dp.roundToPx()) / 7f).roundToInt(),
                     minHeight = 0
                 )
             )
@@ -55,8 +56,8 @@ internal fun Calendar(
         val dayPlaceable = dayMeasurables.map { measurable ->
             measurable.measure(
                 constraints.copy(
-                    maxWidth = (maxWidth / 7f).roundToInt(),
-                    minWidth = (maxWidth / 7f).roundToInt(),
+                    maxWidth = ((maxWidth - 16.dp.roundToPx()) / 7f).roundToInt(),
+                    minWidth = ((maxWidth - 16.dp.roundToPx()) / 7f).roundToInt(),
                     minHeight = 0
                 )
             )
@@ -67,7 +68,7 @@ internal fun Calendar(
         layout(maxWidth, totalHeight) {
             headerPlaceable.place(0, 0)
 
-            var xPos = 0
+            var xPos = 8.dp.roundToPx()
             var yPos = headerPlaceable.height
 
             dayPlaceable.forEachIndexed { index, placeable ->
@@ -80,7 +81,7 @@ internal fun Calendar(
 
                 if ((index + 1) % 7 == 0) {
                     yPos += placeable.height
-                    xPos = 0
+                    xPos = 8.dp.roundToPx()
                 }
 
             }

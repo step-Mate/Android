@@ -9,10 +9,6 @@ internal class ZonedTime(val time: ZonedDateTime): Comparable<ZonedTime> {
     }
 
     operator fun rangeTo(that: ZonedTime) = ZonedTimeRange(this,that)
-
-    operator fun inc(): ZonedTime {
-        return ZonedTime(time.plusMonths(1L))
-    }
 }
 
 internal class ZonedTimeRange(
@@ -32,13 +28,15 @@ internal class ZonedTimeIterator(
     start: ZonedTime,
     private val endInclusive: ZonedTime,
 ): Iterator<ZonedTime> {
-    private var initValue = start
+    private var initValue: ZonedTime = start
 
     override fun hasNext(): Boolean {
-        return initValue.time.toEpochSecond() <= endInclusive.time.toEpochSecond()
+        return initValue.time.monthValue <= endInclusive.time.monthValue
     }
 
     override fun next(): ZonedTime {
-        return initValue++
+        return initValue.apply {
+            initValue = ZonedTime(initValue.time.plusMonths(1L))
+        }
     }
 }

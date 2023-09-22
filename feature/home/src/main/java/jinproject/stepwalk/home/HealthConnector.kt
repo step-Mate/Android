@@ -5,14 +5,14 @@ import android.content.Intent
 import android.net.Uri
 import android.util.Log
 import androidx.compose.runtime.Stable
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.health.connect.client.HealthConnectClient
+import androidx.health.connect.client.permission.HealthPermission
 import androidx.health.connect.client.records.HeartRateRecord
-import androidx.health.connect.client.records.StepsCadenceRecord
 import androidx.health.connect.client.records.StepsRecord
 import androidx.health.connect.client.records.metadata.DataOrigin
 import androidx.health.connect.client.request.AggregateGroupByDurationRequest
 import androidx.health.connect.client.request.AggregateGroupByPeriodRequest
-import androidx.health.connect.client.request.ReadRecordsRequest
 import androidx.health.connect.client.time.TimeRangeFilter
 import dagger.Module
 import dagger.Provides
@@ -43,13 +43,59 @@ object HealthConnectorModule {
 
 @Stable
 class HealthConnector @Inject constructor(
-    @ApplicationContext context: Context
+    @ApplicationContext private val context: Context
 ) {
-    val healthConnectClient = getHealthClient(context)
 
     private val stepMetrics = setOf(StepsRecord.COUNT_TOTAL)
+
     private val heartRateMetrics =
         setOf(HeartRateRecord.BPM_MAX, HeartRateRecord.BPM_MIN, HeartRateRecord.BPM_AVG)
+
+    val healthPermissions =
+        setOf(
+            HealthPermission.getReadPermission(StepsRecord::class),
+            HealthPermission.getWritePermission(StepsRecord::class),
+            HealthPermission.getReadPermission(HeartRateRecord::class),
+            HealthPermission.getWritePermission(HeartRateRecord::class)
+        )
+
+    private val healthConnectClient by lazy {
+        getHealthClient()
+    }
+
+    suspend fun checkPermissions(): Boolean {
+        return healthConnectClient?.permissionController?.getGrantedPermissions()
+            ?.containsAll(healthPermissions) ?: false
+    }
+
+    private fun checkAvailability() = HealthConnectClient.sdkStatus(context)
+
+    init {
+        if (checkAvailability() == HealthConnectClient.SDK_UNAVAILABLE_PROVIDER_UPDATE_REQUIRED)
+            requireInstallHealthApk()
+    }
+
+    private fun requireInstallHealthApk() {
+        val providerPackageName = "com.google.android.apps.healthdata"
+        val uriString = "market://details?id=$providerPackageName&url=healthconnect%3A%2F%2Fonboarding"
+
+        context.startActivity(
+            Intent(Intent.ACTION_VIEW).apply {
+                setPackage("com.android.vending")
+                data = Uri.parse(uriString)
+                putExtra("overlay", true)
+                putExtra("callerId", context.packageName)
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            }
+        )
+    }
+
+    private fun getHealthClient(): HealthConnectClient? =
+        if (checkAvailability() == HealthConnectClient.SDK_AVAILABLE) {
+            HealthConnectClient.getOrCreate(context)
+        } else
+            null
+
 
     suspend fun insertSteps(
         step: Long,
@@ -113,8 +159,8 @@ class HealthConnector @Inject constructor(
             result.map { record ->
                 Step(
                     distance = record.result[StepsRecord.COUNT_TOTAL] ?: 0L,
-                    start = record.startTime.onKorea().toInstant().epochSecond,
-                    end = record.endTime.onKorea().toInstant().epochSecond,
+                    start = record.startTime.onKorea().toEpochSecond(),
+                    end = record.endTime.onKorea().toEpochSecond(),
                     type = type
                 )
             }
@@ -142,8 +188,8 @@ class HealthConnector @Inject constructor(
             result.map { record ->
                 Step(
                     distance = record.result[StepsRecord.COUNT_TOTAL] ?: 0L,
-                    start = record.startTime.onKorea().toInstant().epochSecond,
-                    end = record.endTime.onKorea().toInstant().epochSecond,
+                    start = record.startTime.onKorea().toEpochSecond(),
+                    end = record.endTime.onKorea().toEpochSecond(),
                     type = type
                 )
             }
@@ -151,42 +197,6 @@ class HealthConnector @Inject constructor(
     }.onFailure { e ->
         Log.d("test", "byHours error: ${e.message}")
     }.getOrNull()
-
-    suspend fun readStepsByHour(
-        startTime: Instant,
-        endTime: Instant,
-        type: METs
-    ): List<Step>? =
-        kotlin.runCatching {
-            val response =
-                healthConnectClient?.readRecords(
-                    ReadRecordsRequest(
-                        StepsRecord::class,
-                        timeRangeFilter = TimeRangeFilter.between(startTime, endTime)
-                    )
-                )
-
-            response?.let {
-                var idx = 0
-                var hour = 0
-                while (idx < response.records.size)
-                for(index in idx until response.records.size) {
-                    if (response.records[index].endTime.onKorea().hour > hour ) {
-                        idx = index - 1
-                    }
-                }
-                response.records.map { record ->
-                    Step(
-                        distance = record.count,
-                        start = record.startTime.epochSecond,
-                        end = record.endTime.epochSecond,
-                        type = type
-                    )
-                }
-            }
-        }.onFailure { e ->
-
-        }.getOrNull()
 
     suspend fun getTotalStepToday(
         type: METs
@@ -202,7 +212,7 @@ class HealthConnector @Inject constructor(
             endTime = instant
                 .plus(23, ChronoUnit.HOURS)
                 .plus(59, ChronoUnit.MINUTES)
-                .plus(59,ChronoUnit.SECONDS),
+                .plus(59, ChronoUnit.SECONDS),
             type = type,
             period = Period.ofDays(1)
         )
@@ -266,29 +276,4 @@ class HealthConnector @Inject constructor(
     }.onFailure { e ->
 
     }.getOrNull()
-
-    private fun getHealthClient(context: Context): HealthConnectClient? = run {
-        val providerPackageName = "com.google.android.apps.healthdata"
-        val availabilityStatus = HealthConnectClient.sdkStatus(context, providerPackageName)
-        if (availabilityStatus == HealthConnectClient.SDK_UNAVAILABLE) {
-            return null
-        }
-        if (availabilityStatus == HealthConnectClient.SDK_UNAVAILABLE_PROVIDER_UPDATE_REQUIRED) {
-
-            val uriString =
-                "market://details?id=$providerPackageName&url=healthconnect%3A%2F%2Fonboarding"
-            context.startActivity(
-                Intent(Intent.ACTION_VIEW).apply {
-                    setPackage("com.android.vending")
-                    data = Uri.parse(uriString)
-                    putExtra("overlay", true)
-                    putExtra("callerId", context.packageName)
-                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                }
-            )
-            return null
-        }
-
-        HealthConnectClient.getOrCreate(context)
-    }
 }

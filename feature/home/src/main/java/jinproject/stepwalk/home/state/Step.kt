@@ -8,7 +8,7 @@ import java.time.Instant
 import java.util.SortedMap
 
 @Stable
-internal data class StepMenu(
+internal class StepMenu(
     val steps: List<Step>,
 ): HealthMenu {
     override var details: Map<String, MenuDetail>? = null

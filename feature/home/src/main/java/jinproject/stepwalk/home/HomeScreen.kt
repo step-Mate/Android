@@ -56,16 +56,9 @@ import jinproject.stepwalk.home.state.HeartRate
 import jinproject.stepwalk.home.state.Step
 import jinproject.stepwalk.home.state.Time
 import jinproject.stepwalk.home.utils.onKorea
+import jinproject.stepwalk.home.utils.toLocalDateTime
 import java.time.Instant
 import java.time.temporal.ChronoUnit
-
-private val PERMISSIONS =
-    setOf(
-        HealthPermission.getReadPermission(StepsRecord::class),
-        HealthPermission.getWritePermission(StepsRecord::class),
-        HealthPermission.getReadPermission(HeartRateRecord::class),
-        HealthPermission.getWritePermission(HeartRateRecord::class)
-    )
 
 @Composable
 internal fun HomeScreen(
@@ -78,7 +71,7 @@ internal fun HomeScreen(
 
     val permissionLauncher =
         rememberLauncherForActivityResult(contract = PermissionController.createRequestPermissionResultContract()) { result ->
-            if (PERMISSIONS.containsAll(result)) {
+            if (healthConnector.healthPermissions.containsAll(result)) {
                 Log.d("test", "권한 수락")
             } else {
                 Log.d("test", "권한 거부")
@@ -95,92 +88,89 @@ internal fun HomeScreen(
     }
 
     LaunchedEffect(uiState.time, permissionState.value) {
-        healthConnector.healthConnectClient?.let { client ->
-            val granted = client.permissionController.getGrantedPermissions()
-            if (granted.containsAll(PERMISSIONS)) {
-                Log.d("test", "권한 있음")
+        if(healthConnector.checkPermissions()) {
+            Log.d("test", "권한 있음")
 
-                val instant = Instant.now().onKorea()
+            val instant = Instant.now().onKorea()
 
-                /*(0..23).forEach { count ->
-                    healthConnector.insertSteps(
-                        step = count * 100L + 100L,
-                        startTime = instant.truncatedTo(ChronoUnit.DAYS).toInstant().plus(count.toLong(), ChronoUnit.HOURS),
-                        endTime = instant.truncatedTo(ChronoUnit.DAYS).toInstant().plus(count.toLong(), ChronoUnit.HOURS).plus(30L,ChronoUnit.MINUTES)
-                    )
-                }
-
-                (0..23).forEach { count ->
-                    healthConnector.insertHeartRates(
-                        heartRate = (count % 4) * 40L,
-                        startTime = instant.truncatedTo(ChronoUnit.DAYS).toInstant().plus(count.toLong(), ChronoUnit.HOURS),
-                        endTime = instant.truncatedTo(ChronoUnit.DAYS).toInstant().plus(count.toLong(), ChronoUnit.HOURS).plus(30L,ChronoUnit.MINUTES)
-                    )
-                }*/
-
-
-                val endTime = instant
-                    .withHour(23)
-                    .withMinute(59)
-
-                when (val time = uiState.time) {
-                    Time.Day -> {
-                        homeViewModel::setSteps.invoke(
-                            healthConnector.readStepsByHours(
-                                startTime = instant
-                                    .truncatedTo(ChronoUnit.DAYS)
-                                    .toInstant(),
-                                endTime = endTime.toInstant(),
-                                type = METs.Walk
-                            ) ?: listOf(Step.getInitValues())
-                        )
-
-                        homeViewModel::setHeartRates.invoke(
-                            healthConnector.readHeartRatesByHours(
-                                startTime = instant
-                                    .truncatedTo(ChronoUnit.DAYS)
-                                    .toInstant(),
-                                endTime = endTime.toInstant()
-                            ) ?: listOf(HeartRate.getInitValues())
-                        )
-                    }
-
-                    else -> {
-                        val startTime = when (time) {
-                            Time.Year -> instant
-                                .minusMonths(instant.month.value.toLong() - 1)
-                                .minusDays(instant.dayOfMonth.toLong() - 1)
-
-                            Time.Week -> instant
-                                .minusDays(time.toRepeatTimes().toLong() - 1)
-
-                            else -> instant.minusDays(instant.dayOfMonth.toLong() - 1)
-                        }
-                            .truncatedTo(ChronoUnit.DAYS)
-
-                        homeViewModel::setSteps.invoke(
-                            healthConnector.readStepsByPeriods(
-                                startTime = startTime.toLocalDateTime(),
-                                endTime = endTime.toLocalDateTime(),
-                                type = METs.Walk,
-                                period = time.toPeriod()
-                            ) ?: listOf(Step.getInitValues())
-                        )
-
-                        homeViewModel::setHeartRates.invoke(
-                            healthConnector.readHeartRatesByPeriods(
-                                startTime = startTime.toLocalDateTime(),
-                                endTime = endTime.toLocalDateTime(),
-                                period = time.toPeriod()
-                            ) ?: listOf(HeartRate.getInitValues())
-                        )
-                    }
-                }
-
-            } else {
-                Log.d("test", "권한 없음")
-                permissionLauncher.launch(PERMISSIONS)
+            /*(0..23).forEach { count ->
+                healthConnector.insertSteps(
+                    step = count * 100L + 100L,
+                    startTime = instant.truncatedTo(ChronoUnit.DAYS).toInstant().plus(count.toLong(), ChronoUnit.HOURS),
+                    endTime = instant.truncatedTo(ChronoUnit.DAYS).toInstant().plus(count.toLong(), ChronoUnit.HOURS).plus(30L,ChronoUnit.MINUTES)
+                )
             }
+
+            (0..23).forEach { count ->
+                healthConnector.insertHeartRates(
+                    heartRate = (count % 4) * 40L,
+                    startTime = instant.truncatedTo(ChronoUnit.DAYS).toInstant().plus(count.toLong(), ChronoUnit.HOURS),
+                    endTime = instant.truncatedTo(ChronoUnit.DAYS).toInstant().plus(count.toLong(), ChronoUnit.HOURS).plus(30L,ChronoUnit.MINUTES)
+                )
+            }*/
+
+
+            val endTime = instant
+                .withHour(23)
+                .withMinute(59)
+
+            when (val time = uiState.time) {
+                Time.Day -> {
+                    homeViewModel::setSteps.invoke(
+                        healthConnector.readStepsByHours(
+                            startTime = instant
+                                .truncatedTo(ChronoUnit.DAYS)
+                                .toInstant(),
+                            endTime = endTime.toInstant(),
+                            type = METs.Walk
+                        ) ?: listOf(Step.getInitValues())
+                    )
+
+                    homeViewModel::setHeartRates.invoke(
+                        healthConnector.readHeartRatesByHours(
+                            startTime = instant
+                                .truncatedTo(ChronoUnit.DAYS)
+                                .toInstant(),
+                            endTime = endTime.toInstant()
+                        ) ?: listOf(HeartRate.getInitValues())
+                    )
+                }
+
+                else -> {
+                    val startTime = when (time) {
+                        Time.Year -> instant
+                            .minusMonths(instant.month.value.toLong() - 1)
+                            .minusDays(instant.dayOfMonth.toLong() - 1)
+
+                        Time.Week -> instant
+                            .minusDays(time.toRepeatTimes().toLong() - 1)
+
+                        else -> instant.minusDays(instant.dayOfMonth.toLong() - 1)
+                    }
+                        .truncatedTo(ChronoUnit.DAYS)
+
+                    homeViewModel::setSteps.invoke(
+                        healthConnector.readStepsByPeriods(
+                            startTime = startTime.toLocalDateTime(),
+                            endTime = endTime.toLocalDateTime(),
+                            type = METs.Walk,
+                            period = time.toPeriod()
+                        ) ?: listOf(Step.getInitValues())
+                    )
+
+                    homeViewModel::setHeartRates.invoke(
+                        healthConnector.readHeartRatesByPeriods(
+                            startTime = startTime.toLocalDateTime(),
+                            endTime = endTime.toLocalDateTime(),
+                            period = time.toPeriod()
+                        ) ?: listOf(HeartRate.getInitValues())
+                    )
+                }
+            }
+        }
+        else {
+            Log.d("test", "권한 없음")
+            permissionLauncher.launch(healthConnector.healthPermissions)
         }
     }
 
@@ -198,6 +188,7 @@ internal fun HomeScreen(
 private fun HomeScreen(
     uiState: HomeUiState,
     stepThisHour: Int,
+    context: Context = LocalContext.current,
     selectedStepOnGraph: Long,
     setSelectedStepOnGraph: (Long) -> Unit,
     setTimeOnGraph: (Time) -> Unit,
@@ -215,12 +206,9 @@ private fun HomeScreen(
                 modifier = Modifier,
                 onClickTimeIcon = { popUpState.value = true },
                 onClickIcon1 = {
-                    val today = Instant.now().onKorea().toEpochSecond()
+                    val firstInstallTime = context.packageManager.getPackageInfo(context.packageName,0).firstInstallTime
                     navigateToCalendar(
-                        kotlin.math.min(
-                            uiState.step.steps.minOfOrNull { it.start } ?: today,
-                            uiState.heartRate.heartRates.minOfOrNull { it.startTime.epochSecond } ?: today
-                        )
+                        Instant.ofEpochMilli(firstInstallTime).epochSecond
                     )
                 },
                 onClickIcon2 = {}
