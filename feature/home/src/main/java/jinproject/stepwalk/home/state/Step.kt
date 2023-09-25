@@ -1,47 +1,22 @@
 package jinproject.stepwalk.home.state
 
-import android.util.Log
 import androidx.compose.runtime.Stable
 import jinproject.stepwalk.design.R
 import jinproject.stepwalk.domain.model.METs
-import java.time.Instant
-import java.util.SortedMap
 
 @Stable
 internal class StepMenu(
     val steps: List<Step>,
+    override var graphItems: List<Long>,
 ): HealthMenu {
-    override var details: Map<String, MenuDetail>? = null
-    override var graphItems: List<Long>? = null
+    override val details: Map<String, MenuDetail> = getMenuDetails()
 
-    fun setGraphItems(time: Time) = kotlin.run {
-        val items = ArrayList<Long>(time.toRepeatTimes()).apply {
-            repeat(time.toRepeatTimes()) { index ->
-                add(index, 0L)
-            }
-        }
-
-        steps.forEach { step ->
-            val instant = Instant.ofEpochSecond(step.start)
-            val key = time.toZonedOffset(instant)
-            when (time) {
-                Time.Day -> items[key] = step.distance
-                else -> items[key - 1] = step.distance
-            }
-        }
-
-        graphItems = when(time) {
-            Time.Week -> items.sortDayOfWeek()
-            else -> items
-        }
-    }
-
-    fun setMenuDetails(kg: Float) = kotlin.runCatching {
+    private fun getMenuDetails(kg: Float = .0f) = kotlin.run {
         val type = steps.firstOrNull()?.type ?: METs.Walk
-        val minutes = steps.sumOf { it.end - it.start }
+        val minutes = steps.sumOf { it.endTime - it.startTime }
         val steps = steps.total()
 
-        details = mutableMapOf<String, MenuDetail>().apply {
+        mutableMapOf<String, MenuDetail>().apply {
             set(
                 "calories", MenuDetail(
                     value = (steps * 3).toFloat() / 1000,
@@ -64,23 +39,22 @@ internal class StepMenu(
                 )
             )
         }
-    }.onFailure { e ->
-        Log.e("test","error: ${e.printStackTrace()}")
     }
 
     companion object {
-        fun getInitValues() = StepMenu(
-            steps = listOf(
+        fun getInitValues() = kotlin.run {
+            val steps = listOf(
                 Step(
                     distance = 0,
-                    start = 0,
-                    end = 0,
+                    startTime = 0,
+                    endTime = 0,
                     type = METs.Walk
                 )
-            ),
-        ).apply {
-            setGraphItems(Time.Day)
-            setMenuDetails(55f)
+            )
+            StepMenu(
+                steps = steps,
+                graphItems = Time.Day.getGraphItems { time, items -> steps.addGraphItems(time, items) }
+            )
         }
     }
 }
@@ -88,16 +62,17 @@ internal class StepMenu(
 @Stable
 data class Step(
     val distance: Long,
-    val start: Long,
-    val end: Long,
-    val type: METs
-) {
+    override val startTime: Long,
+    override val endTime: Long,
+    val type: METs,
+): GraphItem {
+    override val graphValue: Long get() = distance
 
     companion object {
         fun getInitValues() = Step(
             distance = 0L,
-            start = 0,
-            end = 0,
+            startTime = 0,
+            endTime = 0,
             type = METs.Walk
         )
     }

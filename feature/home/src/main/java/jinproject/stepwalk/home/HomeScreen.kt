@@ -40,9 +40,6 @@ import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupPositionProvider
 import androidx.compose.ui.window.PopupProperties
 import androidx.health.connect.client.PermissionController
-import androidx.health.connect.client.permission.HealthPermission
-import androidx.health.connect.client.records.HeartRateRecord
-import androidx.health.connect.client.records.StepsRecord
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import jinproject.stepwalk.design.component.DefaultLayout
@@ -56,7 +53,6 @@ import jinproject.stepwalk.home.state.HeartRate
 import jinproject.stepwalk.home.state.Step
 import jinproject.stepwalk.home.state.Time
 import jinproject.stepwalk.home.utils.onKorea
-import jinproject.stepwalk.home.utils.toLocalDateTime
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 
@@ -80,7 +76,6 @@ internal fun HomeScreen(
         }
 
     val uiState by homeViewModel.uiState.collectAsStateWithLifecycle()
-    val selectedStepOnGraph by homeViewModel.selectedStepOnGraph.collectAsStateWithLifecycle()
     val stepThisHour by homeViewModel.stepThisHour.collectAsStateWithLifecycle()
 
     LaunchedEffect(Unit) {
@@ -143,7 +138,7 @@ internal fun HomeScreen(
                             .minusDays(instant.dayOfMonth.toLong() - 1)
 
                         Time.Week -> instant
-                            .minusDays(time.toRepeatTimes().toLong() - 1)
+                            .minusDays(time.toNumberOfDays().toLong() - 1)
 
                         else -> instant.minusDays(instant.dayOfMonth.toLong() - 1)
                     }
@@ -177,8 +172,6 @@ internal fun HomeScreen(
     HomeScreen(
         uiState = uiState,
         stepThisHour = stepThisHour,
-        selectedStepOnGraph = selectedStepOnGraph,
-        setSelectedStepOnGraph = homeViewModel::setSelectedStepOnGraph,
         setTimeOnGraph = homeViewModel::setTime,
         navigateToCalendar = navigateToCalendar
     )
@@ -189,8 +182,6 @@ private fun HomeScreen(
     uiState: HomeUiState,
     stepThisHour: Int,
     context: Context = LocalContext.current,
-    selectedStepOnGraph: Long,
-    setSelectedStepOnGraph: (Long) -> Unit,
     setTimeOnGraph: (Time) -> Unit,
     navigateToCalendar: (Long) -> Unit,
 ) {
@@ -219,8 +210,6 @@ private fun HomeScreen(
             modifier = Modifier.fillMaxSize(),
             uiState = uiState,
             stepThisHour = stepThisHour,
-            selectedStepOnGraph = selectedStepOnGraph,
-            setSelectedStepOnGraph = setSelectedStepOnGraph
         )
         PopUpWindow(
             popUpState = popUpState.value,
@@ -333,8 +322,6 @@ private fun PreviewHomeScreen() = StepWalkTheme {
     HomeScreen(
         uiState = HomeUiState.getInitValues(),
         stepThisHour = 100,
-        selectedStepOnGraph = 0L,
-        setSelectedStepOnGraph = {},
         setTimeOnGraph = {},
         navigateToCalendar = {}
     )

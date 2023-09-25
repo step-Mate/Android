@@ -5,7 +5,6 @@ import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.Period
-import java.time.ZoneId
 import java.time.temporal.ChronoField
 import java.time.temporal.TemporalAdjusters
 import java.util.Locale
@@ -16,7 +15,7 @@ internal enum class Time {
     Month,
     Year;
 
-    fun toRepeatTimes() = when (this) {
+    fun toNumberOfDays() = when (this) {
         Day -> 24
         Week -> 7
         Month -> Instant
@@ -79,5 +78,21 @@ internal fun Long.weekToString() = kotlin.run {
     when (week) {
         LocalDate.now().dayOfWeek -> "오늘"
         else -> week.getDisplayName(java.time.format.TextStyle.SHORT, Locale.getDefault())
+    }
+}
+
+internal inline fun Time.getGraphItems(addData: (Time, ArrayList<Long>) -> Unit) = kotlin.run {
+    val dayCount = this.toNumberOfDays()
+    val items = ArrayList<Long>(dayCount).apply {
+        repeat(dayCount) { index ->
+            add(index, 0L)
+        }
+    }
+
+    addData(this, items)
+
+    when(this) {
+        Time.Week -> items.sortDayOfWeek()
+        else -> items
     }
 }

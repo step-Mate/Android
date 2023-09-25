@@ -5,7 +5,6 @@ import android.content.Intent
 import android.net.Uri
 import android.util.Log
 import androidx.compose.runtime.Stable
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.health.connect.client.HealthConnectClient
 import androidx.health.connect.client.permission.HealthPermission
 import androidx.health.connect.client.records.HeartRateRecord
@@ -159,8 +158,8 @@ class HealthConnector @Inject constructor(
             result.map { record ->
                 Step(
                     distance = record.result[StepsRecord.COUNT_TOTAL] ?: 0L,
-                    start = record.startTime.onKorea().toEpochSecond(),
-                    end = record.endTime.onKorea().toEpochSecond(),
+                    startTime = record.startTime.onKorea().toEpochSecond(),
+                    endTime = record.endTime.onKorea().toEpochSecond(),
                     type = type
                 )
             }
@@ -188,8 +187,8 @@ class HealthConnector @Inject constructor(
             result.map { record ->
                 Step(
                     distance = record.result[StepsRecord.COUNT_TOTAL] ?: 0L,
-                    start = record.startTime.onKorea().toEpochSecond(),
-                    end = record.endTime.onKorea().toEpochSecond(),
+                    startTime = record.startTime.onKorea().toEpochSecond(),
+                    endTime = record.endTime.onKorea().toEpochSecond(),
                     type = type
                 )
             }
@@ -236,8 +235,8 @@ class HealthConnector @Inject constructor(
         response?.let { result ->
             result.map { record ->
                 HeartRate(
-                    startTime = record.startTime.onKorea().toInstant(),
-                    endTime = record.endTime.onKorea().toInstant(),
+                    startTime = record.startTime.onKorea().toEpochSecond(),
+                    endTime = record.endTime.onKorea().toEpochSecond(),
                     min = record.result[HeartRateRecord.BPM_MAX]?.toInt() ?: 0,
                     max = record.result[HeartRateRecord.BPM_MIN]?.toInt() ?: 0,
                     avg = record.result[HeartRateRecord.BPM_AVG]?.toInt() ?: 0
@@ -265,8 +264,8 @@ class HealthConnector @Inject constructor(
         response?.let { result ->
             result.map { record ->
                 HeartRate(
-                    startTime = record.startTime.onKorea().toInstant(),
-                    endTime = record.endTime.onKorea().toInstant(),
+                    startTime = record.startTime.onKorea().toEpochSecond(),
+                    endTime = record.endTime.onKorea().toEpochSecond(),
                     min = record.result[HeartRateRecord.BPM_MAX]?.toInt() ?: 0,
                     max = record.result[HeartRateRecord.BPM_MIN]?.toInt() ?: 0,
                     avg = record.result[HeartRateRecord.BPM_AVG]?.toInt() ?: 0

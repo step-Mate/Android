@@ -14,7 +14,8 @@ import jinproject.stepwalk.home.state.PageState
 import jinproject.stepwalk.home.state.Step
 import jinproject.stepwalk.home.state.StepMenu
 import jinproject.stepwalk.home.state.Time
-import jinproject.stepwalk.home.state.total
+import jinproject.stepwalk.home.state.addGraphItems
+import jinproject.stepwalk.home.state.getGraphItems
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.launchIn
@@ -112,9 +113,6 @@ internal class HomeViewModel @Inject constructor(
         MutableStateFlow(HomeUiState.getInitValues())
     val uiState get() = _uiState.asStateFlow()
 
-    private val _selectedStepOnGraph = MutableStateFlow(0L)
-    val selectedStepOnGraph get() = _selectedStepOnGraph.asStateFlow()
-
     private val _stepThisHour = MutableStateFlow(0)
     val stepThisHour get() = _stepThisHour.asStateFlow()
 
@@ -124,10 +122,10 @@ internal class HomeViewModel @Inject constructor(
 
     fun setSteps(steps: List<Step>) = _uiState.update { state ->
         state.copy(
-            step = StepMenu(steps).apply {
-                setGraphItems(state.time)
-                setMenuDetails(state.user.kg)
-            }
+            step = StepMenu(
+                steps,
+                graphItems =  state.time.getGraphItems { time, items -> steps.addGraphItems(time, items) }
+            )
         )
     }
 
@@ -143,14 +141,12 @@ internal class HomeViewModel @Inject constructor(
         }
     }
 
-    fun setSelectedStepOnGraph(step: Long) = _selectedStepOnGraph.update { step }
-
     fun setHeartRates(heartRates: List<HeartRate>) = _uiState.update { state ->
         state.copy(
-            heartRate = HeartRateMenu(heartRates).apply {
-                setGraphItems(state.time)
-                setMenuDetails()
-            }
+            heartRate = HeartRateMenu(
+                heartRates,
+                graphItems = state.time.getGraphItems { time, items -> heartRates.addGraphItems(time, items)}
+            )
         )
     }
 
