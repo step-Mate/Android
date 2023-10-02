@@ -11,7 +11,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class StepWalkViewModel @Inject constructor(): ViewModel() {
+internal class StepWalkViewModel @Inject constructor(): ViewModel() {
     private val _state = MutableSharedFlow<NetworkState>()
     val state get() = _state.stateIn(
         scope = viewModelScope,

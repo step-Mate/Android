@@ -11,27 +11,21 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.vectorResource
-import androidx.navigation.NavDestination
-import androidx.navigation.NavDestination.Companion.hierarchy
-import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.compose.currentBackStackEntryAsState
 import jinproject.stepwalk.app.ui.core.SnackBarMessage
 import jinproject.stepwalk.home.HealthConnector
-import jinproject.stepwalk.home.navigation.calendarRoute
 import jinproject.stepwalk.home.navigation.homeNavGraph
 import jinproject.stepwalk.home.navigation.navigateToCalendar
 
 
 @Composable
-fun NavigationGraph(
+internal fun NavigationGraph(
     router: Router,
     modifier: Modifier = Modifier,
     healthConnector: HealthConnector,
@@ -63,18 +57,18 @@ fun NavigationGraph(
 
 
 @Composable
-fun BottomNavigationGraph(
+internal fun BottomNavigationGraph(
     router: Router,
     modifier: Modifier = Modifier
 ) {
     when {
-        router.isTopLevelDestination -> {
+        router.currentDestination.showBottomBarOrHide() -> {
             NavigationBar(
                 modifier = modifier,
                 containerColor = Color.Transparent,
             ) {
                 BottomNavigationDestination.values.forEach { destination ->
-                    val selected = router.currentDestination.isTopLevelDestinationInHierarchy(destination)
+                    val selected = router.currentDestination.isDestinationInHierarchy(destination)
 
                     NavigationBarItem(
                         selected = selected,
@@ -99,11 +93,6 @@ fun BottomNavigationGraph(
         }
     }
 }
-
-private fun NavDestination?.isTopLevelDestinationInHierarchy(destination: BottomNavigationDestination) =
-    this?.hierarchy?.any {
-        it.route?.contains(destination.route, true) ?: false
-    } ?: false
 
 @Composable
 private fun RowScope.NavigationBarItem(

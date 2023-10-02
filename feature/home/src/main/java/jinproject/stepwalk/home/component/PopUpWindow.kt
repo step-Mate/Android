@@ -88,9 +88,7 @@ fun PopupWindow(
                             width = 2.dp.toPx(),
                             pathEffect = PathEffect.cornerPathEffect(4.dp.toPx())
                         )
-                        val hardStroke =  Stroke(
-                            width = 2.dp.toPx()
-                        )
+
                         val brush = Brush.verticalGradient(
                             colors = listOf(
                                 StepWalkColor.blue_700.color,
@@ -111,8 +109,13 @@ fun PopupWindow(
                             lineTo(rect.topLeft.x, rect.topLeft.y)
                             close()
                         }
+                        val fillPath = Path().apply {
+                            addPath(path)
+                            close()
+                        }
 
                         drawPath(path, brush = brush, style = stroke)
+                        drawPath(fillPath, brush = brush, style = Fill)
                     }
                     .padding(horizontal = 4.dp, vertical = 6.dp)
             )
@@ -129,7 +132,6 @@ private fun PopUpItem(
         text = text,
         style = MaterialTheme.typography.bodySmall,
         modifier = modifier,
-
         )
 }
 

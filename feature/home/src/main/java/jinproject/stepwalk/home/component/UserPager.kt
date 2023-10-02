@@ -70,8 +70,10 @@ import jinproject.stepwalk.home.state.addGraphItems
 import jinproject.stepwalk.home.state.getGraphItems
 import jinproject.stepwalk.home.state.sortDayOfWeek
 import jinproject.stepwalk.home.state.toAchievementDegree
-import jinproject.stepwalk.home.state.weekToString
+import jinproject.stepwalk.home.utils.displayOnKorea
+import jinproject.stepwalk.home.utils.toDayOfWeekString
 import java.text.DecimalFormat
+import java.time.LocalDate
 import kotlin.math.absoluteValue
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -191,6 +193,13 @@ private fun PageMenu(
         }
     }
 }
+
+private fun Long.weekToString() =
+    when (val week = (this.toInt() + 1).toDayOfWeekString()) {
+        LocalDate.now().dayOfWeek.displayOnKorea() -> "오늘"
+
+        else -> week
+    }
 
 @Composable
 private fun StepBar(

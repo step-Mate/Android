@@ -2,7 +2,6 @@ package jinproject.stepwalk.app.ui.navigation
 
 import androidx.annotation.DrawableRes
 import jinproject.stepwalk.design.R
-import jinproject.stepwalk.home.navigation.homeGraph
 import jinproject.stepwalk.home.navigation.homeRoute
 
 sealed class BottomNavigationDestination(
@@ -13,7 +12,7 @@ sealed class BottomNavigationDestination(
 ) {
     data object HOME: BottomNavigationDestination(
         title = "홈",
-        route = homeGraph,
+        route = homeRoute,
         icon = R.drawable.ic_home,
         iconClicked = R.drawable.ic_home_clicked
     )
