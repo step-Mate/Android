@@ -21,15 +21,24 @@ class StepRepositoryImpl @Inject constructor(
             }
         }
 
-    override fun getStep(): Flow<Int> = data.map { prefs ->
-        prefs.step
+    override fun getStep(): Flow<Array<Long>> = data.map { prefs ->
+        arrayOf(prefs.current, prefs.last)
     }
 
-    override suspend fun setStep(step: Long) {
+    override suspend fun setTodayStep(today: Long) {
         prefs.updateData { pref ->
             pref
                 .toBuilder()
-                .setStep(step.toInt())
+                .setCurrent(today)
+                .build()
+        }
+    }
+
+    override suspend fun setLastStep(last: Long) {
+        prefs.updateData { pref ->
+            pref
+                .toBuilder()
+                .setLast(last)
                 .build()
         }
     }

@@ -69,6 +69,7 @@ internal fun HomeScreen(
         rememberLauncherForActivityResult(contract = PermissionController.createRequestPermissionResultContract()) { result ->
             if (healthConnector.healthPermissions.containsAll(result)) {
                 Log.d("test", "권한 수락")
+                context.startForegroundService(Intent(context, StepService::class.java))
             } else {
                 Log.d("test", "권한 거부")
             }
@@ -77,10 +78,6 @@ internal fun HomeScreen(
 
     val uiState by homeViewModel.uiState.collectAsStateWithLifecycle()
     val stepThisHour by homeViewModel.stepThisHour.collectAsStateWithLifecycle()
-
-    LaunchedEffect(Unit) {
-        context.startForegroundService(Intent(context, StepService::class.java))
-    }
 
     LaunchedEffect(uiState.time, permissionState.value) {
         if(healthConnector.checkPermissions()) {

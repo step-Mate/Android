@@ -3,7 +3,10 @@ package jinproject.stepwalk.home.service
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Intent
+import android.util.Log
 import android.widget.RemoteViews
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.core.app.NotificationCompat
 import androidx.lifecycle.LifecycleService
 import androidx.lifecycle.lifecycleScope
@@ -12,13 +15,17 @@ import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.OutOfQuotaPolicy
 import androidx.work.WorkManager
 import dagger.hilt.android.AndroidEntryPoint
-import jinproject.stepwalk.domain.model.METs
+import jinproject.stepwalk.domain.repository.StepRepository
+import jinproject.stepwalk.domain.usecase.GetStepUseCase
 import jinproject.stepwalk.domain.usecase.SetStepUseCase
 import jinproject.stepwalk.home.HealthConnector
 import jinproject.stepwalk.home.R
 import jinproject.stepwalk.home.utils.StepWalkChannelId
 import jinproject.stepwalk.home.utils.createChannel
 import jinproject.stepwalk.home.worker.RestartServiceWorker
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -31,10 +38,14 @@ internal class StepService : LifecycleService() {
     @Inject
     lateinit var setStepUseCase: SetStepUseCase
 
+    @Inject
+    lateinit var getStepUseCase: GetStepUseCase
+
     private lateinit var sensorModule: StepSensorModule
     private var stepNotiLayout: RemoteViews? = null
     private var notification: NotificationCompat.Builder? = null
     private var exitFlag: Boolean? = null
+    private val steps: SnapshotStateList<Long> = mutableStateListOf()
 
     override fun onCreate() {
         super.onCreate()
@@ -42,21 +53,24 @@ internal class StepService : LifecycleService() {
         val notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
         notificationManager.createChannel()
 
-        lifecycleScope.launch {
-            sensorModule = StepSensorModule(
-                context = this@StepService,
-                currentTotalStep = healthConnector.getTotalStepToday(METs.Walk),
-                onSensorChanged = { stepCounter ->
-                    stepNotiLayout?.setTextViewText(R.id.tv_stepHeader, stepCounter.toString())
-                    notificationManager.notify(NOTIFICATION_ID, notification?.build())
+        getStepUseCase().onEach { steps ->
+            this.steps.clear()
+            this.steps.addAll(steps)
+        }.launchIn(lifecycleScope)
 
-                    lifecycleScope.launch {
-                        setStepUseCase(stepCounter)
-                    }
+        sensorModule = StepSensorModule(
+            context = this@StepService,
+            steps = steps,
+            onSensorChanged = { stepCounter ->
+                stepNotiLayout?.setTextViewText(R.id.tv_stepHeader, stepCounter.toString())
+                notificationManager.notify(NOTIFICATION_ID, notification?.build())
+
+                lifecycleScope.launch {
+                    setStepUseCase.setTodayStep(stepCounter)
                 }
-            )
-            setNotification()
-        }
+            }
+        )
+        setNotification()
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -77,7 +91,7 @@ internal class StepService : LifecycleService() {
         if (::sensorModule.isInitialized)
             sensorModule.unRegisterSensor()
 
-        if(exitFlag != true) {
+        if (exitFlag == true) {
             val workRequest = OneTimeWorkRequestBuilder<RestartServiceWorker>()
                 .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
                 .build()
@@ -89,8 +103,9 @@ internal class StepService : LifecycleService() {
                     ExistingWorkPolicy.REPLACE,
                     workRequest
                 )
+            Log.d("test", "reserved")
         }
-
+        Log.d("test", "destroy")
         super.onDestroy()
     }
 
@@ -108,7 +123,7 @@ internal class StepService : LifecycleService() {
         )
 
         stepNotiLayout = RemoteViews(packageName, R.layout.step_notification).apply {
-            setTextViewText(R.id.tv_stepHeader, sensorModule.stepCounterTotal.toString())
+            setTextViewText(R.id.tv_stepHeader, steps.first().toString())
         }
 
         notification =
@@ -118,6 +133,7 @@ internal class StepService : LifecycleService() {
                 .setCustomContentView(stepNotiLayout)
                 .setCustomBigContentView(stepNotiLayout)
                 .setOngoing(true)
+                .addAction(jinproject.stepwalk.design.R.drawable.ic_time, "끄기", exitPendingIntent)
 
         startForeground(NOTIFICATION_ID, notification?.build())
     }

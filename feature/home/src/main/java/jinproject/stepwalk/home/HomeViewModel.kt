@@ -129,17 +129,10 @@ internal class HomeViewModel @Inject constructor(
         )
     }
 
-    private fun getStepThisHour() = getStepUseCase
-        .invoke()
-        .onEach { step ->
-            _stepThisHour.update { step }
+    private fun getStepThisHour() = getStepUseCase()
+        .onEach { steps ->
+            _stepThisHour.update { steps.first().toInt() }
         }.launchIn(viewModelScope)
-
-    fun setStepThisHour(step: Long) {
-        viewModelScope.launch {
-            setStepUseCase(step)
-        }
-    }
 
     fun setHeartRates(heartRates: List<HeartRate>) = _uiState.update { state ->
         state.copy(

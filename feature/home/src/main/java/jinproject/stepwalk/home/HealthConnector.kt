@@ -197,7 +197,7 @@ class HealthConnector @Inject constructor(
         Log.d("test", "byHours error: ${e.message}")
     }.getOrNull()
 
-    suspend fun getTotalStepToday(
+    suspend fun getTodayTotalStep(
         type: METs
     ): Long = kotlin.run {
         val instant = Instant
