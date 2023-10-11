@@ -10,6 +10,10 @@ class SetStepUseCase @Inject constructor(
         stepRepository.setTodayStep(today)
     }
 
+    suspend fun setYesterdayStep(yesterday: Long) {
+        stepRepository.setYesterdayStep(yesterday)
+    }
+
     suspend fun setLastStep(last: Long) {
         stepRepository.setLastStep(last)
     }

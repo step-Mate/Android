@@ -18,11 +18,13 @@ import jinproject.stepwalk.domain.usecase.SetStepUseCase
 internal class AlarmReceiver : BroadcastReceiver() {
 
     override fun onReceive(p0: Context?, p1: Intent?) {
-        val lastStep = p1?.getLongExtra("lastStep", 0L) ?: 0L
+        val yesterday = p1?.getLongExtra("yesterday", 0L) ?: 0L
+        val lastStep = p1?.getLongExtra("stepLastTime", 0L) ?: 0L
 
         OneTimeWorkRequestBuilder<InsertLastStepWorker>()
             .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
-            .setInputData(Data.Builder().putLong("lastStep",lastStep).build())
+            .setInputData(Data.Builder().putLong("yesterday",yesterday).build())
+            .setInputData(Data.Builder().putLong("stepLastTime",lastStep).build())
             .build()
 
     }
@@ -36,8 +38,10 @@ internal class InsertLastStepWorker @AssistedInject constructor(
 ):CoroutineWorker(context, workerParams) {
     override suspend fun doWork(): Result {
         kotlin.runCatching {
-            val lastStep = inputData.getLong("lastStep", 0L)
-            setStepUseCase.setLastStep(lastStep)
+            val yesterday = inputData.getLong("yesterday", 0L)
+            val last = inputData.getLong("stepLastTime", 0L)
+            setStepUseCase.setYesterdayStep(yesterday)
+            setStepUseCase.setLastStep(last)
         }.onFailure {
             return Result.failure()
         }

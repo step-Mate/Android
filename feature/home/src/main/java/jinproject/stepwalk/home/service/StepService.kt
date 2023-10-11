@@ -5,8 +5,6 @@ import android.app.PendingIntent
 import android.content.Intent
 import android.util.Log
 import android.widget.RemoteViews
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.core.app.NotificationCompat
 import androidx.lifecycle.LifecycleService
 import androidx.lifecycle.lifecycleScope
@@ -15,7 +13,6 @@ import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.OutOfQuotaPolicy
 import androidx.work.WorkManager
 import dagger.hilt.android.AndroidEntryPoint
-import jinproject.stepwalk.domain.repository.StepRepository
 import jinproject.stepwalk.domain.usecase.GetStepUseCase
 import jinproject.stepwalk.domain.usecase.SetStepUseCase
 import jinproject.stepwalk.home.HealthConnector
@@ -23,7 +20,6 @@ import jinproject.stepwalk.home.R
 import jinproject.stepwalk.home.utils.StepWalkChannelId
 import jinproject.stepwalk.home.utils.createChannel
 import jinproject.stepwalk.home.worker.RestartServiceWorker
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
@@ -45,7 +41,7 @@ internal class StepService : LifecycleService() {
     private var stepNotiLayout: RemoteViews? = null
     private var notification: NotificationCompat.Builder? = null
     private var exitFlag: Boolean? = null
-    private val steps by lazy { Array(2) { 0L } }
+    private val steps by lazy { Array(3) { 0L } }
 
     override fun onCreate() {
         super.onCreate()
@@ -54,7 +50,7 @@ internal class StepService : LifecycleService() {
         notificationManager.createChannel()
 
         getStepUseCase().onEach { steps ->
-            repeat(2) { idx ->
+            repeat(3) { idx ->
                 this.steps[idx] = steps[idx]
             }
         }.launchIn(lifecycleScope)
@@ -68,7 +64,7 @@ internal class StepService : LifecycleService() {
 
                 lifecycleScope.launch {
                     setStepUseCase.setTodayStep(today)
-                    setStepUseCase.setLastStep(last)
+                    setStepUseCase.setYesterdayStep(last)
                 }
             }
         )
@@ -93,7 +89,7 @@ internal class StepService : LifecycleService() {
         if (::sensorModule.isInitialized)
             sensorModule.unRegisterSensor()
 
-        if (exitFlag == true) {
+        if (exitFlag == false) {
             val workRequest = OneTimeWorkRequestBuilder<RestartServiceWorker>()
                 .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
                 .build()
@@ -105,9 +101,7 @@ internal class StepService : LifecycleService() {
                     ExistingWorkPolicy.REPLACE,
                     workRequest
                 )
-            Log.d("test", "reserved")
         }
-        Log.d("test", "destroy")
         super.onDestroy()
     }
 

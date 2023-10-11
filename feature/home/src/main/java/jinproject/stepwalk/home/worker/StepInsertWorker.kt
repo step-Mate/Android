@@ -22,6 +22,7 @@ class StepInsertWorker @AssistedInject constructor(
     @Assisted context: Context,
     @Assisted workerParams: WorkerParameters,
     private val healthConnector: HealthConnector,
+    private val setStepUseCase: SetStepUseCase
 ): CoroutineWorker(context, workerParams) {
 
     override suspend fun doWork(): Result {
@@ -32,6 +33,8 @@ class StepInsertWorker @AssistedInject constructor(
                 startTime = Instant.ofEpochSecond(inputData.getLong("start",0L)),
                 endTime = Instant.ofEpochSecond(inputData.getLong("end",0L))
             )
+
+            setStepUseCase.setLastStep(inputData.getLong("stepLastTime",0L))
         }
 
         return Result.success()

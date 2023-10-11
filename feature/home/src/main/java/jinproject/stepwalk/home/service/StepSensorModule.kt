@@ -27,7 +27,7 @@ internal class StepSensorModule(
     onSensorChanged: (Long, Long) -> Unit
 ) {
     private val sensorManager: SensorManager by lazy { context.getSystemService(Context.SENSOR_SERVICE) as SensorManager }
-    private var stepSensor: Sensor? = sensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER)
+    private val stepSensor: Sensor? by lazy { sensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER) }
 
     private val alarmManager: AlarmManager by lazy { context.getSystemService(Context.ALARM_SERVICE) as AlarmManager }
 
@@ -42,7 +42,7 @@ internal class StepSensorModule(
                 val today = when (step) {
                     0L -> {
                         steps.apply {
-                            steps[steps.lastIndex] = 0L
+                            steps[1] = 0L
                         }
 
                         steps.first()
@@ -50,21 +50,19 @@ internal class StepSensorModule(
 
                     else -> {
                         when {
-                            steps.first() == 0L && steps.last() == 0L -> {
-                                steps[steps.lastIndex] = step
+                            steps.first() == 0L && steps[1] == 0L -> {
+                                steps[1] = step
                             }
                         }
-                        step - steps.last()
+                        step - steps[1]
                     }
                 }
 
-                onSensorChanged(today, steps.last())
+                onSensorChanged(today, steps[1])
                 setWorkOnStep(today)
             }
 
-            override fun onAccuracyChanged(p0: Sensor?, p1: Int) {
-
-            }
+            override fun onAccuracyChanged(p0: Sensor?, p1: Int) {}
 
         }
     }
@@ -85,7 +83,8 @@ internal class StepSensorModule(
         alarmManager.setInExactRepeating(
             context = context,
             notifyIntent = Intent(context, AlarmReceiver::class.java).apply {
-                putExtra("lastStep", steps.last())
+                putExtra("yesterday", steps[1])
+                putExtra("stepLastTime", 0L)
             },
             type = AlarmManager.RTC_WAKEUP,
             time = time.timeInMillis,
@@ -119,9 +118,10 @@ internal class StepSensorModule(
                     .setInputData(
                         Data
                             .Builder()
-                            .putLong("distance", todayStep)
+                            .putLong("distance", todayStep - steps[2])
                             .putLong("start", startTime.onKorea().toEpochSecond())
                             .putLong("end", endTime.onKorea().toEpochSecond())
+                            .putLong("stepLastTime", todayStep)
                             .build()
                     )
                     .build()
