@@ -7,7 +7,7 @@ import java.io.InputStream
 import java.io.OutputStream
 
 object StepWalkPreferencesSerializer: Serializer<StepWalkPreferences> {
-    override val defaultValue: StepWalkPreferences = StepWalkPreferences.getDefaultInstance().toBuilder().setCurrent(0L).setLast(0L).build()
+    override val defaultValue: StepWalkPreferences = StepWalkPreferences.getDefaultInstance()
     override suspend fun readFrom(input: InputStream): StepWalkPreferences {
         try {
             return StepWalkPreferences.parseFrom(input)

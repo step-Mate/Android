@@ -69,7 +69,6 @@ internal fun HomeScreen(
         rememberLauncherForActivityResult(contract = PermissionController.createRequestPermissionResultContract()) { result ->
             if (healthConnector.healthPermissions.containsAll(result)) {
                 Log.d("test", "권한 수락")
-                context.startForegroundService(Intent(context, StepService::class.java))
             } else {
                 Log.d("test", "권한 거부")
             }
@@ -82,7 +81,7 @@ internal fun HomeScreen(
     LaunchedEffect(uiState.time, permissionState.value) {
         if(healthConnector.checkPermissions()) {
             Log.d("test", "권한 있음")
-
+            context.startForegroundService(Intent(context, StepService::class.java))
             val instant = Instant.now().onKorea()
 
             /*(0..23).forEach { count ->

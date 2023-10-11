@@ -23,8 +23,8 @@ import java.util.Calendar
 
 internal class StepSensorModule(
     private val context: Context,
-    private val steps: SnapshotStateList<Long>,
-    onSensorChanged: (Long) -> Unit
+    private val steps: Array<Long>,
+    onSensorChanged: (Long, Long) -> Unit
 ) {
     private val sensorManager: SensorManager by lazy { context.getSystemService(Context.SENSOR_SERVICE) as SensorManager }
     private var stepSensor: Sensor? = sensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER)
@@ -42,27 +42,23 @@ internal class StepSensorModule(
                 val today = when (step) {
                     0L -> {
                         steps.apply {
-                            removeLast()
-                            add(0L)
+                            steps[steps.lastIndex] = 0L
                         }
 
-                        steps.first() + 1L
+                        steps.first()
                     }
 
                     else -> {
                         when {
-                            steps.first() == 0L -> {
-                                steps.removeLast()
-                                steps.add(step)
+                            steps.first() == 0L && steps.last() == 0L -> {
+                                steps[steps.lastIndex] = step
                             }
                         }
                         step - steps.last()
                     }
                 }
 
-                Log.d("test","v: $step c: ${steps.first()} y: ${steps.last()}")
-
-                onSensorChanged(today)
+                onSensorChanged(today, steps.last())
                 setWorkOnStep(today)
             }
 

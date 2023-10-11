@@ -105,8 +105,7 @@ internal data class User(
 
 @HiltViewModel
 internal class HomeViewModel @Inject constructor(
-    private val getStepUseCase: GetStepUseCase,
-    private val setStepUseCase: SetStepUseCase
+    private val getStepUseCase: GetStepUseCase
 ) : ViewModel() {
 
     private val _uiState: MutableStateFlow<HomeUiState> =

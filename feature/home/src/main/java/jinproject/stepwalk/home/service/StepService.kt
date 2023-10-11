@@ -45,7 +45,7 @@ internal class StepService : LifecycleService() {
     private var stepNotiLayout: RemoteViews? = null
     private var notification: NotificationCompat.Builder? = null
     private var exitFlag: Boolean? = null
-    private val steps: SnapshotStateList<Long> = mutableStateListOf()
+    private val steps by lazy { Array(2) { 0L } }
 
     override fun onCreate() {
         super.onCreate()
@@ -54,19 +54,21 @@ internal class StepService : LifecycleService() {
         notificationManager.createChannel()
 
         getStepUseCase().onEach { steps ->
-            this.steps.clear()
-            this.steps.addAll(steps)
+            repeat(2) { idx ->
+                this.steps[idx] = steps[idx]
+            }
         }.launchIn(lifecycleScope)
 
         sensorModule = StepSensorModule(
             context = this@StepService,
             steps = steps,
-            onSensorChanged = { stepCounter ->
-                stepNotiLayout?.setTextViewText(R.id.tv_stepHeader, stepCounter.toString())
+            onSensorChanged = { today, last ->
+                stepNotiLayout?.setTextViewText(R.id.tv_stepHeader, today.toString())
                 notificationManager.notify(NOTIFICATION_ID, notification?.build())
 
                 lifecycleScope.launch {
-                    setStepUseCase.setTodayStep(stepCounter)
+                    setStepUseCase.setTodayStep(today)
+                    setStepUseCase.setLastStep(last)
                 }
             }
         )
