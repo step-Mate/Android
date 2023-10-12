@@ -7,5 +7,5 @@ import javax.inject.Inject
 class GetStepUseCase @Inject constructor(
     private val stepRepository: StepRepository
 ) {
-    operator fun invoke(): Flow<Int> = stepRepository.getStep()
+    operator fun invoke(): Flow<Array<Long>> = stepRepository.getStep()
 }

@@ -14,7 +14,8 @@ import jinproject.stepwalk.home.state.PageState
 import jinproject.stepwalk.home.state.Step
 import jinproject.stepwalk.home.state.StepMenu
 import jinproject.stepwalk.home.state.Time
-import jinproject.stepwalk.home.state.total
+import jinproject.stepwalk.home.state.addGraphItems
+import jinproject.stepwalk.home.state.getGraphItems
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.launchIn
@@ -31,7 +32,7 @@ internal data class HomeUiState(
     val time: Time
 
 ) {
-    fun toHealthStateList(stepThisHour: Int) = this.run {
+    fun toHealthStateList(stepThisHour: Int) =
         Page.values().map { page ->
             when (page) {
                 Page.Step -> {
@@ -42,7 +43,7 @@ internal data class HomeUiState(
                         ),
                         figure = stepThisHour,
                         max = 1500
-                    )
+                    ).copy()
                 }
 
                 Page.DrinkWater -> {
@@ -71,7 +72,7 @@ internal data class HomeUiState(
                 }
             }
         }
-    }
+
 
     companion object {
         fun getInitValues() = HomeUiState(
@@ -104,16 +105,12 @@ internal data class User(
 
 @HiltViewModel
 internal class HomeViewModel @Inject constructor(
-    private val getStepUseCase: GetStepUseCase,
-    private val setStepUseCase: SetStepUseCase
+    private val getStepUseCase: GetStepUseCase
 ) : ViewModel() {
 
     private val _uiState: MutableStateFlow<HomeUiState> =
         MutableStateFlow(HomeUiState.getInitValues())
     val uiState get() = _uiState.asStateFlow()
-
-    private val _selectedStepOnGraph = MutableStateFlow(0L)
-    val selectedStepOnGraph get() = _selectedStepOnGraph.asStateFlow()
 
     private val _stepThisHour = MutableStateFlow(0)
     val stepThisHour get() = _stepThisHour.asStateFlow()
@@ -124,33 +121,24 @@ internal class HomeViewModel @Inject constructor(
 
     fun setSteps(steps: List<Step>) = _uiState.update { state ->
         state.copy(
-            step = StepMenu(steps).apply {
-                setGraphItems(state.time)
-                setMenuDetails(state.user.kg)
-            }
+            step = StepMenu(
+                steps,
+                graphItems =  state.time.getGraphItems { time, items -> steps.addGraphItems(time, items) }
+            )
         )
     }
 
-    private fun getStepThisHour() = getStepUseCase
-        .invoke()
-        .onEach { step ->
-            _stepThisHour.update { step }
+    private fun getStepThisHour() = getStepUseCase()
+        .onEach { steps ->
+            _stepThisHour.update { steps.first().toInt() }
         }.launchIn(viewModelScope)
-
-    fun setStepThisHour(step: Long) {
-        viewModelScope.launch {
-            setStepUseCase(step)
-        }
-    }
-
-    fun setSelectedStepOnGraph(step: Long) = _selectedStepOnGraph.update { step }
 
     fun setHeartRates(heartRates: List<HeartRate>) = _uiState.update { state ->
         state.copy(
-            heartRate = HeartRateMenu(heartRates).apply {
-                setGraphItems(state.time)
-                setMenuDetails()
-            }
+            heartRate = HeartRateMenu(
+                heartRates,
+                graphItems = state.time.getGraphItems { time, items -> heartRates.addGraphItems(time, items)}
+            )
         )
     }
 

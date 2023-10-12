@@ -4,6 +4,7 @@ import android.content.res.Configuration
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -65,10 +66,14 @@ import jinproject.stepwalk.home.state.MenuDetail
 import jinproject.stepwalk.home.state.Step
 import jinproject.stepwalk.home.state.StepMenu
 import jinproject.stepwalk.home.state.Time
+import jinproject.stepwalk.home.state.addGraphItems
+import jinproject.stepwalk.home.state.getGraphItems
 import jinproject.stepwalk.home.state.sortDayOfWeek
 import jinproject.stepwalk.home.state.toAchievementDegree
-import jinproject.stepwalk.home.state.weekToString
+import jinproject.stepwalk.home.utils.displayOnKorea
+import jinproject.stepwalk.home.utils.toDayOfWeekString
 import java.text.DecimalFormat
+import java.time.LocalDate
 import kotlin.math.absoluteValue
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -76,9 +81,7 @@ import kotlin.math.absoluteValue
 internal fun UserPager(
     uiState: HomeUiState,
     stepThisHour: Int,
-    selectedStepOnGraph: Long,
     modifier: Modifier = Modifier,
-    setSelectedStepOnGraph: (Long) -> Unit
 ) {
     val pages = uiState.toHealthStateList(stepThisHour)
 
@@ -90,8 +93,6 @@ internal fun UserPager(
         pages = pages,
         pagerState = pagerState,
         modifier = modifier,
-        selectedStepOnGraph = selectedStepOnGraph,
-        setSelectedStepOnGraph = setSelectedStepOnGraph
     )
 
 }
@@ -102,8 +103,6 @@ private fun PageMenu(
     modifier: Modifier = Modifier,
     pages: List<HealthState>,
     pagerState: PagerState,
-    selectedStepOnGraph: Long,
-    setSelectedStepOnGraph: (Long) -> Unit
 ) {
     val currentPage = pages[pagerState.currentPage % pages.size].type
     val menu = currentPage.menu
@@ -125,11 +124,14 @@ private fun PageMenu(
         VerticalSpacer(height = 40.dp)
 
         val graphItems = menu.graphItems
-        val graphHorizontalItems = (0L until (graphItems?.size?.toLong() ?: 0L)).toList()
-        val graphVerticalMax = graphItems?.maxOrNull() ?: 0
+        val graphHorizontalItems = (0L until (graphItems.size.toLong())).toList()
+        val graphVerticalMax = graphItems.maxOrNull() ?: 0
         val popUpState = remember { mutableStateOf(false) }
         val popUpOffset = remember {
             mutableStateOf(Offset(0F, 0F))
+        }
+        val popUpMessage = rememberSaveable {
+            mutableStateOf("")
         }
 
         Column(
@@ -150,11 +152,11 @@ private fun PageMenu(
                 horizontalAxis = { index ->
                     StepGraphTail(
                         item = when (graphHorizontalItems.size) {
-                            Time.Week.toRepeatTimes() -> graphHorizontalItems
+                            Time.Week.toNumberOfDays() -> graphHorizontalItems
                                 .sortDayOfWeek()[index]
                                 .weekToString()
 
-                            Time.Day.toRepeatTimes() -> graphHorizontalItems[index].toString()
+                            Time.Day.toNumberOfDays() -> graphHorizontalItems[index].toString()
                             else -> (graphHorizontalItems[index] + 1).toString()
                         }
                     )
@@ -168,12 +170,14 @@ private fun PageMenu(
                 bar = { index ->
                     StepBar(
                         index = index,
-                        item = graphItems?.get(index) ?: 0L,
-                        nextItem = kotlin.runCatching { graphItems?.get(index + 1) ?: 0L }
+                        item = graphItems[index],
+                        nextItem = kotlin.runCatching { graphItems[index + 1] }
                             .getOrDefault(0L),
                         maxItem = graphVerticalMax,
                         horizontalSize = graphHorizontalItems.size,
-                        setSelectedStepOnGraph = { step -> setSelectedStepOnGraph(step) },
+                        setSelectedStepOnGraph = { time: Int, step: Long ->
+                            popUpMessage.value = step.toString()
+                        },
                         setPopUpState = { popUpState.value = true },
                         setPopUpOffset = { offset -> popUpOffset.value = offset }
                     )
@@ -181,7 +185,7 @@ private fun PageMenu(
             )
 
             PopupWindow(
-                value = selectedStepOnGraph,
+                text = popUpMessage.value,
                 popUpState = popUpState.value,
                 popUpOffset = popUpOffset.value,
                 offPopUp = { popUpState.value = false }
@@ -189,6 +193,13 @@ private fun PageMenu(
         }
     }
 }
+
+private fun Long.weekToString() =
+    when (val week = (this.toInt() + 1).toDayOfWeekString()) {
+        LocalDate.now().dayOfWeek.displayOnKorea() -> "오늘"
+
+        else -> week
+    }
 
 @Composable
 private fun StepBar(
@@ -198,7 +209,7 @@ private fun StepBar(
     maxItem: Long,
     horizontalSize: Int,
     modifier: Modifier = Modifier,
-    setSelectedStepOnGraph: (Long) -> Unit,
+    setSelectedStepOnGraph: (Int, Long) -> Unit,
     setPopUpState: () -> Unit,
     setPopUpOffset: (Offset) -> Unit,
 ) {
@@ -210,8 +221,11 @@ private fun StepBar(
     }
     Spacer(
         modifier = modifier
-            .clickable {
-                setSelectedStepOnGraph(item)
+            .clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null
+            ) {
+                setSelectedStepOnGraph(index, item)
                 setPopUpState()
                 clickState.value = true
             }
@@ -463,103 +477,77 @@ private fun MenuDetails(
 @Composable
 @Preview
 fun PreviewUserStepsByHour() = PreviewStepWalkTheme {
+    val steps = listOf(
+        Step(
+            distance = 2000,
+            startTime = 0,
+            endTime = 1,
+            type = METs.Walk
+        ),
+        Step(
+            distance = 500,
+            startTime = 30,
+            endTime = 50,
+            type = METs.Walk
+        ),
+        Step(
+            distance = 800,
+            startTime = 60,
+            endTime = 80,
+            type = METs.Walk
+        ),
+    )
+    val time = Time.Week
+
     UserPager(
         uiState = HomeUiState(
             step = StepMenu(
-                steps = listOf(
-                    Step(
-                        distance = 2000,
-                        start = 0,
-                        end = 1,
-                        type = METs.Walk
-                    ),
-                    Step(
-                        distance = 500,
-                        start = 30,
-                        end = 50,
-                        type = METs.Walk
-                    ),
-                    Step(
-                        distance = 800,
-                        start = 60,
-                        end = 80,
-                        type = METs.Walk
-                    ),
-                    Step(
-                        distance = 800,
-                        start = 60,
-                        end = 80,
-                        type = METs.Walk
-                    ),
-                    Step(
-                        distance = 800,
-                        start = 60,
-                        end = 80,
-                        type = METs.Walk
-                    ),
-                    Step(
-                        distance = 800,
-                        start = 60,
-                        end = 80,
-                        type = METs.Walk
-                    ),
-                    Step(
-                        distance = 800,
-                        start = 60,
-                        end = 80,
-                        type = METs.Walk
-                    )
-                )
-            ).apply {
-                setMenuDetails(55f)
-                setGraphItems(Time.Week)
-            },
+                steps = steps,
+                graphItems = time.getGraphItems { _, items -> steps.addGraphItems(time, items) }
+            ),
             user = User.getInitValues(),
             heartRate = HeartRateMenu.getInitValues(),
-            time = Time.Week
+            time = time
         ),
         stepThisHour = 100,
-        selectedStepOnGraph = 0L,
-        setSelectedStepOnGraph = {}
     )
 }
 
 @Composable
 @Preview
 fun PreviewUserStepsByWeek() = PreviewStepWalkTheme {
+    val steps = listOf(
+        Step(
+            distance = 2000,
+            startTime = 0,
+            endTime = 1,
+            type = METs.Walk
+        ),
+        Step(
+            distance = 500,
+            startTime = 30,
+            endTime = 50,
+            type = METs.Walk
+        ),
+        Step(
+            distance = 800,
+            startTime = 60,
+            endTime = 80,
+            type = METs.Walk
+        )
+    )
+    val time = Time.Day
+
     UserPager(
         uiState = HomeUiState(
             step = StepMenu(
-                steps = listOf(
-                    Step(
-                        distance = 2000,
-                        start = 0,
-                        end = 1,
-                        type = METs.Walk
-                    ),
-                    Step(
-                        distance = 500,
-                        start = 30,
-                        end = 50,
-                        type = METs.Walk
-                    ),
-                    Step(
-                        distance = 800,
-                        start = 60,
-                        end = 80,
-                        type = METs.Walk
-                    )
-                )
-            ).apply {
-                setMenuDetails(55f)
-                setGraphItems(Time.Day)
-            },
+                steps = steps,
+                graphItems = time.getGraphItems { _, items -> steps.addGraphItems(time, items) }
+            ),
             user = User.getInitValues(),
             heartRate = HeartRateMenu.getInitValues(),
-            time = Time.Day
+            time = time
         ),
         stepThisHour = 800,
-        selectedStepOnGraph = 0L,
-        setSelectedStepOnGraph = {}
     )
 }

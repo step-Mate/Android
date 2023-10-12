@@ -40,9 +40,6 @@ import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupPositionProvider
 import androidx.compose.ui.window.PopupProperties
 import androidx.health.connect.client.PermissionController
-import androidx.health.connect.client.permission.HealthPermission
-import androidx.health.connect.client.records.HeartRateRecord
-import androidx.health.connect.client.records.StepsRecord
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import jinproject.stepwalk.design.component.DefaultLayout
@@ -59,26 +56,18 @@ import jinproject.stepwalk.home.utils.onKorea
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 
-private val PERMISSIONS =
-    setOf(
-        HealthPermission.getReadPermission(StepsRecord::class),
-        HealthPermission.getWritePermission(StepsRecord::class),
-        HealthPermission.getReadPermission(HeartRateRecord::class),
-        HealthPermission.getWritePermission(HeartRateRecord::class)
-    )
-
 @Composable
 internal fun HomeScreen(
     context: Context = LocalContext.current,
     healthConnector: HealthConnector,
     homeViewModel: HomeViewModel = hiltViewModel(),
-    navigateToCalendar: () -> Unit,
+    navigateToCalendar: (Long) -> Unit,
 ) {
     val permissionState = rememberSaveable { mutableStateOf(false) }
 
     val permissionLauncher =
         rememberLauncherForActivityResult(contract = PermissionController.createRequestPermissionResultContract()) { result ->
-            if (PERMISSIONS.containsAll(result)) {
+            if (healthConnector.healthPermissions.containsAll(result)) {
                 Log.d("test", "권한 수락")
             } else {
                 Log.d("test", "권한 거부")
@@ -87,108 +76,98 @@ internal fun HomeScreen(
         }
 
     val uiState by homeViewModel.uiState.collectAsStateWithLifecycle()
-    val selectedStepOnGraph by homeViewModel.selectedStepOnGraph.collectAsStateWithLifecycle()
     val stepThisHour by homeViewModel.stepThisHour.collectAsStateWithLifecycle()
 
-    LaunchedEffect(Unit) {
-        context.startForegroundService(Intent(context,StepService::class.java))
-    }
-
     LaunchedEffect(uiState.time, permissionState.value) {
-        healthConnector.healthConnectClient?.let { client ->
-            val granted = client.permissionController.getGrantedPermissions()
-            if (granted.containsAll(PERMISSIONS)) {
-                Log.d("test", "권한 있음")
+        if(healthConnector.checkPermissions()) {
+            Log.d("test", "권한 있음")
+            context.startForegroundService(Intent(context, StepService::class.java))
+            val instant = Instant.now().onKorea()
 
-                val instant = Instant.now().onKorea()
-
-                /*(0..23).forEach { count ->
-                    healthConnector.insertSteps(
-                        step = count * 100L + 100L,
-                        startTime = instant.truncatedTo(ChronoUnit.DAYS).toInstant().plus(count.toLong(), ChronoUnit.HOURS),
-                        endTime = instant.truncatedTo(ChronoUnit.DAYS).toInstant().plus(count.toLong(), ChronoUnit.HOURS).plus(30L,ChronoUnit.MINUTES)
-                    )
-                }
-
-                (0..23).forEach { count ->
-                    healthConnector.insertHeartRates(
-                        heartRate = (count % 4) * 40L,
-                        startTime = instant.truncatedTo(ChronoUnit.DAYS).toInstant().plus(count.toLong(), ChronoUnit.HOURS),
-                        endTime = instant.truncatedTo(ChronoUnit.DAYS).toInstant().plus(count.toLong(), ChronoUnit.HOURS).plus(30L,ChronoUnit.MINUTES)
-                    )
-                }*/
-
-
-                val endTime = instant
-                    .withHour(23)
-                    .withMinute(59)
-
-                when (val time = uiState.time) {
-                    Time.Day -> {
-                        homeViewModel::setSteps.invoke(
-                            healthConnector.readStepsByHours(
-                                startTime = instant
-                                    .truncatedTo(ChronoUnit.DAYS)
-                                    .toInstant(),
-                                endTime = endTime.toInstant(),
-                                type = METs.Walk
-                            ) ?: listOf(Step.getInitValues())
-                        )
-
-                        homeViewModel::setHeartRates.invoke(
-                            healthConnector.readHeartRatesByHours(
-                                startTime = instant
-                                    .truncatedTo(ChronoUnit.DAYS)
-                                    .toInstant(),
-                                endTime = endTime.toInstant()
-                            ) ?: listOf(HeartRate.getInitValues())
-                        )
-                    }
-
-                    else -> {
-                        val startTime = when (time) {
-                            Time.Year -> instant
-                                .minusMonths(instant.month.value.toLong() - 1)
-                                .minusDays(instant.dayOfMonth.toLong() - 1)
-
-                            Time.Week -> instant
-                                .minusDays(time.toRepeatTimes().toLong() - 1)
-
-                            else -> instant.minusDays(instant.dayOfMonth.toLong() - 1)
-                        }
-                            .truncatedTo(ChronoUnit.DAYS)
-
-                        homeViewModel::setSteps.invoke(
-                            healthConnector.readStepsByPeriods(
-                                startTime = startTime.toLocalDateTime(),
-                                endTime = endTime.toLocalDateTime(),
-                                type = METs.Walk,
-                                period = time.toPeriod()
-                            ) ?: listOf(Step.getInitValues())
-                        )
-
-                        homeViewModel::setHeartRates.invoke(
-                            healthConnector.readHeartRatesByPeriods(
-                                startTime = startTime.toLocalDateTime(),
-                                endTime = endTime.toLocalDateTime(),
-                                period = time.toPeriod()
-                            ) ?: listOf(HeartRate.getInitValues())
-                        )
-                    }
-                }
-
-            } else {
-                Log.d("test", "권한 없음")
-                permissionLauncher.launch(PERMISSIONS)
+            /*(0..23).forEach { count ->
+                healthConnector.insertSteps(
+                    step = count * 100L + 100L,
+                    startTime = instant.truncatedTo(ChronoUnit.DAYS).toInstant().plus(count.toLong(), ChronoUnit.HOURS),
+                    endTime = instant.truncatedTo(ChronoUnit.DAYS).toInstant().plus(count.toLong(), ChronoUnit.HOURS).plus(30L,ChronoUnit.MINUTES)
+                )
             }
+
+            (0..23).forEach { count ->
+                healthConnector.insertHeartRates(
+                    heartRate = (count % 4) * 40L,
+                    startTime = instant.truncatedTo(ChronoUnit.DAYS).toInstant().plus(count.toLong(), ChronoUnit.HOURS),
+                    endTime = instant.truncatedTo(ChronoUnit.DAYS).toInstant().plus(count.toLong(), ChronoUnit.HOURS).plus(30L,ChronoUnit.MINUTES)
+                )
+            }*/
+
+
+            val endTime = instant
+                .withHour(23)
+                .withMinute(59)
+
+            when (val time = uiState.time) {
+                Time.Day -> {
+                    homeViewModel::setSteps.invoke(
+                        healthConnector.readStepsByHours(
+                            startTime = instant
+                                .truncatedTo(ChronoUnit.DAYS)
+                                .toInstant(),
+                            endTime = endTime.toInstant(),
+                            type = METs.Walk
+                        ) ?: listOf(Step.getInitValues())
+                    )
+
+                    homeViewModel::setHeartRates.invoke(
+                        healthConnector.readHeartRatesByHours(
+                            startTime = instant
+                                .truncatedTo(ChronoUnit.DAYS)
+                                .toInstant(),
+                            endTime = endTime.toInstant()
+                        ) ?: listOf(HeartRate.getInitValues())
+                    )
+                }
+
+                else -> {
+                    val startTime = when (time) {
+                        Time.Year -> instant
+                            .minusMonths(instant.month.value.toLong() - 1)
+                            .minusDays(instant.dayOfMonth.toLong() - 1)
+
+                        Time.Week -> instant
+                            .minusDays(time.toNumberOfDays().toLong() - 1)
+
+                        else -> instant.minusDays(instant.dayOfMonth.toLong() - 1)
+                    }
+                        .truncatedTo(ChronoUnit.DAYS)
+
+                    homeViewModel::setSteps.invoke(
+                        healthConnector.readStepsByPeriods(
+                            startTime = startTime.toLocalDateTime(),
+                            endTime = endTime.toLocalDateTime(),
+                            type = METs.Walk,
+                            period = time.toPeriod()
+                        ) ?: listOf(Step.getInitValues())
+                    )
+
+                    homeViewModel::setHeartRates.invoke(
+                        healthConnector.readHeartRatesByPeriods(
+                            startTime = startTime.toLocalDateTime(),
+                            endTime = endTime.toLocalDateTime(),
+                            period = time.toPeriod()
+                        ) ?: listOf(HeartRate.getInitValues())
+                    )
+                }
+            }
+        }
+        else {
+            Log.d("test", "권한 없음")
+            permissionLauncher.launch(healthConnector.healthPermissions)
         }
     }
 
     HomeScreen(
         uiState = uiState,
         stepThisHour = stepThisHour,
-        selectedStepOnGraph = selectedStepOnGraph,
-        setSelectedStepOnGraph = homeViewModel::setSelectedStepOnGraph,
         setTimeOnGraph = homeViewModel::setTime,
         navigateToCalendar = navigateToCalendar
     )
@@ -198,10 +177,9 @@ internal fun HomeScreen(
 private fun HomeScreen(
     uiState: HomeUiState,
     stepThisHour: Int,
-    selectedStepOnGraph: Long,
-    setSelectedStepOnGraph: (Long) -> Unit,
+    context: Context = LocalContext.current,
     setTimeOnGraph: (Time) -> Unit,
-    navigateToCalendar: () -> Unit,
+    navigateToCalendar: (Long) -> Unit,
 ) {
     val popUpState = remember {
         mutableStateOf(false)
@@ -214,7 +192,12 @@ private fun HomeScreen(
             HomeTopAppBar(
                 modifier = Modifier,
                 onClickTimeIcon = { popUpState.value = true },
-                onClickIcon1 = navigateToCalendar,
+                onClickIcon1 = {
+                    val firstInstallTime = context.packageManager.getPackageInfo(context.packageName,0).firstInstallTime
+                    navigateToCalendar(
+                        Instant.ofEpochMilli(firstInstallTime).epochSecond
+                    )
+                },
                 onClickIcon2 = {}
             )
         },
@@ -223,8 +206,6 @@ private fun HomeScreen(
             modifier = Modifier.fillMaxSize(),
             uiState = uiState,
             stepThisHour = stepThisHour,
-            selectedStepOnGraph = selectedStepOnGraph,
-            setSelectedStepOnGraph = setSelectedStepOnGraph
         )
         PopUpWindow(
             popUpState = popUpState.value,
@@ -337,8 +318,6 @@ private fun PreviewHomeScreen() = StepWalkTheme {
     HomeScreen(
         uiState = HomeUiState.getInitValues(),
         stepThisHour = 100,
-        selectedStepOnGraph = 0L,
-        setSelectedStepOnGraph = {},
         setTimeOnGraph = {},
         navigateToCalendar = {}
     )
