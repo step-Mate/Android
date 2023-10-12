@@ -8,21 +8,27 @@ import android.widget.RemoteViews
 import androidx.core.app.NotificationCompat
 import androidx.lifecycle.LifecycleService
 import androidx.lifecycle.lifecycleScope
+import androidx.work.Data
 import androidx.work.ExistingWorkPolicy
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.OutOfQuotaPolicy
 import androidx.work.WorkManager
 import dagger.hilt.android.AndroidEntryPoint
+import jinproject.stepwalk.domain.model.METs
 import jinproject.stepwalk.domain.usecase.GetStepUseCase
 import jinproject.stepwalk.domain.usecase.SetStepUseCase
 import jinproject.stepwalk.home.HealthConnector
 import jinproject.stepwalk.home.R
 import jinproject.stepwalk.home.utils.StepWalkChannelId
 import jinproject.stepwalk.home.utils.createChannel
+import jinproject.stepwalk.home.utils.onKorea
 import jinproject.stepwalk.home.worker.RestartServiceWorker
+import jinproject.stepwalk.home.worker.StepInsertWorker
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
+import java.time.LocalDateTime
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -49,36 +55,71 @@ internal class StepService : LifecycleService() {
         val notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
         notificationManager.createChannel()
 
-        getStepUseCase().onEach { steps ->
-            repeat(3) { idx ->
-                this.steps[idx] = steps[idx]
-            }
-        }.launchIn(lifecycleScope)
+        setNotification()
+
+        lifecycleScope.launch {
+            val step = healthConnector.getTodayTotalStep(METs.Walk)
+            setStepUseCase.setTodayStep(step)
+
+            getStepUseCase().onEach { steps ->
+                repeat(3) { idx ->
+                    this@StepService.steps[idx] = steps[idx]
+                }
+
+                stepNotiLayout?.setTextViewText(R.id.tv_stepHeader, steps[0].toString())
+                notificationManager.notify(NOTIFICATION_ID, notification?.build())
+            }.collect()
+        }
 
         sensorModule = StepSensorModule(
             context = this@StepService,
             steps = steps,
             onSensorChanged = { today, last ->
-                stepNotiLayout?.setTextViewText(R.id.tv_stepHeader, today.toString())
-                notificationManager.notify(NOTIFICATION_ID, notification?.build())
-
                 lifecycleScope.launch {
                     setStepUseCase.setTodayStep(today)
                     setStepUseCase.setYesterdayStep(last)
                 }
             }
         )
-        setNotification()
+
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         super.onStartCommand(intent, flags, startId)
 
         exitFlag = intent?.getBooleanExtra("exit", false) ?: false
+        val alarmFlag = intent?.getBooleanExtra("alarm", false) ?: false
 
         when {
             exitFlag == true -> {
                 stopSelf()
+            }
+            alarmFlag -> {
+                val workRequest = OneTimeWorkRequestBuilder<StepInsertWorker>()
+                    .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
+                    .setInputData(
+                        Data
+                            .Builder()
+                            .putLong(StepSensorModule.Key.YESTERDAY.value, steps[0] + steps[1])
+                            .putLong(StepSensorModule.Key.STEP_LAST_TIME.value, 0L)
+                            .putLong(StepSensorModule.Key.DISTANCE.value, steps[0] - steps[2])
+                            .putLong(StepSensorModule.Key.START.value, sensorModule.startTime.onKorea().toEpochSecond())
+                            .putLong(StepSensorModule.Key.END.value, sensorModule.endTime.onKorea().toEpochSecond())
+                            .build()
+                    )
+                    .build()
+
+                WorkManager
+                    .getInstance(this)
+                    .enqueueUniqueWork(
+                        "insertStepWork",
+                        ExistingWorkPolicy.REPLACE,
+                        workRequest
+                    )
+
+                sensorModule.startTime = LocalDateTime.now()
+                sensorModule.endTime = LocalDateTime.now()
+
             }
         }
 

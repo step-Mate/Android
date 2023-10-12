@@ -7,8 +7,6 @@ import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
-import android.util.Log
-import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.work.Data
 import androidx.work.ExistingWorkPolicy
 import androidx.work.OneTimeWorkRequestBuilder
@@ -20,6 +18,7 @@ import jinproject.stepwalk.home.utils.onKorea
 import jinproject.stepwalk.home.worker.StepInsertWorker
 import java.time.LocalDateTime
 import java.util.Calendar
+import java.util.Timer
 
 internal class StepSensorModule(
     private val context: Context,
@@ -31,8 +30,8 @@ internal class StepSensorModule(
 
     private val alarmManager: AlarmManager by lazy { context.getSystemService(Context.ALARM_SERVICE) as AlarmManager }
 
-    private var startTime: LocalDateTime = LocalDateTime.now()
-    private var endTime: LocalDateTime = LocalDateTime.now()
+    var startTime: LocalDateTime = LocalDateTime.now()
+    var endTime: LocalDateTime = LocalDateTime.now()
 
     private val stepListener: SensorEventListener by lazy {
         object : SensorEventListener {
@@ -74,6 +73,7 @@ internal class StepSensorModule(
 
     private fun alarmUpdatingLastStep() {
         val time = Calendar.getInstance().apply {
+            timeInMillis = System.currentTimeMillis()
             add(Calendar.DAY_OF_MONTH, 1)
             set(Calendar.HOUR_OF_DAY, 0)
             set(Calendar.MINUTE, 0)
@@ -82,14 +82,14 @@ internal class StepSensorModule(
 
         alarmManager.setInExactRepeating(
             context = context,
-            notifyIntent = Intent(context, AlarmReceiver::class.java).apply {
-                putExtra("yesterday", steps[1])
-                putExtra("stepLastTime", 0L)
+            notifyIntent = {
+                Intent(context, AlarmReceiver::class.java)
             },
             type = AlarmManager.RTC_WAKEUP,
             time = time.timeInMillis,
             interval = AlarmManager.INTERVAL_DAY
         )
+
     }
 
     private fun registerSensor() {
@@ -102,11 +102,6 @@ internal class StepSensorModule(
 
     private fun setWorkOnStep(todayStep: Long) {
         when {
-            endTime.onKorea().dayOfMonth != LocalDateTime.now().onKorea().dayOfMonth -> {
-                startTime = LocalDateTime.now()
-                endTime = LocalDateTime.now()
-            }
-
             (LocalDateTime.now().onKorea().toEpochSecond() - endTime.onKorea()
                 .toEpochSecond()) < 60 -> {
                 endTime = LocalDateTime.now()
@@ -118,10 +113,10 @@ internal class StepSensorModule(
                     .setInputData(
                         Data
                             .Builder()
-                            .putLong("distance", todayStep - steps[2])
-                            .putLong("start", startTime.onKorea().toEpochSecond())
-                            .putLong("end", endTime.onKorea().toEpochSecond())
-                            .putLong("stepLastTime", todayStep)
+                            .putLong(Key.DISTANCE.value, todayStep - steps[2])
+                            .putLong(Key.START.value, startTime.onKorea().toEpochSecond())
+                            .putLong(Key.END.value, endTime.onKorea().toEpochSecond())
+                            .putLong(Key.STEP_LAST_TIME.value, todayStep)
                             .build()
                     )
                     .build()
@@ -138,5 +133,13 @@ internal class StepSensorModule(
                 endTime = LocalDateTime.now()
             }
         }
+    }
+
+    enum class Key(val value: String) {
+        DISTANCE("distance"),
+        START("start"),
+        END("end"),
+        STEP_LAST_TIME("stepLastTime"),
+        YESTERDAY("yesterday")
     }
 }

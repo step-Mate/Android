@@ -55,6 +55,10 @@
             tools:node="remove">
         </provider>
 
+        <receiver
+            android:name="jinproject.stepwalk.home.receiver.AlarmReceiver"
+            android:exported="false" />
+
     </application>
 
     <queries>
