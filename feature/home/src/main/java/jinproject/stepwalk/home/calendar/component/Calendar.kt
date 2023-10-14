@@ -1,18 +1,14 @@
-package jinproject.stepwalk.home.calendar
+package jinproject.stepwalk.home.calendar.component
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.unit.dp
-import jinproject.stepwalk.home.component.toLoose
-import java.time.LocalDate
-import java.time.temporal.TemporalAdjusters
 import kotlin.math.roundToInt
 
 @Composable
 internal fun Calendar(
     modifier: Modifier = Modifier,
-    header: @Composable () -> Unit,
     dayLabel: @Composable (Int) -> Unit,
     day: @Composable (Int) -> Unit,
 ) {
@@ -28,19 +24,11 @@ internal fun Calendar(
     }
 
     Layout(
-        contents = listOf(header, dayLabels, days),
+        contents = listOf(dayLabels, days),
         modifier = modifier
-    ) { (headerMeasurable, dayLabelMeasurables, dayMeasurables), constraints ->
-
-        require(headerMeasurable.size == 1) {
-            "Header composable 은 1개 이어야 함"
-        }
+    ) { (dayLabelMeasurables, dayMeasurables), constraints ->
 
         val maxWidth = constraints.maxWidth
-
-        val headerPlaceable = headerMeasurable
-            .first()
-            .measure(constraints.toLoose())
 
         val dayLabelPlaceable = dayLabelMeasurables.map { measurable ->
             measurable.measure(
@@ -63,13 +51,12 @@ internal fun Calendar(
             )
         }
 
-        val totalHeight = headerPlaceable.height + dayLabelPlaceable.first().height + dayPlaceable.first().height * 6
+        val totalHeight = dayLabelPlaceable.first().height + dayPlaceable.first().height * 6
 
         layout(maxWidth, totalHeight) {
-            headerPlaceable.place(0, 0)
 
             var xPos = 8.dp.roundToPx()
-            var yPos = headerPlaceable.height
+            var yPos = 0
 
             dayPlaceable.forEachIndexed { index, placeable ->
                 if (index < 7)

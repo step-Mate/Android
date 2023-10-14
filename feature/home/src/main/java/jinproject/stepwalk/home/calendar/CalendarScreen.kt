@@ -2,33 +2,23 @@ package jinproject.stepwalk.home.calendar
 
 import android.graphics.Color
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.RectangleShape
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import jinproject.stepwalk.design.component.HorizontalDivider
-import jinproject.stepwalk.design.component.VerticalSpacer
+import jinproject.stepwalk.design.component.DefaultLayout
 import jinproject.stepwalk.design.theme.StepWalkTheme
+import jinproject.stepwalk.home.calendar.component.Calendar
+import jinproject.stepwalk.home.calendar.component.CalendarAppBar
 import jinproject.stepwalk.home.state.ZonedTime
 import jinproject.stepwalk.home.state.ZonedTimeRange
 import jinproject.stepwalk.home.utils.onKorea
@@ -48,52 +38,28 @@ internal fun CalendarScreen(
     val pagerState = rememberPagerState(initialPage = timeList.size - 1) {
         timeList.size
     }
-
     val currentPage = timeList[pagerState.currentPage]
 
-    Box(
-        modifier = Modifier.fillMaxSize()
+    DefaultLayout(
+        contentPaddingValues = PaddingValues(top = 20.dp),
+        topBar = {
+            CalendarAppBar(
+                time = currentPage.time,
+                popBackStack = popBackStack
+            )
+        }
     ) {
         HorizontalPager(
-            state = pagerState
-        ) {
+            state = pagerState,
+            modifier = Modifier.fillMaxWidth()
+        ) { page ->
             Calendar(
                 modifier = Modifier
                     .fillMaxWidth(),
-                header = { Header(time = currentPage.time) },
                 dayLabel = { dayOfWeek -> Label(dayOfWeek = dayOfWeek) },
-                day = { day -> Day(day = day, time = currentPage.time) }
+                day = { day -> Day(day = day, time = timeList[page].time) }
             )
         }
-    }
-
-}
-
-@Composable
-private fun Header(
-    time: ZonedDateTime
-) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-    ) {
-        VerticalSpacer(height = 20.dp)
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(MaterialTheme.colorScheme.surface)
-                .padding(horizontal = 10.dp, vertical = 12.dp)
-            ,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = "${time.year}. ${time.monthValue}",
-                style = MaterialTheme.typography.headlineLarge,
-                color = MaterialTheme.colorScheme.onBackground
-            )
-        }
-        HorizontalDivider()
-        VerticalSpacer(height = 30.dp)
     }
 }
 
@@ -115,20 +81,26 @@ private fun Day(
     day: Int,
     time: ZonedDateTime
 ) {
-    val lastDayOfWeekOnLastMonth = time
-        .minusMonths(1)
+    val lastDayOnLastMonth = time
+        .minusMonths(1L)
         .with(TemporalAdjusters.lastDayOfMonth())
+
+    val weekOfLastDayOnLastMonth = lastDayOnLastMonth
         .dayOfWeek
         .value
+        .toWeekFromSunToSat()
+
+    val dayOfLastDayOnLastMonth = lastDayOnLastMonth
+        .dayOfMonth
 
     val lastDayOfMonth = time
         .with(TemporalAdjusters.lastDayOfMonth())
         .dayOfMonth
 
     when {
-        day <= lastDayOfWeekOnLastMonth + 1 -> {
+        day <= weekOfLastDayOnLastMonth -> {
             Text(
-                text = day.toString(),
+                text = (day + (dayOfLastDayOnLastMonth - weekOfLastDayOnLastMonth)).toString(),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.scrim,
                 modifier = Modifier.height(40.dp),
@@ -136,9 +108,9 @@ private fun Day(
             )
         }
 
-        day > lastDayOfMonth + lastDayOfWeekOnLastMonth + 1 -> {
+        day > lastDayOfMonth + weekOfLastDayOnLastMonth -> {
             Text(
-                text = (day - (lastDayOfMonth + lastDayOfWeekOnLastMonth + 1)).toString(),
+                text = (day - (lastDayOfMonth + weekOfLastDayOnLastMonth)).toString(),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.scrim,
                 modifier = Modifier.height(40.dp),
@@ -148,7 +120,7 @@ private fun Day(
 
         else -> {
             Text(
-                text = (day - lastDayOfWeekOnLastMonth - 1).toString(),
+                text = (day - weekOfLastDayOnLastMonth).toString(),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onBackground,
                 modifier = Modifier.height(40.dp),
@@ -157,6 +129,13 @@ private fun Day(
         }
     }
 }
+
+private fun Int.toWeekFromSunToSat(): Int =
+    when(this) {
+        7 -> 1
+        6 -> 0
+        else -> this + 1
+    }
 
 @Composable
 @Preview(showBackground = true, backgroundColor = Color.WHITE.toLong())

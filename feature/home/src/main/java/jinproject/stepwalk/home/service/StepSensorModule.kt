@@ -13,12 +13,11 @@ import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.OutOfQuotaPolicy
 import androidx.work.WorkManager
 import jinproject.stepwalk.home.receiver.AlarmReceiver
-import jinproject.stepwalk.home.utils.setInExactRepeating
+import jinproject.stepwalk.home.utils.setRepeating
 import jinproject.stepwalk.home.utils.onKorea
 import jinproject.stepwalk.home.worker.StepInsertWorker
 import java.time.LocalDateTime
 import java.util.Calendar
-import java.util.Timer
 
 internal class StepSensorModule(
     private val context: Context,
@@ -80,7 +79,7 @@ internal class StepSensorModule(
             set(Calendar.SECOND, 0)
         }
 
-        alarmManager.setInExactRepeating(
+        alarmManager.setRepeating(
             context = context,
             notifyIntent = {
                 Intent(context, AlarmReceiver::class.java)

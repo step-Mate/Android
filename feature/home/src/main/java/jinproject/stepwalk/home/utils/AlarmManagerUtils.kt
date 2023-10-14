@@ -5,7 +5,7 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 
-internal fun AlarmManager.setInExactRepeating(
+internal fun AlarmManager.setRepeating(
     context: Context,
     notifyIntent: () -> Intent,
     type: Int,

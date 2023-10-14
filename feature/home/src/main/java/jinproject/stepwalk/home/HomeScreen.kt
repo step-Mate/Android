@@ -54,7 +54,9 @@ import jinproject.stepwalk.home.state.Step
 import jinproject.stepwalk.home.state.Time
 import jinproject.stepwalk.home.utils.onKorea
 import java.time.Instant
+import java.time.temporal.ChronoField
 import java.time.temporal.ChronoUnit
+import java.time.temporal.TemporalUnit
 
 @Composable
 internal fun HomeScreen(
@@ -195,7 +197,7 @@ private fun HomeScreen(
                 onClickIcon1 = {
                     val firstInstallTime = context.packageManager.getPackageInfo(context.packageName,0).firstInstallTime
                     navigateToCalendar(
-                        Instant.ofEpochMilli(firstInstallTime).epochSecond
+                        Instant.ofEpochMilli(firstInstallTime).minus(30L,ChronoUnit.DAYS).epochSecond
                     )
                 },
                 onClickIcon2 = {}
