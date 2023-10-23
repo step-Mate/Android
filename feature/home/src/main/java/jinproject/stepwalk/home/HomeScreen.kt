@@ -49,14 +49,10 @@ import jinproject.stepwalk.domain.model.METs
 import jinproject.stepwalk.home.component.HomeTopAppBar
 import jinproject.stepwalk.home.component.UserPager
 import jinproject.stepwalk.home.service.StepService
-import jinproject.stepwalk.home.state.HeartRate
-import jinproject.stepwalk.home.state.Step
 import jinproject.stepwalk.home.state.Time
 import jinproject.stepwalk.home.utils.onKorea
 import java.time.Instant
-import java.time.temporal.ChronoField
 import java.time.temporal.ChronoUnit
-import java.time.temporal.TemporalUnit
 
 @Composable
 internal fun HomeScreen(
@@ -69,7 +65,7 @@ internal fun HomeScreen(
 
     val permissionLauncher =
         rememberLauncherForActivityResult(contract = PermissionController.createRequestPermissionResultContract()) { result ->
-            if (healthConnector.healthPermissions.containsAll(result)) {
+            if (HealthConnector.healthPermissions.containsAll(result)) {
                 Log.d("test", "권한 수락")
             } else {
                 Log.d("test", "권한 거부")
@@ -81,7 +77,7 @@ internal fun HomeScreen(
     val stepThisHour by homeViewModel.stepThisHour.collectAsStateWithLifecycle()
 
     LaunchedEffect(uiState.time, permissionState.value) {
-        if(healthConnector.checkPermissions()) {
+        if (healthConnector.checkPermissions()) {
             Log.d("test", "권한 있음")
             context.startForegroundService(Intent(context, StepService::class.java))
             val instant = Instant.now().onKorea()
@@ -113,19 +109,19 @@ internal fun HomeScreen(
                         healthConnector.readStepsByHours(
                             startTime = instant
                                 .truncatedTo(ChronoUnit.DAYS)
-                                .toInstant(),
-                            endTime = endTime.toInstant(),
+                                .toLocalDateTime(),
+                            endTime = endTime.toLocalDateTime(),
                             type = METs.Walk
-                        ) ?: listOf(Step.getInitValues())
+                        )
                     )
 
                     homeViewModel::setHeartRates.invoke(
                         healthConnector.readHeartRatesByHours(
                             startTime = instant
                                 .truncatedTo(ChronoUnit.DAYS)
-                                .toInstant(),
-                            endTime = endTime.toInstant()
-                        ) ?: listOf(HeartRate.getInitValues())
+                                .toLocalDateTime(),
+                            endTime = endTime.toLocalDateTime()
+                        )
                     )
                 }
 
@@ -148,7 +144,7 @@ internal fun HomeScreen(
                             endTime = endTime.toLocalDateTime(),
                             type = METs.Walk,
                             period = time.toPeriod()
-                        ) ?: listOf(Step.getInitValues())
+                        )
                     )
 
                     homeViewModel::setHeartRates.invoke(
@@ -156,14 +152,13 @@ internal fun HomeScreen(
                             startTime = startTime.toLocalDateTime(),
                             endTime = endTime.toLocalDateTime(),
                             period = time.toPeriod()
-                        ) ?: listOf(HeartRate.getInitValues())
+                        )
                     )
                 }
             }
-        }
-        else {
+        } else {
             Log.d("test", "권한 없음")
-            permissionLauncher.launch(healthConnector.healthPermissions)
+            permissionLauncher.launch(HealthConnector.healthPermissions)
         }
     }
 
@@ -195,9 +190,13 @@ private fun HomeScreen(
                 modifier = Modifier,
                 onClickTimeIcon = { popUpState.value = true },
                 onClickIcon1 = {
-                    val firstInstallTime = context.packageManager.getPackageInfo(context.packageName,0).firstInstallTime
+                    val firstInstallTime = context.packageManager.getPackageInfo(
+                        context.packageName,
+                        0
+                    ).firstInstallTime
                     navigateToCalendar(
-                        Instant.ofEpochMilli(firstInstallTime).minus(30L,ChronoUnit.DAYS).epochSecond
+                        Instant.ofEpochMilli(firstInstallTime)
+                            .minus(30L, ChronoUnit.DAYS).epochSecond
                     )
                 },
                 onClickIcon2 = {}

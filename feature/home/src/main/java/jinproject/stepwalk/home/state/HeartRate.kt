@@ -1,5 +1,6 @@
 package jinproject.stepwalk.home.state
 
+import androidx.compose.runtime.Stable
 import jinproject.stepwalk.design.R
 import java.time.Instant
 
@@ -47,28 +48,36 @@ internal class HeartRateMenu(
 
             HeartRateMenu(
                 heartRates = heartRates,
-                graphItems = Time.Day.getGraphItems { time, items -> heartRates.addGraphItems(time, items) }
+                graphItems = Time.Day.getGraphItems { time, items ->
+                    heartRates.addGraphItems(
+                        time,
+                        items
+                    )
+                }
             )
         }
     }
 }
 
-data class HeartRate(
+@Stable
+internal data class HeartRate(
     override val startTime: Long,
     override val endTime: Long,
-    val min: Int,
-    val max: Int,
-    val avg: Int,
-): GraphItem {
-    override val graphValue: Long get() = avg.toLong()
+    val avg: Long,
+    val min: Long,
+    val max: Long
+) : HealthCare(startTime, endTime, avg)
 
-    companion object {
-        fun getInitValues() = HeartRate(
-            startTime = Instant.now().epochSecond,
-            endTime = Instant.now().epochSecond,
-            min = 0,
-            max = 0,
-            avg = 0
-        )
+internal class HeartRateFactory(
+    private val max: Long,
+    private val min: Long
+) : HealthCareFactory<HeartRate> {
+
+    override fun create(
+        startTime: Long,
+        endTime: Long,
+        figure: Long,
+    ): HeartRate {
+        return HeartRate(startTime, endTime, figure, max, min)
     }
 }

@@ -1,8 +1,10 @@
 package jinproject.stepwalk.app
 
 import android.Manifest
+import android.app.Activity
 import android.os.Build
 import android.os.Bundle
+import android.view.View
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -29,8 +31,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.compose.rememberNavController
 import dagger.hilt.android.AndroidEntryPoint
 import jinproject.stepwalk.app.ui.StepWalkViewModel
@@ -72,7 +76,6 @@ class StepWalkActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         permissionLauncher.launch(PERMISSIONS)
-
         WindowCompat.setDecorFitsSystemWindows(window, false)
 
         setContent {

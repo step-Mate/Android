@@ -482,19 +482,19 @@ fun PreviewUserStepsByHour() = PreviewStepWalkTheme {
             distance = 2000,
             startTime = 0,
             endTime = 1,
-            type = METs.Walk
+            mets = METs.Walk
         ),
         Step(
             distance = 500,
             startTime = 30,
             endTime = 50,
-            type = METs.Walk
+            mets = METs.Walk
         ),
         Step(
             distance = 800,
             startTime = 60,
             endTime = 80,
-            type = METs.Walk
+            mets = METs.Walk
         ),
     )
     val time = Time.Week
@@ -521,19 +521,19 @@ fun PreviewUserStepsByWeek() = PreviewStepWalkTheme {
             distance = 2000,
             startTime = 0,
             endTime = 1,
-            type = METs.Walk
+            mets = METs.Walk
         ),
         Step(
             distance = 500,
             startTime = 30,
             endTime = 50,
-            type = METs.Walk
+            mets = METs.Walk
         ),
         Step(
             distance = 800,
             startTime = 60,
             endTime = 80,
-            type = METs.Walk
+            mets = METs.Walk
         )
     )
     val time = Time.Day

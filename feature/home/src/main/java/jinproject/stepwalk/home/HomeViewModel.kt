@@ -5,7 +5,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import jinproject.stepwalk.domain.usecase.GetStepUseCase
-import jinproject.stepwalk.domain.usecase.SetStepUseCase
 import jinproject.stepwalk.home.state.HealthState
 import jinproject.stepwalk.home.state.HeartRate
 import jinproject.stepwalk.home.state.HeartRateMenu
@@ -21,7 +20,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @Stable
@@ -119,13 +117,20 @@ internal class HomeViewModel @Inject constructor(
         getStepThisHour()
     }
 
-    fun setSteps(steps: List<Step>) = _uiState.update { state ->
-        state.copy(
-            step = StepMenu(
-                steps,
-                graphItems =  state.time.getGraphItems { time, items -> steps.addGraphItems(time, items) }
+    fun setSteps(steps: List<Step>?) = steps?.let {
+        _uiState.update { state ->
+            state.copy(
+                step = StepMenu(
+                    steps,
+                    graphItems = state.time.getGraphItems { time, items ->
+                        steps.addGraphItems(
+                            time,
+                            items
+                        )
+                    }
+                )
             )
-        )
+        }
     }
 
     private fun getStepThisHour() = getStepUseCase()
@@ -133,13 +138,20 @@ internal class HomeViewModel @Inject constructor(
             _stepThisHour.update { steps.first().toInt() }
         }.launchIn(viewModelScope)
 
-    fun setHeartRates(heartRates: List<HeartRate>) = _uiState.update { state ->
-        state.copy(
-            heartRate = HeartRateMenu(
-                heartRates,
-                graphItems = state.time.getGraphItems { time, items -> heartRates.addGraphItems(time, items)}
+    fun setHeartRates(heartRates: List<HeartRate>?) = heartRates?.let {
+        _uiState.update { state ->
+            state.copy(
+                heartRate = HeartRateMenu(
+                    heartRates,
+                    graphItems = state.time.getGraphItems { time, items ->
+                        heartRates.addGraphItems(
+                            time,
+                            items
+                        )
+                    }
+                )
             )
-        )
+        }
     }
 
     fun setTime(time: Time) = _uiState.update { state ->

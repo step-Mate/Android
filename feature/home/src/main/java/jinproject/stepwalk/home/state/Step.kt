@@ -8,11 +8,11 @@ import jinproject.stepwalk.domain.model.METs
 internal class StepMenu(
     val steps: List<Step>,
     override var graphItems: List<Long>,
-): HealthMenu {
+) : HealthMenu {
     override val details: Map<String, MenuDetail> = getMenuDetails()
 
     private fun getMenuDetails(kg: Float = .0f) = kotlin.run {
-        val type = steps.firstOrNull()?.type ?: METs.Walk
+        val type = steps.firstOrNull()?.mets ?: METs.Walk
         val minutes = steps.sumOf { it.endTime - it.startTime }
         val steps = steps.total()
 
@@ -48,33 +48,56 @@ internal class StepMenu(
                     distance = 0,
                     startTime = 0,
                     endTime = 0,
-                    type = METs.Walk
+                    mets = METs.Walk
                 )
             )
             StepMenu(
                 steps = steps,
-                graphItems = Time.Day.getGraphItems { time, items -> steps.addGraphItems(time, items) }
+                graphItems = Time.Day.getGraphItems { time, items ->
+                    steps.addGraphItems(
+                        time,
+                        items
+                    )
+                }
             )
         }
     }
 }
 
 @Stable
-data class Step(
-    val distance: Long,
+internal data class Step(
+    val mets: METs,
     override val startTime: Long,
     override val endTime: Long,
-    val type: METs,
-): GraphItem {
-    override val graphValue: Long get() = distance
+    val distance: Long
+) : HealthCare(startTime, endTime, distance)
 
-    companion object {
-        fun getInitValues() = Step(
-            distance = 0L,
-            startTime = 0,
-            endTime = 0,
-            type = METs.Walk
-        )
+internal class StepFactory : HealthCareFactory<Step> {
+    private var mets: METs? = null
+
+    fun create(
+        startTime: Long,
+        endTime: Long,
+        figure: Long,
+        mets: METs
+    ) {
+        this.mets = mets
+        create(startTime, endTime, figure)
+    }
+
+    fun getDefaultMETs(): METs {
+        if (mets == null)
+            this.mets = METs.Walk
+
+        return this.mets!!
+    }
+
+    override fun create(
+        startTime: Long,
+        endTime: Long,
+        figure: Long,
+    ): Step {
+        return Step(mets ?: getDefaultMETs(), startTime, endTime, figure)
     }
 }
 

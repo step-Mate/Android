@@ -6,6 +6,9 @@ import android.net.Uri
 import android.util.Log
 import androidx.compose.runtime.Stable
 import androidx.health.connect.client.HealthConnectClient
+import androidx.health.connect.client.aggregate.AggregateMetric
+import androidx.health.connect.client.aggregate.AggregationResultGroupedByDuration
+import androidx.health.connect.client.aggregate.AggregationResultGroupedByPeriod
 import androidx.health.connect.client.permission.HealthPermission
 import androidx.health.connect.client.records.HeartRateRecord
 import androidx.health.connect.client.records.StepsRecord
@@ -20,7 +23,9 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import jinproject.stepwalk.domain.model.METs
 import jinproject.stepwalk.home.state.HeartRate
+import jinproject.stepwalk.home.state.HeartRateFactory
 import jinproject.stepwalk.home.state.Step
+import jinproject.stepwalk.home.state.StepFactory
 import jinproject.stepwalk.home.utils.onKorea
 import java.time.Duration
 import java.time.Instant
@@ -44,20 +49,6 @@ object HealthConnectorModule {
 class HealthConnector @Inject constructor(
     @ApplicationContext private val context: Context
 ) {
-
-    private val stepMetrics = setOf(StepsRecord.COUNT_TOTAL)
-
-    private val heartRateMetrics =
-        setOf(HeartRateRecord.BPM_MAX, HeartRateRecord.BPM_MIN, HeartRateRecord.BPM_AVG)
-
-    val healthPermissions =
-        setOf(
-            HealthPermission.getReadPermission(StepsRecord::class),
-            HealthPermission.getWritePermission(StepsRecord::class),
-            HealthPermission.getReadPermission(HeartRateRecord::class),
-            HealthPermission.getWritePermission(HeartRateRecord::class)
-        )
-
     private val healthConnectClient by lazy {
         getHealthClient()
     }
@@ -66,6 +57,12 @@ class HealthConnector @Inject constructor(
         return healthConnectClient?.permissionController?.getGrantedPermissions()
             ?.containsAll(healthPermissions) ?: false
     }
+
+    private fun getHealthClient(): HealthConnectClient? =
+        if (checkAvailability() == HealthConnectClient.SDK_AVAILABLE) {
+            HealthConnectClient.getOrCreate(context)
+        } else
+            null
 
     private fun checkAvailability() = HealthConnectClient.sdkStatus(context)
 
@@ -76,7 +73,8 @@ class HealthConnector @Inject constructor(
 
     private fun requireInstallHealthApk() {
         val providerPackageName = "com.google.android.apps.healthdata"
-        val uriString = "market://details?id=$providerPackageName&url=healthconnect%3A%2F%2Fonboarding"
+        val uriString =
+            "market://details?id=$providerPackageName&url=healthconnect%3A%2F%2Fonboarding"
 
         context.startActivity(
             Intent(Intent.ACTION_VIEW).apply {
@@ -88,13 +86,6 @@ class HealthConnector @Inject constructor(
             }
         )
     }
-
-    private fun getHealthClient(): HealthConnectClient? =
-        if (checkAvailability() == HealthConnectClient.SDK_AVAILABLE) {
-            HealthConnectClient.getOrCreate(context)
-        } else
-            null
-
 
     suspend fun insertSteps(
         step: Long,
@@ -139,65 +130,46 @@ class HealthConnector @Inject constructor(
         }
     }
 
-    suspend fun readStepsByPeriods(
+    internal suspend fun readStepsByPeriods(
         startTime: LocalDateTime,
         endTime: LocalDateTime,
         type: METs,
         period: Period
-    ): List<Step>? = kotlin.runCatching {
-        val response =
-            healthConnectClient?.aggregateGroupByPeriod(
-                AggregateGroupByPeriodRequest(
-                    metrics = stepMetrics,
-                    timeRangeFilter = TimeRangeFilter.between(startTime, endTime),
-                    timeRangeSlicer = period,
-                    dataOriginFilter = setOf(DataOrigin("jinproject.stepwalk.app"))
-                )
+    ): List<Step>? = readHealthCareByPeriods(
+        startTime = startTime,
+        endTime = endTime,
+        period = period,
+        metrics = stepMetrics
+    )?.let { result ->
+        result.map { record ->
+            StepFactory().create(
+                startTime = record.startTime.onKorea().toEpochSecond(),
+                endTime = record.endTime.onKorea().toEpochSecond(),
+                figure = record.result[StepsRecord.COUNT_TOTAL] ?: 0L
             )
-        response?.let { result ->
-            result.map { record ->
-                Step(
-                    distance = record.result[StepsRecord.COUNT_TOTAL] ?: 0L,
-                    startTime = record.startTime.onKorea().toEpochSecond(),
-                    endTime = record.endTime.onKorea().toEpochSecond(),
-                    type = type
-                )
-            }
         }
-    }.onFailure { e ->
-        Log.d("test", "byPeriods error: ${e.message}")
-    }.getOrNull()
+    }
 
-    suspend fun readStepsByHours(
-        startTime: Instant,
-        endTime: Instant,
+    internal suspend fun readStepsByHours(
+        startTime: LocalDateTime,
+        endTime: LocalDateTime,
         type: METs
-    ): List<Step>? = kotlin.runCatching {
-        val response =
-            healthConnectClient?.aggregateGroupByDuration(
-                AggregateGroupByDurationRequest(
-                    metrics = stepMetrics,
-                    timeRangeFilter = TimeRangeFilter.between(startTime, endTime),
-                    timeRangeSlicer = Duration.ofHours(1L),
-                    dataOriginFilter = setOf(DataOrigin("jinproject.stepwalk.app"))
-                )
+    ): List<Step>? = readHealthCareByDurations(
+        startTime = startTime,
+        endTime = endTime,
+        duration = Duration.ofHours(1L),
+        metrics = stepMetrics
+    )?.let { result ->
+        result.map { record ->
+            StepFactory().create(
+                startTime = record.startTime.onKorea().toEpochSecond(),
+                endTime = record.endTime.onKorea().toEpochSecond(),
+                figure = record.result[StepsRecord.COUNT_TOTAL] ?: 0L,
             )
-
-        response?.let { result ->
-            result.map { record ->
-                Step(
-                    distance = record.result[StepsRecord.COUNT_TOTAL] ?: 0L,
-                    startTime = record.startTime.onKorea().toEpochSecond(),
-                    endTime = record.endTime.onKorea().toEpochSecond(),
-                    type = type
-                )
-            }
         }
-    }.onFailure { e ->
-        Log.d("test", "byHours error: ${e.message}")
-    }.getOrNull()
+    }
 
-    suspend fun getTodayTotalStep(
+    internal suspend fun getTodayTotalStep(
         type: METs
     ): Long = kotlin.run {
         val instant = Instant
@@ -219,60 +191,99 @@ class HealthConnector @Inject constructor(
         steps?.sumOf { it.distance } ?: 0L
     }
 
-    suspend fun readHeartRatesByHours(
-        startTime: Instant,
-        endTime: Instant
-    ): List<HeartRate>? = kotlin.runCatching {
-        val response =
-            healthConnectClient?.aggregateGroupByDuration(
-                AggregateGroupByDurationRequest(
-                    metrics = heartRateMetrics,
-                    timeRangeFilter = TimeRangeFilter.between(startTime, endTime),
-                    timeRangeSlicer = Duration.ofHours(1L),
-                    dataOriginFilter = setOf(DataOrigin("jinproject.stepwalk.app"))
-                )
+    internal suspend fun readHeartRatesByHours(
+        startTime: LocalDateTime,
+        endTime: LocalDateTime
+    ): List<HeartRate>? = readHealthCareByDurations(
+        startTime = startTime,
+        endTime = endTime,
+        duration = Duration.ofHours(1L),
+        metrics = heartRateMetrics
+    )?.let { result ->
+        result.map { record ->
+            HeartRateFactory(
+                max = record.result[HeartRateRecord.BPM_MIN] ?: 0L,
+                min = record.result[HeartRateRecord.BPM_MAX] ?: 0L
+            ).create(
+                startTime = record.startTime.onKorea().toEpochSecond(),
+                endTime = record.endTime.onKorea().toEpochSecond(),
+                figure = record.result[HeartRateRecord.BPM_AVG] ?: 0L,
             )
-        response?.let { result ->
-            result.map { record ->
-                HeartRate(
-                    startTime = record.startTime.onKorea().toEpochSecond(),
-                    endTime = record.endTime.onKorea().toEpochSecond(),
-                    min = record.result[HeartRateRecord.BPM_MAX]?.toInt() ?: 0,
-                    max = record.result[HeartRateRecord.BPM_MIN]?.toInt() ?: 0,
-                    avg = record.result[HeartRateRecord.BPM_AVG]?.toInt() ?: 0
-                )
-            }
         }
-    }.onFailure { e ->
+    }
 
-    }.getOrNull()
-
-    suspend fun readHeartRatesByPeriods(
+    internal suspend fun readHeartRatesByPeriods(
         startTime: LocalDateTime,
         endTime: LocalDateTime,
         period: Period
-    ): List<HeartRate>? = kotlin.runCatching {
-        val response =
-            healthConnectClient?.aggregateGroupByPeriod(
-                AggregateGroupByPeriodRequest(
-                    metrics = heartRateMetrics,
-                    timeRangeFilter = TimeRangeFilter.between(startTime, endTime),
-                    timeRangeSlicer = period,
-                    dataOriginFilter = setOf(DataOrigin("jinproject.stepwalk.app"))
-                )
-            )
-        response?.let { result ->
+    ): List<HeartRate>? =
+        readHealthCareByPeriods(
+            startTime = startTime,
+            endTime = endTime,
+            period = period,
+            metrics = heartRateMetrics,
+        )?.let { result ->
             result.map { record ->
-                HeartRate(
+                HeartRateFactory(
+                    max = record.result[HeartRateRecord.BPM_MIN] ?: 0L,
+                    min = record.result[HeartRateRecord.BPM_MAX] ?: 0L
+                ).create(
                     startTime = record.startTime.onKorea().toEpochSecond(),
                     endTime = record.endTime.onKorea().toEpochSecond(),
-                    min = record.result[HeartRateRecord.BPM_MAX]?.toInt() ?: 0,
-                    max = record.result[HeartRateRecord.BPM_MIN]?.toInt() ?: 0,
-                    avg = record.result[HeartRateRecord.BPM_AVG]?.toInt() ?: 0
+                    figure = record.result[HeartRateRecord.BPM_AVG] ?: 0L,
                 )
             }
         }
-    }.onFailure { e ->
 
+    private suspend fun readHealthCareByPeriods(
+        startTime: LocalDateTime,
+        endTime: LocalDateTime,
+        period: Period,
+        metrics: Set<AggregateMetric<Long>>,
+    ): List<AggregationResultGroupedByPeriod>? = kotlin.runCatching {
+        val response =
+            healthConnectClient?.aggregateGroupByPeriod(
+                AggregateGroupByPeriodRequest(
+                    metrics = metrics,
+                    timeRangeFilter = TimeRangeFilter.between(startTime, endTime),
+                    timeRangeSlicer = period,
+                    dataOriginFilter = setOf(DataOrigin(DATA_ORIGIN))
+                )
+            )
+        response
+    }.onFailure { e ->
+        Log.d("test", "byPeriods error: ${e.message}")
     }.getOrNull()
+
+    private suspend fun readHealthCareByDurations(
+        startTime: LocalDateTime,
+        endTime: LocalDateTime,
+        duration: Duration,
+        metrics: Set<AggregateMetric<Long>>,
+    ): List<AggregationResultGroupedByDuration>? = kotlin.runCatching {
+        healthConnectClient?.aggregateGroupByDuration(
+            AggregateGroupByDurationRequest(
+                metrics = metrics,
+                timeRangeFilter = TimeRangeFilter.between(startTime, endTime),
+                timeRangeSlicer = duration,
+                dataOriginFilter = setOf(DataOrigin(DATA_ORIGIN))
+            )
+        )
+    }.onFailure { e ->
+        Log.d("test", "byPeriods error: ${e.message}")
+    }.getOrNull()
+
+    companion object {
+        const val DATA_ORIGIN = "jinproject.stepwalk.app"
+        val stepMetrics = setOf(StepsRecord.COUNT_TOTAL)
+        val heartRateMetrics =
+            setOf(HeartRateRecord.BPM_MAX, HeartRateRecord.BPM_MIN, HeartRateRecord.BPM_AVG)
+        val healthPermissions =
+            setOf(
+                HealthPermission.getReadPermission(StepsRecord::class),
+                HealthPermission.getWritePermission(StepsRecord::class),
+                HealthPermission.getReadPermission(HeartRateRecord::class),
+                HealthPermission.getWritePermission(HeartRateRecord::class)
+            )
+    }
 }
