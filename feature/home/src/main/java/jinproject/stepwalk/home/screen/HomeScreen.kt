@@ -1,4 +1,4 @@
-package jinproject.stepwalk.home
+package jinproject.stepwalk.home.screen
 
 import android.content.Context
 import android.content.Intent
@@ -46,11 +46,16 @@ import jinproject.stepwalk.design.component.DefaultLayout
 import jinproject.stepwalk.design.component.VerticalSpacer
 import jinproject.stepwalk.design.theme.StepWalkTheme
 import jinproject.stepwalk.domain.model.METs
-import jinproject.stepwalk.home.component.HomeTopAppBar
-import jinproject.stepwalk.home.component.UserPager
+import jinproject.stepwalk.home.HealthConnector
+import jinproject.stepwalk.home.screen.component.HomeTopAppBar
+import jinproject.stepwalk.home.screen.component.page.UserPager
+import jinproject.stepwalk.home.screen.state.Day
+import jinproject.stepwalk.home.screen.state.Time
+import jinproject.stepwalk.home.screen.state.Week
+import jinproject.stepwalk.home.screen.state.Year
 import jinproject.stepwalk.home.service.StepService
-import jinproject.stepwalk.home.state.Time
 import jinproject.stepwalk.home.utils.onKorea
+import java.time.Duration
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 
@@ -104,14 +109,15 @@ internal fun HomeScreen(
                 .withMinute(59)
 
             when (val time = uiState.time) {
-                Time.Day -> {
+                Day -> {
                     homeViewModel::setSteps.invoke(
                         healthConnector.readStepsByHours(
                             startTime = instant
                                 .truncatedTo(ChronoUnit.DAYS)
                                 .toLocalDateTime(),
                             endTime = endTime.toLocalDateTime(),
-                            type = METs.Walk
+                            type = METs.Walk,
+                            duration = Duration.ofHours(1L)
                         )
                     )
 
@@ -120,18 +126,19 @@ internal fun HomeScreen(
                             startTime = instant
                                 .truncatedTo(ChronoUnit.DAYS)
                                 .toLocalDateTime(),
-                            endTime = endTime.toLocalDateTime()
+                            endTime = endTime.toLocalDateTime(),
+                            duration = Duration.ofHours(1L)
                         )
                     )
                 }
 
                 else -> {
                     val startTime = when (time) {
-                        Time.Year -> instant
+                        Year -> instant
                             .minusMonths(instant.month.value.toLong() - 1)
                             .minusDays(instant.dayOfMonth.toLong() - 1)
 
-                        Time.Week -> instant
+                        Week -> instant
                             .minusDays(time.toNumberOfDays().toLong() - 1)
 
                         else -> instant.minusDays(instant.dayOfMonth.toLong() - 1)
@@ -206,7 +213,6 @@ private fun HomeScreen(
         UserPager(
             modifier = Modifier.fillMaxSize(),
             uiState = uiState,
-            stepThisHour = stepThisHour,
         )
         PopUpWindow(
             popUpState = popUpState.value,
@@ -293,7 +299,7 @@ private fun PopUpWindow(
                     .padding(horizontal = 8.dp, vertical = 8.dp),
                 verticalArrangement = Arrangement.Center
             ) {
-                Time.values().forEachIndexed { index, time ->
+                Time.values.forEachIndexed { index, time ->
                     Text(
                         text = time.display(),
                         style = MaterialTheme.typography.bodySmall,
@@ -304,7 +310,7 @@ private fun PopUpWindow(
                                 onClickPopUpItem(time)
                             }
                     )
-                    if (index != Time.values().lastIndex) {
+                    if (index != Time.values.lastIndex) {
                         VerticalSpacer(height = 10.dp)
                     }
                 }
