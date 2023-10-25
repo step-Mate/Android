@@ -1,13 +1,14 @@
-package jinproject.stepwalk.home.component
+package jinproject.stepwalk.home.screen.component.page.graph
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.unit.Constraints
+import jinproject.stepwalk.home.screen.state.sortDayOfWeek
 
 @Composable
-internal fun PagerGraph(
+internal fun HealthGraph(
     itemsCount: Int,
     modifier: Modifier = Modifier,
     horizontalAxis: @Composable (Int) -> Unit,
@@ -16,12 +17,13 @@ internal fun PagerGraph(
 ) {
     val bars = @Composable { repeat(itemsCount) { bar(it) } }
 
-    val horizontalItemCount = if(itemsCount >= 16) itemsCount / 2 else itemsCount
-    val horizontalStep = if(itemsCount == horizontalItemCount) 1 else 2
+    val horizontalItemCount = if (itemsCount >= 16) itemsCount / 2 else itemsCount
+    val horizontalStep = if (itemsCount == horizontalItemCount) 1 else 2
+    val horizontalItemList = (0 until itemsCount step horizontalStep).toList()
+    val horizontalItemConversion =
+        if (itemsCount == 7) horizontalItemList.sortDayOfWeek() else horizontalItemList
     val horizontalItems = @Composable {
-        for (i in 0 until itemsCount step horizontalStep) {
-            horizontalAxis(i)
-        }
+        horizontalItemConversion.forEach { h -> horizontalAxis(h) }
     }
 
     Layout(
@@ -51,7 +53,7 @@ internal fun PagerGraph(
             )
         }
 
-        val barWidth = if(itemsCount == horizontalItemCount) itemWidth else itemWidth / 2
+        val barWidth = if (itemsCount == horizontalItemCount) itemWidth else itemWidth / 2
 
         val barPlaceables = barMeasurables.map { barMeasurable ->
             val barHeight = totalHeight - horizontalPlacables.first().height
