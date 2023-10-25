@@ -19,8 +19,8 @@ import jinproject.stepwalk.design.component.DefaultLayout
 import jinproject.stepwalk.design.theme.StepWalkTheme
 import jinproject.stepwalk.home.calendar.component.Calendar
 import jinproject.stepwalk.home.calendar.component.CalendarAppBar
-import jinproject.stepwalk.home.state.ZonedTime
-import jinproject.stepwalk.home.state.ZonedTimeRange
+import jinproject.stepwalk.home.screen.state.ZonedTime
+import jinproject.stepwalk.home.screen.state.ZonedTimeRange
 import jinproject.stepwalk.home.utils.onKorea
 import jinproject.stepwalk.home.utils.toDayOfWeekString
 import java.time.Instant
@@ -131,7 +131,7 @@ private fun Day(
 }
 
 private fun Int.toWeekFromSunToSat(): Int =
-    when(this) {
+    when (this) {
         7 -> 1
         6 -> 0
         else -> this + 1

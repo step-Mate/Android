@@ -1,4 +1,4 @@
-package jinproject.stepwalk.home.state
+package jinproject.stepwalk.home.screen.state
 
 import android.util.Log
 import jinproject.stepwalk.home.utils.onKorea
@@ -11,16 +11,16 @@ import java.time.ZonedDateTime
  * @property compareTo step의 크기가 1인 ClosedRange를 구현하기 위해 필요한 Comparable 의 구현메소드
  * @property rangeTo (a..b) 에 대한 연산자 중복
  */
-internal class ZonedTime(val time: ZonedDateTime): Comparable<ZonedTime> {
+internal class ZonedTime(val time: ZonedDateTime) : Comparable<ZonedTime> {
 
     override fun compareTo(other: ZonedTime): Int {
         return this.time.monthValue.compareTo(other.time.monthValue)
     }
 
     operator fun rangeTo(that: ZonedTime) = kotlin.runCatching {
-        ZonedTimeRange(this,that)
+        ZonedTimeRange(this, that)
     }.getOrElse { e ->
-        Log.e("test",e.stackTraceToString())
+        Log.e("test", e.stackTraceToString())
 
         val time = LocalDateTime.now().onKorea()
 
@@ -39,9 +39,9 @@ internal class ZonedTime(val time: ZonedDateTime): Comparable<ZonedTime> {
 internal class ZonedTimeRange(
     override val start: ZonedTime,
     override val endInclusive: ZonedTime
-): Iterable<ZonedTime>, ClosedRange<ZonedTime> {
+) : Iterable<ZonedTime>, ClosedRange<ZonedTime> {
     override fun iterator(): Iterator<ZonedTime> {
-        return if(start.time.toEpochSecond() > endInclusive.time.toEpochSecond())
+        return if (start.time.toEpochSecond() > endInclusive.time.toEpochSecond())
             throw IllegalStateException("start: ${start.time.toEpochSecond()} 는 last: ${endInclusive.time.toEpochSecond()} 보다 작거나 같아야함")
         else
             ZonedTimeIterator(start, endInclusive)
@@ -57,7 +57,7 @@ internal class ZonedTimeRange(
 internal class ZonedTimeIterator(
     start: ZonedTime,
     private val endInclusive: ZonedTime,
-): Iterator<ZonedTime> {
+) : Iterator<ZonedTime> {
     private var initValue: ZonedTime = start
 
     override fun hasNext(): Boolean {

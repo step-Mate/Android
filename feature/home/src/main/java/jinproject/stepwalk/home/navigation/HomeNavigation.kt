@@ -7,10 +7,10 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import jinproject.stepwalk.home.HealthConnector
-import jinproject.stepwalk.home.HomeScreen
 import jinproject.stepwalk.home.calendar.CalendarScreen
-import jinproject.stepwalk.home.state.ZonedTime
-import jinproject.stepwalk.home.state.ZonedTimeRange
+import jinproject.stepwalk.home.screen.HomeScreen
+import jinproject.stepwalk.home.screen.state.ZonedTime
+import jinproject.stepwalk.home.screen.state.ZonedTimeRange
 import jinproject.stepwalk.home.utils.onKorea
 import java.time.Instant
 

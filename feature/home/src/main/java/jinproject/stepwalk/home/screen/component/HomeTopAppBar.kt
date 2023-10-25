@@ -1,4 +1,4 @@
-package jinproject.stepwalk.home.component
+package jinproject.stepwalk.home.screen.component
 
 import androidx.compose.foundation.layout.Row
 import androidx.compose.material.Icon

@@ -6,7 +6,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import jinproject.stepwalk.design.R
 import jinproject.stepwalk.design.component.TitleAppBar
 import jinproject.stepwalk.design.theme.StepWalkTheme
-import jinproject.stepwalk.home.state.ZonedTime
+import jinproject.stepwalk.home.screen.state.ZonedTime
 import jinproject.stepwalk.home.utils.onKorea
 import java.time.Instant
 import java.time.ZonedDateTime
