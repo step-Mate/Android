@@ -44,6 +44,7 @@ import java.time.LocalDate
 internal fun UserPager(
     uiState: HomeUiState,
     modifier: Modifier = Modifier,
+    stepThisTime: Int,
 ) {
     val pages = listOf(uiState.step, uiState.heartRate)
 
@@ -55,6 +56,7 @@ internal fun UserPager(
         pages = pages,
         pagerState = pagerState,
         modifier = modifier,
+        stepThisTime = stepThisTime
     )
 }
 
@@ -64,6 +66,7 @@ private fun PageMenu(
     modifier: Modifier = Modifier,
     pages: List<HealthTab>,
     pagerState: PagerState,
+    stepThisTime: Int,
 ) {
     val currentPage = pages[pagerState.currentPage % pages.size]
 
@@ -165,5 +168,6 @@ private fun PreviewUserSteps(
 ) = PreviewStepWalkTheme {
     UserPager(
         uiState = homeUiState,
+        stepThisTime = 300
     )
 }

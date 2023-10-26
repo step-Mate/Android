@@ -48,11 +48,19 @@ internal class HeartRateTabFactory(
 ) : HealthTabFactory<HeartRate>(healthCareList) {
 
     override fun create(time: Time, goal: Int): HealthTab {
-        return HealthTab(
-            header = HealthPage(total, goal, title = "심박수"),
-            graph = time.getGraph(healthCareList),
-            menu = if (healthCareList.isEmpty()) emptyList() else getMenuList()
-        )
+        return kotlin.runCatching {
+            HealthTab(
+                header = HealthPage(total, goal, title = "심박수"),
+                graph = time.getGraph(healthCareList),
+                menu = getMenuList()
+            )
+        }.getOrElse { e ->
+            if(e is IllegalArgumentException) {
+                getDefaultValues(time)
+            }
+            else
+                throw e
+        }
     }
 
     override fun getMenuList(): List<MenuItem> = listOf(
@@ -60,6 +68,20 @@ internal class HeartRateTabFactory(
         HeartAvgMenuFactory.create(healthCareList),
         HeartMinMenuFactory.create(healthCareList)
     )
+
+    override fun getDefaultValues(time: Time): HealthTab =
+        HealthTab(
+            header = HealthPage(0, 1, title = "심박수"),
+            graph = HealthTab.getDefaultGraphItems(time.toNumberOfDays()),
+            menu = kotlin.run {
+                val defaultList = listOf(HeartRateFactory.instance.create(0,0,0))
+                listOf(
+                    HeartMaxMenuFactory.create(defaultList),
+                    HeartAvgMenuFactory.create(defaultList),
+                    HeartMinMenuFactory.create(defaultList)
+                )
+            }
+        )
 
     companion object {
         private var _instance: HeartRateTabFactory? = null

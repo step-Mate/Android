@@ -124,7 +124,7 @@ private fun PreviewMenuPager(
     }
 
     MenuPager(
-        pages = listOf(homeUiState.step),
+        pages = listOf(homeUiState.step, homeUiState.heartRate),
         pagerState = pagerState
     )
 }

@@ -12,6 +12,7 @@ import jinproject.stepwalk.home.screen.state.HeartRateTabFactory
 import jinproject.stepwalk.home.screen.state.Step
 import jinproject.stepwalk.home.screen.state.StepTabFactory
 import jinproject.stepwalk.home.screen.state.Time
+import jinproject.stepwalk.home.screen.state.User
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.launchIn
@@ -28,31 +29,16 @@ internal data class HomeUiState(
 
 ) {
     companion object {
-        fun getInitValues() = HomeUiState(
-            step = HealthTab.getInitValues(Day.toNumberOfDays()),
-            heartRate = HealthTab.getInitValues(Day.toNumberOfDays()),
-            user = User.getInitValues(),
-            time = Day
-        )
-    }
-}
+        fun getInitValues(): HomeUiState {
+            val time: Time = Day
 
-@Stable
-internal data class User(
-    val uid: Long,
-    val name: String,
-    val age: Int,
-    val kg: Float,
-    val height: Float,
-) {
-    companion object {
-        fun getInitValues() = User(
-            uid = 0L,
-            name = "",
-            age = 0,
-            kg = 55f,
-            height = 0f
-        )
+            return HomeUiState(
+                step = StepTabFactory.getInstance(emptyList()).getDefaultValues(time),
+                heartRate = HeartRateTabFactory.getInstance(emptyList()).getDefaultValues(time),
+                user = User.getInitValues(),
+                time = time
+            )
+        }
     }
 }
 
@@ -65,11 +51,11 @@ internal class HomeViewModel @Inject constructor(
         MutableStateFlow(HomeUiState.getInitValues())
     val uiState get() = _uiState.asStateFlow()
 
-    private val _stepThisHour = MutableStateFlow(0)
-    val stepThisHour get() = _stepThisHour.asStateFlow()
+    private val _stepThisTime = MutableStateFlow(0)
+    val stepThisTime get() = _stepThisTime.asStateFlow()
 
     init {
-        getStepThisHour()
+        getStepThisTime()
     }
 
     fun setSteps(steps: List<Step>?) = steps?.let {
@@ -82,11 +68,6 @@ internal class HomeViewModel @Inject constructor(
             )
         }
     }
-
-    private fun getStepThisHour() = getStepUseCase()
-        .onEach { steps ->
-            _stepThisHour.update { steps.first().toInt() }
-        }.launchIn(viewModelScope)
 
     fun setHeartRates(heartRates: List<HeartRate>?) = heartRates?.let {
         _uiState.update { state ->
@@ -102,4 +83,9 @@ internal class HomeViewModel @Inject constructor(
     fun setTime(time: Time) = _uiState.update { state ->
         state.copy(time = time)
     }
+
+    private fun getStepThisTime() = getStepUseCase()
+        .onEach { steps ->
+            _stepThisTime.update { steps.first().toInt() }
+        }.launchIn(viewModelScope)
 }

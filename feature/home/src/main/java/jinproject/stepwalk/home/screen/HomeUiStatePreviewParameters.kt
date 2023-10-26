@@ -10,6 +10,7 @@ import jinproject.stepwalk.home.screen.state.Step
 import jinproject.stepwalk.home.screen.state.StepFactory
 import jinproject.stepwalk.home.screen.state.StepTabFactory
 import jinproject.stepwalk.home.screen.state.Time
+import jinproject.stepwalk.home.screen.state.User
 import jinproject.stepwalk.home.screen.state.Week
 import jinproject.stepwalk.home.utils.onKorea
 import java.time.LocalDateTime

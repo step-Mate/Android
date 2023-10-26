@@ -79,7 +79,7 @@ internal fun HomeScreen(
         }
 
     val uiState by homeViewModel.uiState.collectAsStateWithLifecycle()
-    val stepThisHour by homeViewModel.stepThisHour.collectAsStateWithLifecycle()
+    val stepThisTime by homeViewModel.stepThisTime.collectAsStateWithLifecycle()
 
     LaunchedEffect(uiState.time, permissionState.value) {
         if (healthConnector.checkPermissions()) {
@@ -171,7 +171,7 @@ internal fun HomeScreen(
 
     HomeScreen(
         uiState = uiState,
-        stepThisHour = stepThisHour,
+        stepThisTime = stepThisTime,
         setTimeOnGraph = homeViewModel::setTime,
         navigateToCalendar = navigateToCalendar
     )
@@ -180,7 +180,7 @@ internal fun HomeScreen(
 @Composable
 private fun HomeScreen(
     uiState: HomeUiState,
-    stepThisHour: Int,
+    stepThisTime: Int,
     context: Context = LocalContext.current,
     setTimeOnGraph: (Time) -> Unit,
     navigateToCalendar: (Long) -> Unit,
@@ -213,6 +213,7 @@ private fun HomeScreen(
         UserPager(
             modifier = Modifier.fillMaxSize(),
             uiState = uiState,
+            stepThisTime = stepThisTime
         )
         PopUpWindow(
             popUpState = popUpState.value,
@@ -324,7 +325,7 @@ private fun PopUpWindow(
 private fun PreviewHomeScreen() = StepWalkTheme {
     HomeScreen(
         uiState = HomeUiState.getInitValues(),
-        stepThisHour = 100,
+        stepThisTime = 100,
         setTimeOnGraph = {},
         navigateToCalendar = {}
     )

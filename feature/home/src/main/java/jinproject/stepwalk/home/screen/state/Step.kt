@@ -62,11 +62,19 @@ internal class StepTabFactory(
 ) : HealthTabFactory<Step>(healthCareList) {
 
     override fun create(time: Time, goal: Int): HealthTab {
-        return HealthTab(
-            header = HealthPage(total, goal, title = "걸음수"),
-            graph = time.getGraph(healthCareList),
-            menu = getMenuList()
-        )
+        return kotlin.runCatching {
+            HealthTab(
+                header = HealthPage(total, goal, title = "걸음수"),
+                graph = time.getGraph(healthCareList),
+                menu = getMenuList()
+            )
+        }.getOrElse { e ->
+            if(e is IllegalArgumentException) {
+                getDefaultValues(time)
+            }
+            else
+                throw e
+        }
     }
 
     override fun getMenuList(): List<MenuItem> = listOf(
@@ -74,6 +82,17 @@ internal class StepTabFactory(
         TimeMenuFactory.create(total),
         CaloriesMenuFactory.create(total)
     )
+
+    override fun getDefaultValues(time: Time): HealthTab =
+        HealthTab(
+            header = HealthPage(0, 1, title = "걸음수"),
+            graph = HealthTab.getDefaultGraphItems(time.toNumberOfDays()),
+            menu = listOf(
+                DistanceMenuFactory.create(0),
+                TimeMenuFactory.create(0),
+                CaloriesMenuFactory.create(0)
+            )
+        )
 
     companion object {
         private var _instance: StepTabFactory? = null
@@ -88,5 +107,3 @@ internal class StepTabFactory(
         }
     }
 }
-
-internal fun List<Step>.total() = this.map { it.distance }.fold(0L) { acc, l -> acc + l }

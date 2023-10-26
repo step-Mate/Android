@@ -1,5 +1,6 @@
 package jinproject.stepwalk.home.screen.state
 
+import androidx.compose.runtime.Stable
 import jinproject.stepwalk.home.utils.onKorea
 import java.time.Instant
 import java.time.LocalDateTime
@@ -8,7 +9,8 @@ import java.time.ZonedDateTime
 import java.time.temporal.ChronoField
 import java.time.temporal.TemporalAdjusters
 
-sealed interface Time {
+@Stable
+internal sealed interface Time {
     fun toNumberOfDays(): Int
     fun toZonedOffset(zonedDateTime: ZonedDateTime): Int
     fun display(): String
@@ -19,21 +21,24 @@ sealed interface Time {
     }
 }
 
-data object Day : Time {
+@Stable
+internal data object Day : Time {
     override fun toNumberOfDays(): Int = 24
     override fun toZonedOffset(zonedDateTime: ZonedDateTime): Int = zonedDateTime.hour
     override fun display(): String = "오늘"
     override fun toPeriod(): Period = throw IllegalArgumentException("변환 불가")
 }
 
-data object Week : Time {
+@Stable
+internal data object Week : Time {
     override fun toNumberOfDays(): Int = 7
     override fun toZonedOffset(zonedDateTime: ZonedDateTime): Int = zonedDateTime.dayOfWeek.value
     override fun display(): String = "이번주"
     override fun toPeriod(): Period = Period.ofDays(1)
 }
 
-data object Month : Time {
+@Stable
+internal data object Month : Time {
     override fun toNumberOfDays(): Int = Instant
         .now()
         .onKorea()
@@ -45,7 +50,8 @@ data object Month : Time {
     override fun toPeriod(): Period = Period.ofDays(1)
 }
 
-data object Year : Time {
+@Stable
+internal data object Year : Time {
     override fun toNumberOfDays(): Int = 12
     override fun toZonedOffset(zonedDateTime: ZonedDateTime): Int = zonedDateTime.monthValue
     override fun display(): String = "올해"
@@ -54,11 +60,7 @@ data object Year : Time {
 
 internal fun <T : HealthCare> Time.getGraph(list: List<T>): List<Long> {
     val dayCount = this.toNumberOfDays()
-    val items = ArrayList<Long>(dayCount).apply {
-        repeat(dayCount) { index ->
-            add(index, 0L)
-        }
-    }
+    val items = HealthTab.getDefaultGraphItems(dayCount)
 
     list.forEach { item ->
         val startTime = item.startTime
@@ -74,7 +76,7 @@ internal fun <T : HealthCare> Time.getGraph(list: List<T>): List<Long> {
     }
 
     if (this is Week) {
-        items.sortDayOfWeek()
+        return items.sortDayOfWeek()
     }
 
     return items.toList()
@@ -87,12 +89,12 @@ internal fun <T : HealthCare> Time.getGraph(list: List<T>): List<Long> {
  * @exception IllegalArgumentException : 리스트가 비어있거나, 크기가 7을 초과하는 경우
  * @return 오늘이 가장 마지막인 7개의 요일 리스트
  */
-internal fun List<Long>.sortDayOfWeek() = run {
+internal fun <T : Number> List<T>.sortDayOfWeek() = run {
     if (this.size > 7 || this.isEmpty())
         throw IllegalArgumentException("비어있는 리스트 이거나 size가 7을 초과함")
 
     val today = LocalDateTime.now().onKorea().dayOfWeek.value
-    val arrayList = ArrayList<Long>(7)
+    val arrayList = ArrayList<T>(7)
 
     val subListBigger = this.filterIndexed { index, _ -> index + 1 > today }
     val subListSmaller = this.filterIndexed { index, _ -> index + 1 <= today }
@@ -101,20 +103,4 @@ internal fun List<Long>.sortDayOfWeek() = run {
         addAll(subListBigger)
         addAll(subListSmaller)
     }
-}
-
-internal fun List<Int>.sortDayOfWeek() = kotlin.run {
-    if (this.size > 7 || this.isEmpty())
-        throw IllegalArgumentException("비어있는 리스트 이거나 size가 7을 초과함")
-
-    val today = LocalDateTime.now().onKorea().dayOfWeek.value
-    val arrayList = ArrayList<Int>(7)
-
-    val subListBigger = this.filterIndexed { index, _ -> index + 1 > today }
-    val subListSmaller = this.filterIndexed { index, _ -> index + 1 <= today }
-
-    arrayList.apply {
-        addAll(subListBigger)
-        addAll(subListSmaller)
-    }.toList()
 }

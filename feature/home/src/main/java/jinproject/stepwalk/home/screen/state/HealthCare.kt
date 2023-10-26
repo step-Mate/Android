@@ -9,13 +9,13 @@ import androidx.compose.runtime.Stable
  * @property figure 특정 헬스케어 정보의 값
  */
 @Stable
-abstract class HealthCare(
+internal abstract class HealthCare(
     open val startTime: Long,
     open val endTime: Long,
     open val figure: Long
 )
 
-interface HealthCareFactory<T : HealthCare> {
+internal interface HealthCareFactory<T : HealthCare> {
     fun create(
         startTime: Long,
         endTime: Long,
@@ -29,10 +29,10 @@ interface HealthCareFactory<T : HealthCare> {
     ): T
 }
 
-class HealthCareExtras(
+internal class HealthCareExtras(
     extras: MutableMap<String, Long> = emptyMap<String, Long>().toMutableMap()
 ) {
-    val map: MutableMap<String, Long> = extras
+    private val map: MutableMap<String, Long> = extras
 
     operator fun get(key: String): Long? {
         return map[key]
