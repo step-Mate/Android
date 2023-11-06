@@ -13,10 +13,17 @@ import jinproject.stepwalk.home.screen.state.Step
 import jinproject.stepwalk.home.screen.state.StepTabFactory
 import jinproject.stepwalk.home.screen.state.Time
 import jinproject.stepwalk.home.screen.state.User
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.transform
 import kotlinx.coroutines.flow.update
 import javax.inject.Inject
 
@@ -44,12 +51,32 @@ internal data class HomeUiState(
 
 @HiltViewModel
 internal class HomeViewModel @Inject constructor(
-    private val getStepUseCase: GetStepUseCase
+    private val getStepUseCase: GetStepUseCase,
 ) : ViewModel() {
 
     private val _uiState: MutableStateFlow<HomeUiState> =
         MutableStateFlow(HomeUiState.getInitValues())
-    val uiState get() = _uiState.asStateFlow()
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    val uiState = _uiState.filter {
+        (it.step.header.total != -1L) || (it.heartRate.header.total != -1L)
+        //&& it.user.uid != 0L
+    }.flatMapLatest { state ->
+        getStepUseCase().transform { step ->
+            emit(step.current - step.last)
+        }.map { stepNotAddedOnHealthConnect ->
+            state.copy(step = state.step.copy(
+                header = state.step.header.copy(total = state.step.header.total + stepNotAddedOnHealthConnect),
+                graph = state.step.graph.toMutableList().apply {
+                    this[this.lastIndex] = this.last() + stepNotAddedOnHealthConnect
+                }
+            ))
+        }
+    }.stateIn(
+        viewModelScope,
+        SharingStarted.WhileSubscribed(5000),
+        HomeUiState.getInitValues()
+    )
 
     private val _stepThisTime = MutableStateFlow(0)
     val stepThisTime get() = _stepThisTime.asStateFlow()
@@ -86,6 +113,6 @@ internal class HomeViewModel @Inject constructor(
 
     private fun getStepThisTime() = getStepUseCase()
         .onEach { steps ->
-            _stepThisTime.update { steps.first().toInt() }
+
         }.launchIn(viewModelScope)
 }

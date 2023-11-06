@@ -1,7 +1,14 @@
 package jinproject.stepwalk.home.screen
 
+import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.content.ServiceConnection
+import android.os.Handler
+import android.os.IBinder
+import android.os.Looper
+import android.os.Message
+import android.os.Messenger
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.compose.animation.core.MutableTransitionState
@@ -21,6 +28,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -30,6 +38,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
@@ -41,6 +50,9 @@ import androidx.compose.ui.window.PopupPositionProvider
 import androidx.compose.ui.window.PopupProperties
 import androidx.health.connect.client.PermissionController
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import jinproject.stepwalk.design.component.DefaultLayout
 import jinproject.stepwalk.design.component.VerticalSpacer
@@ -55,6 +67,7 @@ import jinproject.stepwalk.home.screen.state.Week
 import jinproject.stepwalk.home.screen.state.Year
 import jinproject.stepwalk.home.service.StepService
 import jinproject.stepwalk.home.utils.onKorea
+import kotlinx.coroutines.flow.MutableStateFlow
 import java.time.Duration
 import java.time.Instant
 import java.time.temporal.ChronoUnit
@@ -62,6 +75,7 @@ import java.time.temporal.ChronoUnit
 @Composable
 internal fun HomeScreen(
     context: Context = LocalContext.current,
+    lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current,
     healthConnector: HealthConnector,
     homeViewModel: HomeViewModel = hiltViewModel(),
     navigateToCalendar: (Long) -> Unit,
@@ -72,10 +86,11 @@ internal fun HomeScreen(
         rememberLauncherForActivityResult(contract = PermissionController.createRequestPermissionResultContract()) { result ->
             if (HealthConnector.healthPermissions.containsAll(result)) {
                 Log.d("test", "권한 수락")
+                permissionState.value = true
             } else {
                 Log.d("test", "권한 거부")
+                permissionState.value = false
             }
-            permissionState.value = !permissionState.value
         }
 
     val uiState by homeViewModel.uiState.collectAsStateWithLifecycle()
@@ -84,7 +99,6 @@ internal fun HomeScreen(
     LaunchedEffect(uiState.time, permissionState.value) {
         if (healthConnector.checkPermissions()) {
             Log.d("test", "권한 있음")
-            context.startForegroundService(Intent(context, StepService::class.java))
             val instant = Instant.now().onKorea()
 
             /*(0..23).forEach { count ->
@@ -107,6 +121,7 @@ internal fun HomeScreen(
             val endTime = instant
                 .withHour(23)
                 .withMinute(59)
+                .toLocalDateTime()
 
             when (val time = uiState.time) {
                 Day -> {
@@ -115,10 +130,9 @@ internal fun HomeScreen(
                             startTime = instant
                                 .truncatedTo(ChronoUnit.DAYS)
                                 .toLocalDateTime(),
-                            endTime = endTime.toLocalDateTime(),
+                            endTime = endTime,
                             type = METs.Walk,
-                            duration = Duration.ofHours(1L)
-                        )
+                            duration = Duration.ofHours(1L))
                     )
 
                     homeViewModel::setHeartRates.invoke(
@@ -126,7 +140,7 @@ internal fun HomeScreen(
                             startTime = instant
                                 .truncatedTo(ChronoUnit.DAYS)
                                 .toLocalDateTime(),
-                            endTime = endTime.toLocalDateTime(),
+                            endTime = endTime,
                             duration = Duration.ofHours(1L)
                         )
                     )
@@ -148,7 +162,7 @@ internal fun HomeScreen(
                     homeViewModel::setSteps.invoke(
                         healthConnector.readStepsByPeriods(
                             startTime = startTime.toLocalDateTime(),
-                            endTime = endTime.toLocalDateTime(),
+                            endTime = endTime,
                             type = METs.Walk,
                             period = time.toPeriod()
                         )
@@ -157,7 +171,7 @@ internal fun HomeScreen(
                     homeViewModel::setHeartRates.invoke(
                         healthConnector.readHeartRatesByPeriods(
                             startTime = startTime.toLocalDateTime(),
-                            endTime = endTime.toLocalDateTime(),
+                            endTime = endTime,
                             period = time.toPeriod()
                         )
                     )
@@ -166,6 +180,18 @@ internal fun HomeScreen(
         } else {
             Log.d("test", "권한 없음")
             permissionLauncher.launch(HealthConnector.healthPermissions)
+        }
+    }
+
+    DisposableEffect(key1 = Unit) {
+        val observer = LifecycleEventObserver { _, event ->
+            if(event == Lifecycle.Event.ON_CREATE) {
+                context.startForegroundService(Intent(context, StepService::class.java))
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
         }
     }
 

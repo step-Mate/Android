@@ -1,6 +1,7 @@
 package jinproject.stepwalk.data
 
 import androidx.datastore.core.DataStore
+import jinproject.stepwalk.domain.model.StepData
 import jinproject.stepwalk.domain.repository.StepRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
@@ -21,8 +22,12 @@ class StepRepositoryImpl @Inject constructor(
             }
         }
 
-    override fun getStep(): Flow<Array<Long>> = data.map { prefs ->
-        arrayOf(prefs.today, prefs.yesterday, prefs.last)
+    override fun getStep(): Flow<StepData> = data.map { prefs ->
+        StepData(
+            current = prefs.today,
+            last = prefs.last,
+            yesterday = prefs.yesterday
+        )
     }
 
     override suspend fun setTodayStep(today: Long) {
