@@ -85,7 +85,7 @@ internal class StepTabFactory(
 
     override fun getDefaultValues(time: Time): HealthTab =
         HealthTab(
-            header = HealthPage(0, 1, title = "걸음수"),
+            header = HealthPage(-1, 1, title = "걸음수"),
             graph = HealthTab.getDefaultGraphItems(time.toNumberOfDays()),
             menu = listOf(
                 DistanceMenuFactory.create(0),

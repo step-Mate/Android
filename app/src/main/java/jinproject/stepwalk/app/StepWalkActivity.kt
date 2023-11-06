@@ -2,8 +2,12 @@ package jinproject.stepwalk.app
 
 import android.Manifest
 import android.app.Activity
+import android.content.ComponentName
+import android.content.ServiceConnection
 import android.os.Build
 import android.os.Bundle
+import android.os.IBinder
+import android.os.Messenger
 import android.view.View
 import android.widget.Toast
 import androidx.activity.ComponentActivity

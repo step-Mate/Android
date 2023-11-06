@@ -71,7 +71,7 @@ internal class HeartRateTabFactory(
 
     override fun getDefaultValues(time: Time): HealthTab =
         HealthTab(
-            header = HealthPage(0, 1, title = "심박수"),
+            header = HealthPage(-1, 1, title = "심박수"),
             graph = HealthTab.getDefaultGraphItems(time.toNumberOfDays()),
             menu = kotlin.run {
                 val defaultList = listOf(HeartRateFactory.instance.create(0,0,0))
