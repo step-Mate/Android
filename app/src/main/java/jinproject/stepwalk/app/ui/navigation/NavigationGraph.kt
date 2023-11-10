@@ -18,7 +18,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.vectorResource
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import jinproject.stepwalk.app.ui.core.SnackBarMessage
+import jinproject.stepwalk.home.screen.state.SnackBarMessage
 import jinproject.stepwalk.home.HealthConnector
 import jinproject.stepwalk.home.navigation.homeNavGraph
 import jinproject.stepwalk.home.navigation.navigateToCalendar
@@ -29,7 +29,7 @@ internal fun NavigationGraph(
     router: Router,
     modifier: Modifier = Modifier,
     healthConnector: HealthConnector,
-    showSnackBar: (SnackBarMessage) -> Unit
+    showSnackBar: (SnackBarMessage) -> Unit,
 ) {
     val navController = router.navController
 
@@ -41,7 +41,8 @@ internal fun NavigationGraph(
         homeNavGraph(
             healthConnector = healthConnector,
             navigateToCalendar = navController::navigateToCalendar,
-            popBackStack = navController::popBackStack
+            popBackStack = navController::popBackStack,
+            showSnackBar = showSnackBar
         )
 
         composable(route = BottomNavigationDestination.SETTING.route) {
