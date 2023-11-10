@@ -30,7 +30,6 @@ internal class HomeUiStatePreviewParameters : PreviewParameterProvider<HomeUiSta
                 goal = 90
             ),
             user = User.getInitValues(),
-            time = day.time
         ),
         HomeUiState(
             step = StepTabFactory(week.steps).create(
@@ -42,7 +41,6 @@ internal class HomeUiStatePreviewParameters : PreviewParameterProvider<HomeUiSta
                 goal = 90
             ),
             user = User.getInitValues(),
-            time = week.time
         ),
     )
 }

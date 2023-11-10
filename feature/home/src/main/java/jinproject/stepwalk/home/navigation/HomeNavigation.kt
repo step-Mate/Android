@@ -9,6 +9,7 @@ import androidx.navigation.navArgument
 import jinproject.stepwalk.home.HealthConnector
 import jinproject.stepwalk.home.calendar.CalendarScreen
 import jinproject.stepwalk.home.screen.HomeScreen
+import jinproject.stepwalk.home.screen.state.SnackBarMessage
 import jinproject.stepwalk.home.screen.state.ZonedTime
 import jinproject.stepwalk.home.screen.state.ZonedTimeRange
 import jinproject.stepwalk.home.utils.onKorea
@@ -21,12 +22,14 @@ private const val calendarLink = "$calendarRoute/{start}"
 fun NavGraphBuilder.homeNavGraph(
     healthConnector: HealthConnector,
     navigateToCalendar: (Long) -> Unit,
-    popBackStack: () -> Unit
+    popBackStack: () -> Unit,
+    showSnackBar: (SnackBarMessage) -> Unit,
 ) {
     composable(route = homeRoute) {
         HomeScreen(
             healthConnector = healthConnector,
-            navigateToCalendar = navigateToCalendar
+            navigateToCalendar = navigateToCalendar,
+            showSnackBar = showSnackBar
         )
     }
     composable(

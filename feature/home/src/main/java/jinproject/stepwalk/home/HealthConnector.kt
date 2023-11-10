@@ -4,8 +4,10 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.util.Log
+import androidx.activity.result.contract.ActivityResultContract
 import androidx.compose.runtime.Stable
 import androidx.health.connect.client.HealthConnectClient
+import androidx.health.connect.client.PermissionController
 import androidx.health.connect.client.aggregate.AggregateMetric
 import androidx.health.connect.client.permission.HealthPermission
 import androidx.health.connect.client.records.HeartRateRecord
@@ -57,6 +59,10 @@ class HealthConnector @Inject constructor(
     suspend fun checkPermissions(): Boolean {
         return healthConnectClient?.permissionController?.getGrantedPermissions()
             ?.containsAll(healthPermissions) ?: false
+    }
+
+    fun requestPermissionsActivityContract(): ActivityResultContract<Set<String>, Set<String>> {
+        return PermissionController.createRequestPermissionResultContract()
     }
 
     private fun getHealthClient(): HealthConnectClient? =

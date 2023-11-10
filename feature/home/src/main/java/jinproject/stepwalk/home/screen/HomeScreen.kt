@@ -1,14 +1,7 @@
 package jinproject.stepwalk.home.screen
 
-import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
-import android.content.ServiceConnection
-import android.os.Handler
-import android.os.IBinder
-import android.os.Looper
-import android.os.Message
-import android.os.Messenger
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.compose.animation.core.MutableTransitionState
@@ -28,7 +21,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -38,7 +30,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
@@ -48,11 +39,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupPositionProvider
 import androidx.compose.ui.window.PopupProperties
-import androidx.health.connect.client.PermissionController
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleEventObserver
-import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import jinproject.stepwalk.design.component.DefaultLayout
 import jinproject.stepwalk.design.component.VerticalSpacer
@@ -62,12 +49,12 @@ import jinproject.stepwalk.home.HealthConnector
 import jinproject.stepwalk.home.screen.component.HomeTopAppBar
 import jinproject.stepwalk.home.screen.component.page.UserPager
 import jinproject.stepwalk.home.screen.state.Day
+import jinproject.stepwalk.home.screen.state.SnackBarMessage
 import jinproject.stepwalk.home.screen.state.Time
 import jinproject.stepwalk.home.screen.state.Week
 import jinproject.stepwalk.home.screen.state.Year
 import jinproject.stepwalk.home.service.StepService
 import jinproject.stepwalk.home.utils.onKorea
-import kotlinx.coroutines.flow.MutableStateFlow
 import java.time.Duration
 import java.time.Instant
 import java.time.temporal.ChronoUnit
@@ -75,30 +62,37 @@ import java.time.temporal.ChronoUnit
 @Composable
 internal fun HomeScreen(
     context: Context = LocalContext.current,
-    lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current,
     healthConnector: HealthConnector,
     homeViewModel: HomeViewModel = hiltViewModel(),
     navigateToCalendar: (Long) -> Unit,
+    showSnackBar: (SnackBarMessage) -> Unit,
 ) {
     val permissionState = rememberSaveable { mutableStateOf(false) }
 
     val permissionLauncher =
-        rememberLauncherForActivityResult(contract = PermissionController.createRequestPermissionResultContract()) { result ->
-            if (HealthConnector.healthPermissions.containsAll(result)) {
-                Log.d("test", "권한 수락")
+        rememberLauncherForActivityResult(contract = healthConnector.requestPermissionsActivityContract()) { result ->
+            if (result.containsAll(HealthConnector.healthPermissions)) {
+                Log.d("test", "권한 수락 ${result.toString()} ")
                 permissionState.value = true
             } else {
-                Log.d("test", "권한 거부")
+                showSnackBar(
+                    SnackBarMessage(
+                        headerMessage = "권한이 거부되었어요.",
+                        contentMessage = "권한을 수락하시지 않으면 서비스를 이용할 수 없어요."
+                    )
+                )
                 permissionState.value = false
             }
         }
 
     val uiState by homeViewModel.uiState.collectAsStateWithLifecycle()
-    val stepThisTime by homeViewModel.stepThisTime.collectAsStateWithLifecycle()
+    val time by homeViewModel.time.collectAsStateWithLifecycle()
 
-    LaunchedEffect(uiState.time, permissionState.value) {
+    LaunchedEffect(time, permissionState.value) {
         if (healthConnector.checkPermissions()) {
             Log.d("test", "권한 있음")
+            permissionState.value = true
+
             val instant = Instant.now().onKorea()
 
             /*(0..23).forEach { count ->
@@ -123,16 +117,19 @@ internal fun HomeScreen(
                 .withMinute(59)
                 .toLocalDateTime()
 
-            when (val time = uiState.time) {
+            when (time) {
                 Day -> {
+                    val todaySteps = healthConnector.readStepsByHours(
+                        startTime = instant
+                            .truncatedTo(ChronoUnit.DAYS)
+                            .toLocalDateTime(),
+                        endTime = endTime,
+                        type = METs.Walk,
+                        duration = Duration.ofHours(1L)
+                    )
+
                     homeViewModel::setSteps.invoke(
-                        healthConnector.readStepsByHours(
-                            startTime = instant
-                                .truncatedTo(ChronoUnit.DAYS)
-                                .toLocalDateTime(),
-                            endTime = endTime,
-                            type = METs.Walk,
-                            duration = Duration.ofHours(1L))
+                        todaySteps
                     )
 
                     homeViewModel::setHeartRates.invoke(
@@ -177,27 +174,17 @@ internal fun HomeScreen(
                     )
                 }
             }
+
+            if (permissionState.value)
+                context.startForegroundService(Intent(context, StepService::class.java))
         } else {
             Log.d("test", "권한 없음")
             permissionLauncher.launch(HealthConnector.healthPermissions)
         }
     }
 
-    DisposableEffect(key1 = Unit) {
-        val observer = LifecycleEventObserver { _, event ->
-            if(event == Lifecycle.Event.ON_CREATE) {
-                context.startForegroundService(Intent(context, StepService::class.java))
-            }
-        }
-        lifecycleOwner.lifecycle.addObserver(observer)
-        onDispose {
-            lifecycleOwner.lifecycle.removeObserver(observer)
-        }
-    }
-
     HomeScreen(
         uiState = uiState,
-        stepThisTime = stepThisTime,
         setTimeOnGraph = homeViewModel::setTime,
         navigateToCalendar = navigateToCalendar
     )
@@ -206,7 +193,6 @@ internal fun HomeScreen(
 @Composable
 private fun HomeScreen(
     uiState: HomeUiState,
-    stepThisTime: Int,
     context: Context = LocalContext.current,
     setTimeOnGraph: (Time) -> Unit,
     navigateToCalendar: (Long) -> Unit,
@@ -239,7 +225,6 @@ private fun HomeScreen(
         UserPager(
             modifier = Modifier.fillMaxSize(),
             uiState = uiState,
-            stepThisTime = stepThisTime
         )
         PopUpWindow(
             popUpState = popUpState.value,
@@ -351,7 +336,6 @@ private fun PopUpWindow(
 private fun PreviewHomeScreen() = StepWalkTheme {
     HomeScreen(
         uiState = HomeUiState.getInitValues(),
-        stepThisTime = 100,
         setTimeOnGraph = {},
         navigateToCalendar = {}
     )

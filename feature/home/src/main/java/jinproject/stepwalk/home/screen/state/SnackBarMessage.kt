@@ -1,4 +1,4 @@
-package jinproject.stepwalk.app.ui.core
+package jinproject.stepwalk.home.screen.state
 
 import androidx.compose.runtime.Stable
 
