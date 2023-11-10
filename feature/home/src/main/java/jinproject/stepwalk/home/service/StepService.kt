@@ -1,8 +1,11 @@
 package jinproject.stepwalk.home.service
 
+import android.app.AlarmManager
 import android.app.NotificationManager
 import android.app.PendingIntent
+import android.content.Context
 import android.content.Intent
+import android.util.Log
 import android.widget.RemoteViews
 import androidx.core.app.NotificationCompat
 import androidx.lifecycle.Lifecycle
@@ -10,30 +13,24 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleService
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import androidx.work.Data
 import androidx.work.ExistingWorkPolicy
+import androidx.work.OneTimeWorkRequest
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.OutOfQuotaPolicy
 import androidx.work.WorkManager
 import dagger.hilt.android.AndroidEntryPoint
-import jinproject.stepwalk.domain.model.METs
-import jinproject.stepwalk.domain.usecase.GetStepUseCase
-import jinproject.stepwalk.domain.usecase.SetStepUseCase
-import jinproject.stepwalk.home.HealthConnector
 import jinproject.stepwalk.home.R
+import jinproject.stepwalk.home.receiver.AlarmReceiver
 import jinproject.stepwalk.home.utils.StepWalkChannelId
 import jinproject.stepwalk.home.utils.createChannel
-import jinproject.stepwalk.home.utils.onKorea
+import jinproject.stepwalk.home.utils.setRepeating
 import jinproject.stepwalk.home.worker.RestartServiceWorker
-import jinproject.stepwalk.home.worker.StepInsertWorker
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.last
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
-import java.time.LocalDateTime
+import java.util.Calendar
 import javax.inject.Inject
+
 @AndroidEntryPoint
 internal class StepService : LifecycleService() {
 
@@ -44,9 +41,23 @@ internal class StepService : LifecycleService() {
     private var notification: NotificationCompat.Builder? = null
     private var exitFlag: Boolean? = null
 
+    private val alarmManager: AlarmManager by lazy { getSystemService(Context.ALARM_SERVICE) as AlarmManager }
+    private val stepSensorManager: StepSensorManager by lazy {
+        StepSensorManager(
+            context = this,
+            onSensorChanged = { event ->
+                val stepBySensor = event?.values?.first()?.toLong() ?: 0L
+                lifecycleScope.launch(Dispatchers.IO) {
+                    stepSensorViewModel.onSensorChanged(stepBySensor)?.let { worker ->
+                        setWorker(worker)
+                    }
+                }
+            }
+        )
+    }
+
     override fun onCreate() {
         super.onCreate()
-
         lifecycle.addObserver(stepSensorViewModel.viewModelScope as LifecycleEventObserver)
 
         val notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
@@ -62,29 +73,53 @@ internal class StepService : LifecycleService() {
                 }
             }
         }
+
+        registerSensor()
+        alarmUpdatingLastStep()
+    }
+
+    private fun registerSensor() {
+        stepSensorManager.registerSensor()
+    }
+
+    private fun unRegisterSensor() {
+        stepSensorManager.unRegisterSensor()
+    }
+
+    private fun alarmUpdatingLastStep() {
+        val time = Calendar.getInstance().apply {
+            timeInMillis = System.currentTimeMillis()
+            add(Calendar.DAY_OF_MONTH, 1)
+            set(Calendar.HOUR_OF_DAY, 0)
+            set(Calendar.MINUTE, 0)
+            set(Calendar.SECOND, 0)
+        }
+
+        alarmManager.setRepeating(
+            context = this,
+            notifyIntent = {
+                Intent(this, AlarmReceiver::class.java)
+            },
+            type = AlarmManager.RTC_WAKEUP,
+            time = time.timeInMillis,
+            interval = AlarmManager.INTERVAL_DAY
+        )
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         super.onStartCommand(intent, flags, startId)
-
         exitFlag = intent?.getBooleanExtra("exit", false) ?: false
         val alarmFlag = intent?.getBooleanExtra("alarm", false) ?: false
 
         when {
             exitFlag == true -> {
+                Log.d("test", "exit()")
                 stopSelf()
             }
 
             alarmFlag -> {
-                stepSensorViewModel.setStepInsertWorker(
-                    Data
-                        .Builder()
-                        .putLong(StepSensorViewModel.Key.YESTERDAY.value, stepSensorViewModel.steps.value.current + stepSensorViewModel.steps.value.yesterday)
-                        .putLong(StepSensorViewModel.Key.STEP_LAST_TIME.value, 0L)
-                        .putLong(StepSensorViewModel.Key.DISTANCE.value, stepSensorViewModel.steps.value.current - stepSensorViewModel.steps.value.last)
-                        .putLong(StepSensorViewModel.Key.START.value, stepSensorViewModel.startTime.onKorea().toEpochSecond())
-                        .putLong(StepSensorViewModel.Key.END.value, stepSensorViewModel.endTime.onKorea().toEpochSecond())
-                        .build()
+                setWorker(
+                    stepSensorViewModel.getStepInsertWorkerUpdatingOnNewDay()
                 )
             }
         }
@@ -92,9 +127,19 @@ internal class StepService : LifecycleService() {
         return START_STICKY
     }
 
+    private fun setWorker(worker: OneTimeWorkRequest) {
+        WorkManager
+            .getInstance(this)
+            .enqueueUniqueWork(
+                "insertStepWork",
+                ExistingWorkPolicy.REPLACE,
+                worker
+            )
+    }
+
     override fun onDestroy() {
         if (::stepSensorViewModel.isInitialized)
-            stepSensorViewModel.unRegisterSensor()
+            unRegisterSensor()
 
         if (exitFlag == false) {
             val workRequest = OneTimeWorkRequestBuilder<RestartServiceWorker>()

@@ -5,9 +5,11 @@ import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.Data
 import androidx.work.WorkerParameters
+import androidx.work.hasKeyWithValueOfType
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
-import jinproject.stepwalk.domain.usecase.SetStepUseCase
+import jinproject.stepwalk.domain.model.StepData
+import jinproject.stepwalk.domain.usecase.SetStepUseCaseImpl
 import jinproject.stepwalk.home.HealthConnector
 import jinproject.stepwalk.home.service.StepSensorViewModel
 import kotlinx.coroutines.Dispatchers
@@ -19,30 +21,50 @@ class StepInsertWorker @AssistedInject constructor(
     @Assisted context: Context,
     @Assisted workerParams: WorkerParameters,
     private val healthConnector: HealthConnector,
-    private val setStepUseCase: SetStepUseCase
+    private val setStepUseCaseImpl: SetStepUseCaseImpl
 ) : CoroutineWorker(context, workerParams) {
 
     override suspend fun doWork(): Result {
-        val distance = inputData.getLong(StepSensorViewModel.Key.DISTANCE.value, 0L)
+        val distance = inputData.getLong(StepSensorViewModel.KEY_DISTANCE, 0L)
 
-        if(distance == 0L)
-            return Result.failure(Data.Builder().putString("fail","걸음수는 0이 될 수 없습니다.").build())
+        if (distance == 0L)
+            return Result.failure(Data.Builder().putString("fail", "걸음수는 0이 될 수 없습니다.").build())
 
         withContext(Dispatchers.IO) {
             healthConnector.insertSteps(
                 step = distance,
-                startTime = Instant.ofEpochSecond(inputData.getLong(StepSensorViewModel.Key.START.value, 0L)),
-                endTime = Instant.ofEpochSecond(inputData.getLong(StepSensorViewModel.Key.END.value, 0L))
+                startTime = Instant.ofEpochSecond(
+                    inputData.getLong(
+                        StepSensorViewModel.KEY_START,
+                        0L
+                    )
+                ),
+                endTime = Instant.ofEpochSecond(inputData.getLong(StepSensorViewModel.KEY_END, 0L))
             )
-            setStepUseCase.setLastStep(inputData.getLong(StepSensorViewModel.Key.STEP_LAST_TIME.value, 0L))
+            setStepUseCaseImpl.setLastStep(
+                inputData.getLong(
+                    StepSensorViewModel.KEY_STEP_LAST_TIME,
+                    0L
+                )
+            )
 
-            when (val yesterday = inputData.getLong(StepSensorViewModel.Key.YESTERDAY.value, 0L)) {
-                0L -> {}
-                else -> {
-                    setStepUseCase.setYesterdayStep(yesterday)
-                }
-            }
-            //Log.d("test","dowork d: ${inputData.getLong(StepSensorModule.Key.DISTANCE.value, 0L)}")
+            if (inputData.hasKeyWithValueOfType<Long>(StepSensorViewModel.KEY_YESTERDAY))
+                setStepUseCaseImpl.setYesterdayStep(
+                    inputData.getLong(
+                        StepSensorViewModel.KEY_YESTERDAY,
+                        0L
+                    )
+                )
+            if (inputData.hasKeyWithValueOfType<Boolean>(StepSensorViewModel.KEY_IS_REBOOT))
+                setStepUseCaseImpl(
+                    StepData.getInitValues().copy(
+                        isReboot = inputData.getBoolean(
+                            StepSensorViewModel.KEY_IS_REBOOT,
+                            false
+                        )
+                    )
+                )
+
         }
 
         return Result.success()

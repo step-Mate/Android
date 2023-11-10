@@ -24,9 +24,11 @@ class StepRepositoryImpl @Inject constructor(
 
     override fun getStep(): Flow<StepData> = data.map { prefs ->
         StepData(
-            current = prefs.today,
+            current = prefs.current,
             last = prefs.last,
-            yesterday = prefs.yesterday
+            yesterday = prefs.yesterday,
+            isReboot = prefs.isReboot,
+            stepAfterReboot = prefs.stepAfterReboot
         )
     }
 
@@ -34,7 +36,7 @@ class StepRepositoryImpl @Inject constructor(
         prefs.updateData { pref ->
             pref
                 .toBuilder()
-                .setToday(today)
+                .setCurrent(today)
                 .build()
         }
     }
@@ -53,6 +55,18 @@ class StepRepositoryImpl @Inject constructor(
             pref
                 .toBuilder()
                 .setLast(last)
+                .build()
+        }
+    }
+
+    override suspend fun setStep(stepData: StepData) {
+        prefs.updateData { pref ->
+            pref.toBuilder()
+                .setLast(stepData.last)
+                .setCurrent(stepData.current)
+                .setYesterday(stepData.yesterday)
+                .setIsReboot(stepData.isReboot)
+                .setStepAfterReboot(stepData.stepAfterReboot)
                 .build()
         }
     }

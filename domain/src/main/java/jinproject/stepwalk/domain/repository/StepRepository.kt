@@ -8,4 +8,6 @@ interface StepRepository {
     suspend fun setTodayStep(today: Long)
     suspend fun setYesterdayStep(yesterday: Long)
     suspend fun setLastStep(last: Long)
+
+    suspend fun setStep(stepData: StepData)
 }
