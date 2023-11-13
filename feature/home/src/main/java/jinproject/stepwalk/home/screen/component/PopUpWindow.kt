@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Stable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
@@ -25,14 +26,27 @@ import androidx.compose.ui.window.PopupProperties
 import jinproject.stepwalk.design.theme.StepWalkColor
 import jinproject.stepwalk.design.theme.StepWalkTheme
 
+@Stable
+internal class PopUpState(
+    val state: Boolean,
+    val offset: Offset,
+    val message: String,
+) {
+    companion object {
+        fun getInitValues() = PopUpState(
+            state = false,
+            offset = Offset.Zero,
+            message = "",
+        )
+    }
+}
+
 @Composable
-fun PopupWindow(
-    text: String,
-    popUpState: Boolean,
-    popUpOffset: Offset,
+internal fun PopupWindow(
+    popUpState: PopUpState,
     offPopUp: () -> Unit
 ) {
-    if (popUpState) {
+    if (popUpState.state) {
         Popup(
             popupPositionProvider = object : PopupPositionProvider {
                 override fun calculatePosition(
@@ -42,8 +56,8 @@ fun PopupWindow(
                     popupContentSize: IntSize
                 ): IntOffset {
                     return IntOffset(
-                        x = popUpOffset.x.toInt() + 10f.toInt(),
-                        y = popUpOffset.y.toInt() - popupContentSize.height - 25
+                        x = popUpState.offset.x.toInt() + 10f.toInt(),
+                        y = popUpState.offset.y.toInt() - popupContentSize.height - 25
                     )
                 }
             },
@@ -51,7 +65,7 @@ fun PopupWindow(
             onDismissRequest = offPopUp
         ) {
             PopUpItem(
-                text = text,
+                text = popUpState.message,
                 modifier = Modifier
                     .drawBehind {
                         val size = this.size

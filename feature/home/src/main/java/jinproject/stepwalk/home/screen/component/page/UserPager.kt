@@ -12,12 +12,12 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
@@ -25,6 +25,7 @@ import jinproject.stepwalk.design.PreviewStepWalkTheme
 import jinproject.stepwalk.design.component.VerticalSpacer
 import jinproject.stepwalk.home.screen.HomeUiState
 import jinproject.stepwalk.home.screen.HomeUiStatePreviewParameters
+import jinproject.stepwalk.home.screen.component.PopUpState
 import jinproject.stepwalk.home.screen.component.PopupWindow
 import jinproject.stepwalk.home.screen.component.page.graph.HealthGraph
 import jinproject.stepwalk.home.screen.component.page.graph.StepBar
@@ -84,14 +85,7 @@ private fun PageMenu(
         VerticalSpacer(height = 40.dp)
 
         val graph = currentPage.graph
-        val graphVerticalMax = graph.maxOrNull() ?: 0
-        val popUpState = remember { mutableStateOf(false) }
-        val popUpOffset = remember {
-            mutableStateOf(Offset(0F, 0F))
-        }
-        val popUpMessage = rememberSaveable {
-            mutableStateOf("")
-        }
+        var popUpState by remember { mutableStateOf(PopUpState.getInitValues()) }
 
         Column(
             modifier = Modifier
@@ -118,6 +112,8 @@ private fun PageMenu(
                     )
                 },
                 verticalAxis = {
+                    val graphVerticalMax = graph.maxOrNull() ?: 0
+
                     StepGraphHeader(
                         max = graphVerticalMax.toString(),
                         avg = (graphVerticalMax / 2).toString()
@@ -126,25 +122,21 @@ private fun PageMenu(
                 bar = { index ->
                     StepBar(
                         index = index,
-                        item = graph[index],
-                        nextItem = kotlin.runCatching { graph[index + 1] }
-                            .getOrDefault(0L),
-                        maxItem = graphVerticalMax,
-                        horizontalSize = graph.size,
-                        setSelectedStepOnGraph = { _, step: Long ->
-                            popUpMessage.value = step.toString()
-                        },
-                        setPopUpState = { popUpState.value = true },
-                        setPopUpOffset = { offset -> popUpOffset.value = offset }
+                        graph = graph,
+                        setPopUpState = { offset ->
+                            popUpState = PopUpState(
+                                state = true,
+                                offset = offset,
+                                message = graph[index].toString()
+                            )
+                        }
                     )
                 }
             )
 
             PopupWindow(
-                text = popUpMessage.value,
-                popUpState = popUpState.value,
-                popUpOffset = popUpOffset.value,
-                offPopUp = { popUpState.value = false }
+                popUpState = popUpState,
+                offPopUp = { popUpState = PopUpState.getInitValues() }
             )
         }
     }

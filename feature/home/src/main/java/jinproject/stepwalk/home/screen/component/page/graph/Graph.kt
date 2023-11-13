@@ -1,5 +1,6 @@
 package jinproject.stepwalk.home.screen.component.page.graph
 
+import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Column
@@ -7,10 +8,12 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.geometry.Offset
@@ -26,22 +29,17 @@ import androidx.compose.ui.unit.dp
 import jinproject.stepwalk.design.theme.StepWalkColor
 
 @Composable
-fun StepBar(
+internal fun StepBar(
     index: Int,
-    item: Long,
-    nextItem: Long,
-    maxItem: Long,
-    horizontalSize: Int,
+    graph: List<Long>,
     modifier: Modifier = Modifier,
-    setSelectedStepOnGraph: (Int, Long) -> Unit,
-    setPopUpState: () -> Unit,
-    setPopUpOffset: (Offset) -> Unit,
+    setPopUpState: (Offset) -> Unit,
 ) {
-    val clickState = remember {
-        mutableStateOf(false)
-    }
-    val height = rememberSaveable {
+    var height by rememberSaveable {
         mutableFloatStateOf(0f)
+    }
+    var offset by remember {
+        mutableStateOf(Offset.Zero)
     }
     Spacer(
         modifier = modifier
@@ -49,20 +47,15 @@ fun StepBar(
                 interactionSource = remember { MutableInteractionSource() },
                 indication = null
             ) {
-                setSelectedStepOnGraph(index, item)
-                setPopUpState()
-                clickState.value = true
+                setPopUpState(
+                    offset
+                )
             }
             .onGloballyPositioned {
-                if (clickState.value) {
-                    setPopUpOffset(
-                        Offset(
-                            x = it.positionInWindow().x,
-                            y = it.positionInWindow().y + height.floatValue
-                        )
-                    )
-                    clickState.value = false
-                }
+                offset = Offset(
+                    x = it.positionInWindow().x,
+                    y = it.positionInWindow().y + height
+                )
             }
             .drawWithCache {
                 val stroke = Stroke(2.dp.toPx())
@@ -83,24 +76,30 @@ fun StepBar(
                     )
                 )
 
-                height.floatValue = this@drawWithCache.size.height - item.stepToSizeByMax(
-                    barHeight = this@drawWithCache.size.height,
+                val item = graph[index]
+                val maxItem = graph.maxOrNull() ?: 0
+
+                height = size.height - item.stepToSizeByMax(
+                    barHeight = size.height,
                     max = maxItem
                 )
 
                 val path = Path().apply {
                     moveTo(
                         x = 10f,
-                        y = this@drawWithCache.size.height - item.stepToSizeByMax(
-                            barHeight = this@drawWithCache.size.height,
+                        y = size.height - item.stepToSizeByMax(
+                            barHeight = size.height,
                             max = maxItem
                         )
                     )
-                    if (index < horizontalSize - 1) {
+                    if (index < graph.size - 1) {
+                        val nextItem = kotlin.runCatching {
+                            graph[index + 1]
+                        }.getOrDefault(0L)
                         lineTo(
-                            x = this@drawWithCache.size.width + 10f,
-                            y = this@drawWithCache.size.height - nextItem.stepToSizeByMax(
-                                barHeight = this@drawWithCache.size.height,
+                            x = size.width + 10f,
+                            y = size.height - nextItem.stepToSizeByMax(
+                                barHeight = size.height,
                                 max = maxItem
                             )
                         )
@@ -109,14 +108,14 @@ fun StepBar(
 
                 val filledPath = Path().apply {
                     addPath(path)
-                    if (index < horizontalSize - 1) {
+                    if (index < graph.size - 1) {
                         lineTo(
-                            x = this@drawWithCache.size.width + 10f,
-                            y = this@drawWithCache.size.height
+                            x = size.width + 10f,
+                            y = size.height
                         )
                         lineTo(
                             x = 10f,
-                            y = this@drawWithCache.size.height
+                            y = size.height
                         )
                     }
                     close()
@@ -130,8 +129,8 @@ fun StepBar(
                         radius = 10f,
                         center = Offset(
                             x = 10f,
-                            y = this.size.height - item.stepToSizeByMax(
-                                barHeight = this@drawWithCache.size.height,
+                            y = size.height - item.stepToSizeByMax(
+                                barHeight = size.height,
                                 max = maxItem
                             )
                         )
@@ -142,7 +141,7 @@ fun StepBar(
 }
 
 @Composable
-fun StepGraphTail(
+internal fun StepGraphTail(
     item: String
 ) {
     Text(
@@ -154,7 +153,7 @@ fun StepGraphTail(
 }
 
 @Composable
-fun StepGraphHeader(
+internal fun StepGraphHeader(
     max: String,
     avg: String
 ) {
