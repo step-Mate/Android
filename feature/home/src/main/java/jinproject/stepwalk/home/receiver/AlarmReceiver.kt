@@ -10,7 +10,7 @@ import jinproject.stepwalk.home.service.StepService
 internal class AlarmReceiver : BroadcastReceiver() {
 
     override fun onReceive(p0: Context?, p1: Intent?) {
-        p0?.startForegroundService(Intent(p0, StepService::class.java).apply {
+        p0?.startService(Intent(p0, StepService::class.java).apply {
             putExtra("alarm", true)
         })
     }

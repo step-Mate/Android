@@ -7,7 +7,6 @@ import androidx.work.Data
 import androidx.work.OneTimeWorkRequest
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.OutOfQuotaPolicy
-import jinproject.stepwalk.domain.model.METs
 import jinproject.stepwalk.domain.model.StepData
 import jinproject.stepwalk.domain.usecase.GetStepUseCase
 import jinproject.stepwalk.domain.usecase.SetStepUseCase
@@ -63,7 +62,7 @@ internal class StepSensorViewModel @Inject constructor(
         )
 
         if (steps.value.isNewInstall()) {
-            val step = healthConnector.getTodayTotalStep(METs.Walk)
+            val step = healthConnector.getTodayTotalStep()
             todayStep = todayStep.copy(
                 yesterday = todayStep.yesterday - step,
                 current = step

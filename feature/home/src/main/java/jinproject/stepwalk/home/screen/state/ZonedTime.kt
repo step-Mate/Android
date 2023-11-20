@@ -1,6 +1,7 @@
 package jinproject.stepwalk.home.screen.state
 
 import android.util.Log
+import androidx.compose.runtime.Stable
 import jinproject.stepwalk.home.utils.onKorea
 import java.time.LocalDateTime
 import java.time.ZonedDateTime
@@ -11,6 +12,7 @@ import java.time.ZonedDateTime
  * @property compareTo step의 크기가 1인 ClosedRange를 구현하기 위해 필요한 Comparable 의 구현메소드
  * @property rangeTo (a..b) 에 대한 연산자 중복
  */
+@Stable
 internal class ZonedTime(val time: ZonedDateTime) : Comparable<ZonedTime> {
 
     override fun compareTo(other: ZonedTime): Int {
@@ -36,6 +38,7 @@ internal class ZonedTime(val time: ZonedDateTime) : Comparable<ZonedTime> {
  * @param start 시작 날짜
  * @param endInclusive 끝 날짜
  */
+@Stable
 internal class ZonedTimeRange(
     override val start: ZonedTime,
     override val endInclusive: ZonedTime

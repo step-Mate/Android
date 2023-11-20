@@ -26,7 +26,7 @@ import jinproject.stepwalk.design.component.VerticalSpacer
 import jinproject.stepwalk.home.screen.HomeUiState
 import jinproject.stepwalk.home.screen.HomeUiStatePreviewParameters
 import jinproject.stepwalk.home.screen.component.PopUpState
-import jinproject.stepwalk.home.screen.component.PopupWindow
+import jinproject.stepwalk.home.screen.component.GraphPopup
 import jinproject.stepwalk.home.screen.component.page.graph.HealthGraph
 import jinproject.stepwalk.home.screen.component.page.graph.StepBar
 import jinproject.stepwalk.home.screen.component.page.graph.StepGraphHeader
@@ -134,7 +134,7 @@ private fun PageMenu(
                 }
             )
 
-            PopupWindow(
+            GraphPopup(
                 popUpState = popUpState,
                 offPopUp = { popUpState = PopUpState.getInitValues() }
             )

@@ -7,8 +7,8 @@ internal data class HeartRate(
     override val startTime: Long,
     override val endTime: Long,
     val avg: Long,
+    val max: Long,
     val min: Long,
-    val max: Long
 ) : HealthCare(startTime, endTime, avg)
 
 internal class HeartRateFactory : HealthCareFactory<HeartRate> {
@@ -63,7 +63,7 @@ internal class HeartRateTabFactory(
         }
     }
 
-    override fun getMenuList(): List<MenuItem> = listOf(
+    private fun getMenuList(): List<MenuItem> = listOf(
         HeartMaxMenuFactory.create(healthCareList),
         HeartAvgMenuFactory.create(healthCareList),
         HeartMinMenuFactory.create(healthCareList)

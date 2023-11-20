@@ -172,13 +172,13 @@ internal class ScenarioReInstall: StepSensorViewModelTest() {
             `when`("재설치 했을 때") {
                 val sensorStep = todayStep + yesterdayStep
 
-                coEvery { healthConnector.getTodayTotalStep(any()) } returns todayStep
+                coEvery { healthConnector.getTodayTotalStep() } returns todayStep
 
                 viewModel.onSensorChanged(sensorStep)
 
                 then("헬스커넥트로 부터 값을 가져온다.") {
                     coVerify(exactly = 1) {
-                        healthConnector.getTodayTotalStep(any())
+                        healthConnector.getTodayTotalStep()
                     }
                 }
 

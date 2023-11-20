@@ -33,22 +33,17 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.rememberNavController
 import dagger.hilt.android.AndroidEntryPoint
 import jinproject.stepwalk.app.ui.StepWalkViewModel
-import jinproject.stepwalk.home.screen.state.SnackBarMessage
 import jinproject.stepwalk.app.ui.navigation.BottomNavigationGraph
 import jinproject.stepwalk.app.ui.navigation.NavigationGraph
 import jinproject.stepwalk.app.ui.navigation.Router
 import jinproject.stepwalk.design.component.SnackBarHostCustom
 import jinproject.stepwalk.design.theme.StepWalkTheme
-import jinproject.stepwalk.home.HealthConnector
+import jinproject.stepwalk.home.screen.state.SnackBarMessage
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 @AndroidEntryPoint
 class StepWalkActivity : ComponentActivity() {
-
-    @Inject
-    lateinit var healthConnector: HealthConnector
 
     private val stepWalkViewModel: StepWalkViewModel by viewModels()
 
@@ -89,7 +84,7 @@ class StepWalkActivity : ComponentActivity() {
         val networkState by stepWalkViewModel.state.collectAsStateWithLifecycle()
 
         LaunchedEffect(key1 = networkState) {
-            
+
         }
 
         val snackBarHostState = remember { SnackbarHostState() }
@@ -120,8 +115,7 @@ class StepWalkActivity : ComponentActivity() {
                     )
                 },
                 snackbarHost = {
-                    SnackBarHostCustom(headerMessage = snackBarHostState.currentSnackbarData?.message
-                        ?: "",
+                    SnackBarHostCustom(headerMessage = snackBarHostState.currentSnackbarData?.message ?: "",
                         contentMessage = snackBarHostState.currentSnackbarData?.actionLabel ?: "",
                         snackBarHostState = snackBarHostState,
                         disMissSnackBar = { snackBarHostState.currentSnackbarData?.dismiss() })
@@ -138,7 +132,6 @@ class StepWalkActivity : ComponentActivity() {
                                 WindowInsetsSides.Horizontal
                             )
                         ),
-                    healthConnector = healthConnector,
                     showSnackBar = { snackBarMessage ->
                         showSnackBar(snackBarMessage)
                     }

@@ -20,14 +20,12 @@ private const val calendarRoute = "calendar"
 private const val calendarLink = "$calendarRoute/{start}"
 
 fun NavGraphBuilder.homeNavGraph(
-    healthConnector: HealthConnector,
     navigateToCalendar: (Long) -> Unit,
     popBackStack: () -> Unit,
     showSnackBar: (SnackBarMessage) -> Unit,
 ) {
     composable(route = homeRoute) {
         HomeScreen(
-            healthConnector = healthConnector,
             navigateToCalendar = navigateToCalendar,
             showSnackBar = showSnackBar
         )

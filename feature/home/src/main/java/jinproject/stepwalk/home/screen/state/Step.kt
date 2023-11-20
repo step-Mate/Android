@@ -5,38 +5,19 @@ import jinproject.stepwalk.domain.model.METs
 
 @Stable
 internal data class Step(
-    val mets: METs,
     override val startTime: Long,
     override val endTime: Long,
     val distance: Long
 ) : HealthCare(startTime, endTime, distance)
 
 internal class StepFactory : HealthCareFactory<Step> {
-    private var mets: METs? = null
-
-    fun create(
-        startTime: Long,
-        endTime: Long,
-        figure: Long,
-        mets: METs
-    ) {
-        this.mets = mets
-        create(startTime, endTime, figure)
-    }
-
-    private fun getDefaultMETs(): METs {
-        if (mets == null)
-            this.mets = METs.Walk
-
-        return this.mets!!
-    }
 
     override fun create(
         startTime: Long,
         endTime: Long,
         figure: Long,
     ): Step {
-        return Step(mets ?: getDefaultMETs(), startTime, endTime, figure)
+        return Step(startTime, endTime, figure)
     }
 
     override fun create(startTime: Long, endTime: Long, extras: HealthCareExtras): Step {
@@ -77,7 +58,7 @@ internal class StepTabFactory(
         }
     }
 
-    override fun getMenuList(): List<MenuItem> = listOf(
+    private fun getMenuList(): List<MenuItem> = listOf(
         DistanceMenuFactory.create(total),
         TimeMenuFactory.create(total),
         CaloriesMenuFactory.create(total)

@@ -8,7 +8,7 @@ internal abstract class HealthTabFactory<T : HealthCare>(
     protected val total get() = healthCareList.sumOf { it.figure }
 
     abstract fun create(time: Time, goal: Int): HealthTab
-    abstract fun getMenuList(): List<MenuItem>
+
     abstract fun getDefaultValues(time: Time): HealthTab
 }
 

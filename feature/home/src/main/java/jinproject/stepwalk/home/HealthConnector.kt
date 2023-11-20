@@ -21,7 +21,6 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
-import jinproject.stepwalk.domain.model.METs
 import jinproject.stepwalk.home.screen.state.HealthCare
 import jinproject.stepwalk.home.screen.state.HealthCareExtras
 import jinproject.stepwalk.home.screen.state.HealthCareFactory
@@ -56,9 +55,11 @@ class HealthConnector @Inject constructor(
         getHealthClient()
     }
 
-    suspend fun checkPermissions(): Boolean {
+    suspend fun checkPermissions(
+        permissions: Set<String>
+    ): Boolean {
         return healthConnectClient?.permissionController?.getGrantedPermissions()
-            ?.containsAll(healthPermissions) ?: false
+            ?.containsAll(permissions) ?: false
     }
 
     fun requestPermissionsActivityContract(): ActivityResultContract<Set<String>, Set<String>> {
@@ -140,7 +141,6 @@ class HealthConnector @Inject constructor(
     internal suspend fun readStepsByPeriods(
         startTime: LocalDateTime,
         endTime: LocalDateTime,
-        type: METs,
         period: Period
     ): List<Step>? = readHealthCareByPeriods(
         startTime = startTime,
@@ -153,7 +153,6 @@ class HealthConnector @Inject constructor(
     internal suspend fun readStepsByHours(
         startTime: LocalDateTime,
         endTime: LocalDateTime,
-        type: METs,
         duration: Duration
     ): List<Step>? = readHealthCareByDurations(
         startTime = startTime,
@@ -163,9 +162,7 @@ class HealthConnector @Inject constructor(
         factory = StepFactory.instance
     )
 
-    internal suspend fun getTodayTotalStep(
-        type: METs
-    ): Long = kotlin.run {
+    internal suspend fun getTodayTotalStep(): Long = kotlin.run {
         val instant = Instant
             .now()
             .onKorea()
@@ -178,7 +175,6 @@ class HealthConnector @Inject constructor(
                 .plus(23, ChronoUnit.HOURS)
                 .plus(59, ChronoUnit.MINUTES)
                 .plus(59, ChronoUnit.SECONDS),
-            type = type,
             period = Period.ofDays(1)
         )
 
@@ -280,23 +276,19 @@ class HealthConnector @Inject constructor(
     }.getOrNull()
 
     companion object {
+
         private const val DATA_ORIGIN = "jinproject.stepwalk.app"
+
         private val stepMetrics =
             mutableMapOf<String, AggregateMetric<Long>>().apply {
                 put(HealthCareExtras.KEY_STEP, StepsRecord.COUNT_TOTAL)
             }
+
         private val heartRateMetrics =
             mutableMapOf<String, AggregateMetric<Long>>().apply {
                 put(HealthCareExtras.KEY_HEART_RATE_MAX, HeartRateRecord.BPM_MAX)
                 put(HealthCareExtras.KEY_HEART_RATE_MIN, HeartRateRecord.BPM_MIN)
                 put(HealthCareExtras.KEY_HEART_RATE_AVG, HeartRateRecord.BPM_AVG)
             }
-        val healthPermissions =
-            setOf(
-                HealthPermission.getReadPermission(StepsRecord::class),
-                HealthPermission.getWritePermission(StepsRecord::class),
-                HealthPermission.getReadPermission(HeartRateRecord::class),
-                HealthPermission.getWritePermission(HeartRateRecord::class)
-            )
     }
 }

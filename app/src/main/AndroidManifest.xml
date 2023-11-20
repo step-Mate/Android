@@ -45,19 +45,11 @@
             </intent-filter>
         </activity>
 
-        <service
-            android:name="jinproject.stepwalk.home.service.StepService"
-            android:foregroundServiceType="health" />
-
         <provider
             android:name="androidx.startup.InitializationProvider"
             android:authorities="${applicationId}.androidx-startup"
             tools:node="remove">
         </provider>
-
-        <receiver
-            android:name="jinproject.stepwalk.home.receiver.AlarmReceiver"
-            android:exported="false" />
 
     </application>
 

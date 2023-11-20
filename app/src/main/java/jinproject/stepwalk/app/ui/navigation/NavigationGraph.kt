@@ -28,7 +28,6 @@ import jinproject.stepwalk.home.navigation.navigateToCalendar
 internal fun NavigationGraph(
     router: Router,
     modifier: Modifier = Modifier,
-    healthConnector: HealthConnector,
     showSnackBar: (SnackBarMessage) -> Unit,
 ) {
     val navController = router.navController
@@ -39,7 +38,6 @@ internal fun NavigationGraph(
         modifier = modifier
     ) {
         homeNavGraph(
-            healthConnector = healthConnector,
             navigateToCalendar = navController::navigateToCalendar,
             popBackStack = navController::popBackStack,
             showSnackBar = showSnackBar

@@ -1,4 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <application>
+        <service
+            android:process=":jinproject.stepwalk.service"
+            android:name="jinproject.stepwalk.home.service.StepService"
+            android:foregroundServiceType="health" />
 
+        <receiver
+            android:name="jinproject.stepwalk.home.receiver.AlarmReceiver"
+            android:exported="false" />
+    </application>
 </manifest>
