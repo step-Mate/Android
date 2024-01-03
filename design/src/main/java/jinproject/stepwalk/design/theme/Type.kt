@@ -82,13 +82,13 @@ val Typography @Composable get() = Typography(
     labelMedium = TextStyle(
         fontFamily = font,
         fontWeight = FontWeight.Medium,
-        fontSize = 8.tu,
-        lineHeight = 10.tu
+        fontSize = 9.tu,
+        lineHeight = 11.tu
     ),
     labelSmall = TextStyle(
         fontFamily = font,
         fontWeight = FontWeight.Medium,
-        fontSize = 6.tu,
-        lineHeight = 8.tu
+        fontSize = 8.tu,
+        lineHeight = 10.tu
     ),
 )
