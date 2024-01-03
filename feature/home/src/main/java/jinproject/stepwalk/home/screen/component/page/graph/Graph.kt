@@ -48,16 +48,9 @@ internal fun StepBar(
                 indication = null
             ) {
                 setPopUpState(
-                    offset
+                    offset.copy(y = offset.y + height)
                 )
-            }
-            .onGloballyPositioned {
-                offset = Offset(
-                    x = it.positionInWindow().x,
-                    y = it.positionInWindow().y + height
-                )
-            }
-            .drawWithCache {
+            }.drawWithCache {
                 val stroke = Stroke(2.dp.toPx())
                 val brush = Brush.verticalGradient(
                     colors = listOf(
@@ -121,7 +114,7 @@ internal fun StepBar(
                     close()
                 }
 
-                onDrawBehind {
+                onDrawWithContent {
                     drawPath(path, brush, style = stroke)
                     drawPath(filledPath, fillBrush, style = Fill)
                     drawCircle(
@@ -136,6 +129,11 @@ internal fun StepBar(
                         )
                     )
                 }
+            }.onGloballyPositioned {
+                offset = Offset(
+                    x = it.positionInWindow().x,
+                    y = it.positionInWindow().y
+                )
             }
     )
 }
