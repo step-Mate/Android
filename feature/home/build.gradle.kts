@@ -33,6 +33,12 @@ android {
     composeOptions {
         kotlinCompilerExtensionVersion = "1.5.1"
     }
+
+    testOptions {
+        unitTests.all {
+            it.useJUnitPlatform()
+        }
+    }
 }
 
 dependencies {
@@ -61,4 +67,10 @@ dependencies {
     implementation(libs.health.connect)
     implementation(libs.bundles.work)
     ksp(libs.work.hilt.compiler)
+
+    testImplementation(libs.bundles.testing)
+    testImplementation(libs.bundles.kotest)
+    testRuntimeOnly(libs.junit.jupiter.engine)
+    //implementation ("org.slf4j:slf4j-api:2.0.5")
+    //implementation ("ch.qos.logback:logback-classic:1.3.1")
 }

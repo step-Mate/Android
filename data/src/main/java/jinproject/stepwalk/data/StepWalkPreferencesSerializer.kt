@@ -5,8 +5,11 @@ import androidx.datastore.core.Serializer
 import com.google.protobuf.InvalidProtocolBufferException
 import java.io.InputStream
 import java.io.OutputStream
+import javax.inject.Inject
+import javax.inject.Singleton
 
-object StepWalkPreferencesSerializer: Serializer<StepWalkPreferences> {
+@Singleton
+class StepWalkPreferencesSerializer @Inject constructor(): Serializer<StepWalkPreferences> {
     override val defaultValue: StepWalkPreferences = StepWalkPreferences.getDefaultInstance()
     override suspend fun readFrom(input: InputStream): StepWalkPreferences {
         try {
