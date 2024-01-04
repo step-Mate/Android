@@ -86,6 +86,11 @@ value class StepWalkColor private constructor(val color: Color){
         @Stable
         val orange_600 = StepWalkColor(Color(0xFFFB8C00))
 
+        @Stable
+        val kakao_yellow = StepWalkColor(Color(0xFFFEE500))
+        @Stable
+        val kakao_black = StepWalkColor(Color(0xFF000000))
+
         val light_primary = primary
         val light_onPrimary = white
         @Stable

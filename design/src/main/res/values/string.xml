@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="email">이메일</string>
+    <string name="email">아이디</string>
     <string name="password">비밀번호</string>
     <string name="repeat_password">비밀번호 확인</string>
+    <string name="login_button">로그인</string>
+    <string name="kakao_login_button">카카오톡으로 시작</string>
+    <string name="find_account_id">아이디 찾기</string>
+    <string name="find_account_password">비밀번호 찾기</string>
+    <string name="create_account">회원가입</string>
 </resources>

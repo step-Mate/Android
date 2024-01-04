@@ -30,3 +30,20 @@ fun DefaultLayout(
         }
     }
 }
+
+@Composable
+fun DefaultLayout(
+    modifier: Modifier = Modifier,
+    contentPaddingValues: PaddingValues,
+    content: @Composable ColumnScope.() -> Unit
+) {
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background)
+    ) {
+        Column(modifier = Modifier.fillMaxSize().padding(contentPaddingValues)) {
+            content()
+        }
+    }
+}
