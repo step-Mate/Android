@@ -29,7 +29,7 @@ fun SnackBarHostCustom(
     contentMessage: String,
     snackBarHostState: SnackbarHostState,
     modifier: Modifier = Modifier,
-    disMissSnackBar: () -> Unit
+    disMissSnackBar: () -> Unit,
 ){
     Column {
         SnackbarHost(
