@@ -18,6 +18,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.vectorResource
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.beank.login.navigation.loginNavGraph
 import jinproject.stepwalk.home.screen.state.SnackBarMessage
 import jinproject.stepwalk.home.HealthConnector
 import jinproject.stepwalk.home.navigation.homeNavGraph
@@ -39,6 +40,11 @@ internal fun NavigationGraph(
     ) {
         homeNavGraph(
             navigateToCalendar = navController::navigateToCalendar,
+            popBackStack = navController::popBackStack,
+            showSnackBar = showSnackBar
+        )
+
+        loginNavGraph(
             popBackStack = navController::popBackStack,
             showSnackBar = showSnackBar
         )

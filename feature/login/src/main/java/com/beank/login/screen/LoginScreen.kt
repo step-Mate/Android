@@ -1,5 +1,6 @@
 package jinproject.stepwalk.login.screen
 
+import android.content.Context
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
@@ -18,6 +19,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -37,21 +39,73 @@ import jinproject.stepwalk.design.theme.StepWalkColor
 import jinproject.stepwalk.design.theme.StepWalkTheme
 import jinproject.stepwalk.home.component.IdField
 import jinproject.stepwalk.home.component.PasswordField
+import jinproject.stepwalk.home.screen.state.SnackBarMessage
 import jinproject.stepwalk.design.R.string as AppText
 import jinproject.stepwalk.design.R.drawable as AppIcon
 
 @Composable
 internal fun LoginScreen(
-    loginViewModel: LoginViewModel = hiltViewModel()
+    context : Context = LocalContext.current,
+    loginViewModel: LoginViewModel = hiltViewModel(),
+    showSnackBar : (SnackBarMessage) -> Unit
 ){
+    val checkValidAccount = remember<(String,String) -> Unit> {
+        { id,password ->
+            when(loginViewModel.checkValidAccount(id,password)){
+                Valid.ID_BLANK -> {
+                    showSnackBar(
+                        SnackBarMessage(
+                            headerMessage = context.resources.getString(AppText.blank_id_header),
+                            contentMessage = context.resources.getString(AppText.blank_id_content),
+                        )
+                    )
+                }
+                Valid.ID_NOT_VALID -> {
+                    showSnackBar(
+                        SnackBarMessage(
+                            headerMessage = context.resources.getString(AppText.not_valid_id_header),
+                            contentMessage = context.resources.getString(AppText.not_valid_id_content),
+                        )
+                    )
+                }
+                Valid.PASS_BLANK -> {
+                    showSnackBar(
+                        SnackBarMessage(
+                            headerMessage = context.resources.getString(AppText.blank_password_header),
+                            contentMessage = context.resources.getString(AppText.blank_password_content),
+                        )
+                    )
+                }
+                Valid.PASS_NOT_VALID -> {
+                    showSnackBar(
+                        SnackBarMessage(
+                            headerMessage = context.resources.getString(AppText.not_valid_password_header),
+                            contentMessage = context.resources.getString(AppText.not_valid_password_content),
+                        )
+                    )
+                }
+                Valid.ACCOUNT_NOT_VALID -> {
+                    showSnackBar(
+                        SnackBarMessage(
+                            headerMessage = context.resources.getString(AppText.not_valid_account_header),
+                            contentMessage = context.resources.getString(AppText.not_valid_account_content),
+                        )
+                    )
+                }
+                Valid.ACCOUNT_VALID -> {
+
+                }//홈화면 복귀?
+            }
+        }
+    }
     LoginScreen(
-        checkVaildAccount = loginViewModel::checkValidAccount
+        checkVaildAccount = checkValidAccount
     )
 }
 
 @Composable
 private fun LoginScreen(
-    checkVaildAccount : (String,String) -> Valid
+    checkVaildAccount : (String,String) -> Unit
 ) {
     var id by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
@@ -98,14 +152,7 @@ private fun LoginScreen(
                 .fillMaxWidth()
                 .padding(horizontal = 12.dp)
         ) {
-            when(checkVaildAccount(id,password)){
-                Valid.ID_BLANK -> {}
-                Valid.ID_NOT_VALID -> {}
-                Valid.PASS_BLANK -> {}
-                Valid.PASS_NOT_VALID -> {}
-                Valid.ACCOUNT_NOT_VALID -> {}
-                Valid.ACCOUNT_VALID -> {}//홈화면 복귀?
-            }
+            checkVaildAccount(id,password)
         }
 
         FindAndSignUpButtons(
@@ -153,8 +200,6 @@ private fun LoginScreen(
 private fun PreviewHomeScreen(
 ) = StepWalkTheme {
     LoginScreen(
-        checkVaildAccount = ::temp
+        checkVaildAccount = { a,b -> Valid.ACCOUNT_VALID }
     )
 }
-
-private fun temp(a : String,b : String) : Valid = Valid.ACCOUNT_VALID

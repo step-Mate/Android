@@ -36,7 +36,7 @@ internal fun IdField(value: String, onNewValue: (String) -> Unit) {
         value = value,
         textStyle = MaterialTheme.typography.bodyMedium,
         onValueChange = onNewValue,
-        placeholder = { Text(stringResource(AppText.email), style = MaterialTheme.typography.bodyMedium) },
+        placeholder = { Text(stringResource(AppText.id), style = MaterialTheme.typography.bodyMedium) },
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
         leadingIcon = { Icon(imageVector = Icons.Default.Person, contentDescription = "Email") }
     )

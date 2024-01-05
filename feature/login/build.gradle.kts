@@ -47,6 +47,7 @@ dependencies {
     implementation(libs.core.ktx)
     implementation(libs.appcompat)
     implementation(libs.material)
+    implementation(project(mapOf("path" to ":feature:home")))
     testImplementation(libs.jUnit)
     androidTestImplementation(libs.test.ext)
     androidTestImplementation(libs.test.espresso)
