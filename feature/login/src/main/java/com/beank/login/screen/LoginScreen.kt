@@ -99,13 +99,13 @@ internal fun LoginScreen(
         }
     }
     LoginScreen(
-        checkVaildAccount = checkValidAccount
+        checkValidAccount = checkValidAccount
     )
 }
 
 @Composable
 private fun LoginScreen(
-    checkVaildAccount : (String,String) -> Unit
+    checkValidAccount : (String,String) -> Unit
 ) {
     var id by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
@@ -152,7 +152,7 @@ private fun LoginScreen(
                 .fillMaxWidth()
                 .padding(horizontal = 12.dp)
         ) {
-            checkVaildAccount(id,password)
+            checkValidAccount(id,password)
         }
 
         FindAndSignUpButtons(
@@ -200,6 +200,6 @@ private fun LoginScreen(
 private fun PreviewHomeScreen(
 ) = StepWalkTheme {
     LoginScreen(
-        checkVaildAccount = { a,b -> Valid.ACCOUNT_VALID }
+        checkValidAccount = { a,b -> Valid.ACCOUNT_VALID }
     )
 }
