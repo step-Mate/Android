@@ -1,5 +1,5 @@
-plugins {
-    alias(libs.plugins.android.application) apply false
+/*plugins {
+    id(libs.plugins.android.application.get().pluginId) apply false
     alias(libs.plugins.android.library) apply false
     alias(libs.plugins.kotlin.android) apply false
     alias(libs.plugins.kotlin.jvm) apply false
@@ -11,4 +11,4 @@ plugins {
     alias(libs.plugins.gms.google.service) apply false
     alias(libs.plugins.android.navigation.safeargs.kotlin) apply false
     alias(libs.plugins.junit5) apply false
-}
+}*/

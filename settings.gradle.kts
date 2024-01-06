@@ -13,9 +13,9 @@ dependencyResolutionManagement {
     }
 }
 rootProject.name = "Stepwalk"
-include ':app'
-include ':design'
-include ':domain'
-include ':feature'
-include ':feature:home'
-include ':data'
+include(":app")
+include(":design")
+include(":domain")
+include(":feature")
+include(":feature:home")
+include(":data")
