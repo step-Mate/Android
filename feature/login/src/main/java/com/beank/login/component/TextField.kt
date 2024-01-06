@@ -43,20 +43,37 @@ internal fun IdField(value: String, onNewValue: (String) -> Unit) {
 }
 
 @Composable
-internal fun PasswordField(value: String, onNewValue: (String) -> Unit) {
-    PasswordField(value, AppText.password, onNewValue)
+internal fun IdField(value: String, onNewValue: (String) -> Unit, isError : Boolean = false, enable : Boolean = true) {
+    OutlinedTextField(
+        singleLine = true,
+        modifier = Modifier.fieldModifier(),
+        value = value,
+        enabled = enable,
+        isError = isError,
+        textStyle = MaterialTheme.typography.bodyMedium,
+        onValueChange = onNewValue,
+        placeholder = { Text(stringResource(AppText.id), style = MaterialTheme.typography.bodyMedium) },
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
+        leadingIcon = { Icon(imageVector = Icons.Default.Person, contentDescription = "Email") },
+    )
 }
 
 @Composable
-internal fun RepeatPasswordField(value: String, onNewValue: (String) -> Unit) {
-    PasswordField(value, AppText.repeat_password, onNewValue)
+internal fun PasswordField(value: String, onNewValue: (String) -> Unit, isError : Boolean = false) {
+    PasswordField(value, AppText.password, onNewValue, isError = isError)
+}
+
+@Composable
+internal fun RepeatPasswordField(value: String, onNewValue: (String) -> Unit, isError : Boolean = false) {
+    PasswordField(value, AppText.repeat_password, onNewValue, isError = isError)
 }
 
 @Composable
 private fun PasswordField(
     value: String,
     @StringRes placeholder: Int,
-    onNewValue: (String) -> Unit
+    onNewValue: (String) -> Unit,
+    isError : Boolean = false
 ) {
     var isVisible by remember { mutableStateOf(false) }
 
@@ -73,11 +90,14 @@ private fun PasswordField(
                 else ImageVector.vectorResource(AppIcon.ic_visibility_off), contentDescription = "Visibility")
             }
         },
+        isError = isError,
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
         visualTransformation = if (isVisible) VisualTransformation.None else PasswordVisualTransformation()
     )
 }
 
 fun Modifier.fieldModifier(): Modifier {
-    return this.fillMaxWidth().padding(12.dp, 4.dp)
+    return this
+        .fillMaxWidth()
+        .padding(12.dp, 4.dp)
 }

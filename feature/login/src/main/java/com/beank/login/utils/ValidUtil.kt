@@ -7,7 +7,7 @@ const val MAX_ID_LENGTH = 12
 const val MIN_PASS_LENGTH = 8
 const val MAX_PASS_LENGTH = 16
 
-private val idPattern = "^[a-zA-Z0-9_]{$MIN_ID_LENGTH,$MAX_ID_LENGTH}*$"
+private val idPattern = "^[a-zA-Z0-9_@.]{$MIN_ID_LENGTH,$MAX_ID_LENGTH}*$"
 private val passwordPattern = "^.*(?=^.{$MIN_PASS_LENGTH,$MAX_PASS_LENGTH}$)(?=.*[0-9])(?=.*[a-zA-Z])(?=.*[!@#$%^&*]).*$"
 
 fun String.isValidID(): Boolean = Pattern.compile(idPattern).matcher(this).matches()

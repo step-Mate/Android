@@ -19,6 +19,8 @@ import androidx.compose.ui.res.vectorResource
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.beank.login.navigation.loginNavGraph
+import com.beank.login.navigation.navigateToSignUp
+import com.beank.login.navigation.navigateToSignUpDetail
 import jinproject.stepwalk.home.screen.state.SnackBarMessage
 import jinproject.stepwalk.home.HealthConnector
 import jinproject.stepwalk.home.navigation.homeNavGraph
@@ -45,6 +47,9 @@ internal fun NavigationGraph(
         )
 
         loginNavGraph(
+            navigateToSignUp = navController::navigateToSignUp,
+            navigeteToSignUpEmail =  navController::navigateToSignUp,
+            navigateToSignUpDetail = navController::navigateToSignUpDetail,
             popBackStack = navController::popBackStack,
             showSnackBar = showSnackBar
         )

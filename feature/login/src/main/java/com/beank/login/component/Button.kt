@@ -146,6 +146,29 @@ internal fun TextButton(
     }
 }
 
+@Composable
+internal fun EnableButton(
+    @StringRes text: Int,
+    modifier: Modifier,
+    isEnable : Boolean = false,
+    action: () -> Unit
+){
+    Button(
+        onClick = action,
+        modifier = modifier,
+        enabled = isEnable,
+        colors = ButtonDefaults.buttonColors(
+            containerColor = MaterialTheme.colorScheme.primary.copy(alpha = if(isEnable) 1f else 0.5f),
+            contentColor = MaterialTheme.colorScheme.onPrimary.copy(alpha = if(isEnable) 1f else 0.5f),
+//            disabledContainerColor = MaterialTheme.colorScheme.onSurfaceVariant,
+//            disabledContentColor = MaterialTheme.colorScheme.surface
+        ),
+        shape = RoundedCornerShape(5.dp)
+    ) {
+        Text(text = stringResource(text), style = MaterialTheme.typography.bodyMedium)
+    }
+}
+
 
 
 
