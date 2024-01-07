@@ -19,7 +19,7 @@ const val loginRoute = "login"
 private const val signUpRoute = "signUp"
 private const val signUpLink = "$signUpRoute?email={email}"
 private const val signUpDetailRoute = "signUpDetail"
-private const val signUpDetailLink = "$signUpDetailRoute/{id}&{password}"
+private const val signUpDetailLink = "$signUpDetailRoute?id={id}&password={password}"
 
 fun NavGraphBuilder.loginNavGraph(
     navigateToSignUp : (String) -> Unit,

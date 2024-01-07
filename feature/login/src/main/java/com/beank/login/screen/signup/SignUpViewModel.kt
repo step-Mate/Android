@@ -33,10 +33,6 @@ internal class SignUpViewModel @Inject constructor(
     private val _repeatPassword = MutableStateFlow("")
     val repeatPassword = _repeatPassword.asStateFlow()
 
-//    var idValid by mutableStateOf(SignValid.blank)
-//    var passwordValid by mutableStateOf(SignValid.blank)
-//    var repeatPasswordValid by mutableStateOf(SignValid.blank)
-
     val valids = ValidValue()
 
     private val debouncedIdFilter : Flow<String?> = id
@@ -60,19 +56,15 @@ internal class SignUpViewModel @Inject constructor(
         checkRepeatPasswordValid()
     }
 
-    fun updateIdValue(id : String){
-        _id.value = id
+    fun updateAccountEvent(event : AccountEvent, value : String){
+        when(event){
+            AccountEvent.id -> _id.value = value
+            AccountEvent.password -> _password.value = value
+            AccountEvent.repeatPassword -> _repeatPassword.value = value
+        }
     }
 
-    fun updatePasswordValue(password : String){
-        _password.value = password
-    }
-
-    fun updateRepeatPasswordValue(repeatPassword : String){
-        _repeatPassword.value = repeatPassword
-    }
-
-    fun checkIdValid() = debouncedIdFilter
+    private fun checkIdValid() = debouncedIdFilter
         .onEach {
             valids.idValid = it?.let {
                 when {
@@ -84,7 +76,7 @@ internal class SignUpViewModel @Inject constructor(
             } ?: SignValid.blank
         }.launchIn(viewModelScope)
 
-    fun checkPasswordValid() = debouncedPasswordFilter
+    private fun checkPasswordValid() = debouncedPasswordFilter
         .onEach {
             valids.passwordValid = it?.let {
                 when {
@@ -95,7 +87,7 @@ internal class SignUpViewModel @Inject constructor(
             } ?: SignValid.blank
         }.launchIn(viewModelScope)
 
-    fun checkRepeatPasswordValid() = debouncedRepeatPasswordFilter
+    private fun checkRepeatPasswordValid() = debouncedRepeatPasswordFilter
         .onEach {
             valids.repeatPasswordValid = it?.let {
                 when {
@@ -108,7 +100,7 @@ internal class SignUpViewModel @Inject constructor(
         }.launchIn(viewModelScope)
 
     companion object {
-        private const val WAIT_TIME = 1000L
+        private const val WAIT_TIME = 800L
     }
 }
 
@@ -128,4 +120,14 @@ enum class SignValid {
     blank,notValid,duplicationId,notMatch,success
 }
 
+enum class AccountEvent {
+    id,password,repeatPassword
+}
+
 internal fun SignValid.isError() : Boolean = (this != SignValid.success) and (this != SignValid.blank)
+
+data class SignUp(
+    var id : String = "",
+    var password : String = "",
+    var repeatPassword : String = ""
+)
