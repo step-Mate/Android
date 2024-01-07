@@ -23,7 +23,7 @@ internal class HomeUiStatePreviewParameters : PreviewParameterProvider<HomeUiSta
         HomeUiState(
             step = StepTabFactory(day.steps).create(
                 time = day.time,
-                goal = 3000
+                goal = 50000
             ),
             heartRate = HeartRateTabFactory(day.heartRates).create(
                 time = day.time,
@@ -34,7 +34,7 @@ internal class HomeUiStatePreviewParameters : PreviewParameterProvider<HomeUiSta
         HomeUiState(
             step = StepTabFactory(week.steps).create(
                 time = week.time,
-                goal = 3000
+                goal = 20000
             ),
             heartRate = HeartRateTabFactory(week.heartRates).create(
                 time = week.time,
@@ -45,7 +45,7 @@ internal class HomeUiStatePreviewParameters : PreviewParameterProvider<HomeUiSta
     )
 }
 
-private class HomeUiStatePreview(val time: Time) {
+internal class HomeUiStatePreview(val time: Time) {
     private val now: LocalDateTime = LocalDateTime.now()
     private val startTime: LocalDateTime = now.withHour(0)
     private val endTime: LocalDateTime get() = startTime.plusHours(1L)
