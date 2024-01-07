@@ -1,49 +1,50 @@
 package jinproject.stepwalk.home.screen.component
 
-import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.height
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import jinproject.stepwalk.design.PreviewStepWalkTheme
-import jinproject.stepwalk.design.component.DefaultAppBar
+import jinproject.stepwalk.design.component.BoxScopeTopBar
+import jinproject.stepwalk.design.component.HorizontalWeightSpacer
 
 @Composable
 internal fun HomeTopAppBar(
     modifier: Modifier = Modifier,
-    onClickTimeIcon: () -> Unit,
-    onClickIcon1: () -> Unit,
-    onClickIcon2: () -> Unit
+    onClickTime: () -> Unit,
+    onClickSetting: () -> Unit,
+    onClickHome: () -> Unit,
+    content: @Composable ColumnScope.() -> Unit = {},
 ) {
-    DefaultAppBar(
-        modifier = modifier,
+    BoxScopeTopBar(
+        modifier = modifier.height(200.dp),
         icon = jinproject.stepwalk.design.R.drawable.ic_arrow_down_small,
-        onBackClick = onClickTimeIcon
-    ) {
-        Row(
-            modifier = Modifier
-                .align(Alignment.CenterEnd)
-        ) {
-            IconButton(onClick = onClickIcon1) {
+        onClick = onClickTime,
+        headerContent = {
+            HorizontalWeightSpacer(float = 1f)
+            IconButton(onClick = onClickSetting) {
                 Icon(
                     painter = painterResource(id = jinproject.stepwalk.design.R.drawable.ic_setting),
-                    contentDescription = "GearIcon",
+                    contentDescription = "SettingIcon",
                     tint = MaterialTheme.colorScheme.onSurface
                 )
             }
-            IconButton(onClick = onClickIcon2) {
+            IconButton(onClick = onClickHome) {
                 Icon(
                     painter = painterResource(id = jinproject.stepwalk.design.R.drawable.ic_home),
-                    contentDescription = "AlarmIcon",
+                    contentDescription = "HomeIcon",
                     tint = MaterialTheme.colorScheme.onSurface
                 )
             }
-        }
-    }
+        },
+        bodyContent = content
+    )
 }
 
 @Preview(showBackground = true)
@@ -52,8 +53,8 @@ private fun PreviewHomeTopAppBar() =
     PreviewStepWalkTheme {
         HomeTopAppBar(
             modifier = Modifier,
-            onClickTimeIcon = {},
-            onClickIcon1 = {},
-            onClickIcon2 = {}
+            onClickTime = {},
+            onClickSetting = {},
+            onClickHome = {}
         )
     }
