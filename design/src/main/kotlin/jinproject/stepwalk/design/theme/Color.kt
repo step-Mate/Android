@@ -98,9 +98,9 @@ value class StepWalkColor private constructor(val color: Color){
         val light_onBackground = lightBlack
         val light_surface = white
         val light_onSurface = lightBlack
-        val light_onSurfaceVariant = lightBlack
-        val light_scrim = mediumGrey
-        val light_outline = mediumGrey
+        val light_onSurfaceVariant = grey_400
+        val light_scrim = grey_600
+        val light_outline = grey_600
 
         val dark_primary = deep_primary
         val dark_onPrimary = lightGrey
@@ -111,11 +111,11 @@ value class StepWalkColor private constructor(val color: Color){
         val dark_error = StepWalkColor(Color(0xFFFFB4A9))
         val dark_onError = deepRed
         val dark_background = black // 컨테이너 색상
-        val dark_onBackground = lightGrey
+        val dark_onBackground = grey_600
         val dark_surface = lightBlack // 상단바 색상
-        val dark_onSurface = lightGrey
-        val dark_onSurfaceVariant = deepGrey
-        val dark_scrim = lightGrey
-        val dark_outline = lightGrey
+        val dark_onSurface = grey_600
+        val dark_onSurfaceVariant = grey_200
+        val dark_scrim = grey_300
+        val dark_outline = grey_300
     }
 }
