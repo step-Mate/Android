@@ -1,9 +1,7 @@
 package com.beank.login.screen.signupdetail
 
 import androidx.compose.runtime.Stable
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.beank.login.utils.isValidDouble
@@ -78,7 +76,7 @@ internal class SignUpDetailViewModel @Inject constructor(
 
     private fun checkNicknameValid() = debouncedNicknameFilter
         .onEach {
-            valids.nicknameValid = it?.let {
+            valids.nicknameValid.value = it?.let {
                 when {
                     it.isBlank() -> UserValid.blank
                     !it.isValidNickname() -> UserValid.notValid
@@ -89,7 +87,7 @@ internal class SignUpDetailViewModel @Inject constructor(
 
     private fun checkAgeValid() = debouncedAgeFilter
         .onEach {
-            valids.ageValid = it?.let {
+            valids.ageValid.value = it?.let {
                 when {
                     it.isBlank() -> UserValid.blank
                     !it.isValidInt() -> UserValid.notValid
@@ -100,7 +98,7 @@ internal class SignUpDetailViewModel @Inject constructor(
 
     private fun checkHeightValid() = debouncedHeightFilter
         .onEach {
-            valids.heightValid = it?.let {
+            valids.heightValid.value = it?.let {
                 when {
                     it.isBlank() -> UserValid.blank
                     !it.isValidDouble() -> UserValid.notValid
@@ -111,7 +109,7 @@ internal class SignUpDetailViewModel @Inject constructor(
 
     private fun checkWeightValid() = debouncedWeightFilter
         .onEach {
-            valids.weightValid = it?.let {
+            valids.weightValid.value = it?.let {
                 when {
                     it.isBlank() -> UserValid.blank
                     !it.isValidDouble() -> UserValid.notValid
@@ -133,13 +131,13 @@ internal class UserDataValid(
     heightValid : UserValid = UserValid.blank,
     weightValid : UserValid = UserValid.blank
 ){
-    var nicknameValid by mutableStateOf(nicknameValid)
-    var ageValid by mutableStateOf(ageValid)
-    var heightValid by mutableStateOf(heightValid)
-    var weightValid by mutableStateOf(weightValid)
+    val nicknameValid = mutableStateOf(nicknameValid)
+    val ageValid = mutableStateOf(ageValid)
+    val heightValid = mutableStateOf(heightValid)
+    val weightValid = mutableStateOf(weightValid)
 
     fun isSuccessfulValid() : Boolean =
-        (nicknameValid == UserValid.success) and (ageValid == UserValid.success) and (heightValid == UserValid.success) and (weightValid == UserValid.success)
+        (nicknameValid.value == UserValid.success) and (ageValid.value == UserValid.success) and (heightValid.value == UserValid.success) and (weightValid.value == UserValid.success)
 }
 
 enum class UserValid {
@@ -152,11 +150,12 @@ enum class UserEvent {
 
 internal fun UserValid.isError() : Boolean =  this == UserValid.notValid
 
+@Stable
 data class SignUpDetail(
     val id : String = "",
     val password : String ="",
-    var nickname : String = "",
-    var age : String = "",
-    var height : String = "",
-    var weight : String =""
+    val nickname : String = "",
+    val age : String = "",
+    val height : String = "",
+    val weight : String =""
 )

@@ -1,9 +1,7 @@
 package com.beank.login.screen.signup
 
 import androidx.compose.runtime.Stable
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.beank.login.utils.isValidID
@@ -66,7 +64,7 @@ internal class SignUpViewModel @Inject constructor(
 
     private fun checkIdValid() = debouncedIdFilter
         .onEach {
-            valids.idValid = it?.let {
+            valids.idValid.value = it?.let {
                 when {
                     it.isBlank() -> SignValid.blank
                     !it.isValidID() -> SignValid.notValid
@@ -78,7 +76,7 @@ internal class SignUpViewModel @Inject constructor(
 
     private fun checkPasswordValid() = debouncedPasswordFilter
         .onEach {
-            valids.passwordValid = it?.let {
+            valids.passwordValid.value = it?.let {
                 when {
                     it.isBlank() -> SignValid.blank
                     !it.isValidPassword() -> SignValid.notValid
@@ -89,7 +87,7 @@ internal class SignUpViewModel @Inject constructor(
 
     private fun checkRepeatPasswordValid() = debouncedRepeatPasswordFilter
         .onEach {
-            valids.repeatPasswordValid = it?.let {
+            valids.repeatPasswordValid.value = it?.let {
                 when {
                     it.isBlank() -> SignValid.blank
                     !it.isValidPassword() -> SignValid.notValid
@@ -110,10 +108,10 @@ internal class ValidValue(
     passwordValid : SignValid = SignValid.blank,
     repeatPasswordValid : SignValid = SignValid.blank
 ){
-    var idValid by mutableStateOf(idValid)
-    var passwordValid by mutableStateOf(passwordValid)
-    var repeatPasswordValid by mutableStateOf(repeatPasswordValid)
-    fun isSuccessfulValid() : Boolean = (idValid == SignValid.success) and (passwordValid == SignValid.success) and (repeatPasswordValid == SignValid.success)
+    val idValid = mutableStateOf(idValid)
+    val passwordValid = mutableStateOf(passwordValid)
+    val repeatPasswordValid = mutableStateOf(repeatPasswordValid)
+    fun isSuccessfulValid() : Boolean = (idValid.value == SignValid.success) and (passwordValid.value == SignValid.success) and (repeatPasswordValid.value == SignValid.success)
 }
 
 enum class SignValid {
@@ -126,8 +124,9 @@ enum class AccountEvent {
 
 internal fun SignValid.isError() : Boolean = (this != SignValid.success) and (this != SignValid.blank)
 
+@Stable
 data class SignUp(
-    var id : String = "",
-    var password : String = "",
-    var repeatPassword : String = ""
+    val id : String = "",
+    val password : String = "",
+    val repeatPassword : String = ""
 )

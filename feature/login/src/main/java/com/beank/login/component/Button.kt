@@ -125,7 +125,6 @@ internal fun FindAndSignUpButtons(
             textColor = MaterialTheme.colorScheme.scrim,
             action = createAccount
         )
-
     }
 }
 
@@ -160,8 +159,7 @@ internal fun EnableButton(
         colors = ButtonDefaults.buttonColors(
             containerColor = MaterialTheme.colorScheme.primary.copy(alpha = if(isEnable) 1f else 0.5f),
             contentColor = MaterialTheme.colorScheme.onPrimary.copy(alpha = if(isEnable) 1f else 0.5f),
-//            disabledContainerColor = MaterialTheme.colorScheme.onSurfaceVariant,
-//            disabledContentColor = MaterialTheme.colorScheme.surface
+
         ),
         shape = RoundedCornerShape(5.dp)
     ) {

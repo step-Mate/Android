@@ -1,10 +1,9 @@
 package com.beank.login.screen.signup
 
-import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -56,7 +55,7 @@ internal fun SignUpScreen(
 
     SignUpScreen(
         kakaoSignUp = kakaoSignUp.value,
-        signUp = SignUp(id, password, repeatPassword),
+        signUp = {SignUp(id, password, repeatPassword)},
         valids = signUpViewModel.valids,
         updateAccountEvent = signUpViewModel::updateAccountEvent,
         navigateToSignUpDetail = navigateToSignUpDetail
@@ -66,12 +65,11 @@ internal fun SignUpScreen(
 @Composable
 private fun SignUpScreen(
     kakaoSignUp : Boolean,
-    signUp: SignUp,
+    signUp: () -> SignUp,
     valids : ValidValue,
     updateAccountEvent : (AccountEvent,String) -> Unit,
     navigateToSignUpDetail : (String,String) -> Unit
 ){
-
     DefaultLayout(
         contentPaddingValues = PaddingValues(vertical = 60.dp)
     ) {
@@ -82,59 +80,58 @@ private fun SignUpScreen(
         VerticalSpacer(height = 30.dp)
 
         IdField(
-            value = signUp.id,
+            value = signUp().id,
             onNewValue = {
                 val text = it.trim()
                 if (text.length <= MAX_ID_LENGTH)
                     updateAccountEvent(AccountEvent.id,text)
             },
-            isError = valids.idValid.isError(),
+            isError = valids.idValid.value.isError(),
             enable = kakaoSignUp
         )
         ErrorMessage(
-            message = when (valids.idValid){
+            message = when (valids.idValid.value){
                 SignValid.notValid -> AppText.not_valid_id_content
                 SignValid.duplicationId -> AppText.duplication_id
                 SignValid.success -> AppText.not_duplication_id
                 else -> AppText.blank_id_content },
-            isError = valids.idValid.isError()
+            isError = valids.idValid.value.isError()
         )
-        Log.d("idvalue",valids.idValid.toString())
         PasswordField(
-            value = signUp.password,
+            value = signUp().password,
             onNewValue = {
                 val text = it.trim()
                 if (text.length <= MAX_PASS_LENGTH)
                     updateAccountEvent(AccountEvent.password,text)
             },
-            isError = valids.passwordValid.isError()
+            isError = valids.passwordValid.value.isError()
         )
         ErrorMessage(
-            message = when (valids.passwordValid){
+            message = when (valids.passwordValid.value){
                 SignValid.notValid -> AppText.not_valid_password_content
                 else -> AppText.blank_id_content },
-            isError = valids.passwordValid.isError()
+            isError = valids.passwordValid.value.isError()
         )
         RepeatPasswordField(
-            value = signUp.repeatPassword,
+            value = signUp().repeatPassword,
             onNewValue = {
                 val text = it.trim()
                 if (text.length <= MAX_PASS_LENGTH)
                     updateAccountEvent(AccountEvent.repeatPassword,text)
             },
-            isError = valids.repeatPasswordValid.isError()
+            isError = valids.repeatPasswordValid.value.isError()
         )
         ErrorMessage(
-            message = when (valids.repeatPasswordValid){
+            message = when (valids.repeatPasswordValid.value){
                 SignValid.notValid -> AppText.not_valid_password_content
                 SignValid.notMatch -> AppText.not_match_password
                 else -> AppText.blank_id_content },
-            isError = valids.repeatPasswordValid.isError()
+            isError = valids.repeatPasswordValid.value.isError()
         )
 
         Column(
             verticalArrangement = Arrangement.Bottom,
-            modifier = Modifier.fillMaxHeight()
+            modifier = Modifier.fillMaxSize()
         ) {
             EnableButton(
                 text = AppText.signUp_next_button,
@@ -143,7 +140,7 @@ private fun SignUpScreen(
                     .padding(horizontal = 12.dp).height(50.dp),
                 isEnable = valids.isSuccessfulValid()
             ) {
-                navigateToSignUpDetail(signUp.id,signUp.password)
+                navigateToSignUpDetail(signUp().id,signUp().password)
             }
         }
     }
@@ -156,7 +153,7 @@ private fun PreviewSignUpScreen(
 ) = StepWalkTheme {
     SignUpScreen(
         kakaoSignUp = true,
-        signUp = SignUp(),
+        signUp = {SignUp()},
         valids = ValidValue(SignValid.success,SignValid.notValid,SignValid.success),
         updateAccountEvent = {_,_ ->},
         navigateToSignUpDetail = {_,_ ->}

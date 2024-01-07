@@ -46,7 +46,7 @@ internal fun SignUpDetailScreen(
     val weight by signUpDetailViewModel.weight.collectAsStateWithLifecycle()
 
     SignUpDetailScreen(
-        signUpDetail = SignUpDetail(id,password,nickname,age,height,weight),
+        signUpDetail = {SignUpDetail(id,password,nickname,age,height,weight)},
         userValid = signUpDetailViewModel.valids,
         updateUserEvent = signUpDetailViewModel::updateUserEvent
     )
@@ -55,7 +55,7 @@ internal fun SignUpDetailScreen(
 
 @Composable
 private fun SignUpDetailScreen(
-    signUpDetail: SignUpDetail,
+    signUpDetail: () -> SignUpDetail,
     userValid: UserDataValid,
     updateUserEvent : (UserEvent,String) -> Unit
 ){
@@ -77,8 +77,8 @@ private fun SignUpDetailScreen(
             InformationField(
                 informationText = AppText.username,
                 errorMessage = AppText.username_error,
-                value = signUpDetail.nickname,
-                isError = userValid.nicknameValid.isError()
+                value = signUpDetail().nickname,
+                isError = userValid.nicknameValid.value.isError()
             ){
                 val text = it.trim()
                 if (text.length <= MAX_NICKNAME_LENGTH)
@@ -88,8 +88,8 @@ private fun SignUpDetailScreen(
             InformationField(
                 informationText = AppText.age,
                 errorMessage = AppText.age_error,
-                value = signUpDetail.age,
-                isError = userValid.ageValid.isError(),
+                value = signUpDetail().age,
+                isError = userValid.ageValid.value.isError(),
                 keyboardType = KeyboardType.NumberPassword
             ){
                 val text = it.trim()
@@ -100,8 +100,8 @@ private fun SignUpDetailScreen(
             InformationField(
                 informationText = AppText.height,
                 errorMessage = AppText.height_error,
-                value = signUpDetail.height,
-                isError = userValid.heightValid.isError(),
+                value = signUpDetail().height,
+                isError = userValid.heightValid.value.isError(),
                 keyboardType = KeyboardType.Decimal
             ){
                 val text = it.trim()
@@ -112,8 +112,8 @@ private fun SignUpDetailScreen(
             InformationField(
                 informationText = AppText.weight,
                 errorMessage = AppText.weight_error,
-                value = signUpDetail.weight,
-                isError = userValid.weightValid.isError(),
+                value = signUpDetail().weight,
+                isError = userValid.weightValid.value.isError(),
                 keyboardType = KeyboardType.Decimal
             ){
                 val text = it.trim()
@@ -148,7 +148,7 @@ private fun PreviewSignUpScreen(
 
 ) = StepWalkTheme {
     SignUpDetailScreen(
-        signUpDetail = SignUpDetail(),
+        signUpDetail = {SignUpDetail()},
         userValid = UserDataValid(),
         updateUserEvent = {_,_ ->}
     )
