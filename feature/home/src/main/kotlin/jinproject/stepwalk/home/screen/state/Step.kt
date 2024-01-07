@@ -47,7 +47,7 @@ internal class StepTabFactory(
             HealthTab(
                 header = HealthPage(total, goal, title = "걸음수"),
                 graph = time.getGraph(healthCareList),
-                menu = getMenuList()
+                menu = getMenuList(total)
             )
         }.getOrElse { e ->
             if(e is IllegalArgumentException) {
@@ -57,12 +57,6 @@ internal class StepTabFactory(
                 throw e
         }
     }
-
-    private fun getMenuList(): List<MenuItem> = listOf(
-        DistanceMenuFactory.create(total),
-        TimeMenuFactory.create(total),
-        CaloriesMenuFactory.create(total)
-    )
 
     override fun getDefaultValues(time: Time): HealthTab =
         HealthTab(
@@ -86,5 +80,11 @@ internal class StepTabFactory(
 
             return _instance!!
         }
+
+        fun getMenuList(figure: Long): List<MenuItem> = listOf(
+            DistanceMenuFactory.create(figure),
+            TimeMenuFactory.create(figure),
+            CaloriesMenuFactory.create(figure)
+        )
     }
 }

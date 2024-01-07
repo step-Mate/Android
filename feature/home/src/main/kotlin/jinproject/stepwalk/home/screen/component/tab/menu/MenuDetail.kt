@@ -1,4 +1,4 @@
-package jinproject.stepwalk.home.screen.component.page.menu
+package jinproject.stepwalk.home.screen.component.tab.menu
 
 import android.content.res.Configuration
 import androidx.compose.foundation.layout.Arrangement

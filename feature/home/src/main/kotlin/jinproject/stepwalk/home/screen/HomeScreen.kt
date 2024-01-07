@@ -4,8 +4,10 @@ import android.content.Context
 import android.content.Intent
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -14,17 +16,22 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import jinproject.stepwalk.design.component.DefaultLayout
+import jinproject.stepwalk.design.component.HideableTopBarLayout
+import jinproject.stepwalk.design.component.SystemBarHidingState
+import jinproject.stepwalk.design.component.VerticalSpacer
+import jinproject.stepwalk.design.component.rememberSystemBarHidingState
 import jinproject.stepwalk.design.theme.StepWalkTheme
-import jinproject.stepwalk.home.HealthConnector
-import jinproject.stepwalk.home.screen.component.HomeTopAppBar
 import jinproject.stepwalk.home.screen.component.HomePopUp
-import jinproject.stepwalk.home.screen.component.page.UserPager
+import jinproject.stepwalk.home.screen.component.HomeTopAppBar
+import jinproject.stepwalk.home.screen.component.tab.HealthTabLayout
+import jinproject.stepwalk.home.screen.component.userinfo.UserInfoLayout
 import jinproject.stepwalk.home.screen.state.Day
 import jinproject.stepwalk.home.screen.state.SnackBarMessage
 import jinproject.stepwalk.home.screen.state.Time
@@ -114,6 +121,7 @@ internal fun HomeScreen(
 private fun HomeScreen(
     uiState: HomeUiState,
     context: Context = LocalContext.current,
+    density: Density = LocalDensity.current,
     setTimeOnGraph: (Time) -> Unit,
     navigateToCalendar: (Long) -> Unit,
 ) {
@@ -121,14 +129,42 @@ private fun HomeScreen(
         mutableStateOf(false)
     }
 
-    DefaultLayout(
+    val systemBarHidingState = rememberSystemBarHidingState(
+        SystemBarHidingState.Bar.TOPBAR(
+            maxHeight = with(density) {
+                200.dp.roundToPx()
+            },
+            minHeight = with(density) {
+                84.dp.roundToPx()
+            }
+        )
+    )
+
+    HideableTopBarLayout(
         modifier = Modifier,
-        contentPaddingValues = PaddingValues(horizontal = 8.dp, vertical = 10.dp),
-        topBar = {
+        systemBarHidingState = systemBarHidingState,
+        topBar = { modifier ->
             HomeTopAppBar(
-                modifier = Modifier,
-                onClickTimeIcon = { popUpState.value = true },
-                onClickIcon1 = {
+                modifier = modifier,
+                onClickTime = { popUpState.value = true },
+                onClickSetting = {},
+                onClickHome = {},
+                content = {
+                    UserInfoLayout(
+                        modifier = Modifier
+                            .padding(bottom = 10.dp),
+                        step = uiState.step,
+                    )
+                }
+            )
+        }) { modifier ->
+        Column(
+            modifier = modifier.verticalScroll(rememberScrollState())
+        ) {
+            VerticalSpacer(height = 10.dp)
+            HealthTabLayout(
+                healthTab = uiState.step,
+                navigateToDetailChart = {
                     val firstInstallTime = context.packageManager.getPackageInfo(
                         context.packageName,
                         0
@@ -137,20 +173,15 @@ private fun HomeScreen(
                         Instant.ofEpochMilli(firstInstallTime)
                             .minus(30L, ChronoUnit.DAYS).epochSecond
                     )
-                },
-                onClickIcon2 = {}
+                }
             )
-        },
-    ) {
-        UserPager(
-            modifier = Modifier.fillMaxSize(),
-            uiState = uiState,
-        )
-        HomePopUp(
-            popUpState = popUpState.value,
-            offPopUp = { popUpState.value = false },
-            onClickPopUpItem = { time -> setTimeOnGraph(time) }
-        )
+            HomePopUp(
+                popUpState = popUpState.value,
+                offPopUp = { popUpState.value = false },
+                onClickPopUpItem = { time -> setTimeOnGraph(time) }
+            )
+            VerticalSpacer(height = 500.dp)
+        }
     }
 }
 
@@ -158,7 +189,7 @@ private fun HomeScreen(
 @Preview
 private fun PreviewHomeScreen(
     @PreviewParameter(HomeUiStatePreviewParameters::class)
-    homeUiState: HomeUiState
+    homeUiState: HomeUiState,
 ) = StepWalkTheme {
     HomeScreen(
         uiState = homeUiState,

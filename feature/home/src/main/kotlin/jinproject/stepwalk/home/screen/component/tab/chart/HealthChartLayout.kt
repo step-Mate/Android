@@ -1,14 +1,16 @@
-package jinproject.stepwalk.home.screen.component.page.graph
+package jinproject.stepwalk.home.screen.component.tab.chart
 
+import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.unit.Constraints
+import jinproject.stepwalk.design.component.asLoose
 import jinproject.stepwalk.home.screen.state.sortDayOfWeek
 
 @Composable
-internal fun HealthGraph(
+internal fun HealthChartLayout(
     itemsCount: Int,
     modifier: Modifier = Modifier,
     horizontalAxis: @Composable (Int) -> Unit,
@@ -38,7 +40,7 @@ internal fun HealthGraph(
         val totalWidth = constraints.maxWidth
 
         val verticalPlacable = verticalMeasurables.first().measure(
-            constraints.toLoose()
+            constraints.asLoose()
         )
 
         val itemWidth = (totalWidth - verticalPlacable.width) / horizontalItemCount
@@ -94,17 +96,12 @@ internal fun HealthGraph(
     }
 }
 
-internal fun Constraints.toLoose() = this.copy(
-    minWidth = 0,
-    minHeight = 0
-)
-
 @Stable
 internal fun Long.stepToSizeByMax(barHeight: Float, max: Long) =
     when {
         this == 0L -> 0f
 
-        this >= max -> barHeight - 10f
+        this >= max -> barHeight
 
-        else -> (barHeight - 10f) / (max.toFloat() / this.toFloat())
+        else -> barHeight / (max.toFloat() / this.toFloat())
     }

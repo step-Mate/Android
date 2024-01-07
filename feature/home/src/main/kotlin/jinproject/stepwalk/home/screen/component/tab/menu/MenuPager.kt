@@ -1,4 +1,4 @@
-package jinproject.stepwalk.home.screen.component.page.pager
+package jinproject.stepwalk.home.screen.component.tab.menu
 
 import android.content.res.Configuration
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PageSize
-import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Card
@@ -32,6 +31,7 @@ import jinproject.stepwalk.design.theme.StepWalkTheme
 import jinproject.stepwalk.home.screen.HomeUiState
 import jinproject.stepwalk.home.screen.HomeUiStatePreviewParameters
 import jinproject.stepwalk.home.screen.state.HealthTab
+import jinproject.stepwalk.home.screen.state.StepTabFactory
 import jinproject.stepwalk.home.screen.state.toAchievementDegree
 import java.text.DecimalFormat
 import kotlin.math.absoluteValue
@@ -39,10 +39,16 @@ import kotlin.math.absoluteValue
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 internal fun MenuPager(
-    pages: List<HealthTab>,
-    pagerState: PagerState,
+    healthTab: HealthTab,
     configuration: Configuration = LocalConfiguration.current
 ) {
+
+    val pagerState = rememberPagerState(initialPage = Int.MAX_VALUE / 2) {
+        Integer.MAX_VALUE
+    }
+    val pages = healthTab.menu
+    val goals = StepTabFactory.getMenuList(healthTab.header.goal.toLong())
+
     HorizontalPager(
         state = pagerState,
         pageSize = PageSize.Fixed(configuration.screenWidthDp.div(2).dp),
@@ -78,8 +84,15 @@ internal fun MenuPager(
             ) {
             Box(modifier = Modifier.background(MaterialTheme.colorScheme.surface)) {
                 val currentPage = pages[page % pages.size]
-                val progress =
-                    currentPage.header.total.toFloat() / currentPage.header.goal.toFloat()
+
+                val figure = when (currentPage.intro.contains("분")) {
+                    true -> currentPage.value.toInt().toFloat()
+                    false -> String.format("%.2f", currentPage.value).toFloat()
+                }
+
+                val goal = goals.first { it.intro == currentPage.intro }.value
+
+                val progress = figure / goal
 
                 CircularProgressIndicator(
                     progress = progress,
@@ -87,7 +100,7 @@ internal fun MenuPager(
                         .fillMaxSize(),
                     strokeWidth = 4.dp,
                     color = progress.toAchievementDegree().toColor(),
-                    trackColor = MaterialTheme.colorScheme.onSurface
+                    trackColor = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 Column(
                     modifier = Modifier
@@ -96,15 +109,15 @@ internal fun MenuPager(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Text(
-                        text = DecimalFormat("#,###").format(currentPage.header.total),
+                        text = DecimalFormat("#,###").format(currentPage.value),
                         style = MaterialTheme.typography.headlineLarge,
                         color = progress.toAchievementDegree().toColor()
                     )
                     VerticalSpacer(height = 4.dp)
                     Text(
-                        text = currentPage.header.title,
+                        text = currentPage.intro,
                         style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                 }
             }
@@ -112,19 +125,13 @@ internal fun MenuPager(
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 @Preview
 private fun PreviewMenuPager(
     @PreviewParameter(HomeUiStatePreviewParameters::class, 1)
     homeUiState: HomeUiState
 ) = StepWalkTheme {
-    val pagerState = rememberPagerState(initialPage = Int.MAX_VALUE / 2) {
-        Integer.MAX_VALUE
-    }
-
     MenuPager(
-        pages = listOf(homeUiState.step, homeUiState.heartRate),
-        pagerState = pagerState
+        healthTab = homeUiState.step,
     )
 }
