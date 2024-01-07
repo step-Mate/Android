@@ -25,8 +25,31 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
+import com.beank.login.component.ErrorMessage
 import jinproject.stepwalk.design.R.drawable as AppIcon
 import jinproject.stepwalk.design.R.string as AppText
+
+@Composable
+internal fun InformationField(
+    @StringRes informationText : Int,
+    @StringRes errorMessage : Int,
+    value: String,
+    isError : Boolean = false,
+    keyboardType: KeyboardType = KeyboardType.Email,
+    onNewValue: (String) -> Unit
+){
+    OutlinedTextField(
+        singleLine = true,
+        modifier = Modifier.fieldModifier(),
+        value = value,
+        isError = isError,
+        textStyle = MaterialTheme.typography.bodyMedium,
+        onValueChange = onNewValue,
+        label = {Text(stringResource(informationText), style = MaterialTheme.typography.bodyMedium)},
+        keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
+    )
+    ErrorMessage(message = errorMessage, isError = isError)
+}
 
 @Composable
 internal fun IdField(value: String, onNewValue: (String) -> Unit) {
