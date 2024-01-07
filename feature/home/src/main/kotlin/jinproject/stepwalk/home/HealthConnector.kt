@@ -72,7 +72,7 @@ class HealthConnector @Inject constructor(
         } else
             null
 
-    private fun checkAvailability() = HealthConnectClient.sdkStatus(context)
+    private fun checkAvailability() = HealthConnectClient.getSdkStatus(context)
 
     init {
         if (checkAvailability() == HealthConnectClient.SDK_UNAVAILABLE_PROVIDER_UPDATE_REQUIRED)
