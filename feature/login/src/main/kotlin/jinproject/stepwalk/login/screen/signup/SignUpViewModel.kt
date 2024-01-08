@@ -1,13 +1,14 @@
-package com.beank.login.screen.signup
+package jinproject.stepwalk.login.screen.signup
 
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.beank.login.utils.isValidID
-import com.beank.login.utils.isValidPassword
-import com.beank.login.utils.passwordMatches
 import dagger.hilt.android.lifecycle.HiltViewModel
+import jinproject.stepwalk.login.utils.isValidID
+import jinproject.stepwalk.login.utils.isValidPassword
+import jinproject.stepwalk.login.utils.passwordMatches
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -33,16 +34,19 @@ internal class SignUpViewModel @Inject constructor(
 
     val valids = ValidValue()
 
+    @OptIn(FlowPreview::class)
     private val debouncedIdFilter : Flow<String?> = id
         .debounce(WAIT_TIME)
         .filter { it.isNotEmpty() }
         .distinctUntilChanged()
 
+    @OptIn(FlowPreview::class)
     private val debouncedPasswordFilter : Flow<String?> = password
         .debounce(WAIT_TIME)
         .filter { it.isNotEmpty() }
         .distinctUntilChanged()
 
+    @OptIn(FlowPreview::class)
     private val debouncedRepeatPasswordFilter : Flow<String?> = repeatPassword
         .debounce(WAIT_TIME)
         .filter { it.isNotEmpty() }
