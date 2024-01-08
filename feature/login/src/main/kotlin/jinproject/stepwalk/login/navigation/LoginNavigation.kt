@@ -2,7 +2,6 @@ package jinproject.stepwalk.login.navigation
 
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
-import androidx.navigation.NavOptions
 import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
@@ -32,6 +31,7 @@ fun NavGraphBuilder.loginNavGraph(
         exitTransition = slideDownOut(500)
     ){
         LoginScreen(
+            navigateToSignUp = navigateToSignUp,
             showSnackBar = showSnackBar
         )
     }
@@ -69,12 +69,10 @@ fun NavGraphBuilder.loginNavGraph(
         )
     }
 
-//?을 사용하면 선택적으로 가능
-
 }
 
-fun NavController.navigateToLogin(navOptions: NavOptions?) {
-    this.navigate(loginRoute, navOptions = navOptions)
+fun NavController.navigateToLogin() {
+    this.navigate(loginRoute)
 }
 
 fun NavController.navigateToSignUp() {

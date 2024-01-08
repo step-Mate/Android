@@ -27,6 +27,7 @@ internal fun ErrorMessage(
         Text(
             text = stringResource(id = message),
             style = MaterialTheme.typography.labelLarge,
+            color = MaterialTheme.colorScheme.error,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 12.dp)
@@ -34,3 +35,4 @@ internal fun ErrorMessage(
         VerticalSpacer(height = 10.dp)
     }
 }
+

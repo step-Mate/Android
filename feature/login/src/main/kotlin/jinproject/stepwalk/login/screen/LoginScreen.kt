@@ -9,8 +9,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -26,25 +24,22 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import jinproject.stepwalk.login.component.BasicButton
 import jinproject.stepwalk.login.component.FindAndSignUpButtons
-import jinproject.stepwalk.login.component.GrayHorizontalDivider
-import jinproject.stepwalk.login.component.IconButton
 import jinproject.stepwalk.login.utils.MAX_ID_LENGTH
 import jinproject.stepwalk.login.utils.MAX_PASS_LENGTH
 import jinproject.stepwalk.design.R
 import jinproject.stepwalk.design.component.DefaultLayout
 import jinproject.stepwalk.design.component.VerticalSpacer
-import jinproject.stepwalk.design.theme.StepWalkColor
 import jinproject.stepwalk.design.theme.StepWalkTheme
 import jinproject.stepwalk.login.component.IdField
 import jinproject.stepwalk.login.component.PasswordField
 import jinproject.stepwalk.login.utils.SnackBarMessage
 import jinproject.stepwalk.design.R.string as AppText
-import jinproject.stepwalk.design.R.drawable as AppIcon
 
 @Composable
 internal fun LoginScreen(
     context : Context = LocalContext.current,
     loginViewModel: LoginViewModel = hiltViewModel(),
+    navigateToSignUp : () -> Unit,
     showSnackBar : (SnackBarMessage) -> Unit
 ){
     val checkValidAccount = remember<(String,String) -> Unit> {
@@ -97,13 +92,15 @@ internal fun LoginScreen(
         }
     }
     LoginScreen(
-        checkValidAccount = checkValidAccount
+        checkValidAccount = checkValidAccount,
+        navigateToSignUp = navigateToSignUp
     )
 }
 
 @Composable
 private fun LoginScreen(
-    checkValidAccount : (String,String) -> Unit
+    checkValidAccount : (String,String) -> Unit,
+    navigateToSignUp: () -> Unit
 ) {
     var id by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
@@ -156,39 +153,38 @@ private fun LoginScreen(
         FindAndSignUpButtons(
             findAccountId = {  },//화면 넘기기?
             findAccountPassword = {  },
-            createAccount = {}//회원가입 화면으로 이동
+            createAccount = navigateToSignUp
         )
-        VerticalSpacer(height = 10.dp)
 
-        Row (
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 12.dp, vertical = 6.dp)
-        ){
-            GrayHorizontalDivider(modifier = Modifier.weight(0.4f))
-            Text(
-                text = "간편 로그인",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.scrim,
-                modifier = Modifier.padding(horizontal = 10.dp)
-            )
-            GrayHorizontalDivider(modifier = Modifier.weight(0.4f))
-        }
-
-        VerticalSpacer(height = 20.dp)
-
-        IconButton(
-            icon = AppIcon.ic_kakao_simbol,
-            containerColor = StepWalkColor.kakao_yellow.color,
-            simbolColor = StepWalkColor.kakao_black.color,
-            labelColor = StepWalkColor.kakao_black.color,
-            text = AppText.kakao_login_button
-        ) {
-            //카카오 로그인 or 회원가입 처리
-        }
-
+//        VerticalSpacer(height = 10.dp)
+//        Row (
+//            verticalAlignment = Alignment.CenterVertically,
+//            horizontalArrangement = Arrangement.SpaceBetween,
+//            modifier = Modifier
+//                .fillMaxWidth()
+//                .padding(horizontal = 12.dp, vertical = 6.dp)
+//        ){
+//            GrayHorizontalDivider(modifier = Modifier.weight(0.4f))
+//            Text(
+//                text = "간편 로그인",
+//                style = MaterialTheme.typography.bodySmall,
+//                color = MaterialTheme.colorScheme.scrim,
+//                modifier = Modifier.padding(horizontal = 10.dp)
+//            )
+//            GrayHorizontalDivider(modifier = Modifier.weight(0.4f))
+//        }
+//
+//        VerticalSpacer(height = 20.dp)
+//
+//        IconButton(
+//            icon = AppIcon.ic_kakao_simbol,
+//            containerColor = StepWalkColor.kakao_yellow.color,
+//            simbolColor = StepWalkColor.kakao_black.color,
+//            labelColor = StepWalkColor.kakao_black.color,
+//            text = AppText.kakao_login_button
+//        ) {
+//            //카카오 로그인 or 회원가입 처리
+//        }
     }
 }
 
@@ -198,6 +194,7 @@ private fun LoginScreen(
 private fun PreviewHomeScreen(
 ) = StepWalkTheme {
     LoginScreen(
-        checkValidAccount = { a,b -> Valid.ACCOUNT_VALID }
+        checkValidAccount = { a,b -> Valid.ACCOUNT_VALID },
+        navigateToSignUp = {}
     )
 }
