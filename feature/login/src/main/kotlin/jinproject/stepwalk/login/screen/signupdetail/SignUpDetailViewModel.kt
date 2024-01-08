@@ -1,12 +1,12 @@
-package com.beank.login.screen.signupdetail
+package jinproject.stepwalk.login.screen.signupdetail
 
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.beank.login.utils.isValidDouble
-import com.beank.login.utils.isValidInt
-import com.beank.login.utils.isValidNickname
+import jinproject.stepwalk.login.utils.isValidDouble
+import jinproject.stepwalk.login.utils.isValidInt
+import jinproject.stepwalk.login.utils.isValidNickname
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.Flow

@@ -1,8 +1,8 @@
-package com.beank.login.screen
+package jinproject.stepwalk.login.screen
 
 import androidx.lifecycle.ViewModel
-import com.beank.login.utils.isValidID
-import com.beank.login.utils.isValidPassword
+import jinproject.stepwalk.login.utils.isValidID
+import jinproject.stepwalk.login.utils.isValidPassword
 
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject

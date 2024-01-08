@@ -1,4 +1,4 @@
-package com.beank.login.component
+package jinproject.stepwalk.login.component
 
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
@@ -28,7 +28,6 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import jinproject.stepwalk.design.component.HorizontalSpacer
-import jinproject.stepwalk.home.component.fieldModifier
 import jinproject.stepwalk.design.R.string as AppText
 
 

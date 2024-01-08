@@ -1,4 +1,4 @@
-package com.beank.login.navigation
+package jinproject.stepwalk.login.navigation
 
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
@@ -6,14 +6,14 @@ import androidx.navigation.NavOptions
 import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
-import com.beank.login.screen.signup.SignUpScreen
-import com.beank.login.screen.signupdetail.SignUpDetailScreen
-import com.beank.login.utils.slideDownOut
-import com.beank.login.utils.slideLeftOut
-import com.beank.login.utils.slideRightIn
-import com.beank.login.utils.slideUpIn
-import jinproject.stepwalk.home.screen.state.SnackBarMessage
 import jinproject.stepwalk.login.screen.LoginScreen
+import jinproject.stepwalk.login.screen.signup.SignUpScreen
+import jinproject.stepwalk.login.screen.signupdetail.SignUpDetailScreen
+import jinproject.stepwalk.login.utils.SnackBarMessage
+import jinproject.stepwalk.login.utils.slideDownOut
+import jinproject.stepwalk.login.utils.slideLeftOut
+import jinproject.stepwalk.login.utils.slideRightIn
+import jinproject.stepwalk.login.utils.slideUpIn
 
 const val loginRoute = "login"
 private const val signUpRoute = "signUp"

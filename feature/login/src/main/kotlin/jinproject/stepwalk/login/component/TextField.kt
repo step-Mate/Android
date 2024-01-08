@@ -1,4 +1,4 @@
-package jinproject.stepwalk.home.component
+package jinproject.stepwalk.login.component
 
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -25,7 +25,6 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
-import com.beank.login.component.ErrorMessage
 import jinproject.stepwalk.design.R.drawable as AppIcon
 import jinproject.stepwalk.design.R.string as AppText
 

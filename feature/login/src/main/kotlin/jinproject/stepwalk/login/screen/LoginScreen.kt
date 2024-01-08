@@ -24,22 +24,20 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.beank.login.component.BasicButton
-import com.beank.login.component.FindAndSignUpButtons
-import com.beank.login.component.GrayHorizontalDivider
-import com.beank.login.component.IconButton
-import com.beank.login.screen.LoginViewModel
-import com.beank.login.screen.Valid
-import com.beank.login.utils.MAX_ID_LENGTH
-import com.beank.login.utils.MAX_PASS_LENGTH
+import jinproject.stepwalk.login.component.BasicButton
+import jinproject.stepwalk.login.component.FindAndSignUpButtons
+import jinproject.stepwalk.login.component.GrayHorizontalDivider
+import jinproject.stepwalk.login.component.IconButton
+import jinproject.stepwalk.login.utils.MAX_ID_LENGTH
+import jinproject.stepwalk.login.utils.MAX_PASS_LENGTH
 import jinproject.stepwalk.design.R
 import jinproject.stepwalk.design.component.DefaultLayout
 import jinproject.stepwalk.design.component.VerticalSpacer
 import jinproject.stepwalk.design.theme.StepWalkColor
 import jinproject.stepwalk.design.theme.StepWalkTheme
-import jinproject.stepwalk.home.component.IdField
-import jinproject.stepwalk.home.component.PasswordField
-import jinproject.stepwalk.home.screen.state.SnackBarMessage
+import jinproject.stepwalk.login.component.IdField
+import jinproject.stepwalk.login.component.PasswordField
+import jinproject.stepwalk.login.utils.SnackBarMessage
 import jinproject.stepwalk.design.R.string as AppText
 import jinproject.stepwalk.design.R.drawable as AppIcon
 

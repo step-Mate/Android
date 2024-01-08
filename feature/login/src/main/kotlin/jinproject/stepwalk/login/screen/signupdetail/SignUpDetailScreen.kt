@@ -1,4 +1,4 @@
-package com.beank.login.screen.signupdetail
+package jinproject.stepwalk.login.screen.signupdetail
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -21,16 +21,16 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.beank.login.component.EnableButton
-import com.beank.login.utils.MAX_AGE_LENGTH
-import com.beank.login.utils.MAX_HEIGHT_LENGTH
-import com.beank.login.utils.MAX_NICKNAME_LENGTH
-import com.beank.login.utils.MAX_WEIGHT_LENGTH
+import jinproject.stepwalk.login.component.EnableButton
+import jinproject.stepwalk.login.utils.MAX_AGE_LENGTH
+import jinproject.stepwalk.login.utils.MAX_HEIGHT_LENGTH
+import jinproject.stepwalk.login.utils.MAX_NICKNAME_LENGTH
+import jinproject.stepwalk.login.utils.MAX_WEIGHT_LENGTH
 import jinproject.stepwalk.design.R
 import jinproject.stepwalk.design.component.DefaultLayout
 import jinproject.stepwalk.design.component.VerticalSpacer
 import jinproject.stepwalk.design.theme.StepWalkTheme
-import jinproject.stepwalk.home.component.InformationField
+import jinproject.stepwalk.login.component.InformationField
 import jinproject.stepwalk.design.R.string as AppText
 
 

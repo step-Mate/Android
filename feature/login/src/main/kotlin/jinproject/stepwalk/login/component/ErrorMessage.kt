@@ -1,4 +1,4 @@
-package com.beank.login.component
+package jinproject.stepwalk.login.component
 
 import androidx.annotation.StringRes
 import androidx.compose.animation.AnimatedVisibility

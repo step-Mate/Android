@@ -1,4 +1,4 @@
-package com.beank.login.utils
+package jinproject.stepwalk.login.utils
 
 import java.util.regex.Pattern
 
