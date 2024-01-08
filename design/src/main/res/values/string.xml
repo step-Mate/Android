@@ -13,7 +13,7 @@
     <string name="blank_password_header">비밀번호 미입력</string>
     <string name="blank_password_content">비밀번호를 입력해주세요.</string>
     <string name="not_valid_id_header">아이디 양식오류</string>
-    <string name="not_valid_id_content">잘못된 아이디 양식이에요. 영어,숫자,_@.만 입력가능하고 4~12글자까지 입력가능해요.</string>
+    <string name="not_valid_id_content">잘못된 아이디 양식이에요. 영어,숫자,_만 입력가능하고 4~12글자까지 입력가능해요.</string>
     <string name="not_valid_password_header">비밀번호 양식오류</string>
     <string name="not_valid_password_content">잘못된 비밀번호 양식이에요. 8~16글자까지 입력가능하고 영어,숫자,!@#$%^&amp;*특수문자만 사용가능해요</string>
     <string name="not_valid_account_header">계정 오류</string>

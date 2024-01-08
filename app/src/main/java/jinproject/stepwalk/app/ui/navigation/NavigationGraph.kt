@@ -48,7 +48,6 @@ internal fun NavigationGraph(
 
         loginNavGraph(
             navigateToSignUp = navController::navigateToSignUp,
-            navigeteToSignUpEmail =  navController::navigateToSignUp,
             navigateToSignUpDetail = navController::navigateToSignUpDetail,
             popBackStack = navController::popBackStack,
             showSnackBar = showSnackBar

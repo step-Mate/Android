@@ -8,6 +8,7 @@ import com.beank.login.utils.isValidDouble
 import com.beank.login.utils.isValidInt
 import com.beank.login.utils.isValidNickname
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -38,21 +39,25 @@ internal class SignUpDetailViewModel @Inject constructor(
     val valids = UserDataValid()
 
     //비었는지,유효한지,
+    @OptIn(FlowPreview::class)
     private val debouncedNicknameFilter : Flow<String?> = nickname
         .debounce(WAIT_TIME)
         .filter { it.isNotEmpty() }
         .distinctUntilChanged()
 
+    @OptIn(FlowPreview::class)
     private val debouncedAgeFilter : Flow<String?> = age
         .debounce(WAIT_TIME)
         .filter { it.isNotEmpty() }
         .distinctUntilChanged()
 
+    @OptIn(FlowPreview::class)
     private val debouncedHeightFilter : Flow<String?> = height
         .debounce(WAIT_TIME)
         .filter { it.isNotEmpty() }
         .distinctUntilChanged()
 
+    @OptIn(FlowPreview::class)
     private val debouncedWeightFilter : Flow<String?> = weight
         .debounce(WAIT_TIME)
         .filter { it.isNotEmpty() }

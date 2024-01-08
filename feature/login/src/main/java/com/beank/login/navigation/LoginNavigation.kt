@@ -17,13 +17,11 @@ import jinproject.stepwalk.login.screen.LoginScreen
 
 const val loginRoute = "login"
 private const val signUpRoute = "signUp"
-private const val signUpLink = "$signUpRoute?email={email}"
 private const val signUpDetailRoute = "signUpDetail"
 private const val signUpDetailLink = "$signUpDetailRoute?id={id}&password={password}"
 
 fun NavGraphBuilder.loginNavGraph(
-    navigateToSignUp : (String) -> Unit,
-    navigeteToSignUpEmail : (String) -> Unit,
+    navigateToSignUp : () -> Unit,
     navigateToSignUpDetail : (String,String) -> Unit,
     popBackStack: () -> Unit,
     showSnackBar: (SnackBarMessage) -> Unit
@@ -39,19 +37,11 @@ fun NavGraphBuilder.loginNavGraph(
     }
 
     composable(
-        route = signUpLink,
+        route = signUpRoute,
         enterTransition = slideRightIn(500),
         exitTransition = slideLeftOut(500),
-        arguments = listOf(
-            navArgument("email"){
-                type = NavType.StringType
-                defaultValue = ""
-            }
-        )
-    ){navBackStackEntry ->
-        val email = navBackStackEntry.arguments?.getString("email") ?: ""
+    ){
         SignUpScreen(
-            email = email,
             navigateToSignUpDetail = navigateToSignUpDetail
         )
     }
@@ -89,14 +79,6 @@ fun NavController.navigateToLogin(navOptions: NavOptions?) {
 
 fun NavController.navigateToSignUp() {
     this.navigate(signUpRoute)
-}
-
-fun NavController.navigateToSignUp(email : String) {
-    this.navigate("$signUpRoute?email={$email}")
-}
-
-fun NavController.navigateToSignUpDetail() {
-    this.navigate(signUpDetailRoute)
 }
 
 fun NavController.navigateToSignUpDetail(id : String, password : String) {

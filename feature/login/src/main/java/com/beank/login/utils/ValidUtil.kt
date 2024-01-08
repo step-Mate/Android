@@ -15,15 +15,16 @@ const val MAX_HEIGHT_LENGTH = 5
 const val MIN_WEIGHT_LENGTH = 2
 const val MAX_WEIGHT_LENGTH = 5
 
-
-private val idPattern = "^[A-Za-z[0-9][@._]]{$MIN_ID_LENGTH,$MAX_ID_LENGTH}$"
-private val passwordPattern = "^(?=.*[0-9])(?=.*[a-zA-Z])(?=.*[!@#$%^&*])[A-Za-z[0-9][!@#$%^&*]]{$MIN_PASS_LENGTH,$MAX_PASS_LENGTH}$"
-private val nicknamePattern = "^[ㄱ-ㅎ가-힣a-zA-Z0-9]{$MIN_NICKNAME_LENGTH,$MAX_NICKNAME_LENGTH}$"
-private val intPattern = "^[0-9]{$MIN_AGE_LENGTH,$MAX_AGE_LENGTH}$"
-private val doublePattern = "^[0-9[.]]{$MIN_HEIGHT_LENGTH,$MAX_WEIGHT_LENGTH}$"
-
+private const val idPattern = "^[A-Za-z[0-9]_]{$MIN_ID_LENGTH,$MAX_ID_LENGTH}$"
+private const val passwordPattern = "^(?=.*[0-9])(?=.*[a-zA-Z])(?=.*[!@#$%^&*])[A-Za-z[0-9][!@#$%^&*]]{$MIN_PASS_LENGTH,$MAX_PASS_LENGTH}$"
+private const val nicknamePattern = "^[ㄱ-ㅎ가-힣a-zA-Z0-9]{$MIN_NICKNAME_LENGTH,$MAX_NICKNAME_LENGTH}$"
+private const val intPattern = "^[0-9]{$MIN_AGE_LENGTH,$MAX_AGE_LENGTH}$"
+private const val doublePattern = "^[0-9[.]]{$MIN_HEIGHT_LENGTH,$MAX_WEIGHT_LENGTH}$"
+private const val emailPattern = "^[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*@[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*.[a-zA-Z]{2,3}$"
 
 fun String.isValidID(): Boolean = Pattern.matches(idPattern,this)
+
+fun String.isValidEmail() : Boolean = Pattern.matches(emailPattern,this)
 
 fun String.isValidPassword(): Boolean = Pattern.matches(passwordPattern,this)
 
@@ -38,7 +39,6 @@ fun String.isValidDouble() : Boolean {
     }
     return false
 }
-
 
 fun String.passwordMatches(repeated: String): Boolean =
     this == repeated

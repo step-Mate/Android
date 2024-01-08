@@ -66,12 +66,11 @@ internal fun IdField(value: String, onNewValue: (String) -> Unit) {
 }
 
 @Composable
-internal fun IdField(value: String, onNewValue: (String) -> Unit, isError : Boolean = false, enable : Boolean = true) {
+internal fun IdField(value: String, onNewValue: (String) -> Unit, isError : Boolean = false) {
     OutlinedTextField(
         singleLine = true,
         modifier = Modifier.fieldModifier(),
         value = value,
-        enabled = enable,
         isError = isError,
         textStyle = MaterialTheme.typography.bodyMedium,
         onValueChange = onNewValue,

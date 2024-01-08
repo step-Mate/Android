@@ -10,10 +10,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -35,26 +32,13 @@ import jinproject.stepwalk.design.R.string as AppText
 @Composable
 internal fun SignUpScreen(
     signUpViewModel: SignUpViewModel = hiltViewModel(),
-    email : String,
     navigateToSignUpDetail : (String,String) -> Unit
 ) {
-    val kakaoSignUp = rememberSaveable {
-        mutableStateOf(true)
-    }
     val id by signUpViewModel.id.collectAsStateWithLifecycle()
     val password by signUpViewModel.password.collectAsStateWithLifecycle()
     val repeatPassword by signUpViewModel.repeatPassword.collectAsStateWithLifecycle()
 
-
-    LaunchedEffect(key1 = Unit){
-        if (email.isNotBlank()){
-            signUpViewModel.updateAccountEvent(AccountEvent.id,email)
-            kakaoSignUp.value = false
-        }
-    }
-
     SignUpScreen(
-        kakaoSignUp = kakaoSignUp.value,
         signUp = {SignUp(id, password, repeatPassword)},
         valids = signUpViewModel.valids,
         updateAccountEvent = signUpViewModel::updateAccountEvent,
@@ -64,7 +48,6 @@ internal fun SignUpScreen(
 
 @Composable
 private fun SignUpScreen(
-    kakaoSignUp : Boolean,
     signUp: () -> SignUp,
     valids : ValidValue,
     updateAccountEvent : (AccountEvent,String) -> Unit,
@@ -87,7 +70,6 @@ private fun SignUpScreen(
                     updateAccountEvent(AccountEvent.id,text)
             },
             isError = valids.idValid.value.isError(),
-            enable = kakaoSignUp
         )
         ErrorMessage(
             message = when (valids.idValid.value){
@@ -152,7 +134,6 @@ private fun PreviewSignUpScreen(
 
 ) = StepWalkTheme {
     SignUpScreen(
-        kakaoSignUp = true,
         signUp = {SignUp()},
         valids = ValidValue(SignValid.success,SignValid.notValid,SignValid.success),
         updateAccountEvent = {_,_ ->},
