@@ -60,7 +60,7 @@ internal data class HomeUiState(
 
 @HiltViewModel
 internal class HomeViewModel @Inject constructor(
-    val healthConnector: HealthConnector,
+    private val healthConnector: HealthConnector,
     private val getStepUseCase: GetStepUseCase,
 ) : ViewModel() {
 

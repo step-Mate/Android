@@ -1,5 +1,6 @@
 package jinproject.stepwalk.home.screen.component.tab
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -49,7 +50,7 @@ internal fun HealthTabLayout(
 
     val graph = healthTab.graph
     var popUpState by remember { mutableStateOf(PopUpState.getInitValues()) }
-
+    Log.d("test","graphitems: ${graph.toString()}")
     Column(
         modifier = Modifier
             .fillMaxWidth()

@@ -1,10 +1,13 @@
 package jinproject.stepwalk.home.screen.state
 
+import android.util.Log
 import androidx.compose.runtime.Stable
 import jinproject.stepwalk.home.utils.onKorea
 import java.time.Instant
 import java.time.LocalDateTime
 import java.time.Period
+import java.time.ZoneId
+import java.time.ZoneOffset
 import java.time.ZonedDateTime
 import java.time.temporal.ChronoField
 import java.time.temporal.TemporalAdjusters
@@ -66,7 +69,7 @@ internal fun <T : HealthCare> Time.getGraph(list: List<T>): List<Long> {
         val startTime = item.startTime
         val value = item.figure
 
-        val instant = Instant.ofEpochSecond(startTime).onKorea()
+        val instant = Instant.ofEpochSecond(startTime).atZone(ZoneId.of("+0"))
         val key = this.toZonedOffset(instant)
 
         when (this) {
