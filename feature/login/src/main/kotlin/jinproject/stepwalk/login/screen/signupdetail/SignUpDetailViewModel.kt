@@ -8,6 +8,8 @@ import jinproject.stepwalk.login.utils.isValidDouble
 import jinproject.stepwalk.login.utils.isValidInt
 import jinproject.stepwalk.login.utils.isValidNickname
 import dagger.hilt.android.lifecycle.HiltViewModel
+import jinproject.stepwalk.login.screen.state.Verification
+import jinproject.stepwalk.login.utils.isValidEmail
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -36,6 +38,14 @@ internal class SignUpDetailViewModel @Inject constructor(
     private val _weight = MutableStateFlow("")
     val weight = _weight.asStateFlow()
 
+    private val _email = MutableStateFlow("")
+    val email = _email.asStateFlow()
+
+    private val _emailCode = MutableStateFlow("")
+    val emailCode = _emailCode.asStateFlow()
+
+    private var requestEmail = ""
+
     val valids = UserDataValid()
 
     //비었는지,유효한지,
@@ -63,11 +73,26 @@ internal class SignUpDetailViewModel @Inject constructor(
         .filter { it.isNotEmpty() }
         .distinctUntilChanged()
 
+    @OptIn(FlowPreview::class)
+    private val debouncedEmailFilter : Flow<String?> = email
+        .debounce(WAIT_TIME)
+        .filter { it.isNotEmpty() }
+        .distinctUntilChanged()
+
+    @OptIn(FlowPreview::class)
+    private val debouncedEmailCodeFilter : Flow<String?> = emailCode
+        .debounce(1000)
+        .filter { it.isNotEmpty() }
+        .distinctUntilChanged()
+
+
     init {
         checkNicknameValid()
         checkAgeValid()
         checkHeightValid()
         checkWeightValid()
+        checkEmailValid()
+        checkEmailCodeValid()
     }
 
     fun updateUserEvent(event : UserEvent, value : String){
@@ -76,7 +101,15 @@ internal class SignUpDetailViewModel @Inject constructor(
             UserEvent.age -> _age.value = value
             UserEvent.height -> _height.value = value
             UserEvent.weight -> _weight.value = value
+            UserEvent.email -> _email.value = value
+            UserEvent.emailCode -> _emailCode.value = value
         }
+    }
+
+    fun requestEmailVerification(){
+        valids.emailValid.value = Verification.verifying
+        requestEmail = email.value
+        //서버에 이메일 인증코드 보내도록 요청
     }
 
     private fun checkNicknameValid() = debouncedNicknameFilter
@@ -123,10 +156,31 @@ internal class SignUpDetailViewModel @Inject constructor(
             } ?: UserValid.blank
         }.launchIn(viewModelScope)
 
+    private fun checkEmailValid() = debouncedEmailFilter
+        .onEach {
+            valids.emailValid.value = it?.let {
+                when {
+                    it.isBlank() -> Verification.nothing
+                    !it.isValidEmail() -> Verification.emailError
+                    else -> Verification.emailValid
+                }
+            } ?: Verification.nothing
+        }.launchIn(viewModelScope)
+
+    private fun checkEmailCodeValid() = debouncedEmailCodeFilter
+        .onEach {
+            valids.emailValid.value = it?.let {
+                when {
+                    it.isBlank() -> Verification.verifying
+                    //!it. -> Verification.codeError//서버에 code가 일치하는지 확인
+                    else -> Verification.success
+                }
+            } ?: Verification.verifying
+        }.launchIn(viewModelScope)
+
     companion object {
         private const val WAIT_TIME = 500L
     }
-
 }
 
 @Stable
@@ -134,15 +188,18 @@ internal class UserDataValid(
     nicknameValid : UserValid = UserValid.blank,
     ageValid : UserValid = UserValid.blank,
     heightValid : UserValid = UserValid.blank,
-    weightValid : UserValid = UserValid.blank
+    weightValid : UserValid = UserValid.blank,
+    emailValid : Verification = Verification.nothing
 ){
     val nicknameValid = mutableStateOf(nicknameValid)
     val ageValid = mutableStateOf(ageValid)
     val heightValid = mutableStateOf(heightValid)
     val weightValid = mutableStateOf(weightValid)
+    val emailValid = mutableStateOf(emailValid)
 
     fun isSuccessfulValid() : Boolean =
-        (nicknameValid.value == UserValid.success) and (ageValid.value == UserValid.success) and (heightValid.value == UserValid.success) and (weightValid.value == UserValid.success)
+        (nicknameValid.value == UserValid.success) and (ageValid.value == UserValid.success) and
+                (heightValid.value == UserValid.success) and (weightValid.value == UserValid.success) and (emailValid.value == Verification.success)
 }
 
 enum class UserValid {
@@ -150,7 +207,7 @@ enum class UserValid {
 }
 
 enum class UserEvent {
-    nickname,age,height,weight
+    nickname,age,height,weight,email,emailCode
 }
 
 internal fun UserValid.isError() : Boolean =  this == UserValid.notValid
@@ -162,5 +219,7 @@ data class SignUpDetail(
     val nickname : String = "",
     val age : String = "",
     val height : String = "",
-    val weight : String =""
+    val weight : String ="",
+    val email : String = "",
+    val emailCode : String = ""
 )

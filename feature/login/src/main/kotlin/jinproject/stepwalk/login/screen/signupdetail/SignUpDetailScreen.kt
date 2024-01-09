@@ -30,6 +30,7 @@ import jinproject.stepwalk.design.R
 import jinproject.stepwalk.design.component.DefaultLayout
 import jinproject.stepwalk.design.component.VerticalSpacer
 import jinproject.stepwalk.design.theme.StepWalkTheme
+import jinproject.stepwalk.login.component.EmailVerificationField
 import jinproject.stepwalk.login.component.InformationField
 import jinproject.stepwalk.design.R.string as AppText
 
@@ -44,11 +45,14 @@ internal fun SignUpDetailScreen(
     val age by signUpDetailViewModel.age.collectAsStateWithLifecycle()
     val height by signUpDetailViewModel.height.collectAsStateWithLifecycle()
     val weight by signUpDetailViewModel.weight.collectAsStateWithLifecycle()
+    val email by signUpDetailViewModel.email.collectAsStateWithLifecycle()
+    val emailCode by signUpDetailViewModel.emailCode.collectAsStateWithLifecycle()
 
     SignUpDetailScreen(
-        signUpDetail = {SignUpDetail(id,password,nickname,age,height,weight)},
+        signUpDetail = {SignUpDetail(id,password,nickname,age,height,weight,email,emailCode)},
         userValid = signUpDetailViewModel.valids,
-        updateUserEvent = signUpDetailViewModel::updateUserEvent
+        updateUserEvent = signUpDetailViewModel::updateUserEvent,
+        requestEmailVerification = signUpDetailViewModel::requestEmailVerification
     )
 
 }
@@ -57,7 +61,8 @@ internal fun SignUpDetailScreen(
 private fun SignUpDetailScreen(
     signUpDetail: () -> SignUpDetail,
     userValid: UserDataValid,
-    updateUserEvent : (UserEvent,String) -> Unit
+    updateUserEvent : (UserEvent,String) -> Unit,
+    requestEmailVerification : () -> Unit
 ){
     val scrollState = rememberScrollState()
 
@@ -120,15 +125,23 @@ private fun SignUpDetailScreen(
                 if (text.length <= MAX_WEIGHT_LENGTH)
                     updateUserEvent(UserEvent.weight,text)
             }
+            
+            EmailVerificationField(
+                email = signUpDetail().email,
+                verificationCode = signUpDetail().emailCode,
+                isVerification = userValid.emailValid.value,
+                requestEmailVerification = requestEmailVerification,
+                onEmailValue = {updateUserEvent(UserEvent.email,it)},
+                onVerificationCodeValue = {updateUserEvent(UserEvent.emailCode,it)}
+            )
         }
-
 
         Column(
             verticalArrangement = Arrangement.Bottom,
             modifier = Modifier.fillMaxHeight()
         ) {
             EnableButton(
-                text = R.string.signUp_next_button,
+                text = "계정 생성",
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 12.dp)
@@ -150,6 +163,7 @@ private fun PreviewSignUpScreen(
     SignUpDetailScreen(
         signUpDetail = {SignUpDetail()},
         userValid = UserDataValid(),
-        updateUserEvent = {_,_ ->}
+        updateUserEvent = {_,_ ->},
+        requestEmailVerification = {}
     )
 }

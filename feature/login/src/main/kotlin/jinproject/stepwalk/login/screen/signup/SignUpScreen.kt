@@ -116,7 +116,7 @@ private fun SignUpScreen(
             modifier = Modifier.fillMaxSize()
         ) {
             EnableButton(
-                text = AppText.signUp_next_button,
+                text = "다음 단계",
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 12.dp).height(50.dp),

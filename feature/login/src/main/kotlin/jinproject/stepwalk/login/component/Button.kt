@@ -147,7 +147,7 @@ internal fun TextButton(
 
 @Composable
 internal fun EnableButton(
-    @StringRes text: Int,
+    text: String,
     modifier: Modifier,
     isEnable : Boolean = false,
     action: () -> Unit
@@ -163,7 +163,7 @@ internal fun EnableButton(
         ),
         shape = RoundedCornerShape(5.dp)
     ) {
-        Text(text = stringResource(text), style = MaterialTheme.typography.bodyMedium)
+        Text(text = text, style = MaterialTheme.typography.bodyMedium)
     }
 }
 
