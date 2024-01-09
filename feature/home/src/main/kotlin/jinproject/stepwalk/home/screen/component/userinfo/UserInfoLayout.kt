@@ -1,14 +1,20 @@
 package jinproject.stepwalk.home.screen.component.userinfo
 
+import android.util.Log
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.CornerRadius
@@ -22,12 +28,20 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
+import com.airbnb.lottie.compose.LottieAnimation
+import com.airbnb.lottie.compose.LottieClipSpec
+import com.airbnb.lottie.compose.LottieCompositionSpec
+import com.airbnb.lottie.compose.LottieConstants
+import com.airbnb.lottie.compose.animateLottieCompositionAsState
+import com.airbnb.lottie.compose.rememberLottieAnimatable
+import com.airbnb.lottie.compose.rememberLottieComposition
 import jinproject.stepwalk.design.R
 import jinproject.stepwalk.design.component.DefaultIconButton
 import jinproject.stepwalk.design.component.DescriptionLargeText
 import jinproject.stepwalk.design.component.DescriptionSmallText
 import jinproject.stepwalk.design.component.FooterText
 import jinproject.stepwalk.design.component.HorizontalWeightSpacer
+import jinproject.stepwalk.design.component.VerticalWeightSpacer
 import jinproject.stepwalk.design.component.asLoose
 import jinproject.stepwalk.design.theme.StepWalkTheme
 import jinproject.stepwalk.home.screen.HomeUiState
@@ -42,24 +56,32 @@ internal fun UserInfoLayout(
 ) {
     val progress = (step.header.total.toFloat() / step.header.goal.toFloat()).coerceIn(0f, 1f)
 
+    val composition by rememberLottieComposition(LottieCompositionSpec.Asset("ic_anim_running_1.json"))
+    val lottieProgress by animateLottieCompositionAsState(composition, iterations = LottieConstants.IterateForever)
+
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = 12.dp)
+            .height(116.dp),
+        verticalArrangement = Arrangement.Center
     ) {
         UserStatus(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(28.dp),
             name = "홍길동",
             badge = R.drawable.ic_heart_solid,
             achieveDegree = 30,
             achieveMax = 200
         )
+        VerticalWeightSpacer(float = 1f)
         StepLayout(
             modifier = Modifier.fillMaxWidth(),
             characterContent = {
-                Image(
-                    painter = painterResource(id = R.drawable.ic_person_walking),
-                    contentDescription = "Test Image",
-                    modifier = Modifier
+                LottieAnimation(
+                    composition = composition,
+                    progress = { lottieProgress },
+                    modifier = Modifier.size(48.dp)
                 )
             },
             progressContent = {
@@ -91,16 +113,19 @@ internal fun UserInfoLayout(
 
 @Composable
 internal fun UserStatus(
+    modifier: Modifier = Modifier,
     name: String,
     badge: Int,
     achieveDegree: Int,
     achieveMax: Int,
 ) {
     Row(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = modifier,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Column {
+        Column(
+            modifier = Modifier
+        ) {
             Row(
                 verticalAlignment = Alignment.Bottom,
             ) {
@@ -110,12 +135,11 @@ internal fun UserStatus(
             FooterText(text = "오늘도 즐거운 하루 되세요!", modifier = Modifier.padding(start = 2.dp))
         }
         HorizontalWeightSpacer(float = 1f)
-        DefaultIconButton(
-            icon = badge,
-            onClick = {
-
-            },
-            iconTint = MaterialTheme.colorScheme.onBackground
+        Icon(
+            painter = painterResource(id = badge),
+            contentDescription = "UserBadgeIcon",
+            tint = MaterialTheme.colorScheme.onBackground,
+            modifier = Modifier.size(24.dp)
         )
 
         DescriptionSmallText(text = "달성도 $achieveDegree / $achieveMax")

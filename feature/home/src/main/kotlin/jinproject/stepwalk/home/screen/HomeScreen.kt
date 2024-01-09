@@ -91,6 +91,7 @@ internal fun HomeScreen(
                     endTime = instant.truncatedTo(ChronoUnit.DAYS).toInstant().plus(count.toLong(), ChronoUnit.HOURS).plus(30L,ChronoUnit.MINUTES)
                 )
             }*/
+            // 데이터 -범위 예외처리
 
             when (time) {
                 Day -> {
@@ -152,7 +153,7 @@ private fun HomeScreen(
                 content = {
                     UserInfoLayout(
                         modifier = Modifier
-                            .padding(bottom = 10.dp),
+                            .padding(bottom = 10.dp, start = 12.dp, end = 12.dp),
                         step = uiState.step,
                     )
                 }

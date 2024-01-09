@@ -70,7 +70,12 @@ internal fun StepBar(
                 val item = graph[index]
                 val maxItem = graph.maxOrNull() ?: 0
 
-                height = -(item.stepToSizeByMax(
+                val itemHeight = -(item.stepToSizeByMax(
+                    barHeight = size.height,
+                    max = maxItem
+                ))
+
+                height = if(itemHeight > 0) 0f else -(item.stepToSizeByMax(
                     barHeight = size.height,
                     max = maxItem
                 ))

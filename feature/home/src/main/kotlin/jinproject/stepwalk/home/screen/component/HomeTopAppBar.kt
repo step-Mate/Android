@@ -1,7 +1,10 @@
 package jinproject.stepwalk.home.screen.component
 
 import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -23,19 +26,27 @@ internal fun HomeTopAppBar(
     content: @Composable ColumnScope.() -> Unit = {},
 ) {
     BoxScopeTopBar(
-        modifier = modifier.height(200.dp),
+        modifier = modifier
+            .height(200.dp)
+            .fillMaxWidth(),
         icon = jinproject.stepwalk.design.R.drawable.ic_arrow_down_small,
         onClick = onClickTime,
         headerContent = {
             HorizontalWeightSpacer(float = 1f)
-            IconButton(onClick = onClickSetting) {
+            IconButton(
+                onClick = onClickSetting,
+                modifier = Modifier.size(48.dp)
+            ) {
                 Icon(
                     painter = painterResource(id = jinproject.stepwalk.design.R.drawable.ic_setting),
                     contentDescription = "SettingIcon",
                     tint = MaterialTheme.colorScheme.onSurface
                 )
             }
-            IconButton(onClick = onClickHome) {
+            IconButton(
+                onClick = onClickHome,
+                modifier = Modifier.size(48.dp)
+            ) {
                 Icon(
                     painter = painterResource(id = jinproject.stepwalk.design.R.drawable.ic_home),
                     contentDescription = "HomeIcon",
