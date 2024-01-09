@@ -14,6 +14,7 @@ import jinproject.stepwalk.home.screen.state.User
 import jinproject.stepwalk.home.screen.state.Week
 import jinproject.stepwalk.home.utils.onKorea
 import java.time.LocalDateTime
+import java.time.ZoneOffset
 
 internal class HomeUiStatePreviewParameters : PreviewParameterProvider<HomeUiState> {
     private val day = HomeUiStatePreview(Day)
@@ -54,8 +55,8 @@ internal class HomeUiStatePreview(val time: Time) {
             repeat(time.toNumberOfDays()) { idx ->
                 add(
                     StepFactory.instance.create(
-                        startTime = startTime.onKorea().plusHours(idx.toLong()).toEpochSecond(),
-                        endTime = endTime.onKorea().plusHours(idx.toLong()).toEpochSecond(),
+                        startTime = startTime.plusHours(idx.toLong()).toEpochSecond(ZoneOffset.of("+0")),
+                        endTime = endTime.plusHours(idx.toLong()).toEpochSecond(ZoneOffset.of("+0")),
                         figure = 1000 + idx.toLong() * 50
                     )
                 )
@@ -68,8 +69,8 @@ internal class HomeUiStatePreview(val time: Time) {
             repeat(time.toNumberOfDays()) { idx ->
                 add(
                     HeartRateFactory.instance.create(
-                        startTime = startTime.onKorea().plusHours(idx.toLong()).toEpochSecond(),
-                        endTime = endTime.onKorea().plusHours(idx.toLong()).toEpochSecond(),
+                        startTime = startTime.plusHours(idx.toLong()).toEpochSecond(ZoneOffset.of("+0")),
+                        endTime = endTime.plusHours(idx.toLong()).toEpochSecond(ZoneOffset.of("+0")),
                         extras = HealthCareExtras().apply {
                             set(HealthCareExtras.KEY_HEART_RATE_MAX, 100 + (idx).toLong())
                             set(HealthCareExtras.KEY_HEART_RATE_AVG, 75 + (idx).toLong())
