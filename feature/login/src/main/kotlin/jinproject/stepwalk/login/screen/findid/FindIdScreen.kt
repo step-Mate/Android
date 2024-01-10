@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -80,10 +81,13 @@ private fun FindIdScreen(
             VerticalSpacer(height = 30.dp)
             if (findAccountId().nextStep) {//조회후 화면
                 IdResultDetail(findAccountId = {findAccountId().id})
-                //수정 예정!!!!
                 DefaultButton(
-                    modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 8.dp),
-                    onClick = popBackStack
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 12.dp, vertical = 8.dp)
+                        .height(50.dp),
+                    onClick = popBackStack,
+                    shape = RoundedCornerShape(5.dp)
                 ) {
                    Text(text = "확인", style = MaterialTheme.typography.bodyLarge)
                 }
@@ -96,12 +100,13 @@ private fun FindIdScreen(
                     onEmailValue = updateEmail,
                     onVerificationCodeValue = updateEmailCode
                 )
-                VerticalSpacer(height = 30.dp)
+                VerticalSpacer(height = 20.dp)
                 EnableButton(
                     text = "아이디 찾기",
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 12.dp, vertical = 4.dp),
+                        .padding(horizontal = 12.dp, vertical = 4.dp)
+                        .height(50.dp),
                     enabled = findAccountId().emailValid == Verification.success
                 ) {
                     requestFindAccount()
@@ -109,6 +114,21 @@ private fun FindIdScreen(
             }
         }
     }
+}
+
+@Composable
+@Preview
+private fun PreviewFindAccountScreen2(
+
+) = StepWalkTheme {
+    FindIdScreen(
+        findAccountId = { FindAccountId(nextStep = true, id = "Testttttt") },
+        updateEmail = {},
+        updateEmailCode = {},
+        requestEmailVerification = {},
+        requestFindAccount = {},
+        popBackStack = {}
+    )
 }
 
 @Composable

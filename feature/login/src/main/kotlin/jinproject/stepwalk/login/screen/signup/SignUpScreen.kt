@@ -27,12 +27,14 @@ import jinproject.stepwalk.login.screen.state.SignValid
 import jinproject.stepwalk.login.screen.state.AccountValid
 import jinproject.stepwalk.login.utils.MAX_ID_LENGTH
 import jinproject.stepwalk.login.utils.MAX_PASS_LENGTH
+import jinproject.stepwalk.login.utils.SnackBarMessage
 import jinproject.stepwalk.design.R.string as AppText
 
 @Composable
 internal fun SignUpScreen(
     signUpViewModel: SignUpViewModel = hiltViewModel(),
-    navigateToSignUpDetail : (String,String) -> Unit
+    navigateToSignUpDetail : (String,String) -> Unit,
+    showSnackBar : (SnackBarMessage) -> Unit
 ) {
     val id by signUpViewModel.id.collectAsStateWithLifecycle()
     val password by signUpViewModel.password.collectAsStateWithLifecycle()
@@ -42,7 +44,9 @@ internal fun SignUpScreen(
         signUp = {SignUp(id, password, repeatPassword)},
         valids = signUpViewModel.valids,
         updateAccountEvent = signUpViewModel::updateAccountEvent,
-        navigateToSignUpDetail = navigateToSignUpDetail
+        checkAccountValid = signUpViewModel::checkAccountValid,
+        navigateToSignUpDetail = navigateToSignUpDetail,
+        showSnackBar = showSnackBar
     )
 }
 
@@ -51,7 +55,9 @@ private fun SignUpScreen(
     signUp: () -> SignUp,
     valids : AccountValid,
     updateAccountEvent : (AccountEvent,String) -> Unit,
-    navigateToSignUpDetail : (String,String) -> Unit
+    checkAccountValid : () -> Boolean,
+    navigateToSignUpDetail : (String,String) -> Unit,
+    showSnackBar : (SnackBarMessage) -> Unit
 ){
     DefaultLayout(
         contentPaddingValues = PaddingValues(vertical = 60.dp)
@@ -102,7 +108,14 @@ private fun SignUpScreen(
                     .height(50.dp),
                 enabled = valids.isSuccessfulValid()
             ) {
-                navigateToSignUpDetail(signUp().id,signUp().password)
+                if (checkAccountValid())
+                    navigateToSignUpDetail(signUp().id,signUp().password)
+                else
+                    showSnackBar(
+                        SnackBarMessage(
+                            headerMessage = "계정 정보를 다시 한번 확인해주세요."
+                        )
+                    )
             }
         }
     }
@@ -115,8 +128,10 @@ private fun PreviewSignUpScreen(
 ) = StepWalkTheme {
     SignUpScreen(
         signUp = {SignUp()},
-        valids = AccountValid(SignValid.success,SignValid.notValid,SignValid.success),
+        valids = AccountValid(SignValid.success,SignValid.notValid,SignValid.notMatch),
         updateAccountEvent = {_,_ ->},
-        navigateToSignUpDetail = {_,_ ->}
+        checkAccountValid = {true},
+        navigateToSignUpDetail = {_,_ ->},
+        showSnackBar = {}
     )
 }

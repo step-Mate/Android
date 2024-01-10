@@ -67,6 +67,10 @@ internal class SignUpViewModel @Inject constructor(
         }
     }
 
+    fun checkAccountValid() : Boolean =
+        password.value.isValidPassword() && repeatPassword.value.passwordMatches(password.value) //서버에 아이디도 중복인지 한번더 체크
+
+
     private fun checkIdValid() = debouncedIdFilter
         .onEach {
             valids.idValid.value = it?.let {

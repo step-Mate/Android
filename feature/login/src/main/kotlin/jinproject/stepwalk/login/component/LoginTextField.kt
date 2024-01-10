@@ -31,7 +31,9 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import jinproject.stepwalk.design.theme.StepWalkTheme
 import jinproject.stepwalk.login.screen.state.Verification
 import jinproject.stepwalk.design.R.drawable as AppIcon
 
@@ -44,17 +46,19 @@ internal fun InformationField(
     keyboardType: KeyboardType = KeyboardType.Email,
     onNewValue: (String) -> Unit
 ){
-    OutlinedTextField(
-        singleLine = true,
-        modifier = Modifier.fieldModifier(),
-        value = value,
-        isError = isError,
-        textStyle = MaterialTheme.typography.bodyMedium,
-        onValueChange = onNewValue,
-        label = {Text(informationText, style = MaterialTheme.typography.bodyMedium)},
-        keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
-    )
-    ErrorMessage(message = errorMessage, isError = isError)
+    Column {
+        OutlinedTextField(
+            singleLine = true,
+            modifier = Modifier.fieldModifier(),
+            value = value,
+            isError = isError,
+            textStyle = MaterialTheme.typography.bodyMedium,
+            onValueChange = onNewValue,
+            label = { Text(informationText, style = MaterialTheme.typography.bodyMedium) },
+            keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
+        )
+        ErrorMessage(message = errorMessage, isError = isError)
+    }
 }
 
 @Composable
@@ -127,7 +131,9 @@ internal fun EmailVerificationField(
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Row(
-            modifier = Modifier.fillMaxWidth().height(IntrinsicSize.Max),
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(IntrinsicSize.Max),
             verticalAlignment = Alignment.CenterVertically
         ) {
             OutlinedTextField(
@@ -139,11 +145,14 @@ internal fun EmailVerificationField(
                 textStyle = MaterialTheme.typography.bodyMedium,
                 onValueChange = onEmailValue,
                 label = {Text(text = "이메일 입력", style = MaterialTheme.typography.bodyMedium)},
-                keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
+                keyboardOptions = KeyboardOptions(keyboardType = keyboardType)
             )
             EnableButton(
                 text = "인증",
-                modifier = Modifier.fillMaxHeight().weight(0.3f).padding(start = 10.dp, top = 10.dp),
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .weight(0.3f)
+                    .padding(start = 10.dp, top = 10.dp),
                 enabled = isVerification() == Verification.emailValid
             ) {
                 requestEmailVerification()//서버에서 이메일 코드처리
@@ -156,29 +165,85 @@ internal fun EmailVerificationField(
             isVerification = isVerification()
         )
         AnimatedVisibility(
-            visible = isVerification() == Verification.verifying,
+            visible = isVerification() == Verification.verifying || isVerification() == Verification.codeError,
             enter = slideInVertically { -it },
-            exit = slideOutVertically { -it }) {
-            OutlinedTextField(
-                singleLine = true,
-                modifier = Modifier.fillMaxWidth(),
-                value = verificationCode(),
-                isError = isVerification() == Verification.codeError,//수정
-                textStyle = MaterialTheme.typography.bodyMedium,
-                onValueChange = onVerificationCodeValue,
-                label = {Text(text = "인증코드 입력", style = MaterialTheme.typography.bodyMedium)},
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword),
-            )
-            ErrorMessage(
-                message = "잘못된 인증코드입니다.",
-                isError = isVerification() == Verification.codeError
-            )
+            exit = slideOutVertically { -it }
+        ) {
+            Column {
+                OutlinedTextField(
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth(),
+                    value = verificationCode(),
+                    isError = isVerification() == Verification.codeError,//수정
+                    textStyle = MaterialTheme.typography.bodyMedium,
+                    onValueChange = onVerificationCodeValue,
+                    label = {Text(text = "인증코드 입력", style = MaterialTheme.typography.bodyMedium)},
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword),
+                )
+                ErrorMessage(
+                    message = "잘못된 인증코드입니다.",
+                    isError = isVerification() == Verification.codeError
+                )
+            }
         }
     }
 }
 
-fun Modifier.fieldModifier(): Modifier {
+internal fun Modifier.fieldModifier(): Modifier {
     return this
         .fillMaxWidth()
         .padding(12.dp, 4.dp)
+}
+
+@Composable
+@Preview
+private fun PreviewInformationField(
+
+) = StepWalkTheme {
+    InformationField(
+        informationText = "닉네임",
+        errorMessage = "잘못된 양식입니다.",
+        value = "",
+        isError = true,
+        onNewValue = {}
+    )
+}
+
+@Composable
+@Preview
+private fun PreviewIdField(
+
+) = StepWalkTheme {
+    IdField(value = "", onNewValue = {},isError = true)
+}
+
+@Composable
+@Preview
+private fun PreviewPasswordField(
+
+) = StepWalkTheme {
+    PasswordField(value = "", onNewValue = {},isError = true)
+}
+
+@Composable
+@Preview
+private fun PreviewRepeatPasswordField(
+
+) = StepWalkTheme {
+    RepeatPasswordField(value = "", onNewValue = {},isError = true)
+}
+
+@Composable
+@Preview
+private fun PreviewEmailValidField(
+
+) = StepWalkTheme {
+    EmailVerificationField(
+        email = { ""},
+        verificationCode = { "" },
+        isVerification = { Verification.verifying },
+        requestEmailVerification = {  },
+        onEmailValue = {},
+        onVerificationCodeValue = {}
+    )
 }

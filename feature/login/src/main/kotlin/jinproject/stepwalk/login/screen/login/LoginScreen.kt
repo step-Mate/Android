@@ -1,4 +1,4 @@
-package jinproject.stepwalk.login.screen
+package jinproject.stepwalk.login.screen.login
 
 import android.content.Context
 import androidx.compose.foundation.Image
@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
@@ -131,7 +132,6 @@ private fun LoginScreen(
                 modifier = Modifier.size(200.dp)
             )
         }
-
         VerticalSpacer(height = 40.dp)
 
         IdField(
@@ -148,11 +148,14 @@ private fun LoginScreen(
                     password = it
             }
         )
+        VerticalSpacer(height = 20.dp)
+
         EnableButton(
             text = "로그인",
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 12.dp)
+                .height(50.dp)
         ) {
             checkValidAccount(id,password)
         }

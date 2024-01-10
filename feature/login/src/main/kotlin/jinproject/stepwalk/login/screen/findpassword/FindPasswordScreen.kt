@@ -110,12 +110,13 @@ private fun FindPasswordScreen(
                             updateFindEvent(FindEvent.repeatPassword,text)
                     }
                 )
-                VerticalSpacer(height = 30.dp)
+                VerticalSpacer(height = 20.dp)
                 EnableButton(
                     text = "비밀번호 재설정",
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 12.dp, vertical = 4.dp),
+                        .padding(horizontal = 12.dp, vertical = 4.dp)
+                        .height(50.dp),
                     enabled = (valids.passwordValid.value == SignValid.success) && (valids.repeatPasswordValid.value == SignValid.success)
                 ) {
                     requestResetPassword()
@@ -139,12 +140,13 @@ private fun FindPasswordScreen(
                     onEmailValue = { updateFindEvent(FindEvent.email,it) },
                     onVerificationCodeValue = { updateFindEvent(FindEvent.emailCode,it)}
                 )
-                VerticalSpacer(height = 30.dp)
+                VerticalSpacer(height = 20.dp)
                 EnableButton(
                     text = "비밀번호 재설정",
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 12.dp, vertical = 4.dp),
+                        .padding(horizontal = 12.dp, vertical = 4.dp)
+                        .height(50.dp),
                     enabled = findAccountPassword().emailValid == Verification.success
                 ) {
                     requestFindAccount()
@@ -161,6 +163,22 @@ private fun PreviewFindPasswordScreen(
 ) = StepWalkTheme {
     FindPasswordScreen(
         findAccountPassword = { FindAccountPassword(nextStep = true) },
+        valids = AccountValid(),
+        updateFindEvent = {_,_ ->},
+        requestEmailVerification = {  },
+        requestFindAccount = {  },
+        requestResetPassword = {  }) {
+
+    }
+}
+
+@Composable
+@Preview
+private fun PreviewFindPasswordScreen2(
+
+) = StepWalkTheme {
+    FindPasswordScreen(
+        findAccountPassword = { FindAccountPassword(nextStep = false) },
         valids = AccountValid(),
         updateFindEvent = {_,_ ->},
         requestEmailVerification = {  },

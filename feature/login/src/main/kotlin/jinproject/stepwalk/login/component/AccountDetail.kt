@@ -14,10 +14,12 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import jinproject.stepwalk.design.R
 import jinproject.stepwalk.design.component.VerticalSpacer
 import jinproject.stepwalk.design.theme.StepWalkColor
+import jinproject.stepwalk.design.theme.StepWalkTheme
 import jinproject.stepwalk.login.screen.state.SignValid
 import jinproject.stepwalk.login.screen.state.isError
 
@@ -27,19 +29,26 @@ internal fun IdDetail(
     idValid : () -> SignValid,
     onNewIdValue : (String) -> Unit,
 ){
-    IdField(
-        value = id(),
-        onNewValue = onNewIdValue,
-        isError = idValid().isError(),
-    )
-    ErrorMessage(
-        message = when (idValid()){
-            SignValid.notValid -> R.string.not_valid_id_content
-            SignValid.duplicationId -> R.string.duplication_id
-            SignValid.success -> R.string.not_duplication_id
-            else -> R.string.blank_id_content },
-        isError = idValid().isError()
-    )
+    Column {
+        IdField(
+            value = id(),
+            onNewValue = onNewIdValue,
+            isError = idValid().isError(),
+        )
+        ErrorMessage(
+            message = when (idValid()){
+                SignValid.notValid -> R.string.not_valid_id_content
+                SignValid.duplicationId -> R.string.duplication_id
+                SignValid.success -> R.string.not_duplication_id
+                else -> R.string.blank_id_content },
+            isError = idValid().isError()
+        )
+        ErrorMessage(
+            message = "사용가능한 아이디입니다.",
+            isError = idValid() == SignValid.success,
+            color = StepWalkColor.success.color
+        )
+    }
 }
 
 @Composable
@@ -51,29 +60,31 @@ internal fun PasswordDetail(
     onNewPassword : (String) -> Unit,
     onNewRepeatPassword : (String) -> Unit
 ){
-    PasswordField(
-        value = password(),
-        onNewValue = onNewPassword,
-        isError = passwordValid().isError()
-    )
-    ErrorMessage(
-        message = when (passwordValid()){
-            SignValid.notValid -> R.string.not_valid_password_content
-            else -> R.string.blank_id_content },
-        isError = passwordValid().isError()
-    )
-    RepeatPasswordField(
-        value = repeatPassword(),
-        onNewValue = onNewRepeatPassword,
-        isError = repeatPasswordValid().isError()
-    )
-    ErrorMessage(
-        message = when (repeatPasswordValid()){
-            SignValid.notValid -> R.string.not_valid_password_content
-            SignValid.notMatch -> R.string.not_match_password
-            else -> R.string.blank_id_content },
-        isError = repeatPasswordValid().isError()
-    )
+    Column {
+        PasswordField(
+            value = password(),
+            onNewValue = onNewPassword,
+            isError = passwordValid().isError()
+        )
+        ErrorMessage(
+            message = when (passwordValid()){
+                SignValid.notValid -> R.string.not_valid_password_content
+                else -> R.string.blank_id_content },
+            isError = passwordValid().isError()
+        )
+        RepeatPasswordField(
+            value = repeatPassword(),
+            onNewValue = onNewRepeatPassword,
+            isError = repeatPasswordValid().isError()
+        )
+        ErrorMessage(
+            message = when (repeatPasswordValid()){
+                SignValid.notValid -> R.string.not_valid_password_content
+                SignValid.notMatch -> R.string.not_match_password
+                else -> R.string.blank_id_content },
+            isError = repeatPasswordValid().isError()
+        )
+    }
 }
 
 @Composable
@@ -85,7 +96,7 @@ internal fun IdResultDetail(
             .fillMaxWidth()
             .height(100.dp)
             .padding(horizontal = 12.dp, vertical = 5.dp),
-        shape = RoundedCornerShape(8.dp),
+        shape = RoundedCornerShape(5.dp),
         colors = CardDefaults.cardColors(
             containerColor = StepWalkColor.blue_200.color,
             contentColor = StepWalkColor.blue_400.color
@@ -100,5 +111,38 @@ internal fun IdResultDetail(
             VerticalSpacer(height = 10.dp)
             Text(text = "아이디 : ${findAccountId()}", style = MaterialTheme.typography.bodyMedium)
         }
+    }
+}
+
+@Composable
+@Preview
+private fun PreviewIdDetail(
+
+) = StepWalkTheme {
+    IdDetail(id = { "" }, idValid = { SignValid.success }, onNewIdValue = {})
+}
+
+@Composable
+@Preview
+private fun PreviewPasswordDetail(
+
+) = StepWalkTheme {
+    PasswordDetail(
+        password = { ""},
+        repeatPassword = { ""},
+        passwordValid = { SignValid.notValid },
+        repeatPasswordValid = { SignValid.notMatch },
+        onNewPassword = {},
+        onNewRepeatPassword = {}
+    )
+}
+
+@Composable
+@Preview
+private fun PreviewIdResultDetail(
+
+) = StepWalkTheme {
+    IdResultDetail {
+        "testID"
     }
 }

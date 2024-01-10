@@ -33,6 +33,7 @@ import jinproject.stepwalk.design.theme.StepWalkTheme
 import jinproject.stepwalk.login.component.EmailVerificationField
 import jinproject.stepwalk.login.component.InformationField
 import jinproject.stepwalk.login.screen.state.UserDataValid
+import jinproject.stepwalk.login.screen.state.Verification
 import jinproject.stepwalk.login.screen.state.isError
 
 @Composable
@@ -166,7 +167,7 @@ private fun PreviewSignUpDetailScreen(
 ) = StepWalkTheme {
     SignUpDetailScreen(
         signUpDetail = {SignUpDetail()},
-        userValid = UserDataValid(),
+        userValid = UserDataValid(emailValid = Verification.verifying),
         updateUserEvent = {_,_ ->},
         requestEmailVerification = {},
         popBackStacks = {_,_,_ ->}

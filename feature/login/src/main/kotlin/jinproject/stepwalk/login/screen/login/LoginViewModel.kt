@@ -1,4 +1,4 @@
-package jinproject.stepwalk.login.screen
+package jinproject.stepwalk.login.screen.login
 
 import androidx.lifecycle.ViewModel
 import jinproject.stepwalk.login.utils.isValidID

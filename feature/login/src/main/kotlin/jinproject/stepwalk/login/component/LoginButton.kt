@@ -28,6 +28,7 @@ import androidx.compose.ui.unit.dp
 import jinproject.stepwalk.design.component.DefaultButton
 import jinproject.stepwalk.design.component.DefaultTextButton
 import jinproject.stepwalk.design.component.HorizontalSpacer
+import jinproject.stepwalk.design.theme.StepWalkTheme
 
 //간편 로그인용
 @Composable
@@ -135,19 +136,58 @@ internal fun EnableButton(
 
 
 
-@Preview(showBackground = true, widthDp = 320, heightDp = 320)
 @Composable
-private fun IconButtonPreview() {
-    Box(contentAlignment = Alignment.Center) {
-        IconButton(
-            icon = jinproject.stepwalk.design.R.drawable.ic_kakao_simbol,
-            containerColor = Color.Yellow,
-            simbolColor = Color.Black,
-            labelColor = Color.Black,
-            text = jinproject.stepwalk.design.R.string.kakao_login_button
-        ) {
+@Preview
+private fun PreviewIconButton(
 
-        }
+) = StepWalkTheme {
+    IconButton(
+        icon = jinproject.stepwalk.design.R.drawable.ic_kakao_simbol,
+        containerColor = Color.Yellow,
+        simbolColor = Color.Black,
+        labelColor = Color.Black,
+        text = jinproject.stepwalk.design.R.string.kakao_login_button
+    ) {
     }
-
 }
+
+@Composable
+@Preview
+private fun PreviewFindAndSignUp(
+
+) = StepWalkTheme {
+    FindAndSignUpButtons(
+        findAccountId = {  },
+        findAccountPassword = { }) {
+    }
+}
+
+@Composable
+@Preview
+private fun PreviewEnableButton(
+
+) = StepWalkTheme {
+    EnableButton(
+        text = "Preview",
+        modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp),
+        enabled = true
+    ) {
+
+    }
+}
+
+@Composable
+@Preview
+private fun PreviewNotEnableButton(
+
+) = StepWalkTheme {
+    EnableButton(
+        text = "Preview",
+        modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp),
+        enabled = false
+    ) {
+
+    }
+}
+
+
