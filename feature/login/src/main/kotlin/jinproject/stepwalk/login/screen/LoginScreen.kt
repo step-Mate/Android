@@ -40,6 +40,9 @@ internal fun LoginScreen(
     context : Context = LocalContext.current,
     loginViewModel: LoginViewModel = hiltViewModel(),
     navigateToSignUp : () -> Unit,
+    navigateToFindId : () -> Unit,
+    navigateToFindPassword : () -> Unit,
+    popBackStack : () -> Unit,
     showSnackBar : (SnackBarMessage) -> Unit
 ){
     val checkValidAccount = remember<(String,String) -> Unit> {
@@ -86,21 +89,25 @@ internal fun LoginScreen(
                     )
                 }
                 Valid.ACCOUNT_VALID -> {
-
+                    popBackStack()
                 }//홈화면 복귀?
             }
         }
     }
     LoginScreen(
         checkValidAccount = checkValidAccount,
-        navigateToSignUp = navigateToSignUp
+        navigateToSignUp = navigateToSignUp,
+        navigateToFindId = navigateToFindId,
+        navigateToFindPassword = navigateToFindPassword
     )
 }
 
 @Composable
 private fun LoginScreen(
     checkValidAccount : (String,String) -> Unit,
-    navigateToSignUp: () -> Unit
+    navigateToSignUp: () -> Unit,
+    navigateToFindId : () -> Unit,
+    navigateToFindPassword : () -> Unit
 ) {
     var id by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
@@ -151,8 +158,8 @@ private fun LoginScreen(
         }
 
         FindAndSignUpButtons(
-            findAccountId = {  },//화면 넘기기?
-            findAccountPassword = {  },
+            findAccountId = navigateToFindId,
+            findAccountPassword = navigateToFindPassword,
             createAccount = navigateToSignUp
         )
 
@@ -195,6 +202,8 @@ private fun PreviewHomeScreen(
 ) = StepWalkTheme {
     LoginScreen(
         checkValidAccount = { a,b -> Valid.ACCOUNT_VALID },
-        navigateToSignUp = {}
+        navigateToSignUp = {},
+        navigateToFindId = {},
+        navigateToFindPassword = {}
     )
 }

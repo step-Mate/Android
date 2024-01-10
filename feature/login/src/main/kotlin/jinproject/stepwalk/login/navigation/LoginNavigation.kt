@@ -2,6 +2,7 @@ package jinproject.stepwalk.login.navigation
 
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
+import androidx.navigation.NavOptions
 import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
@@ -26,7 +27,10 @@ private const val findPasswordRoute = "findPassword"
 fun NavGraphBuilder.loginNavGraph(
     navigateToSignUp : () -> Unit,
     navigateToSignUpDetail : (String,String) -> Unit,
+    navigateToFindId : () -> Unit,
+    navigateToFindPassword : () -> Unit,
     popBackStack: () -> Unit,
+    popBackStacks: (String,Boolean,Boolean) -> Unit,
     showSnackBar: (SnackBarMessage) -> Unit
 ){
     composable(
@@ -36,6 +40,9 @@ fun NavGraphBuilder.loginNavGraph(
     ){
         LoginScreen(
             navigateToSignUp = navigateToSignUp,
+            navigateToFindId = navigateToFindId,
+            navigateToFindPassword = navigateToFindPassword,
+            popBackStack = popBackStack,
             showSnackBar = showSnackBar
         )
     }
@@ -69,7 +76,8 @@ fun NavGraphBuilder.loginNavGraph(
         val password = navBackStackEntry.arguments?.getString("password") ?: ""
         SignUpDetailScreen(
             id = id,
-            password = password
+            password = password,
+            popBackStacks = popBackStacks
         )
     }
 
@@ -95,14 +103,30 @@ fun NavGraphBuilder.loginNavGraph(
 
 }
 
-fun NavController.navigateToLogin() {
-    this.navigate(loginRoute)
+fun NavController.navigateToLogin(navOptions: NavOptions?) {
+    this.navigate(loginRoute, navOptions = navOptions)
 }
 
 fun NavController.navigateToSignUp() {
-    this.navigate(signUpRoute)
+    this.navigate(signUpRoute){
+        launchSingleTop = true
+    }
 }
 
 fun NavController.navigateToSignUpDetail(id : String, password : String) {
-    this.navigate("$signUpDetailRoute?id={$id}&password={$password}")
+    this.navigate("$signUpDetailRoute?id={$id}&password={$password}"){
+        launchSingleTop = true
+    }
+}
+
+fun NavController.navigateToFindId() {
+    this.navigate(findIdRoute){
+        launchSingleTop = true
+    }
+}
+
+fun NavController.navigateToFindPassword() {
+    this.navigate(findPasswordRoute){
+        launchSingleTop = true
+    }
 }

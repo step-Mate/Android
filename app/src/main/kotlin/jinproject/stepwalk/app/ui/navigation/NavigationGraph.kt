@@ -19,10 +19,11 @@ import androidx.compose.ui.res.vectorResource
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import jinproject.stepwalk.home.screen.state.SnackBarMessage
-import jinproject.stepwalk.home.HealthConnector
 import jinproject.stepwalk.home.navigation.homeNavGraph
 import jinproject.stepwalk.home.navigation.navigateToCalendar
 import jinproject.stepwalk.login.navigation.loginNavGraph
+import jinproject.stepwalk.login.navigation.navigateToFindId
+import jinproject.stepwalk.login.navigation.navigateToFindPassword
 import jinproject.stepwalk.login.navigation.navigateToSignUp
 import jinproject.stepwalk.login.navigation.navigateToSignUpDetail
 
@@ -49,7 +50,10 @@ internal fun NavigationGraph(
         loginNavGraph(
             navigateToSignUp = navController::navigateToSignUp,
             navigateToSignUpDetail = navController::navigateToSignUpDetail,
+            navigateToFindId = navController::navigateToFindId,
+            navigateToFindPassword = navController::navigateToFindPassword,
             popBackStack = navController::popBackStack,
+            popBackStacks = navController::popBackStack,
             showSnackBar = { showSnackBar(SnackBarMessage(it.headerMessage,it.contentMessage))}
         )
 

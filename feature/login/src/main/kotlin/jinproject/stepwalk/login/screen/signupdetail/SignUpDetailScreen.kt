@@ -39,7 +39,8 @@ import jinproject.stepwalk.login.screen.state.isError
 internal fun SignUpDetailScreen(
     signUpDetailViewModel: SignUpDetailViewModel = hiltViewModel(),
     id : String,
-    password : String
+    password : String,
+    popBackStacks: (String,Boolean,Boolean) -> Unit
 ) {
     val nickname by signUpDetailViewModel.nickname.collectAsStateWithLifecycle()
     val age by signUpDetailViewModel.age.collectAsStateWithLifecycle()
@@ -52,7 +53,8 @@ internal fun SignUpDetailScreen(
         signUpDetail = {SignUpDetail(id,password,nickname,age,height,weight,email,emailCode)},
         userValid = signUpDetailViewModel.valids,
         updateUserEvent = signUpDetailViewModel::updateUserEvent,
-        requestEmailVerification = signUpDetailViewModel::requestEmailVerification
+        requestEmailVerification = signUpDetailViewModel::requestEmailVerification,
+        popBackStacks = popBackStacks
     )
 
 }
@@ -62,7 +64,8 @@ private fun SignUpDetailScreen(
     signUpDetail: () -> SignUpDetail,
     userValid: UserDataValid,
     updateUserEvent : (UserEvent,String) -> Unit,
-    requestEmailVerification : () -> Unit
+    requestEmailVerification : () -> Unit,
+    popBackStacks: (String,Boolean,Boolean) -> Unit
 ){
     val scrollState = rememberScrollState()
 
@@ -149,8 +152,8 @@ private fun SignUpDetailScreen(
                     .height(50.dp),
                 enabled = userValid.isSuccessfulValid()
             ) {
-                //navigateToSignUpDetail(signUp.id,signUp.password)
                 //서버로 데이터 전송 대기후 이동
+                popBackStacks("home",false,false)//추후 수정??
             }
         }
     }
@@ -165,6 +168,7 @@ private fun PreviewSignUpDetailScreen(
         signUpDetail = {SignUpDetail()},
         userValid = UserDataValid(),
         updateUserEvent = {_,_ ->},
-        requestEmailVerification = {}
+        requestEmailVerification = {},
+        popBackStacks = {_,_,_ ->}
     )
 }
