@@ -76,7 +76,8 @@ private fun SignUpDetailScreen(
         ) {
             Text(
                 text = stringResource(id = R.string.signup_title),
-                style = MaterialTheme.typography.titleMedium
+                style = MaterialTheme.typography.titleMedium,
+                modifier = Modifier.fillMaxWidth().padding(start = 12.dp)
             )
             VerticalSpacer(height = 30.dp)
             InformationField(
@@ -127,9 +128,9 @@ private fun SignUpDetailScreen(
             }
             
             EmailVerificationField(
-                email = signUpDetail().email,
-                verificationCode = signUpDetail().emailCode,
-                isVerification = userValid.emailValid.value,
+                email = {signUpDetail().email},
+                verificationCode = {signUpDetail().emailCode},
+                isVerification = {userValid.emailValid.value},
                 requestEmailVerification = requestEmailVerification,
                 onEmailValue = {updateUserEvent(UserEvent.email,it)},
                 onVerificationCodeValue = {updateUserEvent(UserEvent.emailCode,it)}
@@ -157,7 +158,7 @@ private fun SignUpDetailScreen(
 
 @Composable
 @Preview
-private fun PreviewSignUpScreen(
+private fun PreviewSignUpDetailScreen(
 
 ) = StepWalkTheme {
     SignUpDetailScreen(

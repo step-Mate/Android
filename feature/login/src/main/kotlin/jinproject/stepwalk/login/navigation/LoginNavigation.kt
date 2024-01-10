@@ -6,6 +6,8 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import jinproject.stepwalk.login.screen.LoginScreen
+import jinproject.stepwalk.login.screen.findid.FindIdScreen
+import jinproject.stepwalk.login.screen.findpassword.FindPasswordScreen
 import jinproject.stepwalk.login.screen.signup.SignUpScreen
 import jinproject.stepwalk.login.screen.signupdetail.SignUpDetailScreen
 import jinproject.stepwalk.login.utils.SnackBarMessage
@@ -14,10 +16,12 @@ import jinproject.stepwalk.login.utils.slideLeftOut
 import jinproject.stepwalk.login.utils.slideRightIn
 import jinproject.stepwalk.login.utils.slideUpIn
 
-const val loginRoute = "login"
+private const val loginRoute = "login"
 private const val signUpRoute = "signUp"
 private const val signUpDetailRoute = "signUpDetail"
 private const val signUpDetailLink = "$signUpDetailRoute?id={id}&password={password}"
+private const val findIdRoute = "findId"
+private const val findPasswordRoute = "findPassword"
 
 fun NavGraphBuilder.loginNavGraph(
     navigateToSignUp : () -> Unit,
@@ -66,6 +70,26 @@ fun NavGraphBuilder.loginNavGraph(
         SignUpDetailScreen(
             id = id,
             password = password
+        )
+    }
+
+    composable(
+        route = findIdRoute,
+        enterTransition = slideRightIn(500),
+        exitTransition = slideLeftOut(500),
+    ){
+        FindIdScreen(
+            popBackStack = popBackStack
+        )
+    }
+
+    composable(
+        route = findPasswordRoute,
+        enterTransition = slideRightIn(500),
+        exitTransition = slideLeftOut(500),
+    ){
+        FindPasswordScreen (
+            popBackStack = popBackStack
         )
     }
 

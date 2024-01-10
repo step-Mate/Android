@@ -21,10 +21,8 @@ import jinproject.stepwalk.design.component.DefaultLayout
 import jinproject.stepwalk.design.component.VerticalSpacer
 import jinproject.stepwalk.design.theme.StepWalkTheme
 import jinproject.stepwalk.login.component.EnableButton
-import jinproject.stepwalk.login.component.ErrorMessage
-import jinproject.stepwalk.login.component.IdField
-import jinproject.stepwalk.login.component.PasswordField
-import jinproject.stepwalk.login.component.RepeatPasswordField
+import jinproject.stepwalk.login.component.IdDetail
+import jinproject.stepwalk.login.component.PasswordDetail
 import jinproject.stepwalk.login.utils.MAX_ID_LENGTH
 import jinproject.stepwalk.login.utils.MAX_PASS_LENGTH
 import jinproject.stepwalk.design.R.string as AppText
@@ -58,57 +56,36 @@ private fun SignUpScreen(
     ) {
         Text(
             text = stringResource(id = AppText.signup_title),
-            style = MaterialTheme.typography.titleMedium
+            style = MaterialTheme.typography.titleMedium,
+            modifier = Modifier.fillMaxWidth().padding(start = 12.dp)
         )
         VerticalSpacer(height = 30.dp)
 
-        IdField(
-            value = signUp().id,
-            onNewValue = {
+        IdDetail(
+            id = {signUp().id},
+            idValid = {valids.idValid.value},
+            onNewIdValue = {
                 val text = it.trim()
                 if (text.length <= MAX_ID_LENGTH)
                     updateAccountEvent(AccountEvent.id,text)
-            },
-            isError = valids.idValid.value.isError(),
+            }
         )
-        ErrorMessage(
-            message = when (valids.idValid.value){
-                SignValid.notValid -> AppText.not_valid_id_content
-                SignValid.duplicationId -> AppText.duplication_id
-                SignValid.success -> AppText.not_duplication_id
-                else -> AppText.blank_id_content },
-            isError = valids.idValid.value.isError()
-        )
-        PasswordField(
-            value = signUp().password,
-            onNewValue = {
+
+        PasswordDetail(
+            password = { signUp().password},
+            repeatPassword = { signUp().repeatPassword},
+            passwordValid = { valids.passwordValid.value },
+            repeatPasswordValid = { valids.repeatPasswordValid.value },
+            onNewPassword = {
                 val text = it.trim()
                 if (text.length <= MAX_PASS_LENGTH)
                     updateAccountEvent(AccountEvent.password,text)
             },
-            isError = valids.passwordValid.value.isError()
-        )
-        ErrorMessage(
-            message = when (valids.passwordValid.value){
-                SignValid.notValid -> AppText.not_valid_password_content
-                else -> AppText.blank_id_content },
-            isError = valids.passwordValid.value.isError()
-        )
-        RepeatPasswordField(
-            value = signUp().repeatPassword,
-            onNewValue = {
+            onNewRepeatPassword = {
                 val text = it.trim()
                 if (text.length <= MAX_PASS_LENGTH)
                     updateAccountEvent(AccountEvent.repeatPassword,text)
-            },
-            isError = valids.repeatPasswordValid.value.isError()
-        )
-        ErrorMessage(
-            message = when (valids.repeatPasswordValid.value){
-                SignValid.notValid -> AppText.not_valid_password_content
-                SignValid.notMatch -> AppText.not_match_password
-                else -> AppText.blank_id_content },
-            isError = valids.repeatPasswordValid.value.isError()
+            }
         )
 
         Column(
@@ -119,7 +96,8 @@ private fun SignUpScreen(
                 text = "다음 단계",
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 12.dp).height(50.dp),
+                    .padding(horizontal = 12.dp)
+                    .height(50.dp),
                 isEnable = valids.isSuccessfulValid()
             ) {
                 navigateToSignUpDetail(signUp().id,signUp().password)

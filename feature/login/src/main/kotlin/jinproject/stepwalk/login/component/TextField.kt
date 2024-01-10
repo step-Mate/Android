@@ -129,9 +129,9 @@ private fun PasswordField(
 
 @Composable
 internal fun EmailVerificationField(
-    email: String,
-    verificationCode : String,
-    isVerification: Verification,
+    email: () -> String,
+    verificationCode : () -> String,
+    isVerification: () -> Verification,
     requestEmailVerification : () -> Unit,
     keyboardType: KeyboardType = KeyboardType.Email,
     onEmailValue: (String) -> Unit,
@@ -150,9 +150,9 @@ internal fun EmailVerificationField(
             OutlinedTextField(
                 singleLine = true,
                 modifier = Modifier.weight(0.7f),
-                value = email,
-                enabled = isVerification != Verification.success,
-                isError = isVerification == Verification.emailError,
+                value = email(),
+                enabled = isVerification() != Verification.success,
+                isError = isVerification() == Verification.emailError,
                 textStyle = MaterialTheme.typography.bodyMedium,
                 onValueChange = onEmailValue,
                 label = {Text(text = "이메일 입력", style = MaterialTheme.typography.bodyMedium)},
@@ -161,7 +161,7 @@ internal fun EmailVerificationField(
             EnableButton(
                 text = "인증",
                 modifier = Modifier.fillMaxHeight().weight(0.3f).padding(start = 10.dp, top = 10.dp),
-                isEnable = isVerification == Verification.emailValid
+                isEnable = isVerification() == Verification.emailValid
             ) {
                 requestEmailVerification()//서버에서 이메일 코드처리
             }
@@ -170,17 +170,17 @@ internal fun EmailVerificationField(
             errorMessage = "잘못된 이메일 양식입니다.",
             verifyingMessage = "메일함을 확인후 코드를 입력해주세요.",
             successMessage = "이메일이 인증되었습니다.",
-            isVerification = isVerification
+            isVerification = isVerification()
         )
         AnimatedVisibility(
-            visible = isVerification == Verification.verifying,
+            visible = isVerification() == Verification.verifying,
             enter = slideInVertically { -it },
             exit = slideOutVertically { -it }) {
             OutlinedTextField(
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth(),
-                value = verificationCode,
-                isError = isVerification == Verification.codeError,//수정
+                value = verificationCode(),
+                isError = isVerification() == Verification.codeError,//수정
                 textStyle = MaterialTheme.typography.bodyMedium,
                 onValueChange = onVerificationCodeValue,
                 label = {Text(text = "인증코드 입력", style = MaterialTheme.typography.bodyMedium)},
@@ -188,7 +188,7 @@ internal fun EmailVerificationField(
             )
             ErrorMessage(
                 message = "잘못된 인증코드입니다.",
-                isError = isVerification == Verification.codeError
+                isError = isVerification() == Verification.codeError
             )
         }
     }
