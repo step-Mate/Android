@@ -116,7 +116,7 @@ private fun FindPasswordScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 12.dp, vertical = 4.dp),
-                    isEnable = (valids.passwordValid.value == SignValid.success) && (valids.repeatPasswordValid.value == SignValid.success)
+                    enabled = (valids.passwordValid.value == SignValid.success) && (valids.repeatPasswordValid.value == SignValid.success)
                 ) {
                     requestResetPassword()
                     popBackStack()
@@ -145,7 +145,7 @@ private fun FindPasswordScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 12.dp, vertical = 4.dp),
-                    isEnable = findAccountPassword().emailValid == Verification.success
+                    enabled = findAccountPassword().emailValid == Verification.success
                 ) {
                     requestFindAccount()
                 }

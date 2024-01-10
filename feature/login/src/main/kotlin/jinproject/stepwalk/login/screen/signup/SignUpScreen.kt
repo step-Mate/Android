@@ -98,7 +98,7 @@ private fun SignUpScreen(
                     .fillMaxWidth()
                     .padding(horizontal = 12.dp)
                     .height(50.dp),
-                isEnable = valids.isSuccessfulValid()
+                enabled = valids.isSuccessfulValid()
             ) {
                 navigateToSignUpDetail(signUp().id,signUp().password)
             }

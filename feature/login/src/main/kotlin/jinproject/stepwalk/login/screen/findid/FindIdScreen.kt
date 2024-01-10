@@ -102,7 +102,7 @@ private fun FindIdScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 12.dp, vertical = 4.dp),
-                    isEnable = findAccountId().emailValid == Verification.success
+                    enabled = findAccountId().emailValid == Verification.success
                 ) {
                     requestFindAccount()
                 }

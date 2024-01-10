@@ -32,8 +32,6 @@ import jinproject.stepwalk.design.component.VerticalSpacer
 import jinproject.stepwalk.design.theme.StepWalkTheme
 import jinproject.stepwalk.login.component.EmailVerificationField
 import jinproject.stepwalk.login.component.InformationField
-import jinproject.stepwalk.design.R.string as AppText
-
 
 @Composable
 internal fun SignUpDetailScreen(
@@ -81,8 +79,8 @@ private fun SignUpDetailScreen(
             )
             VerticalSpacer(height = 30.dp)
             InformationField(
-                informationText = AppText.username,
-                errorMessage = AppText.username_error,
+                informationText = "닉네임",
+                errorMessage = "한글,영어,숫자가능,특수문자불가,2~10글자까지 입력가능",
                 value = signUpDetail().nickname,
                 isError = userValid.nicknameValid.value.isError()
             ){
@@ -92,8 +90,8 @@ private fun SignUpDetailScreen(
             }
 
             InformationField(
-                informationText = AppText.age,
-                errorMessage = AppText.age_error,
+                informationText = "나이",
+                errorMessage = "정확한 나이를 입력해주세요.",
                 value = signUpDetail().age,
                 isError = userValid.ageValid.value.isError(),
                 keyboardType = KeyboardType.NumberPassword
@@ -104,8 +102,8 @@ private fun SignUpDetailScreen(
             }
 
             InformationField(
-                informationText = AppText.height,
-                errorMessage = AppText.height_error,
+                informationText = "키",
+                errorMessage = "정확한 키를 입력해주세요.",
                 value = signUpDetail().height,
                 isError = userValid.heightValid.value.isError(),
                 keyboardType = KeyboardType.Decimal
@@ -116,8 +114,8 @@ private fun SignUpDetailScreen(
             }
 
             InformationField(
-                informationText = AppText.weight,
-                errorMessage = AppText.weight_error,
+                informationText = "몸무게",
+                errorMessage = "정확한 몸무게를 입력해주세요.",
                 value = signUpDetail().weight,
                 isError = userValid.weightValid.value.isError(),
                 keyboardType = KeyboardType.Decimal
@@ -147,7 +145,7 @@ private fun SignUpDetailScreen(
                     .fillMaxWidth()
                     .padding(horizontal = 12.dp)
                     .height(50.dp),
-                isEnable = userValid.isSuccessfulValid()
+                enabled = userValid.isSuccessfulValid()
             ) {
                 //navigateToSignUpDetail(signUp.id,signUp.password)
                 //서버로 데이터 전송 대기후 이동

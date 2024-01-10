@@ -22,7 +22,6 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import jinproject.stepwalk.login.component.BasicButton
 import jinproject.stepwalk.login.component.FindAndSignUpButtons
 import jinproject.stepwalk.login.utils.MAX_ID_LENGTH
 import jinproject.stepwalk.login.utils.MAX_PASS_LENGTH
@@ -30,6 +29,7 @@ import jinproject.stepwalk.design.R
 import jinproject.stepwalk.design.component.DefaultLayout
 import jinproject.stepwalk.design.component.VerticalSpacer
 import jinproject.stepwalk.design.theme.StepWalkTheme
+import jinproject.stepwalk.login.component.EnableButton
 import jinproject.stepwalk.login.component.IdField
 import jinproject.stepwalk.login.component.PasswordField
 import jinproject.stepwalk.login.utils.SnackBarMessage
@@ -141,8 +141,8 @@ private fun LoginScreen(
                     password = it
             }
         )
-        BasicButton(
-            text = R.string.login_button,
+        EnableButton(
+            text = "로그인",
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 12.dp)

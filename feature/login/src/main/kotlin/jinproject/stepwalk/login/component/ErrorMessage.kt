@@ -6,12 +6,12 @@ import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.Text
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import jinproject.stepwalk.design.component.DescriptionSmallText
 import jinproject.stepwalk.design.component.VerticalSpacer
 import jinproject.stepwalk.design.theme.StepWalkColor
 import jinproject.stepwalk.login.screen.state.Verification
@@ -26,9 +26,8 @@ internal fun ErrorMessage(
         enter = slideInVertically { -it },
         exit = slideOutVertically { -it }
     ) {
-        Text(
+        DescriptionSmallText(
             text = stringResource(id = message),
-            style = MaterialTheme.typography.labelLarge,
             color = MaterialTheme.colorScheme.error,
             modifier = Modifier
                 .fillMaxWidth()
@@ -48,13 +47,12 @@ internal fun ErrorMessage(
         enter = slideInVertically { -it },
         exit = slideOutVertically { -it }
     ) {
-        Text(
-            text = message,
-            style = MaterialTheme.typography.labelLarge,
-            color = MaterialTheme.colorScheme.error,
+        DescriptionSmallText(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 12.dp)
+                .padding(horizontal = 12.dp),
+            text = message,
+            color = MaterialTheme.colorScheme.error
         )
         VerticalSpacer(height = 10.dp)
     }
@@ -72,21 +70,20 @@ internal fun EmailErrorMessage(
         enter = slideInVertically { -it },
         exit = slideOutVertically { -it }
     ) {
-        Text(
+        DescriptionSmallText(
             text = when(isVerification){
                 Verification.emailError -> errorMessage
                 Verification.verifying -> verifyingMessage
                 Verification.success -> successMessage
                 else -> ""
             },
-            style = MaterialTheme.typography.labelLarge,
             color = when (isVerification){
                 Verification.emailError -> MaterialTheme.colorScheme.error
                 Verification.success -> StepWalkColor.success.color
                 else -> StepWalkColor.blue_400.color
             },
             modifier = Modifier
-                .fillMaxWidth()
+                .fillMaxWidth().padding(horizontal = 12.dp)
         )
         VerticalSpacer(height = 10.dp)
     }

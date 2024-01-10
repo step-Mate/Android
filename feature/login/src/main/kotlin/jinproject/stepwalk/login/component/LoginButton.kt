@@ -12,12 +12,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -28,27 +25,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import jinproject.stepwalk.design.component.DefaultButton
+import jinproject.stepwalk.design.component.DefaultTextButton
 import jinproject.stepwalk.design.component.HorizontalSpacer
-import jinproject.stepwalk.design.R.string as AppText
 
-
-@Composable
-internal fun BasicButton(
-    @StringRes text: Int, modifier: Modifier, action: () -> Unit
-) {
-    Button(
-        onClick = action,
-        modifier = modifier,
-        colors = ButtonDefaults.buttonColors(
-            containerColor = MaterialTheme.colorScheme.primary,
-            contentColor = MaterialTheme.colorScheme.onPrimary
-        ),
-        shape = RoundedCornerShape(5.dp)
-    ) {
-        Text(text = stringResource(text), style = MaterialTheme.typography.bodyMedium)
-    }
-}
-
+//간편 로그인용
 @Composable
 internal fun IconButton(
     @DrawableRes icon : Int,
@@ -104,66 +85,50 @@ internal fun FindAndSignUpButtons(
             .wrapContentHeight()
             .padding(horizontal = 12.dp)
     ) {
-        TextButton(
-            text = AppText.find_account_id,
+        DefaultTextButton(
+            text = "아이디 찾기",
             textColor = MaterialTheme.colorScheme.scrim,
-            action = findAccountId
+            onClick = findAccountId
         )
         HorizontalSpacer(width = 10.dp)
         GrayVerticalDivider(modifier = Modifier.height(15.dp))
         HorizontalSpacer(width = 10.dp)
-        TextButton(
-            text = AppText.find_account_password,
+        DefaultTextButton(
+            text = "비밀번호 찾기",
             textColor = MaterialTheme.colorScheme.scrim,
-            action = findAccountPassword
+            onClick = findAccountPassword
         )
         HorizontalSpacer(width = 10.dp)
         GrayVerticalDivider(modifier = Modifier.height(15.dp))
         HorizontalSpacer(width = 10.dp)
-        TextButton(
-            text = AppText.create_account,
+        DefaultTextButton(
+            text = "회원가입",
             textColor = MaterialTheme.colorScheme.scrim,
-            action = createAccount
+            onClick = createAccount
         )
     }
 }
 
-@Composable
-internal fun TextButton(
-    @StringRes text: Int,
-    textColor : Color,
-    action: () -> Unit
-){
-    TextButton(
-        onClick = action
-    ) {
-        Text(
-            text = stringResource(id = text),
-            style = MaterialTheme.typography.bodySmall,
-            color = textColor
-        )
-    }
-}
 
 @Composable
 internal fun EnableButton(
     text: String,
     modifier: Modifier,
-    isEnable : Boolean = false,
-    action: () -> Unit
+    enabled : Boolean = false,
+    onClick: () -> Unit
 ){
-    Button(
-        onClick = action,
+    DefaultButton(
+        onClick = onClick,
         modifier = modifier,
-        enabled = isEnable,
-        colors = ButtonDefaults.buttonColors(
-            containerColor = MaterialTheme.colorScheme.primary.copy(alpha = if(isEnable) 1f else 0.5f),
-            contentColor = MaterialTheme.colorScheme.onPrimary.copy(alpha = if(isEnable) 1f else 0.5f),
-
-        ),
+        enabled = enabled,
+        backgroundColor = MaterialTheme.colorScheme.primary.copy(alpha = if(enabled) 1f else 0.5f),
         shape = RoundedCornerShape(5.dp)
     ) {
-        Text(text = text, style = MaterialTheme.typography.bodyMedium)
+        Text(
+            text = text,
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onPrimary.copy(alpha = if(enabled) 1f else 0.5f)
+        )
     }
 }
 

@@ -20,7 +20,7 @@ import kotlin.math.roundToInt
 fun DefaultLayout(
     modifier: Modifier = Modifier,
     contentPaddingValues: PaddingValues,
-    topBar: @Composable () -> Unit,
+    topBar: @Composable () -> Unit = {},
     content: @Composable ColumnScope.() -> Unit,
 ) {
     Column(
@@ -88,23 +88,6 @@ fun HideableTopBarLayout(
             contentPlaceable?.place(0, (topBarPlaceable?.height ?: 0))
         }
 
-    }
-}
-
-@Composable
-fun DefaultLayout(
-    modifier: Modifier = Modifier,
-    contentPaddingValues: PaddingValues,
-    content: @Composable ColumnScope.() -> Unit
-) {
-    Column(
-        modifier = modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
-    ) {
-        Column(modifier = Modifier.fillMaxSize().padding(contentPaddingValues)) {
-            content()
-        }
     }
 }
 

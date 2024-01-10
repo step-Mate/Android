@@ -1,6 +1,5 @@
 package jinproject.stepwalk.login.component
 
-import androidx.annotation.StringRes
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
@@ -28,7 +27,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -36,12 +34,11 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import jinproject.stepwalk.login.screen.state.Verification
 import jinproject.stepwalk.design.R.drawable as AppIcon
-import jinproject.stepwalk.design.R.string as AppText
 
 @Composable
 internal fun InformationField(
-    @StringRes informationText : Int,
-    @StringRes errorMessage : Int,
+    informationText : String,
+    errorMessage : String,
     value: String,
     isError : Boolean = false,
     keyboardType: KeyboardType = KeyboardType.Email,
@@ -54,24 +51,10 @@ internal fun InformationField(
         isError = isError,
         textStyle = MaterialTheme.typography.bodyMedium,
         onValueChange = onNewValue,
-        label = {Text(stringResource(informationText), style = MaterialTheme.typography.bodyMedium)},
+        label = {Text(informationText, style = MaterialTheme.typography.bodyMedium)},
         keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
     )
     ErrorMessage(message = errorMessage, isError = isError)
-}
-
-@Composable
-internal fun IdField(value: String, onNewValue: (String) -> Unit) {
-    OutlinedTextField(
-        singleLine = true,
-        modifier = Modifier.fieldModifier(),
-        value = value,
-        textStyle = MaterialTheme.typography.bodyMedium,
-        onValueChange = onNewValue,
-        placeholder = { Text(stringResource(AppText.id), style = MaterialTheme.typography.bodyMedium) },
-        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
-        leadingIcon = { Icon(imageVector = Icons.Default.Person, contentDescription = "Email") }
-    )
 }
 
 @Composable
@@ -83,7 +66,7 @@ internal fun IdField(value: String, onNewValue: (String) -> Unit, isError : Bool
         isError = isError,
         textStyle = MaterialTheme.typography.bodyMedium,
         onValueChange = onNewValue,
-        placeholder = { Text(stringResource(AppText.id), style = MaterialTheme.typography.bodyMedium) },
+        placeholder = { Text("아이디", style = MaterialTheme.typography.bodyMedium) },
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
         leadingIcon = { Icon(imageVector = Icons.Default.Person, contentDescription = "Email") },
     )
@@ -91,18 +74,18 @@ internal fun IdField(value: String, onNewValue: (String) -> Unit, isError : Bool
 
 @Composable
 internal fun PasswordField(value: String, onNewValue: (String) -> Unit, isError : Boolean = false) {
-    PasswordField(value, AppText.password, onNewValue, isError = isError)
+    PasswordField(value, "비밀번호", onNewValue, isError = isError)
 }
 
 @Composable
 internal fun RepeatPasswordField(value: String, onNewValue: (String) -> Unit, isError : Boolean = false) {
-    PasswordField(value, AppText.repeat_password, onNewValue, isError = isError)
+    PasswordField(value, "비밀번호 확인", onNewValue, isError = isError)
 }
 
 @Composable
 private fun PasswordField(
     value: String,
-    @StringRes placeholder: Int,
+    placeholder: String,
     onNewValue: (String) -> Unit,
     isError : Boolean = false
 ) {
@@ -113,7 +96,7 @@ private fun PasswordField(
         value = value,
         onValueChange = onNewValue,
         textStyle = MaterialTheme.typography.bodyMedium,
-        placeholder = { Text(text = stringResource(placeholder), style = MaterialTheme.typography.bodyMedium) },
+        placeholder = { Text(text = placeholder, style = MaterialTheme.typography.bodyMedium) },
         leadingIcon = { Icon(imageVector = Icons.Default.Lock, contentDescription = "Lock") },
         trailingIcon = {
             IconButton(onClick = { isVisible = !isVisible }) {
@@ -161,7 +144,7 @@ internal fun EmailVerificationField(
             EnableButton(
                 text = "인증",
                 modifier = Modifier.fillMaxHeight().weight(0.3f).padding(start = 10.dp, top = 10.dp),
-                isEnable = isVerification() == Verification.emailValid
+                enabled = isVerification() == Verification.emailValid
             ) {
                 requestEmailVerification()//서버에서 이메일 코드처리
             }
