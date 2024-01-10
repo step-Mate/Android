@@ -1,13 +1,14 @@
 package jinproject.stepwalk.login.screen.signupdetail
 
 import androidx.compose.runtime.Stable
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import jinproject.stepwalk.login.utils.isValidDouble
 import jinproject.stepwalk.login.utils.isValidInt
 import jinproject.stepwalk.login.utils.isValidNickname
 import dagger.hilt.android.lifecycle.HiltViewModel
+import jinproject.stepwalk.login.screen.state.UserDataValid
+import jinproject.stepwalk.login.screen.state.UserValid
 import jinproject.stepwalk.login.screen.state.Verification
 import jinproject.stepwalk.login.utils.isValidEmail
 import kotlinx.coroutines.FlowPreview
@@ -183,34 +184,9 @@ internal class SignUpDetailViewModel @Inject constructor(
     }
 }
 
-@Stable
-internal class UserDataValid(
-    nicknameValid : UserValid = UserValid.blank,
-    ageValid : UserValid = UserValid.blank,
-    heightValid : UserValid = UserValid.blank,
-    weightValid : UserValid = UserValid.blank,
-    emailValid : Verification = Verification.nothing
-){
-    val nicknameValid = mutableStateOf(nicknameValid)
-    val ageValid = mutableStateOf(ageValid)
-    val heightValid = mutableStateOf(heightValid)
-    val weightValid = mutableStateOf(weightValid)
-    val emailValid = mutableStateOf(emailValid)
-
-    fun isSuccessfulValid() : Boolean =
-        (nicknameValid.value == UserValid.success) and (ageValid.value == UserValid.success) and
-                (heightValid.value == UserValid.success) and (weightValid.value == UserValid.success) and (emailValid.value == Verification.success)
-}
-
-enum class UserValid {
-    blank,notValid,success
-}
-
 enum class UserEvent {
     nickname,age,height,weight,email,emailCode
 }
-
-internal fun UserValid.isError() : Boolean =  this == UserValid.notValid
 
 @Stable
 data class SignUpDetail(

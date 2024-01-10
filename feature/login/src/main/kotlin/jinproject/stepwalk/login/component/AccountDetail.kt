@@ -18,8 +18,8 @@ import androidx.compose.ui.unit.dp
 import jinproject.stepwalk.design.R
 import jinproject.stepwalk.design.component.VerticalSpacer
 import jinproject.stepwalk.design.theme.StepWalkColor
-import jinproject.stepwalk.login.screen.signup.SignValid
-import jinproject.stepwalk.login.screen.signup.isError
+import jinproject.stepwalk.login.screen.state.SignValid
+import jinproject.stepwalk.login.screen.state.isError
 
 @Composable
 internal fun IdDetail(

@@ -4,8 +4,8 @@ import androidx.compose.runtime.Stable
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import jinproject.stepwalk.login.screen.FindViewModel
-import jinproject.stepwalk.login.screen.signup.SignValid
-import jinproject.stepwalk.login.screen.signup.ValidValue
+import jinproject.stepwalk.login.screen.state.SignValid
+import jinproject.stepwalk.login.screen.state.AccountValid
 import jinproject.stepwalk.login.screen.state.Verification
 import jinproject.stepwalk.login.utils.isValidID
 import jinproject.stepwalk.login.utils.isValidPassword
@@ -35,7 +35,7 @@ internal class FindPasswordViewModel @Inject constructor(
     private val _repeatPassword = MutableStateFlow("")
     val repeatPassword = _repeatPassword.asStateFlow()
 
-    val valids = ValidValue()
+    val valids = AccountValid()
 
     init {
         checkEmailValid()

@@ -32,6 +32,8 @@ import jinproject.stepwalk.design.component.VerticalSpacer
 import jinproject.stepwalk.design.theme.StepWalkTheme
 import jinproject.stepwalk.login.component.EmailVerificationField
 import jinproject.stepwalk.login.component.InformationField
+import jinproject.stepwalk.login.screen.state.UserDataValid
+import jinproject.stepwalk.login.screen.state.isError
 
 @Composable
 internal fun SignUpDetailScreen(

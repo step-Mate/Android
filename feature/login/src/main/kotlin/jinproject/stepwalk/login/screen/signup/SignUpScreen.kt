@@ -23,6 +23,8 @@ import jinproject.stepwalk.design.theme.StepWalkTheme
 import jinproject.stepwalk.login.component.EnableButton
 import jinproject.stepwalk.login.component.IdDetail
 import jinproject.stepwalk.login.component.PasswordDetail
+import jinproject.stepwalk.login.screen.state.SignValid
+import jinproject.stepwalk.login.screen.state.AccountValid
 import jinproject.stepwalk.login.utils.MAX_ID_LENGTH
 import jinproject.stepwalk.login.utils.MAX_PASS_LENGTH
 import jinproject.stepwalk.design.R.string as AppText
@@ -47,7 +49,7 @@ internal fun SignUpScreen(
 @Composable
 private fun SignUpScreen(
     signUp: () -> SignUp,
-    valids : ValidValue,
+    valids : AccountValid,
     updateAccountEvent : (AccountEvent,String) -> Unit,
     navigateToSignUpDetail : (String,String) -> Unit
 ){
@@ -113,7 +115,7 @@ private fun PreviewSignUpScreen(
 ) = StepWalkTheme {
     SignUpScreen(
         signUp = {SignUp()},
-        valids = ValidValue(SignValid.success,SignValid.notValid,SignValid.success),
+        valids = AccountValid(SignValid.success,SignValid.notValid,SignValid.success),
         updateAccountEvent = {_,_ ->},
         navigateToSignUpDetail = {_,_ ->}
     )

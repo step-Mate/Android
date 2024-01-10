@@ -1,10 +1,11 @@
 package jinproject.stepwalk.login.screen.signup
 
 import androidx.compose.runtime.Stable
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import jinproject.stepwalk.login.screen.state.SignValid
+import jinproject.stepwalk.login.screen.state.AccountValid
 import jinproject.stepwalk.login.utils.isValidID
 import jinproject.stepwalk.login.utils.isValidPassword
 import jinproject.stepwalk.login.utils.passwordMatches
@@ -32,7 +33,7 @@ internal class SignUpViewModel @Inject constructor(
     private val _repeatPassword = MutableStateFlow("")
     val repeatPassword = _repeatPassword.asStateFlow()
 
-    val valids = ValidValue()
+    val valids = AccountValid()
 
     @OptIn(FlowPreview::class)
     private val debouncedIdFilter : Flow<String?> = id
@@ -106,27 +107,9 @@ internal class SignUpViewModel @Inject constructor(
     }
 }
 
-@Stable
-internal class ValidValue(
-    idValid : SignValid = SignValid.blank,
-    passwordValid : SignValid = SignValid.blank,
-    repeatPasswordValid : SignValid = SignValid.blank
-){
-    val idValid = mutableStateOf(idValid)
-    val passwordValid = mutableStateOf(passwordValid)
-    val repeatPasswordValid = mutableStateOf(repeatPasswordValid)
-    fun isSuccessfulValid() : Boolean = (idValid.value == SignValid.success) and (passwordValid.value == SignValid.success) and (repeatPasswordValid.value == SignValid.success)
-}
-
-enum class SignValid {
-    blank,notValid,duplicationId,notMatch,success
-}
-
 enum class AccountEvent {
     id,password,repeatPassword
 }
-
-internal fun SignValid.isError() : Boolean = (this != SignValid.success) and (this != SignValid.blank)
 
 @Stable
 data class SignUp(
