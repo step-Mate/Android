@@ -1,4 +1,4 @@
-package jinproject.stepwalk.home.screen.component.tab.menu
+package jinproject.stepwalk.home.screen.home.component.tab.menu
 
 import android.content.res.Configuration
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -28,11 +28,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.lerp
 import jinproject.stepwalk.design.component.VerticalSpacer
 import jinproject.stepwalk.design.theme.StepWalkTheme
-import jinproject.stepwalk.home.screen.HomeUiState
-import jinproject.stepwalk.home.screen.HomeUiStatePreviewParameters
-import jinproject.stepwalk.home.screen.state.HealthTab
-import jinproject.stepwalk.home.screen.state.StepTabFactory
-import jinproject.stepwalk.home.screen.state.toAchievementDegree
+import jinproject.stepwalk.home.screen.home.HomeUiState
+import jinproject.stepwalk.home.screen.home.HomeUiStatePreviewParameters
+import jinproject.stepwalk.home.screen.home.state.HealthTab
+import jinproject.stepwalk.home.screen.home.state.StepTabFactory
+import jinproject.stepwalk.home.screen.home.state.toAchievementDegree
 import java.text.DecimalFormat
 import kotlin.math.absoluteValue
 
@@ -40,7 +40,7 @@ import kotlin.math.absoluteValue
 @Composable
 internal fun MenuPager(
     healthTab: HealthTab,
-    configuration: Configuration = LocalConfiguration.current
+    configuration: Configuration = LocalConfiguration.current,
 ) {
 
     val pagerState = rememberPagerState(initialPage = Int.MAX_VALUE / 2) {
@@ -129,7 +129,7 @@ internal fun MenuPager(
 @Preview
 private fun PreviewMenuPager(
     @PreviewParameter(HomeUiStatePreviewParameters::class, 1)
-    homeUiState: HomeUiState
+    homeUiState: HomeUiState,
 ) = StepWalkTheme {
     MenuPager(
         healthTab = homeUiState.step,

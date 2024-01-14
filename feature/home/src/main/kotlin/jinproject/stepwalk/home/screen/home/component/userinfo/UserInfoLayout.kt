@@ -1,8 +1,6 @@
-package jinproject.stepwalk.home.screen.component.userinfo
+package jinproject.stepwalk.home.screen.home.component.userinfo
 
-import android.util.Log
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -13,30 +11,24 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.drawscope.Fill
-import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
 import com.airbnb.lottie.compose.LottieAnimation
-import com.airbnb.lottie.compose.LottieClipSpec
 import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.animateLottieCompositionAsState
-import com.airbnb.lottie.compose.rememberLottieAnimatable
 import com.airbnb.lottie.compose.rememberLottieComposition
 import jinproject.stepwalk.design.R
-import jinproject.stepwalk.design.component.DefaultIconButton
 import jinproject.stepwalk.design.component.DescriptionLargeText
 import jinproject.stepwalk.design.component.DescriptionSmallText
 import jinproject.stepwalk.design.component.FooterText
@@ -44,9 +36,9 @@ import jinproject.stepwalk.design.component.HorizontalWeightSpacer
 import jinproject.stepwalk.design.component.VerticalWeightSpacer
 import jinproject.stepwalk.design.component.asLoose
 import jinproject.stepwalk.design.theme.StepWalkTheme
-import jinproject.stepwalk.home.screen.HomeUiState
-import jinproject.stepwalk.home.screen.HomeUiStatePreviewParameters
-import jinproject.stepwalk.home.screen.state.HealthTab
+import jinproject.stepwalk.home.screen.home.HomeUiState
+import jinproject.stepwalk.home.screen.home.HomeUiStatePreviewParameters
+import jinproject.stepwalk.home.screen.home.state.HealthTab
 import kotlin.math.roundToInt
 
 @Composable
@@ -57,7 +49,10 @@ internal fun UserInfoLayout(
     val progress = (step.header.total.toFloat() / step.header.goal.toFloat()).coerceIn(0f, 1f)
 
     val composition by rememberLottieComposition(LottieCompositionSpec.Asset("ic_anim_running_1.json"))
-    val lottieProgress by animateLottieCompositionAsState(composition, iterations = LottieConstants.IterateForever)
+    val lottieProgress by animateLottieCompositionAsState(
+        composition,
+        iterations = LottieConstants.IterateForever
+    )
 
     Column(
         modifier = modifier

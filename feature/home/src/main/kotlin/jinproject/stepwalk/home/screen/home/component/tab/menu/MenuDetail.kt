@@ -1,4 +1,4 @@
-package jinproject.stepwalk.home.screen.component.tab.menu
+package jinproject.stepwalk.home.screen.home.component.tab.menu
 
 import android.content.res.Configuration
 import androidx.compose.foundation.layout.Arrangement
@@ -21,14 +21,14 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
 import jinproject.stepwalk.design.component.HorizontalSpacer
 import jinproject.stepwalk.design.theme.StepWalkTheme
-import jinproject.stepwalk.home.screen.HomeUiState
-import jinproject.stepwalk.home.screen.HomeUiStatePreviewParameters
-import jinproject.stepwalk.home.screen.state.MenuItem
+import jinproject.stepwalk.home.screen.home.HomeUiState
+import jinproject.stepwalk.home.screen.home.HomeUiStatePreviewParameters
+import jinproject.stepwalk.home.screen.home.state.MenuItem
 
 @Composable
 internal fun MenuDetails(
     menuList: List<MenuItem>,
-    configuration: Configuration = LocalConfiguration.current
+    configuration: Configuration = LocalConfiguration.current,
 ) {
     val menuCounter = if (menuList.isEmpty()) 3 else menuList.size
     val cardSpacerSize = (menuCounter - 1) * 24
@@ -76,7 +76,7 @@ internal fun MenuDetails(
 @Composable
 @Preview
 private fun PreviewMenuDetails(
-    @PreviewParameter(HomeUiStatePreviewParameters::class, 1) homeUiState: HomeUiState
+    @PreviewParameter(HomeUiStatePreviewParameters::class, 1) homeUiState: HomeUiState,
 ) = StepWalkTheme {
     MenuDetails(
         menuList = homeUiState.step.menu

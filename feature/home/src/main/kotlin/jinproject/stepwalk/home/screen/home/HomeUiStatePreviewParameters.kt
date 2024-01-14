@@ -1,20 +1,18 @@
-package jinproject.stepwalk.home.screen
+package jinproject.stepwalk.home.screen.home
 
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
-import jinproject.stepwalk.home.screen.state.Day
-import jinproject.stepwalk.home.screen.state.HealthCareExtras
-import jinproject.stepwalk.home.screen.state.HeartRate
-import jinproject.stepwalk.home.screen.state.HeartRateFactory
-import jinproject.stepwalk.home.screen.state.HeartRateTabFactory
-import jinproject.stepwalk.home.screen.state.Step
-import jinproject.stepwalk.home.screen.state.StepFactory
-import jinproject.stepwalk.home.screen.state.StepTabFactory
-import jinproject.stepwalk.home.screen.state.Time
-import jinproject.stepwalk.home.screen.state.User
-import jinproject.stepwalk.home.screen.state.Week
-import jinproject.stepwalk.home.utils.onKorea
-import java.time.LocalDateTime
-import java.time.ZoneOffset
+import jinproject.stepwalk.home.screen.home.state.Day
+import jinproject.stepwalk.home.screen.home.state.HealthCareExtras
+import jinproject.stepwalk.home.screen.home.state.HeartRate
+import jinproject.stepwalk.home.screen.home.state.HeartRateFactory
+import jinproject.stepwalk.home.screen.home.state.HeartRateTabFactory
+import jinproject.stepwalk.home.screen.home.state.Step
+import jinproject.stepwalk.home.screen.home.state.StepFactory
+import jinproject.stepwalk.home.screen.home.state.StepTabFactory
+import jinproject.stepwalk.home.screen.home.state.Time
+import jinproject.stepwalk.home.screen.home.state.User
+import jinproject.stepwalk.home.screen.home.state.Week
+import java.time.ZonedDateTime
 
 internal class HomeUiStatePreviewParameters : PreviewParameterProvider<HomeUiState> {
     private val day = HomeUiStatePreview(Day)
@@ -47,16 +45,16 @@ internal class HomeUiStatePreviewParameters : PreviewParameterProvider<HomeUiSta
 }
 
 internal class HomeUiStatePreview(val time: Time) {
-    private val now: LocalDateTime = LocalDateTime.now()
-    private val startTime: LocalDateTime = now.withHour(0)
-    private val endTime: LocalDateTime get() = startTime.plusHours(1L)
+    private val now: ZonedDateTime = ZonedDateTime.now()
+    private val startTime: ZonedDateTime = now.withHour(0)
+    private val endTime: ZonedDateTime get() = startTime.plusHours(1L)
     val steps = kotlin.run {
         mutableListOf<Step>().apply {
             repeat(time.toNumberOfDays()) { idx ->
                 add(
                     StepFactory.instance.create(
-                        startTime = startTime.plusHours(idx.toLong()).toEpochSecond(ZoneOffset.of("+0")),
-                        endTime = endTime.plusHours(idx.toLong()).toEpochSecond(ZoneOffset.of("+0")),
+                        startTime = startTime.plusHours(idx.toLong()),
+                        endTime = endTime.plusHours(idx.toLong()),
                         figure = 1000 + idx.toLong() * 50
                     )
                 )
@@ -69,8 +67,8 @@ internal class HomeUiStatePreview(val time: Time) {
             repeat(time.toNumberOfDays()) { idx ->
                 add(
                     HeartRateFactory.instance.create(
-                        startTime = startTime.plusHours(idx.toLong()).toEpochSecond(ZoneOffset.of("+0")),
-                        endTime = endTime.plusHours(idx.toLong()).toEpochSecond(ZoneOffset.of("+0")),
+                        startTime = startTime.plusHours(idx.toLong()),
+                        endTime = endTime.plusHours(idx.toLong()),
                         extras = HealthCareExtras().apply {
                             set(HealthCareExtras.KEY_HEART_RATE_MAX, 100 + (idx).toLong())
                             set(HealthCareExtras.KEY_HEART_RATE_AVG, 75 + (idx).toLong())

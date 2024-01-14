@@ -14,6 +14,8 @@ import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastFirstOrNull
+import jinproject.stepwalk.design.component.systembarhiding.SystemBarHidingState
+import jinproject.stepwalk.design.component.systembarhiding.topBarHidingScroll
 import kotlin.math.roundToInt
 
 @Composable

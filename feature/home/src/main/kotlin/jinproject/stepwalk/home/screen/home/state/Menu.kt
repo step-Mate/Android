@@ -1,4 +1,4 @@
-package jinproject.stepwalk.home.screen.state
+package jinproject.stepwalk.home.screen.home.state
 
 import androidx.annotation.DrawableRes
 import androidx.compose.runtime.Stable
@@ -8,7 +8,7 @@ import jinproject.stepwalk.design.R
 internal data class MenuItem(
     val value: Float,
     @DrawableRes val img: Int,
-    val intro: String
+    val intro: String,
 )
 
 internal interface MenuFactory {

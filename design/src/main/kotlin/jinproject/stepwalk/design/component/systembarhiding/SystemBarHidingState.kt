@@ -1,4 +1,4 @@
-package jinproject.stepwalk.design.component
+package jinproject.stepwalk.design.component.systembarhiding
 
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.animate
