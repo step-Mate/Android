@@ -5,6 +5,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
@@ -17,11 +18,13 @@ import jinproject.stepwalk.design.theme.StepWalkTheme
 fun AppBarText(
     modifier: Modifier = Modifier,
     text: String,
+    textAlign: TextAlign = TextAlign.Start,
 ) {
     DefaultText(
         modifier = modifier,
         text = text,
         style = MaterialTheme.typography.headlineSmall,
+        textAlign = textAlign,
     )
 }
 
@@ -30,12 +33,14 @@ fun BottomBarText(
     modifier: Modifier = Modifier,
     text: String,
     clicked: Boolean,
+    textAlign: TextAlign = TextAlign.Start,
 ) {
     DefaultText(
         modifier = modifier,
         text = text,
         style = if (clicked) MaterialTheme.typography.labelLarge else MaterialTheme.typography.bodyLarge,
-        color = if (clicked) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.inverseOnSurface
+        color = if (clicked) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.inverseOnSurface,
+        textAlign = textAlign,
     )
 }
 
@@ -45,11 +50,13 @@ fun HeadlineText(
     text: String,
     maxLines: Int = 1,
     color: Color = MaterialTheme.colorScheme.onBackground,
+    textAlign: TextAlign = TextAlign.Start,
 ) {
     DefaultText(
         modifier = modifier,
         text = text,
         style = MaterialTheme.typography.headlineSmall,
+        textAlign = textAlign,
         color = color,
         maxLines = maxLines
     )
@@ -60,11 +67,13 @@ fun DescriptionLargeText(
     modifier: Modifier = Modifier,
     text: String,
     color: Color = MaterialTheme.colorScheme.onBackground,
+    textAlign: TextAlign = TextAlign.Start,
 ) {
     DefaultText(
         modifier = modifier,
         text = text,
         style = MaterialTheme.typography.bodyLarge,
+        textAlign = textAlign,
         overflow = Ellipsis,
         color = color,
         maxLines = Int.MAX_VALUE,
@@ -76,11 +85,13 @@ fun DescriptionSmallText(
     modifier: Modifier = Modifier,
     text: String,
     color: Color = MaterialTheme.colorScheme.onBackground,
+    textAlign: TextAlign = TextAlign.Start,
 ) {
     DefaultText(
         modifier = modifier,
         text = text,
         style = MaterialTheme.typography.bodySmall,
+        textAlign = textAlign,
         overflow = Ellipsis,
         color = color,
         maxLines = Int.MAX_VALUE,
@@ -92,11 +103,14 @@ fun FooterText(
     modifier: Modifier = Modifier,
     text: String,
     color: Color = MaterialTheme.colorScheme.onBackground,
+    textAlign: TextAlign = TextAlign.Start,
 ) {
     DefaultText(
         modifier = modifier,
         text = text,
         style = MaterialTheme.typography.labelSmall,
+        textAlign = textAlign,
+        overflow = Ellipsis,
         color = color,
         maxLines = Int.MAX_VALUE,
     )
@@ -107,7 +121,7 @@ fun DefaultText(
     modifier: Modifier = Modifier,
     text: String,
     style: TextStyle,
-    color: Color = MaterialTheme.colorScheme.onSurface,
+    color: Color = MaterialTheme.colorScheme.onBackground,
     textAlign: TextAlign = TextAlign.Start,
     overflow: TextOverflow = TextOverflow.Clip,
     maxLines: Int = 1,
@@ -122,6 +136,65 @@ fun DefaultText(
         overflow = overflow,
         maxLines = maxLines,
         onTextLayout = onTextLayout,
+    )
+}
+
+@Composable
+fun DefaultAnnotatedText(
+    modifier: Modifier = Modifier,
+    text: AnnotatedString,
+    style: TextStyle,
+    color: Color = MaterialTheme.colorScheme.onBackground,
+    textAlign: TextAlign = TextAlign.Start,
+    overflow: TextOverflow = TextOverflow.Clip,
+    maxLines: Int = 1,
+    onTextLayout: (TextLayoutResult) -> Unit = {},
+) {
+    Text(
+        text = text,
+        modifier = modifier,
+        style = style,
+        color = color,
+        textAlign = textAlign,
+        overflow = overflow,
+        maxLines = maxLines,
+        onTextLayout = onTextLayout,
+    )
+}
+
+@Composable
+fun DescriptionAnnotatedLargeText(
+    modifier: Modifier = Modifier,
+    text: AnnotatedString,
+    color: Color = MaterialTheme.colorScheme.onBackground,
+    textAlign: TextAlign = TextAlign.Start,
+) {
+    DefaultAnnotatedText(
+        modifier = modifier,
+        text = text,
+        style = MaterialTheme.typography.bodyLarge,
+        textAlign = textAlign,
+        overflow = Ellipsis,
+        color = color,
+        maxLines = Int.MAX_VALUE,
+    )
+}
+
+@Composable
+fun DescriptionAnnotatedSmallText(
+    modifier: Modifier = Modifier,
+    text: AnnotatedString,
+    color: Color = MaterialTheme.colorScheme.onBackground,
+    textAlign: TextAlign = TextAlign.Start,
+) {
+    DefaultAnnotatedText(
+        modifier = modifier,
+        text = text,
+        style = MaterialTheme.typography.bodySmall,
+        textAlign = textAlign,
+        overflow = Ellipsis,
+        color = color,
+        maxLines = Int.MAX_VALUE,
     )
 }
 
