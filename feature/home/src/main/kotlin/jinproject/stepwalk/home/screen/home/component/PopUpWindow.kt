@@ -1,4 +1,4 @@
-package jinproject.stepwalk.home.screen.component
+package jinproject.stepwalk.home.screen.home.component
 
 import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.animation.core.animateFloat
@@ -24,6 +24,7 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.drawscope.Fill
@@ -41,87 +42,18 @@ import androidx.compose.ui.window.PopupProperties
 import jinproject.stepwalk.design.component.VerticalSpacer
 import jinproject.stepwalk.design.theme.StepWalkColor
 import jinproject.stepwalk.design.theme.StepWalkTheme
-import jinproject.stepwalk.home.screen.state.Time
+import jinproject.stepwalk.home.screen.home.state.Time
 
 @Stable
-internal class PopUpState(
-    val state: Boolean,
-    val offset: Offset,
-    val message: String,
+internal data class PopUpState(
+    val enabled: Boolean,
+    val index: Int,
 ) {
     companion object {
         fun getInitValues() = PopUpState(
-            state = false,
-            offset = Offset.Zero,
-            message = "",
+            enabled = false,
+            index = -1,
         )
-    }
-}
-
-@Composable
-internal fun GraphPopup(
-    popUpState: PopUpState,
-    offPopUp: () -> Unit
-) {
-    if (popUpState.state) {
-        Popup(
-            popupPositionProvider = object : PopupPositionProvider {
-                override fun calculatePosition(
-                    anchorBounds: IntRect,
-                    windowSize: IntSize,
-                    layoutDirection: LayoutDirection,
-                    popupContentSize: IntSize
-                ): IntOffset {
-                    return IntOffset(
-                        x = popUpState.offset.x.toInt() + 10f.toInt(),
-                        y = popUpState.offset.y.toInt() - popupContentSize.height - 25
-                    )
-                }
-            },
-            properties = PopupProperties(),
-            onDismissRequest = offPopUp
-        ) {
-            PopUpItem(
-                text = popUpState.message,
-                modifier = Modifier
-                    .drawBehind {
-                        val size = this.size
-                        val stroke = Stroke(
-                            width = 2.dp.toPx(),
-                            pathEffect = PathEffect.cornerPathEffect(4.dp.toPx())
-                        )
-
-                        val brush = Brush.verticalGradient(
-                            colors = listOf(
-                                StepWalkColor.blue_700.color,
-                                StepWalkColor.blue_600.color,
-                                StepWalkColor.blue_500.color,
-                                StepWalkColor.blue_400.color,
-                                StepWalkColor.blue_300.color
-                            )
-                        )
-                        val rect = Rect(Offset.Zero, size)
-                        val path = Path().apply {
-                            moveTo(rect.topLeft.x, rect.topLeft.y)
-                            lineTo(rect.bottomLeft.x, rect.bottomLeft.y)
-                            lineTo(rect.bottomLeft.x, rect.bottomLeft.y + 15f)
-                            lineTo(rect.bottomLeft.x + 20f, rect.bottomLeft.y)
-                            lineTo(rect.bottomRight.x, rect.bottomRight.y)
-                            lineTo(rect.topRight.x, rect.topRight.y)
-                            lineTo(rect.topLeft.x, rect.topLeft.y)
-                            close()
-                        }
-                        val fillPath = Path().apply {
-                            addPath(path)
-                            close()
-                        }
-
-                        drawPath(path, brush = brush, style = stroke)
-                        drawPath(fillPath, brush = brush, style = Fill)
-                    }
-                    .padding(horizontal = 4.dp, vertical = 6.dp)
-            )
-        }
     }
 }
 
@@ -129,7 +61,7 @@ internal fun GraphPopup(
 internal fun HomePopUp(
     popUpState: Boolean,
     offPopUp: () -> Unit,
-    onClickPopUpItem: (Time) -> Unit
+    onClickPopUpItem: (Time) -> Unit,
 ) {
     val transitionState = remember {
         MutableTransitionState(false)
@@ -178,7 +110,7 @@ internal fun HomePopUp(
                     anchorBounds: IntRect,
                     windowSize: IntSize,
                     layoutDirection: LayoutDirection,
-                    popupContentSize: IntSize
+                    popupContentSize: IntSize,
                 ): IntOffset {
                     return IntOffset(
                         x = 20,
@@ -225,7 +157,7 @@ internal fun HomePopUp(
 @Composable
 private fun PopUpItem(
     text: String,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     Text(
         text = text,

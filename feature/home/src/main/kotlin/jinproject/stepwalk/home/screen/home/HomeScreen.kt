@@ -1,4 +1,4 @@
-package jinproject.stepwalk.home.screen
+package jinproject.stepwalk.home.screen.home
 
 import android.content.Context
 import android.content.Intent
@@ -14,6 +14,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
@@ -24,17 +25,19 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import jinproject.stepwalk.design.component.HideableTopBarLayout
-import jinproject.stepwalk.design.component.SystemBarHidingState
 import jinproject.stepwalk.design.component.VerticalSpacer
-import jinproject.stepwalk.design.component.rememberSystemBarHidingState
+import jinproject.stepwalk.design.component.systembarhiding.SystemBarHidingState
+import jinproject.stepwalk.design.component.systembarhiding.rememberSystemBarHidingState
 import jinproject.stepwalk.design.theme.StepWalkTheme
-import jinproject.stepwalk.home.screen.component.HomePopUp
-import jinproject.stepwalk.home.screen.component.HomeTopAppBar
-import jinproject.stepwalk.home.screen.component.tab.HealthTabLayout
-import jinproject.stepwalk.home.screen.component.userinfo.UserInfoLayout
-import jinproject.stepwalk.home.screen.state.Day
-import jinproject.stepwalk.home.screen.state.SnackBarMessage
-import jinproject.stepwalk.home.screen.state.Time
+import jinproject.stepwalk.home.screen.home.component.HomePopUp
+import jinproject.stepwalk.home.screen.home.component.HomeTopAppBar
+import jinproject.stepwalk.home.screen.home.component.PopUpState
+import jinproject.stepwalk.home.screen.home.component.tab.HealthTabLayout
+import jinproject.stepwalk.home.screen.home.component.tab.chart.addChartPopUpDismiss
+import jinproject.stepwalk.home.screen.home.component.userinfo.UserInfoLayout
+import jinproject.stepwalk.home.screen.home.state.Day
+import jinproject.stepwalk.home.screen.home.state.SnackBarMessage
+import jinproject.stepwalk.home.screen.home.state.Time
 import jinproject.stepwalk.home.service.StepService
 import jinproject.stepwalk.home.utils.onKorea
 import java.time.Duration
@@ -126,7 +129,7 @@ private fun HomeScreen(
     setTimeOnGraph: (Time) -> Unit,
     navigateToCalendar: (Long) -> Unit,
 ) {
-    val popUpState = remember {
+    val homePopUp = remember {
         mutableStateOf(false)
     }
 
@@ -141,13 +144,20 @@ private fun HomeScreen(
         )
     )
 
+    var chartPopUp by remember {
+        mutableStateOf(PopUpState.getInitValues())
+    }
+
     HideableTopBarLayout(
-        modifier = Modifier,
+        modifier = Modifier.addChartPopUpDismiss(
+            popUpState = chartPopUp,
+            setPopUpState = { state -> chartPopUp = state }
+        ),
         systemBarHidingState = systemBarHidingState,
         topBar = { modifier ->
             HomeTopAppBar(
                 modifier = modifier,
-                onClickTime = { popUpState.value = true },
+                onClickTime = { homePopUp.value = true },
                 onClickSetting = {},
                 onClickHome = {},
                 content = {
@@ -160,7 +170,8 @@ private fun HomeScreen(
             )
         }) { modifier ->
         Column(
-            modifier = modifier.verticalScroll(rememberScrollState())
+            modifier = modifier
+                .verticalScroll(rememberScrollState())
         ) {
             VerticalSpacer(height = 10.dp)
             HealthTabLayout(
@@ -174,11 +185,13 @@ private fun HomeScreen(
                         Instant.ofEpochMilli(firstInstallTime)
                             .minus(30L, ChronoUnit.DAYS).epochSecond
                     )
-                }
+                },
+                popUpState = chartPopUp,
+                setPopUpState = { state -> chartPopUp = state }
             )
             HomePopUp(
-                popUpState = popUpState.value,
-                offPopUp = { popUpState.value = false },
+                popUpState = homePopUp.value,
+                offPopUp = { homePopUp.value = false },
                 onClickPopUpItem = { time -> setTimeOnGraph(time) }
             )
             VerticalSpacer(height = 500.dp)

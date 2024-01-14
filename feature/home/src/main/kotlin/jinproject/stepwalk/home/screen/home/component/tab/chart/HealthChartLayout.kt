@@ -1,13 +1,12 @@
-package jinproject.stepwalk.home.screen.component.tab.chart
+package jinproject.stepwalk.home.screen.home.component.tab.chart
 
-import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.Layout
-import androidx.compose.ui.unit.Constraints
 import jinproject.stepwalk.design.component.asLoose
-import jinproject.stepwalk.home.screen.state.sortDayOfWeek
+import jinproject.stepwalk.home.screen.home.component.PopUpState
+import jinproject.stepwalk.home.screen.home.state.sortDayOfWeek
 
 @Composable
 internal fun HealthChartLayout(
@@ -15,7 +14,10 @@ internal fun HealthChartLayout(
     modifier: Modifier = Modifier,
     horizontalAxis: @Composable (Int) -> Unit,
     verticalAxis: @Composable () -> Unit,
-    bar: @Composable (Int) -> Unit
+    bar: @Composable (Int) -> Unit,
+    header: @Composable () -> Unit,
+    popUp: @Composable () -> Unit,
+    popUpState: PopUpState,
 ) {
     val bars = @Composable { repeat(itemsCount) { bar(it) } }
 
@@ -29,9 +31,9 @@ internal fun HealthChartLayout(
     }
 
     Layout(
-        contents = listOf(horizontalItems, verticalAxis, bars),
+        contents = listOf(horizontalItems, verticalAxis, bars, header, popUp),
         modifier = modifier
-    ) { (horizontalMeasurables, verticalMeasurables, barMeasurables), constraints ->
+    ) { (horizontalMeasurables, verticalMeasurables, barMeasurables, headerMeasurables, popUpMeasurables), constraints ->
 
         require(verticalMeasurables.size == 1) {
             "세로축은 반드시 하나만 존재해야 함"
@@ -39,31 +41,49 @@ internal fun HealthChartLayout(
         val totalHeight = constraints.maxHeight
         val totalWidth = constraints.maxWidth
 
+        val loosedConstraints = constraints.asLoose()
+
+        val headerPlaceable = headerMeasurables.first().measure(loosedConstraints)
+
+        val popUpText = popUpMeasurables.first().parentData as HealthPopUpData
+        val popUpPlaceable = popUpMeasurables.first().measure(
+            loosedConstraints.copy(
+                minWidth = popUpText.figure.length * 20 + 35,
+                maxWidth = popUpText.figure.length * 20 + 35,
+                minHeight = 55,
+                maxHeight = 55,
+            )
+        )
+
         val verticalPlacable = verticalMeasurables.first().measure(
-            constraints.asLoose()
+            loosedConstraints.copy(
+                maxHeight = totalHeight - headerPlaceable.height,
+                minHeight = totalHeight - headerPlaceable.height
+            )
         )
 
         val itemWidth = (totalWidth - verticalPlacable.width) / horizontalItemCount
 
         val horizontalPlacables = horizontalMeasurables.map { measurable ->
             measurable.measure(
-                constraints.copy(
+                loosedConstraints.copy(
                     maxWidth = itemWidth,
                     minWidth = itemWidth,
-                    minHeight = 0
                 )
             )
         }
 
         val barWidth = if (itemsCount == horizontalItemCount) itemWidth else itemWidth / 2
 
-        val barPlaceables = barMeasurables.map { barMeasurable ->
-            val barHeight = totalHeight - horizontalPlacables.first().height
+        val barMaxData = barMeasurables.maxOf { (it.parentData as HealthChartData).height }
+        val barDatas = barMeasurables.map { (it.parentData as HealthChartData).height.toInt() }
+        val barMaxHeight = totalHeight - horizontalPlacables.first().height - headerPlaceable.height
 
+        val barPlaceables = barMeasurables.map { barMeasurable ->
             barMeasurable.measure(
-                constraints.copy(
-                    minHeight = barHeight,
-                    maxHeight = barHeight,
+                loosedConstraints.copy(
+                    minHeight = barMaxHeight,
+                    maxHeight = barMaxHeight,
                     minWidth = barWidth,
                     maxWidth = barWidth
                 )
@@ -73,10 +93,24 @@ internal fun HealthChartLayout(
         layout(totalWidth, totalHeight) {
             var xPos = verticalPlacable.width
 
+            headerPlaceable.place(0, 0)
+
             verticalPlacable.place(
                 0,
-                0
+                headerPlaceable.height
             )
+
+            val eachBarWidth = horizontalPlacables.first().width / horizontalStep
+
+            barDatas.getOrNull(popUpState.index)?.let { data ->
+                val barHeight =
+                    data.stepToSizeByMax(barHeight = barMaxHeight.toFloat(), barMaxData).toInt()
+
+                popUpPlaceable.place(
+                    verticalPlacable.width + eachBarWidth * (popUpState.index),
+                    totalHeight - horizontalPlacables.first().height - barHeight - popUpPlaceable.height - 20
+                )
+            }
 
             barPlaceables.forEachIndexed { index, placeable ->
 
@@ -90,18 +124,18 @@ internal fun HealthChartLayout(
                     totalHeight - horizontalPlacables.first().height - placeable.height
                 )
 
-                xPos += horizontalPlacables.first().width / horizontalStep
+                xPos += eachBarWidth
             }
         }
     }
 }
 
 @Stable
-internal fun Long.stepToSizeByMax(barHeight: Float, max: Long) =
+internal fun <T : Number> Number.stepToSizeByMax(barHeight: Float, max: T) =
     when {
-        this == 0L -> 0f
+        this.toInt() == 0 -> 0f
 
-        this >= max -> barHeight
+        this.toFloat() >= max.toFloat() -> barHeight
 
         else -> barHeight / (max.toFloat() / this.toFloat())
     }

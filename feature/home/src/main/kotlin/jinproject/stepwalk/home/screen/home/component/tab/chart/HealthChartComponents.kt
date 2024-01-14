@@ -1,4 +1,4 @@
-package jinproject.stepwalk.home.screen.component.tab.chart
+package jinproject.stepwalk.home.screen.home.component.tab.chart
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -14,6 +14,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -21,50 +22,49 @@ import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Fill
+import androidx.compose.ui.layout.ParentDataModifier
 import androidx.compose.ui.layout.boundsInWindow
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInWindow
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import jinproject.stepwalk.design.theme.StepWalkColor
 import jinproject.stepwalk.design.theme.StepWalkTheme
-import jinproject.stepwalk.home.screen.HomeUiState
-import jinproject.stepwalk.home.screen.HomeUiStatePreviewParameters
+import jinproject.stepwalk.home.screen.home.HomeUiState
+import jinproject.stepwalk.home.screen.home.HomeUiStatePreviewParameters
+import jinproject.stepwalk.home.screen.home.component.PopUpState
+import kotlin.math.roundToInt
 
 @Composable
 internal fun StepBar(
     index: Int,
     graph: List<Long>,
     modifier: Modifier = Modifier,
-    setPopUpState: (Offset) -> Unit,
+    selectChartItem: (PopUpState) -> Unit,
+    barColor: List<Color>,
 ) {
-    var height = 0f
-    var offset = Offset.Zero
-
     Spacer(
         modifier = modifier
-            .padding(horizontal = 2.dp)
             .clickable(
                 interactionSource = remember { MutableInteractionSource() },
                 indication = null
             ) {
-                setPopUpState(
-                    offset.copy(y = offset.y + height)
+                selectChartItem(
+                    PopUpState(
+                        enabled = true,
+                        index = index,
+                    )
                 )
             }
+            .padding(horizontal = 2.dp)
             .drawWithCache {
                 val brush = Brush.verticalGradient(
-                    colors = listOf(
-                        StepWalkColor.blue_700.color,
-                        StepWalkColor.blue_600.color,
-                        StepWalkColor.blue_500.color,
-                        StepWalkColor.blue_400.color,
-                        StepWalkColor.blue_300.color,
-                        StepWalkColor.blue_200.color,
-                    )
+                    colors = barColor
                 )
 
                 val item = graph[index]
@@ -75,7 +75,7 @@ internal fun StepBar(
                     max = maxItem
                 ))
 
-                height = if(itemHeight > 0) 0f else -(item.stepToSizeByMax(
+                val height = if (itemHeight > 0) 0f else -(item.stepToSizeByMax(
                     barHeight = size.height,
                     max = maxItem
                 ))
@@ -92,14 +92,18 @@ internal fun StepBar(
                         cornerRadius = CornerRadius(x = 10f)
                     )
                 }
-            }
-            .onGloballyPositioned {
-                offset = Offset(
-                    x = it.positionInWindow().x,
-                    y = it.boundsInWindow().bottom
-                )
-            }
+            }.then(HealthChartData(graph[index]))
     )
+}
+
+@Stable
+internal class HealthChartData(
+    val height: Long
+): ParentDataModifier {
+    override fun Density.modifyParentData(parentData: Any?): Any {
+        return this@HealthChartData
+    }
+
 }
 
 @Composable
@@ -157,7 +161,15 @@ private fun PreviewStepBar(
                 modifier = Modifier
                     .width(12.dp)
                     .height(300.dp),
-                setPopUpState = {}
+                selectChartItem = {},
+                barColor = listOf(
+                    StepWalkColor.blue_700.color,
+                    StepWalkColor.blue_600.color,
+                    StepWalkColor.blue_500.color,
+                    StepWalkColor.blue_400.color,
+                    StepWalkColor.blue_300.color,
+                    StepWalkColor.blue_200.color,
+                )
             )
         }
     }
