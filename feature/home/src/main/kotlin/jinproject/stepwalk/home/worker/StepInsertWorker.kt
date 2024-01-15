@@ -15,15 +15,13 @@ import jinproject.stepwalk.home.service.StepSensorViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.time.Instant
-import java.time.ZoneId
-import java.time.ZonedDateTime
 
 @HiltWorker
 class StepInsertWorker @AssistedInject constructor(
     @Assisted context: Context,
     @Assisted workerParams: WorkerParameters,
     private val healthConnector: HealthConnector,
-    private val setStepUseCaseImpl: SetStepUseCaseImpl,
+    private val setStepUseCaseImpl: SetStepUseCaseImpl
 ) : CoroutineWorker(context, workerParams) {
 
     override suspend fun doWork(): Result {
@@ -35,22 +33,13 @@ class StepInsertWorker @AssistedInject constructor(
         withContext(Dispatchers.IO) {
             healthConnector.insertSteps(
                 step = distance,
-                startTime = ZonedDateTime.ofInstant(
-                    Instant.ofEpochSecond(
-                        inputData.getLong(
-                            StepSensorViewModel.KEY_START,
-                            0L
-                        )
-                    ), ZoneId.of("Asia/Seoul")
+                startTime = Instant.ofEpochSecond(
+                    inputData.getLong(
+                        StepSensorViewModel.KEY_START,
+                        0L
+                    )
                 ),
-                endTime = ZonedDateTime.ofInstant(
-                    Instant.ofEpochSecond(
-                        inputData.getLong(
-                            StepSensorViewModel.KEY_END,
-                            0L
-                        )
-                    ), ZoneId.of("Asia/Seoul")
-                )
+                endTime = Instant.ofEpochSecond(inputData.getLong(StepSensorViewModel.KEY_END, 0L))
             )
             setStepUseCaseImpl.setLastStep(
                 inputData.getLong(

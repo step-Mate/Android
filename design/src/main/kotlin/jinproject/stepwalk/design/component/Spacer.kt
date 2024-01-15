@@ -11,20 +11,6 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun ColumnScope.VerticalWeightSpacer(
-    float: Float
-) {
-    Spacer(Modifier.weight(float))
-}
-
-@Composable
-fun RowScope.HorizontalWeightSpacer(
-    float: Float
-) {
-    Spacer(Modifier.weight(float))
-}
-
-@Composable
 fun VerticalSpacer(
     height: Dp,
     modifier: Modifier = Modifier,

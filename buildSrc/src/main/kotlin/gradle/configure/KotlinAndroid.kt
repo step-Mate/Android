@@ -3,7 +3,6 @@ package gradle.configure
 import com.android.build.api.dsl.CommonExtension
 import org.gradle.api.JavaVersion
 import org.gradle.api.Project
-import org.gradle.kotlin.dsl.exclude
 import org.gradle.kotlin.dsl.withType
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
@@ -18,21 +17,6 @@ internal fun Project.configureKotlinAndroid(commonExtension: CommonExtension<*, 
         compileOptions {
             sourceCompatibility = JavaVersion.VERSION_11
             targetCompatibility = JavaVersion.VERSION_11
-        }
-
-        packaging {
-            resources {
-                excludes += "/META-INF/{AL2.0,LGPL2.1,LICENSE.md,LICENSE-notice.md}"
-            }
-        }
-
-        configurations.all {
-            resolutionStrategy {
-                exclude(
-                    group = "org.jetbrains.kotlinx",
-                    module = "kotlinx-coroutines-debug"
-                )
-            }
         }
     }
 

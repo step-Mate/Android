@@ -1,4 +1,4 @@
-package jinproject.stepwalk.home.screen.home
+package jinproject.stepwalk.home.screen
 
 import androidx.compose.runtime.Stable
 import androidx.health.connect.client.permission.HealthPermission
@@ -9,15 +9,17 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import jinproject.stepwalk.domain.usecase.GetStepUseCase
 import jinproject.stepwalk.home.HealthConnector
-import jinproject.stepwalk.home.screen.home.state.Day
-import jinproject.stepwalk.home.screen.home.state.HealthTab
-import jinproject.stepwalk.home.screen.home.state.HeartRate
-import jinproject.stepwalk.home.screen.home.state.HeartRateTabFactory
-import jinproject.stepwalk.home.screen.home.state.Step
-import jinproject.stepwalk.home.screen.home.state.StepTabFactory
-import jinproject.stepwalk.home.screen.home.state.Time
-import jinproject.stepwalk.home.screen.home.state.User
-import jinproject.stepwalk.home.screen.home.state.getStartTime
+import jinproject.stepwalk.home.screen.state.Day
+import jinproject.stepwalk.home.screen.state.HealthTab
+import jinproject.stepwalk.home.screen.state.HeartRate
+import jinproject.stepwalk.home.screen.state.HeartRateTabFactory
+import jinproject.stepwalk.home.screen.state.Month
+import jinproject.stepwalk.home.screen.state.Step
+import jinproject.stepwalk.home.screen.state.StepTabFactory
+import jinproject.stepwalk.home.screen.state.Time
+import jinproject.stepwalk.home.screen.state.User
+import jinproject.stepwalk.home.screen.state.Week
+import jinproject.stepwalk.home.screen.state.Year
 import jinproject.stepwalk.home.utils.onKorea
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -141,7 +143,19 @@ internal class HomeViewModel @Inject constructor(
     }
 
     suspend fun setPeriodHealthData() {
-        val startTime = time.value.getStartTime(today)
+        val startTime = when (time.value) {
+            Year -> today
+                .minusMonths(today.month.value.toLong() - 1)
+                .minusDays(today.dayOfMonth.toLong() - 1)
+
+            Week -> today
+                .minusDays(time.value.toNumberOfDays().toLong() - 1)
+
+            Month -> today.minusDays(today.dayOfMonth.toLong() - 1)
+
+            Day -> throw IllegalArgumentException("")
+        }
+            .truncatedTo(ChronoUnit.DAYS)
 
         val steps = healthConnector.readStepsByPeriods(
             startTime = startTime.toLocalDateTime(),

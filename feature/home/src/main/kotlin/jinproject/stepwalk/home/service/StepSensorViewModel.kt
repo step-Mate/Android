@@ -11,6 +11,7 @@ import jinproject.stepwalk.domain.model.StepData
 import jinproject.stepwalk.domain.usecase.GetStepUseCase
 import jinproject.stepwalk.domain.usecase.SetStepUseCase
 import jinproject.stepwalk.home.HealthConnector
+import jinproject.stepwalk.home.utils.onKorea
 import jinproject.stepwalk.home.worker.StepInsertWorker
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -22,6 +23,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.time.LocalDateTime
 import java.time.ZonedDateTime
 import javax.inject.Inject
 import kotlin.coroutines.CoroutineContext
@@ -31,8 +33,8 @@ internal class StepSensorViewModel @Inject constructor(
     private val setStepUseCaseImpl: SetStepUseCase,
     private val healthConnector: HealthConnector,
 ) {
-    private var startTime: ZonedDateTime = ZonedDateTime.now()
-    private var endTime: ZonedDateTime = ZonedDateTime.now()
+    private var startTime: ZonedDateTime = LocalDateTime.now().onKorea()
+    private var endTime: ZonedDateTime = LocalDateTime.now().onKorea()
 
     private val _steps: MutableStateFlow<StepData> = MutableStateFlow(StepData.getInitValues())
     val steps: StateFlow<StepData> get() = _steps.asStateFlow()
@@ -77,8 +79,8 @@ internal class StepSensorViewModel @Inject constructor(
     }
 
     private fun getStepInsertWorkerByTime(todayStep: StepData): OneTimeWorkRequest? {
-        if (ZonedDateTime.now().toEpochSecond() - endTime.toEpochSecond() < 60) {
-            endTime = ZonedDateTime.now()
+        if (LocalDateTime.now().onKorea().toEpochSecond() - endTime.toEpochSecond() < 60) {
+            endTime = LocalDateTime.now().onKorea()
             setStepData(todayStep)
             return null
         } else
@@ -106,8 +108,8 @@ internal class StepSensorViewModel @Inject constructor(
             .putLong(KEY_END, endTime.toEpochSecond())
             .build()
 
-        startTime = ZonedDateTime.now()
-        endTime = ZonedDateTime.now()
+        startTime = LocalDateTime.now().onKorea()
+        endTime = LocalDateTime.now().onKorea()
 
         return OneTimeWorkRequestBuilder<StepInsertWorker>()
             .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
@@ -126,7 +128,7 @@ internal class StepSensorViewModel @Inject constructor(
 }
 
 internal class ViewModelCoroutineScope(
-    context: CoroutineContext,
+    context: CoroutineContext
 ) : LifecycleEventObserver, CoroutineScope {
     override val coroutineContext: CoroutineContext = context
 

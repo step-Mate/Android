@@ -8,8 +8,14 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawing
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material.SnackbarDuration
 import androidx.compose.material.SnackbarHostState
 import androidx.compose.material3.MaterialTheme
@@ -32,7 +38,7 @@ import jinproject.stepwalk.app.ui.navigation.NavigationGraph
 import jinproject.stepwalk.app.ui.navigation.Router
 import jinproject.stepwalk.design.component.SnackBarHostCustom
 import jinproject.stepwalk.design.theme.StepWalkTheme
-import jinproject.stepwalk.home.screen.home.state.SnackBarMessage
+import jinproject.stepwalk.home.screen.state.SnackBarMessage
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -71,7 +77,7 @@ class StepWalkActivity : ComponentActivity() {
 
     @Composable
     private fun StepWalkApp(
-        coroutineScope: CoroutineScope = rememberCoroutineScope(),
+        coroutineScope: CoroutineScope = rememberCoroutineScope()
     ) {
         val navController = rememberNavController()
         val router = remember(navController) { Router(navController) }
@@ -101,6 +107,7 @@ class StepWalkActivity : ComponentActivity() {
                 modifier = Modifier.fillMaxSize(),
                 containerColor = MaterialTheme.colorScheme.background,
                 contentColor = MaterialTheme.colorScheme.onBackground,
+                contentWindowInsets = WindowInsets(0, 0, 0, 0),
                 bottomBar = {
                     BottomNavigationGraph(
                         router = router,
@@ -108,8 +115,7 @@ class StepWalkActivity : ComponentActivity() {
                     )
                 },
                 snackbarHost = {
-                    SnackBarHostCustom(headerMessage = snackBarHostState.currentSnackbarData?.message
-                        ?: "",
+                    SnackBarHostCustom(headerMessage = snackBarHostState.currentSnackbarData?.message ?: "",
                         contentMessage = snackBarHostState.currentSnackbarData?.actionLabel ?: "",
                         snackBarHostState = snackBarHostState,
                         disMissSnackBar = { snackBarHostState.currentSnackbarData?.dismiss() })
@@ -119,7 +125,13 @@ class StepWalkActivity : ComponentActivity() {
                     router = router,
                     modifier = Modifier
                         .fillMaxSize()
-                        .padding(bottom = paddingValues.calculateBottomPadding()),
+                        .padding(paddingValues)
+                        .consumeWindowInsets(paddingValues)
+                        .windowInsetsPadding(
+                            WindowInsets.safeDrawing.only(
+                                WindowInsetsSides.Horizontal
+                            )
+                        ),
                     showSnackBar = { snackBarMessage ->
                         showSnackBar(snackBarMessage)
                     }

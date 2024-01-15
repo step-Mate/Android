@@ -45,18 +45,6 @@
             </intent-filter>
         </activity>
 
-        <activity-alias
-            android:name="ViewPermissionUsageActivity"
-            android:exported="true"
-            android:targetActivity=".StepWalkActivity"
-            android:permission="android.permission.START_VIEW_PERMISSION_USAGE"
-            android:minSdkVersion="34">
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW_PERMISSION_USAGE" />
-                <category android:name="android.intent.category.HEALTH_PERMISSIONS" />
-            </intent-filter>
-        </activity-alias>
-
         <provider
             android:name="androidx.startup.InitializationProvider"
             android:authorities="${applicationId}.androidx-startup"
