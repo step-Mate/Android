@@ -64,7 +64,7 @@ internal class ZonedTimeIterator(
     private var initValue: ZonedTime = start
 
     override fun hasNext(): Boolean {
-        return initValue.time.toEpochSecond() <= endInclusive.time.toEpochSecond()
+        return initValue.time.monthValue <= endInclusive.time.monthValue
     }
 
     override fun next(): ZonedTime {

@@ -1,12 +1,11 @@
-package jinproject.stepwalk.home.screen.home.state
+package jinproject.stepwalk.home.screen.state
 
 import androidx.compose.runtime.Stable
-import java.time.ZonedDateTime
 
 @Stable
 internal data class HeartRate(
-    override val startTime: ZonedDateTime,
-    override val endTime: ZonedDateTime,
+    override val startTime: Long,
+    override val endTime: Long,
     val avg: Long,
     val max: Long,
     val min: Long,
@@ -17,18 +16,14 @@ internal class HeartRateFactory : HealthCareFactory<HeartRate> {
     private var min: Long = 0L
 
     override fun create(
-        startTime: ZonedDateTime,
-        endTime: ZonedDateTime,
+        startTime: Long,
+        endTime: Long,
         figure: Long,
     ): HeartRate {
         return HeartRate(startTime, endTime, figure, max, min)
     }
 
-    override fun create(
-        startTime: ZonedDateTime,
-        endTime: ZonedDateTime,
-        extras: HealthCareExtras,
-    ): HeartRate {
+    override fun create(startTime: Long, endTime: Long, extras: HealthCareExtras): HeartRate {
         max = extras[HealthCareExtras.KEY_HEART_RATE_MAX] ?: 0L
         min = extras[HealthCareExtras.KEY_HEART_RATE_MIN] ?: 0L
         val avg: Long = extras[HealthCareExtras.KEY_HEART_RATE_AVG] ?: 0L
@@ -60,9 +55,10 @@ internal class HeartRateTabFactory(
                 menu = getMenuList()
             )
         }.getOrElse { e ->
-            if (e is IllegalArgumentException) {
+            if(e is IllegalArgumentException) {
                 getDefaultValues(time)
-            } else
+            }
+            else
                 throw e
         }
     }
@@ -78,8 +74,7 @@ internal class HeartRateTabFactory(
             header = HealthPage(-1, 1, title = "심박수"),
             graph = HealthTab.getDefaultGraphItems(time.toNumberOfDays()),
             menu = kotlin.run {
-                val now = ZonedDateTime.now()
-                val defaultList = listOf(HeartRateFactory.instance.create(now, now, 0))
+                val defaultList = listOf(HeartRateFactory.instance.create(0,0,0))
                 listOf(
                     HeartMaxMenuFactory.create(defaultList),
                     HeartAvgMenuFactory.create(defaultList),

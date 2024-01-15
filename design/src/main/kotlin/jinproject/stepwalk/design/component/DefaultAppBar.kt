@@ -4,15 +4,9 @@ import androidx.annotation.DrawableRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.RowScope
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.statusBars
-import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -26,18 +20,16 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import jinproject.stepwalk.design.PreviewStepWalkTheme
 import jinproject.stepwalk.design.R
 import jinproject.stepwalk.design.theme.StepWalkTheme
 import jinproject.stepwalk.design.theme.Typography
 
-/**
- * deprecated : AppBar -> TopBar 사용
- */
 @Composable
 fun TitleAppBar(
     title: String,
     @DrawableRes startIcon: Int,
-    onBackClick: () -> Unit,
+    onBackClick: () -> Unit
 ) {
     DefaultAppBar(
         onBackClick = onBackClick,
@@ -55,9 +47,6 @@ fun TitleAppBar(
     }
 }
 
-/**
- * deprecated : AppBar -> TopBar 사용
- */
 @Composable
 fun DefaultAppBar(
     modifier: Modifier = Modifier,
@@ -70,12 +59,12 @@ fun DefaultAppBar(
             .fillMaxWidth()
             .shadow(4.dp, RectangleShape, clip = false)
             .background(MaterialTheme.colorScheme.surface)
-            .padding(top = 30.dp)
+            .padding(top = 30.dp, bottom = 10.dp)
     ) {
         IconButton(
             onClick = onBackClick,
             modifier = Modifier
-                .align(Alignment.TopStart)
+                .align(Alignment.CenterStart)
         ) {
             Icon(
                 painter = painterResource(id = icon),
@@ -90,7 +79,7 @@ fun DefaultAppBar(
 @Preview
 @Composable
 private fun PreviewDefaultAppBar() =
-    StepWalkTheme {
+     StepWalkTheme{
         DefaultAppBar(
             onBackClick = {},
             content = {},
@@ -101,7 +90,7 @@ private fun PreviewDefaultAppBar() =
 @Preview
 @Composable
 private fun PreviewTitleAppBar() =
-    StepWalkTheme {
+    StepWalkTheme{
         TitleAppBar(
             title = "타이틀입니다.",
             onBackClick = {},

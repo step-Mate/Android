@@ -1,13 +1,10 @@
 package jinproject.stepwalk.home.service
 
 import android.app.AlarmManager
-import android.app.Notification
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
-import android.content.pm.ServiceInfo
-import android.os.Build
 import android.util.Log
 import android.widget.RemoteViews
 import androidx.core.app.NotificationCompat
@@ -41,7 +38,7 @@ internal class StepService : LifecycleService() {
     lateinit var stepSensorViewModel: StepSensorViewModel
 
     private var stepNotiLayout: RemoteViews? = null
-    private lateinit var notification: Notification
+    private var notification: NotificationCompat.Builder? = null
     private var exitFlag: Boolean? = null
 
     private val alarmManager: AlarmManager by lazy { getSystemService(Context.ALARM_SERVICE) as AlarmManager }
@@ -72,7 +69,7 @@ internal class StepService : LifecycleService() {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 stepSensorViewModel.steps.collectLatest { stepData ->
                     stepNotiLayout?.setTextViewText(R.id.tv_stepHeader, stepData.current.toString())
-                    notificationManager.notify(NOTIFICATION_ID, notification)
+                    notificationManager.notify(NOTIFICATION_ID, notification?.build())
                 }
             }
         }
@@ -116,6 +113,7 @@ internal class StepService : LifecycleService() {
 
         when {
             exitFlag == true -> {
+                Log.d("test", "exit()")
                 stopSelf()
             }
 
@@ -184,13 +182,8 @@ internal class StepService : LifecycleService() {
                 .setCustomBigContentView(stepNotiLayout)
                 .setOngoing(true)
                 .addAction(jinproject.stepwalk.design.R.drawable.ic_time, "끄기", exitPendingIntent)
-                .build()
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
-            startForeground(NOTIFICATION_ID, notification,
-                ServiceInfo.FOREGROUND_SERVICE_TYPE_HEALTH
-            )
-        startForeground(NOTIFICATION_ID, notification)
+        startForeground(NOTIFICATION_ID, notification?.build())
     }
 
     companion object {
