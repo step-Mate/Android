@@ -85,32 +85,11 @@ value class StepWalkColor private constructor(val color: Color){
         val orange_500 = StepWalkColor(Color(0xFFFF9800))
         @Stable
         val orange_600 = StepWalkColor(Color(0xFFFB8C00))
-        @Stable
-        val orange_700 = StepWalkColor(Color(0xFFF57C00))
-        @Stable
-        val orange_800 = StepWalkColor(Color(0xFFEF6C00))
-
-        @Stable
-        val green_100 = StepWalkColor(Color(0xFFC8E6C9))
-        @Stable
-        val green_200 = StepWalkColor(Color(0xFFA5D6A7))
-        @Stable
-        val green_300 = StepWalkColor(Color(0xFF81C784))
-        @Stable
-        val green_400 = StepWalkColor(Color(0xFF66BB6A))
-        @Stable
-        val green_500 = StepWalkColor(Color(0xFF4CAF50))
-        @Stable
-        val green_600 = StepWalkColor(Color(0xFF43A047))
-        @Stable
-        val green_700 = StepWalkColor(Color(0xFF388E3C))
-        @Stable
-        val green_800 = StepWalkColor(Color(0xFF2E7D32))
 
         val light_primary = primary
         val light_onPrimary = white
         @Stable
-        val light_secondary = grey_100
+        val light_secondary = grey_300
         val light_onSecondary = lightBlack
         val light_error = red
         @Stable

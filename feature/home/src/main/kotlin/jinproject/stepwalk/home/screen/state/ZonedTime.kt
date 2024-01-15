@@ -1,4 +1,4 @@
-package jinproject.stepwalk.home.screen.calendar.state
+package jinproject.stepwalk.home.screen.state
 
 import android.util.Log
 import androidx.compose.runtime.Stable
@@ -31,8 +31,6 @@ internal class ZonedTime(val time: ZonedDateTime) : Comparable<ZonedTime> {
             endInclusive = ZonedTime(time)
         )
     }
-
-    fun getMonths() = time.monthValue + (time.year - 1) * 12
 }
 
 /**
@@ -43,30 +41,13 @@ internal class ZonedTime(val time: ZonedDateTime) : Comparable<ZonedTime> {
 @Stable
 internal class ZonedTimeRange(
     override val start: ZonedTime,
-    override val endInclusive: ZonedTime,
+    override val endInclusive: ZonedTime
 ) : Iterable<ZonedTime>, ClosedRange<ZonedTime> {
     override fun iterator(): Iterator<ZonedTime> {
         return if (start.time.toEpochSecond() > endInclusive.time.toEpochSecond())
             throw IllegalStateException("start: ${start.time.toEpochSecond()} 는 last: ${endInclusive.time.toEpochSecond()} 보다 작거나 같아야함")
         else
             ZonedTimeIterator(start, endInclusive)
-    }
-
-    override fun contains(value: ZonedTime): Boolean {
-        return (value.getMonths() >= start.getMonths() && value.getMonths() <= endInclusive.getMonths())
-    }
-
-    override fun toString(): String {
-        return StringBuilder("ZonedTimeRange: {").apply {
-            for (i in start..endInclusive) {
-                if (i != start)
-                    append(",")
-                append("ZonedTime(${i.time})")
-                if (i != endInclusive)
-                    append(" ")
-            }
-            append("}")
-        }.toString()
     }
 
 }
