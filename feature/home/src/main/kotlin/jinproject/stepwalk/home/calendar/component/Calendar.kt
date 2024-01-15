@@ -1,4 +1,4 @@
-package jinproject.stepwalk.home.screen.calendar.component.calendar
+package jinproject.stepwalk.home.calendar.component
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -7,7 +7,7 @@ import androidx.compose.ui.unit.dp
 import kotlin.math.roundToInt
 
 @Composable
-internal fun CalendarDayLayout(
+internal fun Calendar(
     modifier: Modifier = Modifier,
     dayLabel: @Composable (Int) -> Unit,
     day: @Composable (Int) -> Unit,
@@ -23,7 +23,6 @@ internal fun CalendarDayLayout(
         }
     }
 
-
     Layout(
         contents = listOf(dayLabels, days),
         modifier = modifier
@@ -31,13 +30,11 @@ internal fun CalendarDayLayout(
 
         val maxWidth = constraints.maxWidth
 
-        val itemWidth = (maxWidth / 7f).roundToInt()
-
         val dayLabelPlaceable = dayLabelMeasurables.map { measurable ->
             measurable.measure(
                 constraints.copy(
-                    maxWidth = itemWidth,
-                    minWidth = itemWidth,
+                    maxWidth = ((maxWidth - 16.dp.roundToPx()) / 7f).roundToInt(),
+                    minWidth = ((maxWidth - 16.dp.roundToPx()) / 7f).roundToInt(),
                     minHeight = 0
                 )
             )
@@ -47,8 +44,8 @@ internal fun CalendarDayLayout(
         val dayPlaceable = dayMeasurables.map { measurable ->
             measurable.measure(
                 constraints.copy(
-                    maxWidth = itemWidth,
-                    minWidth = itemWidth,
+                    maxWidth = ((maxWidth - 16.dp.roundToPx()) / 7f).roundToInt(),
+                    minWidth = ((maxWidth - 16.dp.roundToPx()) / 7f).roundToInt(),
                     minHeight = 0
                 )
             )
@@ -58,7 +55,7 @@ internal fun CalendarDayLayout(
 
         layout(maxWidth, totalHeight) {
 
-            var xPos = 0.dp.roundToPx()
+            var xPos = 8.dp.roundToPx()
             var yPos = 0
 
             dayPlaceable.forEachIndexed { index, placeable ->
@@ -71,7 +68,7 @@ internal fun CalendarDayLayout(
 
                 if ((index + 1) % 7 == 0) {
                     yPos += placeable.height
-                    xPos = 0
+                    xPos = 8.dp.roundToPx()
                 }
 
             }
