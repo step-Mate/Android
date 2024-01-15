@@ -1,4 +1,4 @@
-package jinproject.stepwalk.home.calendar.component
+package jinproject.stepwalk.home.screen.calendar.component.calendar
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -7,7 +7,7 @@ import androidx.compose.ui.unit.dp
 import kotlin.math.roundToInt
 
 @Composable
-internal fun Calendar(
+internal fun CalendarDayLayout(
     modifier: Modifier = Modifier,
     dayLabel: @Composable (Int) -> Unit,
     day: @Composable (Int) -> Unit,
@@ -23,6 +23,7 @@ internal fun Calendar(
         }
     }
 
+
     Layout(
         contents = listOf(dayLabels, days),
         modifier = modifier
@@ -30,11 +31,13 @@ internal fun Calendar(
 
         val maxWidth = constraints.maxWidth
 
+        val itemWidth = (maxWidth / 7f).roundToInt()
+
         val dayLabelPlaceable = dayLabelMeasurables.map { measurable ->
             measurable.measure(
                 constraints.copy(
-                    maxWidth = ((maxWidth - 16.dp.roundToPx()) / 7f).roundToInt(),
-                    minWidth = ((maxWidth - 16.dp.roundToPx()) / 7f).roundToInt(),
+                    maxWidth = itemWidth,
+                    minWidth = itemWidth,
                     minHeight = 0
                 )
             )
@@ -44,8 +47,8 @@ internal fun Calendar(
         val dayPlaceable = dayMeasurables.map { measurable ->
             measurable.measure(
                 constraints.copy(
-                    maxWidth = ((maxWidth - 16.dp.roundToPx()) / 7f).roundToInt(),
-                    minWidth = ((maxWidth - 16.dp.roundToPx()) / 7f).roundToInt(),
+                    maxWidth = itemWidth,
+                    minWidth = itemWidth,
                     minHeight = 0
                 )
             )
@@ -55,7 +58,7 @@ internal fun Calendar(
 
         layout(maxWidth, totalHeight) {
 
-            var xPos = 8.dp.roundToPx()
+            var xPos = 0.dp.roundToPx()
             var yPos = 0
 
             dayPlaceable.forEachIndexed { index, placeable ->
@@ -68,7 +71,7 @@ internal fun Calendar(
 
                 if ((index + 1) % 7 == 0) {
                     yPos += placeable.height
-                    xPos = 8.dp.roundToPx()
+                    xPos = 0
                 }
 
             }
