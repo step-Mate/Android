@@ -1,26 +1,30 @@
-package jinproject.stepwalk.home.screen.state
+package jinproject.stepwalk.home.screen.home.state
 
 import androidx.compose.runtime.Stable
-import jinproject.stepwalk.domain.model.METs
+import java.time.ZonedDateTime
 
 @Stable
 internal data class Step(
-    override val startTime: Long,
-    override val endTime: Long,
-    val distance: Long
+    override val startTime: ZonedDateTime,
+    override val endTime: ZonedDateTime,
+    val distance: Long,
 ) : HealthCare(startTime, endTime, distance)
 
 internal class StepFactory : HealthCareFactory<Step> {
 
     override fun create(
-        startTime: Long,
-        endTime: Long,
+        startTime: ZonedDateTime,
+        endTime: ZonedDateTime,
         figure: Long,
     ): Step {
         return Step(startTime, endTime, figure)
     }
 
-    override fun create(startTime: Long, endTime: Long, extras: HealthCareExtras): Step {
+    override fun create(
+        startTime: ZonedDateTime,
+        endTime: ZonedDateTime,
+        extras: HealthCareExtras,
+    ): Step {
         val step: Long = extras[HealthCareExtras.KEY_STEP] ?: 0L
         return create(startTime, endTime, step)
     }
@@ -47,22 +51,15 @@ internal class StepTabFactory(
             HealthTab(
                 header = HealthPage(total, goal, title = "걸음수"),
                 graph = time.getGraph(healthCareList),
-                menu = getMenuList()
+                menu = getMenuList(total)
             )
         }.getOrElse { e ->
-            if(e is IllegalArgumentException) {
+            if (e is IllegalArgumentException) {
                 getDefaultValues(time)
-            }
-            else
+            } else
                 throw e
         }
     }
-
-    private fun getMenuList(): List<MenuItem> = listOf(
-        DistanceMenuFactory.create(total),
-        TimeMenuFactory.create(total),
-        CaloriesMenuFactory.create(total)
-    )
 
     override fun getDefaultValues(time: Time): HealthTab =
         HealthTab(
@@ -86,5 +83,11 @@ internal class StepTabFactory(
 
             return _instance!!
         }
+
+        fun getMenuList(figure: Long): List<MenuItem> = listOf(
+            DistanceMenuFactory.create(figure),
+            TimeMenuFactory.create(figure),
+            CaloriesMenuFactory.create(figure)
+        )
     }
 }

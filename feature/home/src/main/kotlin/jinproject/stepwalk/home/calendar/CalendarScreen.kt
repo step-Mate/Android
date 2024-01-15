@@ -35,6 +35,11 @@ internal fun CalendarScreen(
 ) {
     val timeList = timeRange.toList()
 
+    require(timeList.isNotEmpty()) {
+        "${timeRange.start.time.year}년 ${timeRange.start.time.monthValue}월 ~ " +
+                "${timeRange.endInclusive.time.year}년 ${timeRange.endInclusive.time.monthValue}월 까지의 달력 리스트가 비어있음"
+    }
+
     val pagerState = rememberPagerState(initialPage = timeList.size - 1) {
         timeList.size
     }

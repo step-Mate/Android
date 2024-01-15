@@ -1,13 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <uses-permission
+        android:name="android.permission.FOREGROUND_SERVICE_HEALTH"
+        android:minSdkVersion="34" />
     <application>
-        <service
-            android:process=":jinproject.stepwalk.service"
-            android:name="jinproject.stepwalk.home.service.StepService"
-            android:foregroundServiceType="health" />
+    <service
+        android:process=":jinproject.stepwalk.service"
+        android:name="jinproject.stepwalk.home.service.StepService"
+        android:foregroundServiceType="health" />
 
-        <receiver
-            android:name="jinproject.stepwalk.home.receiver.AlarmReceiver"
-            android:exported="false" />
-    </application>
+    <receiver
+        android:name="jinproject.stepwalk.home.receiver.AlarmReceiver"
+        android:exported="false" />
+</application>
 </manifest>

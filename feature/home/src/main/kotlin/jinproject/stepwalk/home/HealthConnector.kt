@@ -9,7 +9,6 @@ import androidx.compose.runtime.Stable
 import androidx.health.connect.client.HealthConnectClient
 import androidx.health.connect.client.PermissionController
 import androidx.health.connect.client.aggregate.AggregateMetric
-import androidx.health.connect.client.permission.HealthPermission
 import androidx.health.connect.client.records.HeartRateRecord
 import androidx.health.connect.client.records.StepsRecord
 import androidx.health.connect.client.records.metadata.DataOrigin
@@ -21,19 +20,20 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
-import jinproject.stepwalk.home.screen.state.HealthCare
-import jinproject.stepwalk.home.screen.state.HealthCareExtras
-import jinproject.stepwalk.home.screen.state.HealthCareFactory
-import jinproject.stepwalk.home.screen.state.HeartRate
-import jinproject.stepwalk.home.screen.state.HeartRateFactory
-import jinproject.stepwalk.home.screen.state.Step
-import jinproject.stepwalk.home.screen.state.StepFactory
+import jinproject.stepwalk.home.screen.home.state.HealthCare
+import jinproject.stepwalk.home.screen.home.state.HealthCareExtras
+import jinproject.stepwalk.home.screen.home.state.HealthCareFactory
+import jinproject.stepwalk.home.screen.home.state.HeartRate
+import jinproject.stepwalk.home.screen.home.state.HeartRateFactory
+import jinproject.stepwalk.home.screen.home.state.Step
+import jinproject.stepwalk.home.screen.home.state.StepFactory
 import jinproject.stepwalk.home.utils.onKorea
 import java.time.Duration
 import java.time.Instant
 import java.time.LocalDateTime
 import java.time.Period
-import java.time.ZoneOffset
+import java.time.ZoneId
+import java.time.ZonedDateTime
 import java.time.temporal.ChronoUnit
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -49,14 +49,14 @@ object HealthConnectorModule {
 
 @Stable
 class HealthConnector @Inject constructor(
-    @ApplicationContext private val context: Context
+    @ApplicationContext private val context: Context,
 ) {
     private val healthConnectClient by lazy {
         getHealthClient()
     }
 
     suspend fun checkPermissions(
-        permissions: Set<String>
+        permissions: Set<String>,
     ): Boolean {
         return healthConnectClient?.permissionController?.getGrantedPermissions()
             ?.containsAll(permissions) ?: false
@@ -72,7 +72,7 @@ class HealthConnector @Inject constructor(
         } else
             null
 
-    private fun checkAvailability() = HealthConnectClient.sdkStatus(context)
+    private fun checkAvailability() = HealthConnectClient.getSdkStatus(context)
 
     init {
         if (checkAvailability() == HealthConnectClient.SDK_UNAVAILABLE_PROVIDER_UPDATE_REQUIRED)
@@ -97,16 +97,16 @@ class HealthConnector @Inject constructor(
 
     suspend fun insertSteps(
         step: Long,
-        startTime: Instant,
-        endTime: Instant
+        startTime: ZonedDateTime,
+        endTime: ZonedDateTime,
     ) {
         kotlin.runCatching {
             val stepsRecord = StepsRecord(
                 count = step,
-                startTime = startTime,
-                endTime = endTime,
-                startZoneOffset = ZoneOffset.of("+9"),
-                endZoneOffset = ZoneOffset.of("+9"),
+                startTime = startTime.toInstant(),
+                endTime = endTime.toInstant(),
+                startZoneOffset = startTime.offset,
+                endZoneOffset = endTime.offset,
             )
             healthConnectClient?.insertRecords(listOf(stepsRecord))
         }.onFailure { e ->
@@ -116,18 +116,18 @@ class HealthConnector @Inject constructor(
 
     suspend fun insertHeartRates(
         heartRate: Long,
-        startTime: Instant,
-        endTime: Instant
+        startTime: ZonedDateTime,
+        endTime: ZonedDateTime,
     ) {
         kotlin.runCatching {
             val heartRateRecord = HeartRateRecord(
-                startTime = startTime,
-                endTime = endTime,
-                startZoneOffset = ZoneOffset.of("+9"),
-                endZoneOffset = ZoneOffset.of("+9"),
+                startTime = startTime.toInstant(),
+                endTime = endTime.toInstant(),
+                startZoneOffset = startTime.offset,
+                endZoneOffset = endTime.offset,
                 samples = listOf(
                     HeartRateRecord.Sample(
-                        time = startTime,
+                        time = startTime.toInstant(),
                         beatsPerMinute = heartRate
                     )
                 )
@@ -141,7 +141,7 @@ class HealthConnector @Inject constructor(
     internal suspend fun readStepsByPeriods(
         startTime: LocalDateTime,
         endTime: LocalDateTime,
-        period: Period
+        period: Period,
     ): List<Step>? = readHealthCareByPeriods(
         startTime = startTime,
         endTime = endTime,
@@ -153,7 +153,7 @@ class HealthConnector @Inject constructor(
     internal suspend fun readStepsByHours(
         startTime: LocalDateTime,
         endTime: LocalDateTime,
-        duration: Duration
+        duration: Duration,
     ): List<Step>? = readHealthCareByDurations(
         startTime = startTime,
         endTime = endTime,
@@ -184,7 +184,7 @@ class HealthConnector @Inject constructor(
     internal suspend fun readHeartRatesByHours(
         startTime: LocalDateTime,
         endTime: LocalDateTime,
-        duration: Duration
+        duration: Duration,
     ): List<HeartRate>? = readHealthCareByDurations(
         startTime = startTime,
         endTime = endTime,
@@ -196,7 +196,7 @@ class HealthConnector @Inject constructor(
     internal suspend fun readHeartRatesByPeriods(
         startTime: LocalDateTime,
         endTime: LocalDateTime,
-        period: Period
+        period: Period,
     ): List<HeartRate>? =
         readHealthCareByPeriods(
             startTime = startTime,
@@ -231,8 +231,8 @@ class HealthConnector @Inject constructor(
                     }
                 }
                 factory.create(
-                    startTime = record.startTime.onKorea().toEpochSecond(),
-                    endTime = record.endTime.onKorea().toEpochSecond(),
+                    startTime = record.startTime.onKorea(),
+                    endTime = record.endTime.onKorea(),
                     extras = extras,
                 )
             }
@@ -265,8 +265,8 @@ class HealthConnector @Inject constructor(
                     }
                 }
                 factory.create(
-                    startTime = record.startTime.onKorea().toEpochSecond(),
-                    endTime = record.endTime.onKorea().toEpochSecond(),
+                    startTime = ZonedDateTime.ofInstant(record.startTime, ZoneId.of("+0")),
+                    endTime = ZonedDateTime.ofInstant(record.endTime, ZoneId.of("+0")),
                     extras = extras,
                 )
             }

@@ -18,8 +18,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.vectorResource
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import jinproject.stepwalk.home.screen.state.SnackBarMessage
-import jinproject.stepwalk.home.HealthConnector
+import jinproject.stepwalk.home.screen.home.state.SnackBarMessage
 import jinproject.stepwalk.home.navigation.homeNavGraph
 import jinproject.stepwalk.home.navigation.navigateToCalendar
 
