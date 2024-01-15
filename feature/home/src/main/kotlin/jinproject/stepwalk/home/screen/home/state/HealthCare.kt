@@ -1,6 +1,7 @@
-package jinproject.stepwalk.home.screen.state
+package jinproject.stepwalk.home.screen.home.state
 
 import androidx.compose.runtime.Stable
+import java.time.ZonedDateTime
 
 /**
  * 헬스케어 정보
@@ -10,27 +11,27 @@ import androidx.compose.runtime.Stable
  */
 @Stable
 internal abstract class HealthCare(
-    open val startTime: Long,
-    open val endTime: Long,
-    open val figure: Long
+    open val startTime: ZonedDateTime,
+    open val endTime: ZonedDateTime,
+    open val figure: Long,
 )
 
 internal interface HealthCareFactory<T : HealthCare> {
     fun create(
-        startTime: Long,
-        endTime: Long,
+        startTime: ZonedDateTime,
+        endTime: ZonedDateTime,
         figure: Long,
     ): T
 
     fun create(
-        startTime: Long,
-        endTime: Long,
+        startTime: ZonedDateTime,
+        endTime: ZonedDateTime,
         extras: HealthCareExtras,
     ): T
 }
 
 internal class HealthCareExtras(
-    extras: MutableMap<String, Long> = emptyMap<String, Long>().toMutableMap()
+    extras: MutableMap<String, Long> = emptyMap<String, Long>().toMutableMap(),
 ) {
     private val map: MutableMap<String, Long> = extras
 

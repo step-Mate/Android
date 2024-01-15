@@ -1,4 +1,4 @@
-package jinproject.stepwalk.home.screen.state
+package jinproject.stepwalk.home.screen.home.state
 
 import androidx.compose.runtime.Stable
 import jinproject.stepwalk.design.theme.StepWalkColor

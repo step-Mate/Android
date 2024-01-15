@@ -1,4 +1,4 @@
-package jinproject.stepwalk.home.screen.state
+package jinproject.stepwalk.home.screen.home.state
 
 import androidx.annotation.DrawableRes
 import androidx.compose.runtime.Stable
@@ -8,7 +8,7 @@ import jinproject.stepwalk.design.R
 internal data class MenuItem(
     val value: Float,
     @DrawableRes val img: Int,
-    val intro: String
+    val intro: String,
 )
 
 internal interface MenuFactory {
@@ -30,8 +30,10 @@ internal interface StepCalculateMenu : CalculateMenu {
 }
 
 internal object DistanceMenuFactory : MenuFactory, StepCalculateMenu {
+    const val intro = "거리(km)"
+
     override fun <T> create(v: T): MenuItem {
-        return MenuItem(cal(v), R.drawable.ic_person_walking, "거리(km)")
+        return MenuItem(cal(v), R.drawable.ic_person_walking, intro)
     }
 
     override fun cal(v: Number): Float {
@@ -40,8 +42,9 @@ internal object DistanceMenuFactory : MenuFactory, StepCalculateMenu {
 }
 
 internal object CaloriesMenuFactory : MenuFactory, StepCalculateMenu {
+    const val intro = "칼로리(Kcal)"
     override fun <T> create(v: T): MenuItem {
-        return MenuItem(cal(v), R.drawable.ic_fire, "칼로리(Kcal)")
+        return MenuItem(cal(v), R.drawable.ic_fire, intro)
     }
 
     override fun cal(v: Number): Float {
@@ -50,8 +53,9 @@ internal object CaloriesMenuFactory : MenuFactory, StepCalculateMenu {
 }
 
 internal object TimeMenuFactory : MenuFactory, StepCalculateMenu {
+    const val intro = "시간(분)"
     override fun <T> create(v: T): MenuItem {
-        return MenuItem(cal(v), R.drawable.ic_fire, "시간(분)")
+        return MenuItem(cal(v), R.drawable.ic_fire, intro)
     }
 
     override fun cal(v: Number): Float {
