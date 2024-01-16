@@ -1,6 +1,5 @@
 package jinproject.stepwalk.login.component
 
-import androidx.annotation.StringRes
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
@@ -11,39 +10,13 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import jinproject.stepwalk.design.component.DescriptionSmallText
-import jinproject.stepwalk.design.component.VerticalSpacer
 import jinproject.stepwalk.design.theme.StepWalkColor
 import jinproject.stepwalk.design.theme.StepWalkTheme
-import jinproject.stepwalk.login.screen.state.Verification
+import jinproject.stepwalk.login.screen.state.SignValid
 
-@Composable
-internal fun ErrorMessage(
-    @StringRes message : Int,
-    isError : Boolean = false,
-    color : Color = MaterialTheme.colorScheme.error
-){
-    AnimatedVisibility(
-        visible = isError,
-        enter = slideInVertically { -it },
-        exit = slideOutVertically { -it }
-    ) {
-        Column {
-            VerticalSpacer(height = 5.dp)
-            DescriptionSmallText(
-                text = stringResource(id = message),
-                color = color,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 24.dp)
-            )
-            VerticalSpacer(height = 5.dp)
-        }
-    }
-}
 
 @Composable
 internal fun ErrorMessage(
@@ -57,15 +30,13 @@ internal fun ErrorMessage(
         exit = slideOutVertically { -it }
     ) {
         Column {
-            VerticalSpacer(height = 5.dp)
             DescriptionSmallText(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 24.dp),
+                    .padding(horizontal = 24.dp, vertical = 5.dp),
                 text = message,
                 color = color
             )
-            VerticalSpacer(height = 5.dp)
         }
     }
 }
@@ -75,33 +46,23 @@ internal fun EmailErrorMessage(
     errorMessage : String,
     verifyingMessage : String,
     successMessage : String,
-    isVerification: Verification
+    emailValid: SignValid,
+    emailCodeValid : SignValid
 ){
-    AnimatedVisibility(
-        visible = isVerification == Verification.emailError || isVerification ==Verification.verifying || isVerification == Verification.success,
-        enter = slideInVertically { -it },
-        exit = slideOutVertically { -it }
-    ) {
-        Column {
-            VerticalSpacer(height = 5.dp)
-            DescriptionSmallText(
-                text = when (isVerification) {
-                    Verification.emailError -> errorMessage
-                    Verification.verifying -> verifyingMessage
-                    Verification.success -> successMessage
-                    else -> ""
-                },
-                color = when (isVerification) {
-                    Verification.emailError -> MaterialTheme.colorScheme.error
-                    Verification.success -> StepWalkColor.success.color
-                    else -> StepWalkColor.blue_400.color
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 12.dp)
-            )
+    ErrorMessage(
+        message = when {
+            emailCodeValid == SignValid.success -> successMessage
+            emailValid == SignValid.notValid -> errorMessage
+            emailValid == SignValid.verifying -> verifyingMessage
+            else -> ""
+        },
+        isError = emailCodeValid == SignValid.success || emailValid == SignValid.notValid || emailValid == SignValid.verifying,
+        color = when {
+            emailCodeValid == SignValid.success -> StepWalkColor.success.color
+            emailValid == SignValid.notValid -> MaterialTheme.colorScheme.error
+            else -> StepWalkColor.blue_400.color
         }
-    }
+    )
 }
 
 @Composable
@@ -121,7 +82,8 @@ private fun PreviewEmailErrorMessage(
         errorMessage = "error message",
         verifyingMessage = "verifying message",
         successMessage = "success message",
-        isVerification = Verification.verifying
+        emailValid = SignValid.success,
+        emailCodeValid = SignValid.success
     )
 }
 

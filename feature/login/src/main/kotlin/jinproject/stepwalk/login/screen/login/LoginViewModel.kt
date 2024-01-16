@@ -12,7 +12,6 @@ import javax.inject.Inject
 internal class LoginViewModel @Inject constructor(
 
 ) : ViewModel() {
-
     fun checkValidAccount(id : String, password : String) : Valid = when{
             id.isBlank() -> Valid.ID_BLANK
             !id.isValidID() -> Valid.ID_NOT_VALID

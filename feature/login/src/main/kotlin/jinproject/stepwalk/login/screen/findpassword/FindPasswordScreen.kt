@@ -29,9 +29,9 @@ import jinproject.stepwalk.login.component.EmailVerificationField
 import jinproject.stepwalk.login.component.EnableButton
 import jinproject.stepwalk.login.component.IdDetail
 import jinproject.stepwalk.login.component.PasswordDetail
-import jinproject.stepwalk.login.screen.state.SignValid
-import jinproject.stepwalk.login.screen.state.AccountValid
-import jinproject.stepwalk.login.screen.state.Verification
+import jinproject.stepwalk.login.screen.state.Account
+import jinproject.stepwalk.login.utils.MAX_EMAIL_CODE_LENGTH
+import jinproject.stepwalk.login.utils.MAX_EMAIL_LENGTH
 import jinproject.stepwalk.login.utils.MAX_ID_LENGTH
 import jinproject.stepwalk.login.utils.MAX_PASS_LENGTH
 
@@ -40,15 +40,14 @@ internal fun FindPasswordScreen(
     findPasswordViewModel: FindPasswordViewModel = hiltViewModel(),
     popBackStack :() -> Unit
 ) {
-    val id by findPasswordViewModel.id.collectAsStateWithLifecycle()
-    val email by findPasswordViewModel.email.collectAsStateWithLifecycle()
-    val emailCode by findPasswordViewModel.emailCode.collectAsStateWithLifecycle()
-    val password by findPasswordViewModel.password.collectAsStateWithLifecycle()
-    val repeatPassword by findPasswordViewModel.repeatPassword.collectAsStateWithLifecycle()
 
     FindPasswordScreen(
-        findAccountPassword = { FindAccountPassword(id, email, emailCode, password, repeatPassword,findPasswordViewModel.emailValid.value,findPasswordViewModel.nextStep.value) },
-        valids = findPasswordViewModel.valids,
+        id = findPasswordViewModel.id,
+        password = findPasswordViewModel.password,
+        repeatPassword = findPasswordViewModel.repeatPassword,
+        email = findPasswordViewModel.email,
+        emailCode = findPasswordViewModel.emailCode,
+        nextStep = findPasswordViewModel.nextStep.value,
         updateFindEvent = findPasswordViewModel::updateFindEvent,
         requestEmailVerification = findPasswordViewModel::requestEmailVerification,
         requestFindAccount = findPasswordViewModel::requestFindAccount,
@@ -59,8 +58,12 @@ internal fun FindPasswordScreen(
 
 @Composable
 private fun FindPasswordScreen(
-    findAccountPassword: () -> FindAccountPassword,
-    valids : AccountValid,
+    id : Account,
+    password : Account,
+    repeatPassword : Account,
+    email : Account,
+    emailCode : Account,
+    nextStep : Boolean,
     updateFindEvent : (FindEvent,String) -> Unit,
     requestEmailVerification : () -> Unit,
     requestFindAccount: () -> Unit,
@@ -68,6 +71,11 @@ private fun FindPasswordScreen(
     popBackStack: () -> Unit
 ){
     val scrollState = rememberScrollState()
+    val idValue by id.value.collectAsStateWithLifecycle()
+    val passwordValue by password.value.collectAsStateWithLifecycle()
+    val repeatPasswordValue by repeatPassword.value.collectAsStateWithLifecycle()
+    val emailValue by email.value.collectAsStateWithLifecycle()
+    val emailCodeValue by emailCode.value.collectAsStateWithLifecycle()
 
     DefaultLayout(
         contentPaddingValues = PaddingValues(vertical = 60.dp)
@@ -87,7 +95,7 @@ private fun FindPasswordScreen(
                 alignment = Alignment.Center
             )
             VerticalSpacer(height = 30.dp)
-            if (findAccountPassword().nextStep){
+            if (nextStep){
                 Text(
                     text = "재설정할 비밀번호를 입력해주세요.",
                     style = MaterialTheme.typography.titleMedium,
@@ -95,10 +103,10 @@ private fun FindPasswordScreen(
                 )
                 VerticalSpacer(height = 30.dp)
                 PasswordDetail(
-                    password = { findAccountPassword().password},
-                    repeatPassword = { findAccountPassword().repeatPassword},
-                    passwordValid = { valids.passwordValid.value },
-                    repeatPasswordValid = { valids.repeatPasswordValid.value },
+                    password = passwordValue,
+                    repeatPassword = repeatPasswordValue,
+                    passwordValid = password.valid,
+                    repeatPasswordValid = repeatPassword.valid,
                     onNewPassword = {
                         val text = it.trim()
                         if (text.length <= MAX_PASS_LENGTH)
@@ -117,15 +125,15 @@ private fun FindPasswordScreen(
                         .fillMaxWidth()
                         .padding(horizontal = 12.dp, vertical = 4.dp)
                         .height(50.dp),
-                    enabled = (valids.passwordValid.value == SignValid.success) && (valids.repeatPasswordValid.value == SignValid.success)
+                    enabled = password.isSuccessful() && repeatPassword.isSuccessful()
                 ) {
                     requestResetPassword()
                     popBackStack()
                 }
             }else{
                 IdDetail(
-                    id = { findAccountPassword().id },
-                    idValid = { valids.idValid.value },
+                    id = idValue,
+                    idValid = id.valid ,
                     onNewIdValue = {
                         val text = it.trim()
                         if (text.length <= MAX_ID_LENGTH)
@@ -133,12 +141,21 @@ private fun FindPasswordScreen(
                     }
                 )
                 EmailVerificationField(
-                    email = { findAccountPassword().email },
-                    verificationCode = { findAccountPassword().emailCode },
-                    isVerification = { findAccountPassword().emailValid },
+                    email = emailValue,
+                    emailCode = emailCodeValue,
+                    emailValid = email.valid,
+                    emailCodeValid = emailCode.valid,
                     requestEmailVerification = requestEmailVerification,
-                    onEmailValue = { updateFindEvent(FindEvent.email,it) },
-                    onVerificationCodeValue = { updateFindEvent(FindEvent.emailCode,it)}
+                    onEmailValue = {
+                        val text = it.trim()
+                        if (text.length <= MAX_EMAIL_LENGTH)
+                            updateFindEvent(FindEvent.email,it)
+                    },
+                    onVerificationCodeValue = {
+                        val text = it.trim()
+                        if (text.length <= MAX_EMAIL_CODE_LENGTH)
+                            updateFindEvent(FindEvent.emailCode,it)
+                    }
                 )
                 VerticalSpacer(height = 20.dp)
                 EnableButton(
@@ -147,7 +164,7 @@ private fun FindPasswordScreen(
                         .fillMaxWidth()
                         .padding(horizontal = 12.dp, vertical = 4.dp)
                         .height(50.dp),
-                    enabled = findAccountPassword().emailValid == Verification.success
+                    enabled = email.isSuccessful() && emailCode.isSuccessful()
                 ) {
                     requestFindAccount()
                 }
@@ -162,13 +179,16 @@ private fun PreviewFindPasswordScreen(
 
 ) = StepWalkTheme {
     FindPasswordScreen(
-        findAccountPassword = { FindAccountPassword(nextStep = true) },
-        valids = AccountValid(),
+        id = Account(500),
+        password = Account(500),
+        repeatPassword = Account(500),
+        email= Account(500),
+        emailCode = Account(500),
+        nextStep = false,
         updateFindEvent = {_,_ ->},
         requestEmailVerification = {  },
         requestFindAccount = {  },
         requestResetPassword = {  }) {
-
     }
 }
 
@@ -178,12 +198,15 @@ private fun PreviewFindPasswordScreen2(
 
 ) = StepWalkTheme {
     FindPasswordScreen(
-        findAccountPassword = { FindAccountPassword(nextStep = false) },
-        valids = AccountValid(),
+        id = Account(500),
+        password = Account(500),
+        repeatPassword = Account(500),
+        email= Account(500),
+        emailCode = Account(500),
+        nextStep = true,
         updateFindEvent = {_,_ ->},
         requestEmailVerification = {  },
         requestFindAccount = {  },
         requestResetPassword = {  }) {
-
     }
 }

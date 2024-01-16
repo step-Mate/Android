@@ -3,13 +3,17 @@ package jinproject.stepwalk.login.screen.login
 import android.content.Context
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -112,59 +116,68 @@ private fun LoginScreen(
 ) {
     var id by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+    val scrollState = rememberScrollState()
 
     DefaultLayout(
         modifier = Modifier,
-        contentPaddingValues = PaddingValues(vertical = 10.dp)
+        contentPaddingValues = PaddingValues(vertical = 20.dp)
     ) {
-        //이미지? or 캐릭터? 수정예정
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Center,
+        Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .wrapContentHeight()
-                .padding(horizontal = 12.dp, vertical = 30.dp),
+                .imePadding()
+                .verticalScroll(scrollState)
         ) {
-            Image(
-                imageVector = ImageVector.vectorResource(R.drawable.ic_fire),
-                contentDescription = "캐릭터?or 운동이미지?",
-                modifier = Modifier.size(200.dp)
+            //이미지? or 캐릭터? 수정예정
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .wrapContentHeight()
+                    .padding(horizontal = 12.dp, vertical = 30.dp),
+            ) {
+                Image(
+                    imageVector = ImageVector.vectorResource(R.drawable.ic_fire),
+                    contentDescription = "캐릭터?or 운동이미지?",
+                    modifier = Modifier.size(200.dp)
+                )
+            }
+            VerticalSpacer(height = 40.dp)
+
+            IdField(
+                value = id,
+                onNewValue = {
+                    if (it.length <= MAX_ID_LENGTH)
+                        id = it
+                }
             )
-        }
-        VerticalSpacer(height = 40.dp)
+            PasswordField(
+                informationText = "비밀번호",
+                value = password,
+                onNewValue = {
+                    if (it.length <= MAX_PASS_LENGTH)
+                        password = it
+                }
+            )
+            VerticalSpacer(height = 20.dp)
 
-        IdField(
-            value = id,
-            onNewValue = {
-                if (it.length <= MAX_ID_LENGTH)
-                    id = it
+            EnableButton(
+                text = "로그인",
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 12.dp)
+                    .height(50.dp),
+                enabled = true
+            ) {
+                checkValidAccount(id, password)
             }
-        )
-        PasswordField(
-            value = password,
-            onNewValue = {
-                if (it.length <= MAX_PASS_LENGTH)
-                    password = it
-            }
-        )
-        VerticalSpacer(height = 20.dp)
 
-        EnableButton(
-            text = "로그인",
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 12.dp)
-                .height(50.dp)
-        ) {
-            checkValidAccount(id,password)
-        }
+            FindAndSignUpButtons(
+                findAccountId = navigateToFindId,
+                findAccountPassword = navigateToFindPassword,
+                createAccount = navigateToSignUp
+            )
 
-        FindAndSignUpButtons(
-            findAccountId = navigateToFindId,
-            findAccountPassword = navigateToFindPassword,
-            createAccount = navigateToSignUp
-        )
 
 //        VerticalSpacer(height = 10.dp)
 //        Row (
@@ -187,7 +200,7 @@ private fun LoginScreen(
 //        VerticalSpacer(height = 20.dp)
 //
 //        IconButton(
-//            icon = AppIcon.ic_kakao_simbol,
+//            icon = R.drawable.ic_kakao_simbol,
 //            containerColor = StepWalkColor.kakao_yellow.color,
 //            simbolColor = StepWalkColor.kakao_black.color,
 //            labelColor = StepWalkColor.kakao_black.color,
@@ -195,10 +208,9 @@ private fun LoginScreen(
 //        ) {
 //            //카카오 로그인 or 회원가입 처리
 //        }
+        }
     }
 }
-
-
 @Composable
 @Preview
 private fun PreviewHomeScreen(

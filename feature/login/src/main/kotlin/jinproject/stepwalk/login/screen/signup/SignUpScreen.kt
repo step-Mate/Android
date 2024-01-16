@@ -23,8 +23,7 @@ import jinproject.stepwalk.design.theme.StepWalkTheme
 import jinproject.stepwalk.login.component.EnableButton
 import jinproject.stepwalk.login.component.IdDetail
 import jinproject.stepwalk.login.component.PasswordDetail
-import jinproject.stepwalk.login.screen.state.SignValid
-import jinproject.stepwalk.login.screen.state.AccountValid
+import jinproject.stepwalk.login.screen.state.Account
 import jinproject.stepwalk.login.utils.MAX_ID_LENGTH
 import jinproject.stepwalk.login.utils.MAX_PASS_LENGTH
 import jinproject.stepwalk.login.utils.SnackBarMessage
@@ -36,13 +35,11 @@ internal fun SignUpScreen(
     navigateToSignUpDetail : (String,String) -> Unit,
     showSnackBar : (SnackBarMessage) -> Unit
 ) {
-    val id by signUpViewModel.id.collectAsStateWithLifecycle()
-    val password by signUpViewModel.password.collectAsStateWithLifecycle()
-    val repeatPassword by signUpViewModel.repeatPassword.collectAsStateWithLifecycle()
 
     SignUpScreen(
-        signUp = {SignUp(id, password, repeatPassword)},
-        valids = signUpViewModel.valids,
+        id = signUpViewModel.id,
+        password = signUpViewModel.password,
+        repeatPassword = signUpViewModel.repeatPassword,
         updateAccountEvent = signUpViewModel::updateAccountEvent,
         checkAccountValid = signUpViewModel::checkAccountValid,
         navigateToSignUpDetail = navigateToSignUpDetail,
@@ -52,26 +49,33 @@ internal fun SignUpScreen(
 
 @Composable
 private fun SignUpScreen(
-    signUp: () -> SignUp,
-    valids : AccountValid,
+    id : Account,
+    password : Account,
+    repeatPassword : Account,
     updateAccountEvent : (AccountEvent,String) -> Unit,
     checkAccountValid : () -> Boolean,
     navigateToSignUpDetail : (String,String) -> Unit,
     showSnackBar : (SnackBarMessage) -> Unit
 ){
+    val idValue by id.value.collectAsStateWithLifecycle()
+    val passwordValue by password.value.collectAsStateWithLifecycle()
+    val repeatPasswordValue by repeatPassword.value.collectAsStateWithLifecycle()
+
     DefaultLayout(
         contentPaddingValues = PaddingValues(vertical = 60.dp)
     ) {
         Text(
             text = stringResource(id = AppText.signup_title),
             style = MaterialTheme.typography.titleMedium,
-            modifier = Modifier.fillMaxWidth().padding(start = 12.dp)
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(start = 12.dp)
         )
         VerticalSpacer(height = 30.dp)
 
         IdDetail(
-            id = {signUp().id},
-            idValid = {valids.idValid.value},
+            id = idValue,
+            idValid = id.valid,
             onNewIdValue = {
                 val text = it.trim()
                 if (text.length <= MAX_ID_LENGTH)
@@ -80,10 +84,10 @@ private fun SignUpScreen(
         )
 
         PasswordDetail(
-            password = { signUp().password},
-            repeatPassword = { signUp().repeatPassword},
-            passwordValid = { valids.passwordValid.value },
-            repeatPasswordValid = { valids.repeatPasswordValid.value },
+            password = passwordValue,
+            repeatPassword = repeatPasswordValue,
+            passwordValid = password.valid ,
+            repeatPasswordValid = repeatPassword.valid ,
             onNewPassword = {
                 val text = it.trim()
                 if (text.length <= MAX_PASS_LENGTH)
@@ -106,10 +110,10 @@ private fun SignUpScreen(
                     .fillMaxWidth()
                     .padding(horizontal = 12.dp)
                     .height(50.dp),
-                enabled = valids.isSuccessfulValid()
+                enabled = id.isSuccessful() && password.isSuccessful() && repeatPassword.isSuccessful()
             ) {
                 if (checkAccountValid())
-                    navigateToSignUpDetail(signUp().id,signUp().password)
+                    navigateToSignUpDetail(idValue,passwordValue)
                 else
                     showSnackBar(
                         SnackBarMessage(
@@ -127,8 +131,9 @@ private fun PreviewSignUpScreen(
 
 ) = StepWalkTheme {
     SignUpScreen(
-        signUp = {SignUp()},
-        valids = AccountValid(SignValid.success,SignValid.notValid,SignValid.notMatch),
+        id = Account(500),
+        password = Account(500),
+        repeatPassword = Account(500),
         updateAccountEvent = {_,_ ->},
         checkAccountValid = {true},
         navigateToSignUpDetail = {_,_ ->},
