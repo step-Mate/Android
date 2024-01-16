@@ -42,6 +42,7 @@ dependencies {
     implementation(project(":feature:home"))
     implementation(project(":data"))
     implementation(project(":feature:login"))
+    implementation(project(":feature:mission"))
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)

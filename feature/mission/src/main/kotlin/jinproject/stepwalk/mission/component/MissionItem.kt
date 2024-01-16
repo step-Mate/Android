@@ -1,9 +1,11 @@
 package jinproject.stepwalk.mission.component
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
@@ -11,6 +13,12 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.BlendMode
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import jinproject.stepwalk.design.component.VerticalSpacer
@@ -29,14 +37,21 @@ internal fun MissionItem(
             .background(mission.contentColor)
             .clickable { onClick() },
     ) {
-        VerticalSpacer(height = 10.dp)
+//        Image(
+//            imageVector = ImageVector.vectorResource(image),
+//            contentDescription = "미션 이미지",
+//            modifier = Modifier
+//                .fillMaxWidth()
+//                .height(height.div(1.5f)),
+//            contentScale = ContentScale.FillBounds,
+//            colorFilter = ColorFilter.tint(Color.Gray, BlendMode.Darken)
+//        )
         Text(
             modifier = Modifier.padding(horizontal = 12.dp),
             text = mission.title,
             style = MaterialTheme.typography.titleLarge,
             color = mission.containerColor
         )
-        VerticalSpacer(height = 20.dp)
         MissionBar(
             modifier = Modifier.padding(bottom = 12.dp),
             nowValue = mission.missionValue.nowValue,
