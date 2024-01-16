@@ -15,6 +15,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
@@ -113,7 +114,11 @@ internal fun ColumnScope.HealthChart(
                     Week.toNumberOfDays() -> (index + 1).weekToString()
                     Day.toNumberOfDays() -> index.toString()
                     else -> (index + 1).toString()
-                }
+                },
+                textAlign = when (graph.size > 14) {
+                    true -> TextAlign.Left
+                    false -> TextAlign.Center
+                },
             )
         },
         verticalAxis = {

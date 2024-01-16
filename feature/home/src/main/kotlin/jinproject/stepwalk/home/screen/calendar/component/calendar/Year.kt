@@ -68,7 +68,7 @@ internal fun Year(
 private fun PreviewCalendarYear(
 ) = StepWalkTheme {
     Year(
-        calendarData = CalendarPreviewData.year,
+        calendarData = CalendarPreviewData().year,
         setCalendarData = {}
     )
 }

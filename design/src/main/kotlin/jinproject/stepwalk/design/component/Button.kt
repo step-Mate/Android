@@ -39,7 +39,7 @@ fun DefaultIconButton(
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
 ) {
 
-    val avoidDuplicationClickEvent = remember(onClick) {
+    val avoidDuplicationClickEvent = remember {
         AvoidDuplicationClickEvent(onClick)
     }
 
@@ -68,7 +68,7 @@ fun DefaultButton(
     contentPaddingValues: PaddingValues = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
     content: @Composable () -> Unit,
 ) {
-    val avoidDuplicationClickEvent = remember(onClick) {
+    val avoidDuplicationClickEvent = remember {
         AvoidDuplicationClickEvent(onClick)
     }
 
@@ -103,7 +103,7 @@ fun DefaultCombinedButton(
     contentPaddingValues: PaddingValues = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
     content: @Composable () -> Unit,
 ) {
-    val avoidDuplicationClickEvent = remember(onClick) {
+    val avoidDuplicationClickEvent = remember {
         AvoidDuplicationClickEvent(onClick)
     }
 
