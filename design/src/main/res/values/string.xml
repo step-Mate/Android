@@ -1,4 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="id">아이디</string>
+    <string name="password">비밀번호</string>
+    <string name="repeat_password">비밀번호 확인</string>
+    <string name="login_button">로그인</string>
+    <string name="kakao_login_button">카카오톡으로 시작</string>
+    <string name="find_account_id">아이디 찾기</string>
+    <string name="find_account_password">비밀번호 찾기</string>
+    <string name="create_account">회원가입</string>
+    <string name="blank_id_header">아이디 미입력</string>
+    <string name="blank_id_content">아이디를 입력해주세요.</string>
+    <string name="blank_password_header">비밀번호 미입력</string>
+    <string name="blank_password_content">비밀번호를 입력해주세요.</string>
+    <string name="not_valid_id_header">아이디 양식오류</string>
+    <string name="not_valid_id_content">잘못된 아이디 양식이에요. 영어,숫자,_만 입력가능하고 4~12글자까지 입력가능해요.</string>
+    <string name="not_valid_password_header">비밀번호 양식오류</string>
+    <string name="not_valid_password_content">잘못된 비밀번호 양식이에요. 8~16글자까지 입력가능하고 영어,숫자,!@#$%^&amp;*특수문자만 사용가능해요</string>
+    <string name="not_valid_account_header">계정 오류</string>
+    <string name="not_valid_account_content">아이디나 비밀번호가 일치하지 않아요.</string>
+    <string name="duplication_id">중복되는 아이디가 존재합니다.</string>
+    <string name="signup_title">스텝워크에 오신걸 환영해요! \n정확한 서비스 이용을 위해 회원가입 절차가 필요해요. </string>
+    <string name="signUp_next_button">다음 단계</string>
+    <string name="not_match_password">비밀번호가 일치하지 않습니다.</string>
+    <string name="not_duplication_id">사용가능한 아이디 입니다.</string>
 
+    <string name="username">닉네임</string>
+    <string name="username_error">한글,영어,숫자가능,특수문자불가,2~10글자까지 입력가능</string>
+    <string name="age">나이</string>
+    <string name="age_error">정확한 나이를 입력해주세요.</string>
+    <string name="height">키</string>
+    <string name="height_error">정확한 키를 입력해주세요</string>
+    <string name="weight">몸무게</string>
+    <string name="weight_error">정확한 몸무게를 입력해주세요</string>
 </resources>

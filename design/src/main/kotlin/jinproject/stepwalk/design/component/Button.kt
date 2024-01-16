@@ -15,6 +15,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
@@ -64,6 +66,7 @@ fun DefaultButton(
     enabled: Boolean = true,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     style: TextStyle = MaterialTheme.typography.bodyLarge,
+    shape: RoundedCornerShape = RoundedCornerShape(100.dp),
     backgroundColor: Color = MaterialTheme.colorScheme.primary,
     contentPaddingValues: PaddingValues = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
     content: @Composable () -> Unit,
@@ -74,7 +77,7 @@ fun DefaultButton(
 
     Column(
         modifier = modifier
-            .clip(RoundedCornerShape(100.dp))
+            .clip(shape)
             .background(backgroundColor)
             .padding(contentPaddingValues)
             .clickable(
@@ -124,6 +127,32 @@ fun DefaultCombinedButton(
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         content()
+    }
+}
+
+@Composable
+fun DefaultTextButton(
+    modifier: Modifier = Modifier,
+    text: String,
+    textColor : Color,
+    enabled: Boolean = true,
+    onClick : () -> Unit,
+    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() }
+){
+    val avoidDuplicationClickEvent = remember(onClick) {
+        AvoidDuplicationClickEvent(onClick)
+    }
+    TextButton(
+        modifier = modifier,
+        onClick = avoidDuplicationClickEvent::onClick,
+        enabled = enabled,
+        interactionSource = interactionSource
+    ) {
+        Text(
+            text = text,
+            style = MaterialTheme.typography.bodySmall,
+            color = textColor
+        )
     }
 }
 

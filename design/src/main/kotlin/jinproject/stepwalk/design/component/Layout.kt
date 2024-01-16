@@ -22,7 +22,7 @@ import kotlin.math.roundToInt
 fun DefaultLayout(
     modifier: Modifier = Modifier,
     contentPaddingValues: PaddingValues,
-    topBar: @Composable () -> Unit,
+    topBar: @Composable () -> Unit = {},
     content: @Composable ColumnScope.() -> Unit,
 ) {
     Column(
