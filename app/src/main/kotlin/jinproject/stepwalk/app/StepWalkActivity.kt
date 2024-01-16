@@ -32,7 +32,7 @@ import jinproject.stepwalk.app.ui.navigation.NavigationGraph
 import jinproject.stepwalk.app.ui.navigation.Router
 import jinproject.stepwalk.design.component.SnackBarHostCustom
 import jinproject.stepwalk.design.theme.StepWalkTheme
-import jinproject.stepwalk.home.screen.state.SnackBarMessage
+import jinproject.stepwalk.home.screen.home.state.SnackBarMessage
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 

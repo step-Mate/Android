@@ -15,13 +15,14 @@ datastore = "1.1.0-alpha06"
 espresso = "3.5.1"
 glide = "4.15.1"
 gmsServiceAds = "22.1.0"
-healthConnect = "1.0.0-alpha11"
+healthConnect = "1.1.0-alpha06"
 hilt = "1.1.0-alpha01"
 kotlinCoroutine = "1.7.3"
 junit = "4.13.2"
 junitJupiter = "5.9.3"
 kotest = "5.6.0"
 lifecycle = "2.6.1"
+lottie = "6.3.0"
 material = "1.9.0"
 mockk = "1.13.5"
 navigation = "2.7.0"
@@ -104,6 +105,9 @@ androidx-lifecycle-service = { group = "androidx.lifecycle", name = "lifecycle-s
 androidx-lifecycle-viewmodel-ktx = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-ktx", version.ref = "lifecycle" }
 androidx-lifecycle-viewmodel-compose = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-compose", version.ref = "lifecycle" }
 
+# Lottie
+airbnb-android-lottie-compose = { group = "com.airbnb.android", name = "lottie-compose", version.ref = "lottie" }
+
 # Navigation
 androidx-navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigation" }
 androidx-navigation-fragment-ktx = { group = "androidx.navigation", name = "navigation-fragment-ktx", version.ref = "navigation" }
@@ -137,7 +141,7 @@ datastore = ["androidx-datastore", "google-protobuf"]
 kotest = ["io-kotest-junit", "io-kotest-assertions"]
 lifecycle = ["androidx-lifecycle-runtime-ktx", "androidx-lifecycle-viewmodel-ktx", "androidx-lifecycle-runtime-compose", "androidx-lifecycle-viewmodel-compose", "androidx-lifecycle-service"]
 navigation = ["androidx-navigation-fragment-ktx", "androidx-navigation-ui-ktx"]
-testing = ["junit", "androidx-test-ext", "androidx-test-espresso-core", "jetbrains-kotlinx-coroutines-test", "junit-jupiter-api", "io-mockk"]
+testing = ["junit", "jetbrains-kotlinx-coroutines-test", "junit-jupiter-api", "io-mockk"]
 workManager = ["androidx-work", "androidx-hilt-work"]
 
 [plugins]
