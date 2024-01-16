@@ -6,7 +6,3 @@ plugins {
 android {
     namespace = "jinproject.stepwalk.login"
 }
-
-dependencies {
-
-}

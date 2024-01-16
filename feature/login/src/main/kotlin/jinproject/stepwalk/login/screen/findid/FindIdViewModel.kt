@@ -1,10 +1,12 @@
 package jinproject.stepwalk.login.screen.findid
 
-import androidx.compose.runtime.Stable
 import androidx.compose.runtime.mutableStateOf
+import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import jinproject.stepwalk.login.screen.FindViewModel
-import jinproject.stepwalk.login.screen.state.Verification
+import jinproject.stepwalk.login.screen.state.SignValid
+import jinproject.stepwalk.login.utils.isValidEmail
+import kotlinx.coroutines.flow.launchIn
 import javax.inject.Inject
 
 @HiltViewModel
@@ -15,16 +17,16 @@ internal class FindIdViewModel @Inject constructor(
     val id = mutableStateOf("")
 
     init {
-        checkEmailValid()
-        checkEmailCodeValid()
+        email.checkValid { it.isValidEmail() }.launchIn(viewModelScope)
+        emailCode.checkValid { it -> true }.launchIn(viewModelScope)//추후에 서버에 이메일 코드 일치하는지로 교체
     }
 
     fun updateEmail(email : String){
-        _email.value = email
+        this.email.updateValue(email)
     }
 
     fun updateEmailCode(emailCode : String){
-        _emailCode.value = emailCode
+        this.emailCode.updateValue(emailCode)
     }
 
     override fun requestFindAccount() {
@@ -36,16 +38,7 @@ internal class FindIdViewModel @Inject constructor(
 
     override fun requestEmailVerification() {
         //서버에 이메일 인증코드 보내도록 요청
-        emailValid.value = Verification.verifying
-        requestEmail = email.value
+        email.updateValid(SignValid.verifying)
+        requestEmail = email.now()
     }
 }
-
-@Stable
-data class FindAccountId(
-    val email : String = "",
-    val emailCode : String = "",
-    val emailValid : Verification = Verification.nothing,
-    val nextStep : Boolean = false,
-    val id : String = ""
-)

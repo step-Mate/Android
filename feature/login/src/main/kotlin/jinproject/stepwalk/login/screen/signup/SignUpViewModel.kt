@@ -1,106 +1,41 @@
 package jinproject.stepwalk.login.screen.signup
 
-import androidx.compose.runtime.Stable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import jinproject.stepwalk.login.screen.state.SignValid
-import jinproject.stepwalk.login.screen.state.AccountValid
-import jinproject.stepwalk.login.utils.isValidID
+import jinproject.stepwalk.login.screen.state.Account
 import jinproject.stepwalk.login.utils.isValidPassword
 import jinproject.stepwalk.login.utils.passwordMatches
-import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.debounce
-import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
 import javax.inject.Inject
+
+
 
 @HiltViewModel
 internal class SignUpViewModel @Inject constructor(
 
 ) : ViewModel() {
-    private val _id = MutableStateFlow("")
-    val id = _id.asStateFlow()
+    val id = Account(WAIT_TIME)
+    val password = Account(WAIT_TIME)
+    val repeatPassword = Account(WAIT_TIME)
 
-    private val _password = MutableStateFlow("")
-    val password = _password.asStateFlow()
-
-    private val _repeatPassword = MutableStateFlow("")
-    val repeatPassword = _repeatPassword.asStateFlow()
-
-    val valids = AccountValid()
-
-    @OptIn(FlowPreview::class)
-    private val debouncedIdFilter : Flow<String?> = id
-        .debounce(WAIT_TIME)
-        .filter { it.isNotEmpty() }
-        .distinctUntilChanged()
-
-    @OptIn(FlowPreview::class)
-    private val debouncedPasswordFilter : Flow<String?> = password
-        .debounce(WAIT_TIME)
-        .filter { it.isNotEmpty() }
-        .distinctUntilChanged()
-
-    @OptIn(FlowPreview::class)
-    private val debouncedRepeatPasswordFilter : Flow<String?> = repeatPassword
-        .debounce(WAIT_TIME)
-        .filter { it.isNotEmpty() }
-        .distinctUntilChanged()
 
     init {
-        checkIdValid()
-        checkPasswordValid()
-        checkRepeatPasswordValid()
+        id.checkIdValid { _ -> true }.launchIn(viewModelScope)//안에 아이디 서버 중복 체크하는거 추가
+        password.checkValid { it.isValidPassword() }.launchIn(viewModelScope)
+        repeatPassword.checkRepeatPasswordValid(password.now()).launchIn(viewModelScope)
     }
 
     fun updateAccountEvent(event : AccountEvent, value : String){
         when(event){
-            AccountEvent.id -> _id.value = value
-            AccountEvent.password -> _password.value = value
-            AccountEvent.repeatPassword -> _repeatPassword.value = value
+            AccountEvent.id -> id.updateValue(value)
+            AccountEvent.password -> password.updateValue(value)
+            AccountEvent.repeatPassword -> repeatPassword.updateValue(value)
         }
     }
 
-    private fun checkIdValid() = debouncedIdFilter
-        .onEach {
-            valids.idValid.value = it?.let {
-                when {
-                    it.isBlank() -> SignValid.blank
-                    !it.isValidID() -> SignValid.notValid
-                    //서버에서 아이디 중복 요청 -> SignValid.duplicationId
-                    else -> SignValid.success
-                }
-            } ?: SignValid.blank
-        }.launchIn(viewModelScope)
-
-    private fun checkPasswordValid() = debouncedPasswordFilter
-        .onEach {
-            valids.passwordValid.value = it?.let {
-                when {
-                    it.isBlank() -> SignValid.blank
-                    !it.isValidPassword() -> SignValid.notValid
-                    else -> SignValid.success
-                }
-            } ?: SignValid.blank
-        }.launchIn(viewModelScope)
-
-    private fun checkRepeatPasswordValid() = debouncedRepeatPasswordFilter
-        .onEach {
-            valids.repeatPasswordValid.value = it?.let {
-                when {
-                    it.isBlank() -> SignValid.blank
-                    !it.isValidPassword() -> SignValid.notValid
-                    !it.passwordMatches(password.value) -> SignValid.notMatch
-                    else -> SignValid.success
-                }
-            } ?: SignValid.blank
-        }.launchIn(viewModelScope)
+    fun checkAccountValid() : Boolean =
+        password.now().isValidPassword() && repeatPassword.now().passwordMatches(password.now()) //서버에 아이디도 중복인지 한번더 체크
 
     companion object {
         private const val WAIT_TIME = 800L
@@ -110,10 +45,3 @@ internal class SignUpViewModel @Inject constructor(
 enum class AccountEvent {
     id,password,repeatPassword
 }
-
-@Stable
-data class SignUp(
-    val id : String = "",
-    val password : String = "",
-    val repeatPassword : String = ""
-)

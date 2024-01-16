@@ -32,42 +32,49 @@ import jinproject.stepwalk.design.component.VerticalSpacer
 import jinproject.stepwalk.design.theme.StepWalkTheme
 import jinproject.stepwalk.login.component.EmailVerificationField
 import jinproject.stepwalk.login.component.InformationField
-import jinproject.stepwalk.login.screen.state.UserDataValid
+import jinproject.stepwalk.login.screen.state.Account
 import jinproject.stepwalk.login.screen.state.isError
+import jinproject.stepwalk.login.utils.MAX_EMAIL_CODE_LENGTH
+import jinproject.stepwalk.login.utils.MAX_EMAIL_LENGTH
 
 @Composable
 internal fun SignUpDetailScreen(
     signUpDetailViewModel: SignUpDetailViewModel = hiltViewModel(),
-    id : String,
-    password : String,
     popBackStacks: (String,Boolean,Boolean) -> Unit
 ) {
-    val nickname by signUpDetailViewModel.nickname.collectAsStateWithLifecycle()
-    val age by signUpDetailViewModel.age.collectAsStateWithLifecycle()
-    val height by signUpDetailViewModel.height.collectAsStateWithLifecycle()
-    val weight by signUpDetailViewModel.weight.collectAsStateWithLifecycle()
-    val email by signUpDetailViewModel.email.collectAsStateWithLifecycle()
-    val emailCode by signUpDetailViewModel.emailCode.collectAsStateWithLifecycle()
 
     SignUpDetailScreen(
-        signUpDetail = {SignUpDetail(id,password,nickname,age,height,weight,email,emailCode)},
-        userValid = signUpDetailViewModel.valids,
+        nickname = signUpDetailViewModel.nickname,
+        age = signUpDetailViewModel.age,
+        height = signUpDetailViewModel.height,
+        weight = signUpDetailViewModel.weight,
+        email = signUpDetailViewModel.email,
+        emailCode = signUpDetailViewModel.emailCode,
         updateUserEvent = signUpDetailViewModel::updateUserEvent,
         requestEmailVerification = signUpDetailViewModel::requestEmailVerification,
         popBackStacks = popBackStacks
     )
-
 }
 
 @Composable
 private fun SignUpDetailScreen(
-    signUpDetail: () -> SignUpDetail,
-    userValid: UserDataValid,
+    nickname : Account,
+    age : Account,
+    height : Account,
+    weight : Account,
+    email : Account,
+    emailCode : Account,
     updateUserEvent : (UserEvent,String) -> Unit,
     requestEmailVerification : () -> Unit,
     popBackStacks: (String,Boolean,Boolean) -> Unit
 ){
     val scrollState = rememberScrollState()
+    val nicknameValue by nickname.value.collectAsStateWithLifecycle()
+    val ageValue by age.value.collectAsStateWithLifecycle()
+    val heightValue by height.value.collectAsStateWithLifecycle()
+    val weightValue by weight.value.collectAsStateWithLifecycle()
+    val emailValue by email.value.collectAsStateWithLifecycle()
+    val emailCodeValue by emailCode.value.collectAsStateWithLifecycle()
 
     DefaultLayout(
         contentPaddingValues = PaddingValues(vertical = 60.dp)
@@ -86,8 +93,8 @@ private fun SignUpDetailScreen(
             InformationField(
                 informationText = "닉네임",
                 errorMessage = "한글,영어,숫자가능,특수문자불가,2~10글자까지 입력가능",
-                value = signUpDetail().nickname,
-                isError = userValid.nicknameValid.value.isError()
+                value = nicknameValue,
+                isError = nickname.valid.isError()
             ){
                 val text = it.trim()
                 if (text.length <= MAX_NICKNAME_LENGTH)
@@ -97,8 +104,8 @@ private fun SignUpDetailScreen(
             InformationField(
                 informationText = "나이",
                 errorMessage = "정확한 나이를 입력해주세요.",
-                value = signUpDetail().age,
-                isError = userValid.ageValid.value.isError(),
+                value = ageValue,
+                isError = age.valid.isError(),
                 keyboardType = KeyboardType.NumberPassword
             ){
                 val text = it.trim()
@@ -109,8 +116,8 @@ private fun SignUpDetailScreen(
             InformationField(
                 informationText = "키",
                 errorMessage = "정확한 키를 입력해주세요.",
-                value = signUpDetail().height,
-                isError = userValid.heightValid.value.isError(),
+                value = heightValue,
+                isError = height.valid.isError(),
                 keyboardType = KeyboardType.Decimal
             ){
                 val text = it.trim()
@@ -121,8 +128,8 @@ private fun SignUpDetailScreen(
             InformationField(
                 informationText = "몸무게",
                 errorMessage = "정확한 몸무게를 입력해주세요.",
-                value = signUpDetail().weight,
-                isError = userValid.weightValid.value.isError(),
+                value = weightValue,
+                isError = weight.valid.isError(),
                 keyboardType = KeyboardType.Decimal
             ){
                 val text = it.trim()
@@ -131,12 +138,21 @@ private fun SignUpDetailScreen(
             }
             
             EmailVerificationField(
-                email = {signUpDetail().email},
-                verificationCode = {signUpDetail().emailCode},
-                isVerification = {userValid.emailValid.value},
+                email = emailValue,
+                emailCode = emailCodeValue,
+                emailValid = email.valid,
+                emailCodeValid = emailCode.valid,
                 requestEmailVerification = requestEmailVerification,
-                onEmailValue = {updateUserEvent(UserEvent.email,it)},
-                onVerificationCodeValue = {updateUserEvent(UserEvent.emailCode,it)}
+                onEmailValue = {
+                    val text = it.trim()
+                    if (text.length <= MAX_EMAIL_LENGTH)
+                        updateUserEvent(UserEvent.email,it)
+                },
+                onVerificationCodeValue = {
+                    val text = it.trim()
+                    if (text.length <= MAX_EMAIL_CODE_LENGTH)
+                        updateUserEvent(UserEvent.emailCode,it)
+                }
             )
         }
 
@@ -150,7 +166,8 @@ private fun SignUpDetailScreen(
                     .fillMaxWidth()
                     .padding(horizontal = 12.dp)
                     .height(50.dp),
-                enabled = userValid.isSuccessfulValid()
+                enabled = nickname.isSuccessful() && age.isSuccessful() && height.isSuccessful() && weight.isSuccessful() &&
+                email.isSuccessful() && emailCode.isSuccessful()
             ) {
                 //서버로 데이터 전송 대기후 이동
                 popBackStacks("home",false,false)//추후 수정??
@@ -165,8 +182,12 @@ private fun PreviewSignUpDetailScreen(
 
 ) = StepWalkTheme {
     SignUpDetailScreen(
-        signUpDetail = {SignUpDetail()},
-        userValid = UserDataValid(),
+        nickname = Account(500),
+        age = Account(500),
+        height = Account(500),
+        weight = Account(500),
+        email = Account(500),
+        emailCode = Account(500),
         updateUserEvent = {_,_ ->},
         requestEmailVerification = {},
         popBackStacks = {_,_,_ ->}

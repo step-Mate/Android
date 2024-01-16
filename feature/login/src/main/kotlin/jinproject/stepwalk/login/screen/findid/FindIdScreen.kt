@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -29,18 +30,21 @@ import jinproject.stepwalk.design.theme.StepWalkTheme
 import jinproject.stepwalk.login.component.EmailVerificationField
 import jinproject.stepwalk.login.component.EnableButton
 import jinproject.stepwalk.login.component.IdResultDetail
-import jinproject.stepwalk.login.screen.state.Verification
+import jinproject.stepwalk.login.screen.state.Account
+import jinproject.stepwalk.login.utils.MAX_EMAIL_CODE_LENGTH
+import jinproject.stepwalk.login.utils.MAX_EMAIL_LENGTH
 
 @Composable
 internal fun FindIdScreen(
     findIdViewModel: FindIdViewModel = hiltViewModel(),
     popBackStack : () -> Unit
 ){
-    val email by findIdViewModel.email.collectAsStateWithLifecycle()
-    val emailCode by findIdViewModel.emailCode.collectAsStateWithLifecycle()
 
     FindIdScreen(
-        findAccountId = { FindAccountId(email,emailCode,findIdViewModel.emailValid.value,findIdViewModel.nextStep.value,findIdViewModel.id.value) },
+        id = findIdViewModel.id.value,
+        email = findIdViewModel.email,
+        emailCode = findIdViewModel.emailCode,
+        nextStep = findIdViewModel.nextStep.value,
         updateEmail = findIdViewModel::updateEmail,
         updateEmailCode = findIdViewModel::updateEmailCode,
         requestEmailVerification = findIdViewModel::requestEmailVerification,
@@ -51,7 +55,10 @@ internal fun FindIdScreen(
 
 @Composable
 private fun FindIdScreen(
-    findAccountId : () -> FindAccountId,
+    id : String,
+    email : Account,
+    emailCode : Account,
+    nextStep : Boolean,
     updateEmail : (String) -> Unit,
     updateEmailCode : (String) -> Unit,
     requestEmailVerification : () -> Unit,
@@ -59,6 +66,8 @@ private fun FindIdScreen(
     popBackStack: () -> Unit
 ){
     val scrollState = rememberScrollState()
+    val emailValue by email.value.collectAsStateWithLifecycle()
+    val emailCodeValue by emailCode.value.collectAsStateWithLifecycle()
 
     DefaultLayout(
         contentPaddingValues = PaddingValues(vertical = 60.dp)
@@ -78,31 +87,44 @@ private fun FindIdScreen(
                 alignment = Alignment.Center
             )
             VerticalSpacer(height = 30.dp)
-            if (findAccountId().nextStep) {//조회후 화면
-                IdResultDetail(findAccountId = {findAccountId().id})
-                //수정 예정!!!!
+            if (nextStep) {//조회후 화면
+                IdResultDetail(findAccountId = id)
                 DefaultButton(
-                    modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 8.dp),
-                    onClick = popBackStack
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 12.dp, vertical = 8.dp)
+                        .height(50.dp),
+                    onClick = popBackStack,
+                    shape = RoundedCornerShape(5.dp)
                 ) {
                    Text(text = "확인", style = MaterialTheme.typography.bodyLarge)
                 }
             } else {
                 EmailVerificationField(
-                    email = { findAccountId().email },
-                    verificationCode = { findAccountId().emailCode },
-                    isVerification = { findAccountId().emailValid },
+                    email = emailValue,
+                    emailCode = emailCodeValue,
+                    emailValid = email.valid,
+                    emailCodeValid = emailCode.valid,
                     requestEmailVerification = requestEmailVerification,
-                    onEmailValue = updateEmail,
-                    onVerificationCodeValue = updateEmailCode
+                    onEmailValue = {
+                        val text = it.trim()
+                        if (text.length <= MAX_EMAIL_LENGTH)
+                            updateEmail(text)
+                    },
+                    onVerificationCodeValue = {
+                        val text = it.trim()
+                        if (text.length <= MAX_EMAIL_CODE_LENGTH)
+                            updateEmailCode(text)
+                    }
                 )
-                VerticalSpacer(height = 30.dp)
+                VerticalSpacer(height = 20.dp)
                 EnableButton(
                     text = "아이디 찾기",
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 12.dp, vertical = 4.dp),
-                    enabled = findAccountId().emailValid == Verification.success
+                        .padding(horizontal = 12.dp, vertical = 4.dp)
+                        .height(50.dp),
+                    enabled = email.isSuccessful() && emailCode.isSuccessful()
                 ) {
                     requestFindAccount()
                 }
@@ -113,11 +135,32 @@ private fun FindIdScreen(
 
 @Composable
 @Preview
+private fun PreviewFindAccountScreen2(
+
+) = StepWalkTheme {
+    FindIdScreen(
+        id = "",
+        email= Account(500),
+        emailCode = Account(500),
+        nextStep = false,
+        updateEmail = {},
+        updateEmailCode = {},
+        requestEmailVerification = {},
+        requestFindAccount = {},
+        popBackStack = {}
+    )
+}
+
+@Composable
+@Preview
 private fun PreviewFindAccountScreen(
 
 ) = StepWalkTheme {
     FindIdScreen(
-        findAccountId = { FindAccountId(nextStep = false, id = "Testttttt") },
+        id = "",
+        email= Account(500),
+        emailCode = Account(500),
+        nextStep = true,
         updateEmail = {},
         updateEmailCode = {},
         requestEmailVerification = {},

@@ -18,14 +18,15 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.vectorResource
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import jinproject.stepwalk.home.screen.state.SnackBarMessage
+import jinproject.stepwalk.home.screen.home.state.SnackBarMessage
 import jinproject.stepwalk.home.navigation.homeNavGraph
 import jinproject.stepwalk.home.navigation.navigateToCalendar
-import jinproject.stepwalk.login.navigation.loginNavGraph
+import jinproject.stepwalk.login.navigation.authNavGraph
 import jinproject.stepwalk.login.navigation.navigateToFindId
 import jinproject.stepwalk.login.navigation.navigateToFindPassword
 import jinproject.stepwalk.login.navigation.navigateToSignUp
 import jinproject.stepwalk.login.navigation.navigateToSignUpDetail
+
 
 
 @Composable
@@ -47,7 +48,7 @@ internal fun NavigationGraph(
             showSnackBar = showSnackBar
         )
 
-        loginNavGraph(
+        authNavGraph(
             navigateToSignUp = navController::navigateToSignUp,
             navigateToSignUpDetail = navController::navigateToSignUpDetail,
             navigateToFindId = navController::navigateToFindId,
@@ -56,6 +57,7 @@ internal fun NavigationGraph(
             popBackStacks = navController::popBackStack,
             showSnackBar = { showSnackBar(SnackBarMessage(it.headerMessage,it.contentMessage))}
         )
+
 
         composable(route = BottomNavigationDestination.SETTING.route) {
             Column(modifier = Modifier.fillMaxSize()) {

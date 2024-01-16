@@ -10,8 +10,6 @@ import androidx.navigation.NavHostController
 import androidx.navigation.NavOptions
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.navOptions
-import jinproject.stepwalk.home.navigation.homeRoute
-import jinproject.stepwalk.home.navigation.navigateToCalendar
 import jinproject.stepwalk.home.navigation.navigateToHome
 
 /**

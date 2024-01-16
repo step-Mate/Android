@@ -15,7 +15,7 @@ datastore = "1.1.0-alpha06"
 espresso = "3.5.1"
 glide = "4.15.1"
 gmsServiceAds = "22.1.0"
-healthConnect = "1.0.0-alpha11"
+healthConnect = "1.1.0-alpha06"
 hilt = "1.1.0-alpha01"
 kotlinCoroutine = "1.7.3"
 junit = "4.13.2"
@@ -141,7 +141,7 @@ datastore = ["androidx-datastore", "google-protobuf"]
 kotest = ["io-kotest-junit", "io-kotest-assertions"]
 lifecycle = ["androidx-lifecycle-runtime-ktx", "androidx-lifecycle-viewmodel-ktx", "androidx-lifecycle-runtime-compose", "androidx-lifecycle-viewmodel-compose", "androidx-lifecycle-service"]
 navigation = ["androidx-navigation-fragment-ktx", "androidx-navigation-ui-ktx"]
-testing = ["junit", "androidx-test-ext", "androidx-test-espresso-core", "jetbrains-kotlinx-coroutines-test", "junit-jupiter-api", "io-mockk"]
+testing = ["junit", "jetbrains-kotlinx-coroutines-test", "junit-jupiter-api", "io-mockk"]
 workManager = ["androidx-work", "androidx-hilt-work"]
 
 [plugins]
