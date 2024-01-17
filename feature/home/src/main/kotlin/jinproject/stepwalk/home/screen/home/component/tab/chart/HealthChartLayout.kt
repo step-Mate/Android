@@ -102,16 +102,6 @@ internal fun HealthChartLayout(
 
             val eachBarWidth = horizontalPlacables.first().width / horizontalStep
 
-            barDatas.getOrNull(popUpState.index)?.let { data ->
-                val barHeight =
-                    data.stepToSizeByMax(barHeight = barMaxHeight.toFloat(), barMaxData).toInt()
-
-                popUpPlaceable.place(
-                    verticalPlacable.width + eachBarWidth * (popUpState.index),
-                    totalHeight - horizontalPlacables.first().height - barHeight - popUpPlaceable.height - 20
-                )
-            }
-
             barPlaceables.forEachIndexed { index, placeable ->
 
                 if (index % 2 == 0 || itemsCount == horizontalItemCount) {
@@ -125,6 +115,16 @@ internal fun HealthChartLayout(
                 )
 
                 xPos += eachBarWidth
+            }
+
+            barDatas.getOrNull(popUpState.index)?.let { data ->
+                val barHeight =
+                    data.stepToSizeByMax(barHeight = barMaxHeight.toFloat(), barMaxData).toInt()
+
+                popUpPlaceable.place(
+                    verticalPlacable.width + eachBarWidth * (popUpState.index) + eachBarWidth / 2,
+                    totalHeight - horizontalPlacables.first().height - barHeight - popUpPlaceable.height - 20
+                )
             }
         }
     }

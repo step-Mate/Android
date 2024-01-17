@@ -149,10 +149,11 @@ private fun HomeScreen(
     }
 
     HideableTopBarLayout(
-        modifier = Modifier.addChartPopUpDismiss(
-            popUpState = chartPopUp,
-            setPopUpState = { state -> chartPopUp = state }
-        ),
+        modifier = Modifier
+            .addChartPopUpDismiss(
+                popUpState = chartPopUp,
+                setPopUpState = { state -> chartPopUp = state }
+            ),
         systemBarHidingState = systemBarHidingState,
         topBar = { modifier ->
             HomeTopAppBar(

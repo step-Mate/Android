@@ -131,18 +131,13 @@ fun StepMateBoxDefaultTopBar(
             .fillMaxWidth()
             .height(48.dp)
     ) {
-        IconButton(
+        DefaultIconButton(
+            modifier = Modifier.size(48.dp)
+                .align(Alignment.CenterStart),
+            icon = icon,
             onClick = onClick,
-            modifier = Modifier
-                .size(48.dp)
-                .align(Alignment.CenterStart)
-        ) {
-            Icon(
-                painter = painterResource(id = icon),
-                contentDescription = "StepMateTopBarIcon",
-                tint = MaterialTheme.colorScheme.onSurface
-            )
-        }
+            iconTint = MaterialTheme.colorScheme.onSurface
+        )
         content()
     }
 }

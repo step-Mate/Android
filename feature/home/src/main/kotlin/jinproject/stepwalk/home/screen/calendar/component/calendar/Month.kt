@@ -70,7 +70,7 @@ internal fun Month(
 private fun PreviewCalendarMonth(
 ) = StepWalkTheme {
     Month(
-        calendarData = CalendarPreviewData.month,
+        calendarData = CalendarPreviewData().month,
         setCalendarData = {}
     )
 }
