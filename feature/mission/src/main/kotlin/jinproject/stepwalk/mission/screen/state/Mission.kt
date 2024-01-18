@@ -1,50 +1,61 @@
 package jinproject.stepwalk.mission.screen.state
 
+import androidx.annotation.DrawableRes
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.graphics.Color
 import jinproject.stepwalk.design.theme.StepWalkColor
+import jinproject.stepwalk.design.R
 
 @Stable
 data class Mission(
+    val title: MissionTitle,
+    val value: MissionValue
+)
+
+@Stable
+data class MissionDetail(
+    val title: String = "",
+    val value: MissionValue = MissionValue()
+)
+
+@Stable
+data class MissionTitle(
     val title : String = "",
-    val missionValue: MissionValue = MissionValue(1,8),
+    @DrawableRes val image : Int,
     val contentColor : Color = StepWalkColor.blue_200.color,
     val containerColor : Color = StepWalkColor.blue_400.color
 )
 
 @Stable
 data class MissionValue(
-    val nowValue : Int,
-    val maxValue : Int
-)
+    val now : Int = 0,
+    val max : Int = 3
+){
+    fun progress() = now / max.toFloat()
+    fun isMatched() = now == max
+}
 
+fun mergerToMission(title: List<MissionTitle>, value: List<MissionValue>) : List<Mission> = title.zip(value){ t,v ->
+    Mission(t,v)
+}
 
 object MissionList {
     val list = listOf(
-        Mission(
-            title = "뉴비 미션",
-            missionValue = MissionValue(3,7)
-        ),
-        Mission(
-            title = "일일 미션",
-            missionValue = MissionValue(1,9),
-            contentColor = StepWalkColor.yellow_200.color,
-            containerColor = StepWalkColor.yellow_400.color
-        ),
-        Mission(
+        MissionTitle(
             title = "주간 미션",
-            missionValue = MissionValue(3,9)
+            image = R.drawable.ic_fire,
         ),
-        Mission(
-            title = "타임 미션",
-            missionValue = MissionValue(8,9)
+        MissionTitle(
+            title = "월간 미션",
+            image = R.drawable.ic_fire,
         ),
-        Mission(
-            title = "도전 미션",
-            missionValue = MissionValue(5,9)
+        MissionTitle(
+            title = "걸음 미션",
+            image = R.drawable.ic_fire,
         ),
-        Mission(
-            title = "런닝 미션",
+        MissionTitle(
+            title = "칼로리 미션",
+            image = R.drawable.ic_fire,
         )
     )
 }

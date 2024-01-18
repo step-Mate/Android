@@ -26,7 +26,8 @@ import jinproject.stepwalk.login.navigation.navigateToFindId
 import jinproject.stepwalk.login.navigation.navigateToFindPassword
 import jinproject.stepwalk.login.navigation.navigateToSignUp
 import jinproject.stepwalk.login.navigation.navigateToSignUpDetail
-
+import jinproject.stepwalk.mission.navigation.missionNavGraph
+import jinproject.stepwalk.mission.navigation.navigateToMissionDetail
 
 
 @Composable
@@ -56,6 +57,11 @@ internal fun NavigationGraph(
             popBackStack = navController::popBackStack,
             popBackStacks = navController::popBackStack,
             showSnackBar = { showSnackBar(SnackBarMessage(it.headerMessage,it.contentMessage))}
+        )
+
+        missionNavGraph(
+            navigateToMissionDetail = navController::navigateToMissionDetail,
+            popBackStack = navController::popBackStack
         )
 
 
