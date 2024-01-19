@@ -58,17 +58,12 @@ internal object MissionList {
             image = R.drawable.ic_fire,
         ),
         MissionTitle(
-            title = "걸음 미션",
+            title = "걸음수 미션",
             image = R.drawable.ic_fire,
             mode = MissionMode.repeat
         ),
         MissionTitle(
             title = "칼로리 미션",
-            image = R.drawable.ic_fire,
-            mode = MissionMode.repeat
-        ),
-        MissionTitle(
-            title = "심박수 미션",
             image = R.drawable.ic_fire,
             mode = MissionMode.repeat
         )

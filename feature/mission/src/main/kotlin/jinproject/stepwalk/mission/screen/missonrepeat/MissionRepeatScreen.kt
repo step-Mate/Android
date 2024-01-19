@@ -26,7 +26,7 @@ internal fun MissionRepeatScreen(
     missionRepeatViewModel: MissionRepeatViewModel = hiltViewModel()
 ) {
     MissionRepeatScreen(
-        title = missionRepeatViewModel.title,
+        title = missionRepeatViewModel.type,
         missionValue = MissionValue(9,10),
         detailList = missionRepeatViewModel.list,
     )

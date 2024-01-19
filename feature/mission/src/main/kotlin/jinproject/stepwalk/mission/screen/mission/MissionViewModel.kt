@@ -32,6 +32,5 @@ internal object TestList {
         MissionValue(),
         MissionValue(),
         MissionValue(),
-        MissionValue()
     )
 }

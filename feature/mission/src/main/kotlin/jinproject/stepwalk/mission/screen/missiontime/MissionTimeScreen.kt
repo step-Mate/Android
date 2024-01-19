@@ -25,7 +25,6 @@ internal fun MissionTimeScreen(
     missionTimeViewModel: MissionTimeViewModel = hiltViewModel()
 ) {
     MissionTimeScreen(
-        title = missionTimeViewModel.title,
         missionValue = MissionValue(4, 10),
         detailList = missionTimeViewModel.list,
     )
@@ -33,7 +32,6 @@ internal fun MissionTimeScreen(
 
 @Composable
 private fun MissionTimeScreen(
-    title : String,
     missionValue: MissionValue,
     detailList : List<MissionDetail>,
 ){
@@ -79,7 +77,6 @@ private fun PreviewMissionDetail2(
 
 ) = StepWalkTheme {
     MissionTimeScreen(
-        title = "월간 미션",
         missionValue = MissionValue(3,5),
         detailList = listOf(MissionDetail("일주일간 30000걸음 달성하기", MissionValue(300,30000)),
             MissionDetail("일주일간 150kcal 달성하기",MissionValue(120,150))),

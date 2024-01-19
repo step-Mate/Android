@@ -10,11 +10,12 @@ import javax.inject.Inject
 internal class MissionRepeatViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle
 ) : ViewModel(){
-    var title = ""
+    private var title = ""
     val list = listOf(MissionDetail("1000000"),MissionDetail("1000000"))
-
+    var type = ""
     init {
         title = savedStateHandle.get<String>("title") ?: ""
+        type = title.split(" ").first()
     }
 
 }

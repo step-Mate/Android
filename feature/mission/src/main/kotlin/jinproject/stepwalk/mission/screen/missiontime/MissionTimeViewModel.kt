@@ -10,7 +10,7 @@ import javax.inject.Inject
 internal class MissionTimeViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle
 ) : ViewModel(){
-    var title = ""
+    private var title = ""
     val list = listOf(MissionDetail("1000000"), MissionDetail("1000000"))
 
     init {
