@@ -1,10 +1,11 @@
-package jinproject.stepwalk.mission.component
+package jinproject.stepwalk.mission.screen.missiondetail.component
 
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -41,7 +42,8 @@ import jinproject.stepwalk.design.component.DescriptionLargeText
 import jinproject.stepwalk.design.component.DescriptionSmallText
 import jinproject.stepwalk.design.theme.StepWalkColor
 import jinproject.stepwalk.design.theme.StepWalkTheme
-import jinproject.stepwalk.mission.screen.state.MissionValue
+import jinproject.stepwalk.mission.screen.mission.state.MissionValue
+import jinproject.stepwalk.mission.screen.missiondetail.state.MissionDetail
 
 @Composable
 internal fun MissionSuccessCircleView(
@@ -200,6 +202,33 @@ internal fun MissionBar(
 }
 
 @Composable
+internal fun MissionBarItem(
+    modifier: Modifier = Modifier,
+    missionDetail: MissionDetail,
+    containerColor : Color = StepWalkColor.blue_200.color,
+    contantColor : Color = StepWalkColor.blue_400.color
+){
+    Column(
+        modifier = modifier
+            .background(containerColor, RoundedCornerShape(5.dp)),
+    ) {
+        DescriptionLargeText(
+            text = missionDetail.title,
+            modifier = Modifier.padding(horizontal = 15.dp, vertical = 10.dp),
+            color = contantColor
+        )
+        MissionBar(
+            missionValue = missionDetail.value,
+            textColor = contantColor,
+            progressColor = contantColor,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 8.dp)
+        )
+    }
+}
+
+@Composable
 @Preview(showBackground = true, backgroundColor = 0xFFFFFF)
 private fun PreviewMissionSuccessCircleView(
 
@@ -210,6 +239,19 @@ private fun PreviewMissionSuccessCircleView(
         modifier = Modifier.size(150.dp)
     )
 }
+
+@Composable
+@Preview(showBackground = true, backgroundColor = 0xFFFFFFFF)
+private fun PreviewAnimatedCircularProgressIndicator(
+
+) = StepWalkTheme {
+    AnimatedCircularProgressIndicator(
+        text = "걸음수",
+        missionValue = MissionValue(1000,30000),
+        modifier = Modifier.size(200.dp)
+    )
+}
+
 
 @Composable
 @Preview(showBackground = true, backgroundColor = 0xFFFFFF)
@@ -224,13 +266,11 @@ private fun PreviewMissionBar(
 }
 
 @Composable
-@Preview(showBackground = true, backgroundColor = 0xFFFFFFFF)
-private fun PreviewAnimatedCircularProgressIndicator(
+@Preview
+private fun PreviewMissionBarItem(
 
 ) = StepWalkTheme {
-    AnimatedCircularProgressIndicator(
-        text = "걸음수",
-        missionValue = MissionValue(1000,30000),
-        modifier = Modifier.size(200.dp)
+    MissionBarItem(
+        missionDetail = MissionDetail("일주일간 30000보 걷기"),
     )
 }

@@ -1,4 +1,4 @@
-package jinproject.stepwalk.mission.screen.missonrepeat
+package jinproject.stepwalk.mission.screen.missiondetail.missonrepeat
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
@@ -15,11 +15,11 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import jinproject.stepwalk.design.component.DefaultLayout
 import jinproject.stepwalk.design.theme.StepWalkTheme
-import jinproject.stepwalk.mission.component.MissionLayout
-import jinproject.stepwalk.mission.component.MissionRepeatTop
-import jinproject.stepwalk.mission.component.MissionSuccessCircleView
-import jinproject.stepwalk.mission.screen.state.MissionDetail
-import jinproject.stepwalk.mission.screen.state.MissionValue
+import jinproject.stepwalk.mission.screen.missiondetail.component.MissionLayout
+import jinproject.stepwalk.mission.screen.missiondetail.component.MissionRepeatTop
+import jinproject.stepwalk.mission.screen.missiondetail.component.MissionSuccessCircleView
+import jinproject.stepwalk.mission.screen.mission.state.MissionValue
+import jinproject.stepwalk.mission.screen.missiondetail.state.MissionDetail
 
 @Composable
 internal fun MissionRepeatScreen(
@@ -83,7 +83,7 @@ private fun PreviewMissionRepeatScreen(
     MissionRepeatScreen(
         title = "칼로리",
         missionValue = MissionValue(3,10),
-        detailList = listOf(MissionDetail("1000000"),MissionDetail("1000000")),
+        detailList = listOf(MissionDetail("1000000"), MissionDetail("1000000")),
     )
 }
 

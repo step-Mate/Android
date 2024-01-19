@@ -1,4 +1,4 @@
-package jinproject.stepwalk.mission.screen.state
+package jinproject.stepwalk.mission.screen.mission.state
 
 import androidx.annotation.DrawableRes
 import androidx.compose.runtime.Stable
@@ -11,12 +11,6 @@ internal data class Mission(
 )
 
 @Stable
-internal data class MissionDetail(
-    val title: String = "",
-    val value: MissionValue = MissionValue()
-)
-
-
 internal data class MissionTitle(
     val title : String = "",
     @DrawableRes val image : Int,
@@ -32,7 +26,7 @@ internal data class MissionValue(
     fun isMatched() = now == max
 }
 
-internal fun mergerToMission(title: List<MissionTitle>, value: List<MissionValue>) : List<Mission> = title.zip(value){ t,v ->
+internal fun mergerToMission(title: List<MissionTitle>, value: List<MissionValue>) : List<Mission> = title.zip(value){ t, v ->
     Mission(t,v)
 }
 

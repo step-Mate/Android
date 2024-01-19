@@ -1,4 +1,4 @@
-package jinproject.stepwalk.mission.component
+package jinproject.stepwalk.mission.screen.missiondetail.component
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable

@@ -13,14 +13,14 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import jinproject.stepwalk.design.component.DefaultLayout
 import jinproject.stepwalk.design.theme.StepWalkTheme
-import jinproject.stepwalk.mission.component.MissionItem
-import jinproject.stepwalk.mission.screen.state.Mission
-import jinproject.stepwalk.mission.screen.state.MissionMode
+import jinproject.stepwalk.mission.screen.mission.component.MissionItem
+import jinproject.stepwalk.mission.screen.mission.state.Mission
+import jinproject.stepwalk.mission.screen.mission.state.MissionMode
 
 @Composable
 internal fun MissionScreen(
     missionViewModel: MissionViewModel = hiltViewModel(),
-    navigateToMissionDetail : (String,MissionMode) -> Unit,
+    navigateToMissionDetail : (String, MissionMode) -> Unit,
 ) {
     MissionScreen(
         missionList = missionViewModel.missionList,
@@ -31,7 +31,7 @@ internal fun MissionScreen(
 @Composable
 private fun MissionScreen(
     missionList : List<Mission>,
-    navigateToMissionDetail : (String,MissionMode) -> Unit
+    navigateToMissionDetail : (String, MissionMode) -> Unit
 ){
     DefaultLayout(
         contentPaddingValues = PaddingValues(vertical = 30.dp, horizontal = 12.dp)

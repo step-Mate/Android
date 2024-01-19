@@ -1,4 +1,4 @@
-package jinproject.stepwalk.mission.component
+package jinproject.stepwalk.mission.screen.mission.component
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -19,14 +19,13 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import jinproject.stepwalk.design.component.DescriptionLargeText
 import jinproject.stepwalk.design.theme.StepWalkColor
 import jinproject.stepwalk.design.theme.StepWalkTheme
-import jinproject.stepwalk.mission.screen.state.Mission
-import jinproject.stepwalk.mission.screen.state.MissionDetail
-import jinproject.stepwalk.mission.screen.state.MissionList
-import jinproject.stepwalk.mission.screen.state.MissionMode
-import jinproject.stepwalk.mission.screen.state.MissionValue
+import jinproject.stepwalk.mission.screen.missiondetail.component.MissionBar
+import jinproject.stepwalk.mission.screen.mission.state.Mission
+import jinproject.stepwalk.mission.screen.mission.state.MissionList
+import jinproject.stepwalk.mission.screen.mission.state.MissionMode
+import jinproject.stepwalk.mission.screen.mission.state.MissionValue
 
 @Composable
 internal fun MissionItem(
@@ -70,33 +69,6 @@ internal fun MissionItem(
 }
 
 @Composable
-internal fun MissionBarItem(
-    modifier: Modifier = Modifier,
-    missionDetail: MissionDetail,
-    containerColor : Color = StepWalkColor.blue_200.color,
-    contantColor : Color = StepWalkColor.blue_400.color
-){
-    Column(
-        modifier = modifier
-            .background(containerColor, RoundedCornerShape(5.dp)),
-    ) {
-        DescriptionLargeText(
-            text = missionDetail.title,
-            modifier = Modifier.padding(horizontal = 15.dp, vertical = 10.dp),
-            color = contantColor
-        )
-        MissionBar(
-            missionValue = missionDetail.value,
-            textColor = contantColor,
-            progressColor = contantColor,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 8.dp)
-        )
-    }
-}
-
-@Composable
 @Preview(widthDp = 150)
 private fun PreviewMissionItem(
 
@@ -107,12 +79,3 @@ private fun PreviewMissionItem(
     )
 }
 
-@Composable
-@Preview
-private fun PreviewMissionBarItem(
-
-) = StepWalkTheme {
-    MissionBarItem(
-        missionDetail = MissionDetail("일주일간 30000보 걷기"),
-    )
-}

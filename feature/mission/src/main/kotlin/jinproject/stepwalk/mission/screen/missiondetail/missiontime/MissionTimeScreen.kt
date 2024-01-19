@@ -1,4 +1,4 @@
-package jinproject.stepwalk.mission.screen.missiontime
+package jinproject.stepwalk.mission.screen.missiondetail.missiontime
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
@@ -14,11 +14,11 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import jinproject.stepwalk.design.component.DefaultLayout
 import jinproject.stepwalk.design.theme.StepWalkTheme
-import jinproject.stepwalk.mission.component.MissionBarItem
-import jinproject.stepwalk.mission.component.MissionLayout
-import jinproject.stepwalk.mission.component.MissionTimeTop
-import jinproject.stepwalk.mission.screen.state.MissionDetail
-import jinproject.stepwalk.mission.screen.state.MissionValue
+import jinproject.stepwalk.mission.screen.missiondetail.component.MissionBarItem
+import jinproject.stepwalk.mission.screen.missiondetail.component.MissionLayout
+import jinproject.stepwalk.mission.screen.missiondetail.component.MissionTimeTop
+import jinproject.stepwalk.mission.screen.mission.state.MissionValue
+import jinproject.stepwalk.mission.screen.missiondetail.state.MissionDetail
 
 @Composable
 internal fun MissionTimeScreen(
@@ -78,7 +78,9 @@ private fun PreviewMissionTimeScreen(
 ) = StepWalkTheme {
     MissionTimeScreen(
         missionValue = MissionValue(3,5),
-        detailList = listOf(MissionDetail("일주일간 30000걸음 달성하기", MissionValue(300,30000)),
-            MissionDetail("일주일간 150kcal 달성하기",MissionValue(120,150))),
+        detailList = listOf(
+            MissionDetail("일주일간 30000걸음 달성하기", MissionValue(300,30000)),
+            MissionDetail("일주일간 150kcal 달성하기", MissionValue(120,150))
+        ),
     )
 }

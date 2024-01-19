@@ -3,10 +3,10 @@ package jinproject.stepwalk.mission.screen.mission
 import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
-import jinproject.stepwalk.mission.screen.state.Mission
-import jinproject.stepwalk.mission.screen.state.MissionList
-import jinproject.stepwalk.mission.screen.state.MissionValue
-import jinproject.stepwalk.mission.screen.state.mergerToMission
+import jinproject.stepwalk.mission.screen.mission.state.Mission
+import jinproject.stepwalk.mission.screen.mission.state.MissionList
+import jinproject.stepwalk.mission.screen.mission.state.MissionValue
+import jinproject.stepwalk.mission.screen.mission.state.mergerToMission
 import javax.inject.Inject
 
 @HiltViewModel

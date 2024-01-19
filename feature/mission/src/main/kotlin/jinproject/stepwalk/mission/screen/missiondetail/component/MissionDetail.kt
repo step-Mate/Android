@@ -1,4 +1,4 @@
-package jinproject.stepwalk.mission.component
+package jinproject.stepwalk.mission.screen.missiondetail.component
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -22,7 +22,7 @@ import com.airbnb.lottie.compose.animateLottieCompositionAsState
 import com.airbnb.lottie.compose.rememberLottieComposition
 import jinproject.stepwalk.design.component.HeadlineText
 import jinproject.stepwalk.design.theme.StepWalkColor
-import jinproject.stepwalk.mission.screen.state.MissionValue
+import jinproject.stepwalk.mission.screen.mission.state.MissionValue
 
 @Composable
 internal fun MissionTimeTop(

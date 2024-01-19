@@ -8,10 +8,10 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import androidx.navigation.navigation
 import jinproject.stepwalk.mission.screen.mission.MissionScreen
-import jinproject.stepwalk.mission.screen.missiontime.MissionTimeScreen
-import jinproject.stepwalk.mission.screen.missonrepeat.MissionRepeatScreen
-import jinproject.stepwalk.mission.screen.state.MissionMode
-import jinproject.stepwalk.mission.screen.state.toMissionMode
+import jinproject.stepwalk.mission.screen.missiondetail.missiontime.MissionTimeScreen
+import jinproject.stepwalk.mission.screen.missiondetail.missonrepeat.MissionRepeatScreen
+import jinproject.stepwalk.mission.screen.mission.state.MissionMode
+import jinproject.stepwalk.mission.screen.mission.state.toMissionMode
 
 const val missionGraph = "missionGraph"
 private const val missionRoute = "mission"
@@ -19,7 +19,7 @@ private const val missionDetailRoute = "missionDetail"
 private const val missionDetailLink = "$missionDetailRoute/{title}/{missionType}"
 
 fun NavGraphBuilder.missionNavGraph(
-    navigateToMissionDetail : (String,MissionMode) -> Unit,
+    navigateToMissionDetail : (String, MissionMode) -> Unit,
     popBackStack: () -> Unit
 ) {
     navigation(
