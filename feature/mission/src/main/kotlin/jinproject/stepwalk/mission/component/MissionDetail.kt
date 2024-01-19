@@ -1,16 +1,21 @@
 package jinproject.stepwalk.mission.component
 
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.airbnb.lottie.LottieComposition
 import com.airbnb.lottie.compose.LottieAnimation
+import com.airbnb.lottie.compose.LottieCompositionSpec
+import com.airbnb.lottie.compose.LottieConstants
+import com.airbnb.lottie.compose.animateLottieCompositionAsState
+import com.airbnb.lottie.compose.rememberLottieComposition
 import jinproject.stepwalk.design.component.HeadlineText
 import jinproject.stepwalk.design.theme.StepWalkColor
 import jinproject.stepwalk.mission.screen.state.MissionValue
@@ -19,10 +24,11 @@ import jinproject.stepwalk.mission.utils.detailBottomSheet
 @Composable
 internal fun MissionTimeTop(
     missionValue : MissionValue,
-    composition : LottieComposition?,
-    lottieProgress : Float
+    isReward : Boolean,
+    onClick : () -> Unit
 ) {
-
+    val composition by rememberLottieComposition(LottieCompositionSpec.Asset("ic_anim_box.json"))
+    val lottieProgress by animateLottieCompositionAsState(composition, isPlaying = isReward, iterations = LottieConstants.IterateForever)
 
     LottieAnimation(
         composition = composition,
@@ -30,6 +36,10 @@ internal fun MissionTimeTop(
         modifier = Modifier
             .size(200.dp)
             .padding(top = 20.dp)
+            .clickable(
+                enabled = isReward,
+                onClick = onClick
+            )
     )
     MissionBar(
         modifier = Modifier
@@ -45,16 +55,22 @@ internal fun MissionTimeTop(
 internal fun MissionRepeatTop(
     missionValue: MissionValue,
     title: String,
-    composition : LottieComposition?,
-    lottieProgress : Float
+    isReward : Boolean,
+    onClick: () -> Unit
 ){
-    if (missionValue.isMatched()){//아직 보상 수령 안했을 경우
+    val composition by rememberLottieComposition(LottieCompositionSpec.Asset("ic_anim_box.json"))
+    val lottieProgress by animateLottieCompositionAsState(composition, isPlaying = isReward, iterations = LottieConstants.IterateForever)
+
+    if (missionValue.isMatched() && isReward){//아직 보상 수령 안했을 경우
         LottieAnimation(
             composition = composition,
             progress = { lottieProgress },
             modifier = Modifier
                 .size(180.dp)
                 .padding(top = 30.dp)
+                .clickable(
+                    onClick = onClick
+                )
         )
     }else{
         AnimatedCircularProgressIndicator(
@@ -65,7 +81,6 @@ internal fun MissionRepeatTop(
                 .padding(top = 30.dp)
         )
     }
-
 }
 
 @Composable

@@ -57,7 +57,7 @@ internal fun MissionSuccessCircleView(
     Box(
         modifier = modifier,
     ) {
-        DescriptionLargeText(
+        DescriptionSmallText(
             text = text,
             modifier = Modifier
                 .padding(vertical = 10.dp)
@@ -68,11 +68,10 @@ internal fun MissionSuccessCircleView(
             Modifier
                 .fillMaxSize()
                 .progressSemantics(1f)
-                .padding(10.dp)
                 .align(Alignment.Center)
         ) {
             val diameterOffset = stroke.width / 2
-            val arcDimen = size.width - 2 * diameterOffset
+            val arcDimen = size.width - 3 * diameterOffset
             drawArc(
                 color = color,
                 startAngle = 270f,
@@ -93,7 +92,7 @@ internal fun AnimatedCircularProgressIndicator(
     missionValue: MissionValue,
     modifier: Modifier = Modifier,
     color: Color = StepWalkColor.blue_400.color,
-    strokeWidth: Dp = 6.dp,
+    strokeWidth: Dp = 10.dp,
     trackColor: Color = MaterialTheme.colorScheme.onSurface,
     strokeCap: StrokeCap = ProgressIndicatorDefaults.CircularDeterminateStrokeCap,
 ) {
@@ -128,7 +127,7 @@ internal fun AnimatedCircularProgressIndicator(
         )
         Canvas(
             Modifier
-                .progressSemantics()
+                .progressSemantics(1f)
                 .align(Alignment.Center)
                 .fillMaxSize()
         ) {
@@ -202,7 +201,7 @@ internal fun MissionBar(
 
 @Composable
 @Preview(showBackground = true, backgroundColor = 0xFFFFFF)
-private fun PreviewCircle(
+private fun PreviewCircleview(
 
 ) = StepWalkTheme {
     MissionSuccessCircleView(
@@ -226,7 +225,7 @@ private fun PreviewLinear(
 
 @Composable
 @Preview(showBackground = true, backgroundColor = 0xFFFFFFFF)
-private fun PreviewCir(
+private fun PreviewCircleProgress(
 
 ) = StepWalkTheme {
     AnimatedCircularProgressIndicator(

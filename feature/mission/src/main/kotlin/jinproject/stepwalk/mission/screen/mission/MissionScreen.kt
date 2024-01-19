@@ -15,11 +15,12 @@ import jinproject.stepwalk.design.component.DefaultLayout
 import jinproject.stepwalk.design.theme.StepWalkTheme
 import jinproject.stepwalk.mission.component.MissionItem
 import jinproject.stepwalk.mission.screen.state.Mission
+import jinproject.stepwalk.mission.screen.state.MissionMode
 
 @Composable
 internal fun MissionScreen(
     missionViewModel: MissionViewModel = hiltViewModel(),
-    navigateToMissionDetail : (String) -> Unit,
+    navigateToMissionDetail : (String,MissionMode) -> Unit,
 ) {
     MissionScreen(
         missionList = missionViewModel.missionList,
@@ -30,7 +31,7 @@ internal fun MissionScreen(
 @Composable
 private fun MissionScreen(
     missionList : List<Mission>,
-    navigateToMissionDetail : (String) -> Unit
+    navigateToMissionDetail : (String,MissionMode) -> Unit
 ){
     DefaultLayout(
         contentPaddingValues = PaddingValues(vertical = 30.dp, horizontal = 12.dp)
@@ -45,7 +46,7 @@ private fun MissionScreen(
                 MissionItem(
                     mission = it,
                     onClick = {
-                        navigateToMissionDetail(it.title.title)
+                        navigateToMissionDetail(it.title.title,it.title.mode)
                     }
                 )
             }
@@ -60,6 +61,6 @@ private fun PreviewMissionScreen(
 ) = StepWalkTheme {
     MissionScreen(
         missionList = listOf(),
-        navigateToMissionDetail = {}
+        navigateToMissionDetail = {_,_ ->}
     )
 }

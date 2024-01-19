@@ -25,18 +25,21 @@ import jinproject.stepwalk.design.theme.StepWalkTheme
 import jinproject.stepwalk.mission.screen.state.Mission
 import jinproject.stepwalk.mission.screen.state.MissionDetail
 import jinproject.stepwalk.mission.screen.state.MissionList
+import jinproject.stepwalk.mission.screen.state.MissionMode
 import jinproject.stepwalk.mission.screen.state.MissionValue
 
 @Composable
 internal fun MissionItem(
     mission: Mission,
+    contentColor: Color = StepWalkColor.blue_400.color,
+    containerColor: Color = StepWalkColor.blue_200.color,
     onClick : () -> Unit
 ) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(8.dp))
-            .background(mission.title.contentColor)
+            .background(containerColor)
             .clickable { onClick() },
     ) {
         Image(
@@ -49,17 +52,20 @@ internal fun MissionItem(
         )
         Text(
             modifier = Modifier
-                .padding(start = 15.dp, top=25.dp),
+                .padding(top=25.dp, bottom = 10.dp)
+                .align(Alignment.CenterHorizontally),
             text = mission.title.title,
             style = MaterialTheme.typography.titleLarge,
-            color = mission.title.containerColor
+            color = contentColor
         )
-        MissionBar(
-            modifier = Modifier.padding(bottom = 6.dp, top = 10.dp),
-            missionValue = mission.value,
-            textColor = mission.title.containerColor,
-            progressColor = mission.title.containerColor
-        )
+        if (mission.title.mode == MissionMode.time) {
+            MissionBar(
+                modifier = Modifier.padding(bottom = 6.dp),
+                missionValue = mission.value,
+                textColor = contentColor,
+                progressColor = contentColor
+            )
+        }
     }
 }
 
@@ -83,7 +89,9 @@ internal fun MissionBarItem(
             missionValue = missionDetail.value,
             textColor = contantColor,
             progressColor = contantColor,
-            modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp)
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 8.dp)
         )
     }
 }
@@ -96,5 +104,15 @@ private fun PreviewMissionItem(
     MissionItem(
         mission = Mission(MissionList.list[0], MissionValue()),
         onClick = {}
+    )
+}
+
+@Composable
+@Preview
+private fun PreviewMissionBarItem(
+
+) = StepWalkTheme {
+    MissionBarItem(
+        missionDetail = MissionDetail("일주일간 30000보 걷기"),
     )
 }

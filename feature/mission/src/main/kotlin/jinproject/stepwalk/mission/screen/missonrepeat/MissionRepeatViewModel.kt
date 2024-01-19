@@ -1,4 +1,4 @@
-package jinproject.stepwalk.mission.screen.missondetail
+package jinproject.stepwalk.mission.screen.missonrepeat
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
@@ -7,20 +7,15 @@ import jinproject.stepwalk.mission.screen.state.MissionDetail
 import javax.inject.Inject
 
 @HiltViewModel
-internal class MissionDetailViewModel @Inject constructor(
+internal class MissionRepeatViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle
 ) : ViewModel(){
     var title = ""
-    var mode = MissionMode.repeat
     val list = listOf(MissionDetail("1000000"),MissionDetail("1000000"))
 
     init {
         title = savedStateHandle.get<String>("title") ?: ""
-
     }
 
 }
 
-enum class MissionMode {
-    time,repeat
-}

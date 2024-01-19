@@ -3,18 +3,23 @@ package jinproject.stepwalk.mission.navigation
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavOptions
+import androidx.navigation.NavType
 import androidx.navigation.compose.composable
+import androidx.navigation.navArgument
 import androidx.navigation.navigation
 import jinproject.stepwalk.mission.screen.mission.MissionScreen
-import jinproject.stepwalk.mission.screen.missondetail.MissionDetailScreen
+import jinproject.stepwalk.mission.screen.missiontime.MissionTimeScreen
+import jinproject.stepwalk.mission.screen.missonrepeat.MissionRepeatScreen
+import jinproject.stepwalk.mission.screen.state.MissionMode
+import jinproject.stepwalk.mission.screen.state.toMissionMode
 
 const val missionGraph = "missionGraph"
 private const val missionRoute = "mission"
 private const val missionDetailRoute = "missionDetail"
-private const val missionDetailLink = "$missionDetailRoute?title={title}"
+private const val missionDetailLink = "$missionDetailRoute/{title}/{missionType}"
 
 fun NavGraphBuilder.missionNavGraph(
-    navigateToMissionDetail : (String) -> Unit,
+    navigateToMissionDetail : (String,MissionMode) -> Unit,
     popBackStack: () -> Unit
 ) {
     navigation(
@@ -30,11 +35,25 @@ fun NavGraphBuilder.missionNavGraph(
         }
 
         composable(
-            route = missionDetailLink
-        ){
-            MissionDetailScreen(
-
+            route = missionDetailLink,
+            arguments = listOf(
+                navArgument("title"){
+                    type = NavType.StringType
+                    defaultValue = ""
+                },
+                navArgument("missionType"){
+                    type = NavType.IntType
+                }
             )
+        ){nav ->
+            when(nav.arguments?.getInt("missionType")?.toMissionMode() ?: MissionMode.time){
+                MissionMode.time -> {
+                    MissionTimeScreen()
+                }
+                MissionMode.repeat -> {
+                    MissionRepeatScreen()
+                }
+            }
         }
     }
 }
@@ -43,8 +62,8 @@ fun NavController.navigateToMission(navOptions: NavOptions?){
     this.navigate(missionRoute, navOptions = navOptions)
 }
 
-fun NavController.navigateToMissionDetail(title : String){
-    this.navigate("$missionDetailRoute?title={$title}"){
+fun NavController.navigateToMissionDetail(title : String,mode : MissionMode){
+    this.navigate("$missionDetailRoute/$title/${mode.ordinal}"){
         launchSingleTop = true
     }
 }

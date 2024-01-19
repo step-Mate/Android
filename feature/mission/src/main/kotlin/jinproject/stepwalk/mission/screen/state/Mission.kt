@@ -2,32 +2,29 @@ package jinproject.stepwalk.mission.screen.state
 
 import androidx.annotation.DrawableRes
 import androidx.compose.runtime.Stable
-import androidx.compose.ui.graphics.Color
-import jinproject.stepwalk.design.theme.StepWalkColor
 import jinproject.stepwalk.design.R
 
 @Stable
-data class Mission(
+internal data class Mission(
     val title: MissionTitle,
     val value: MissionValue
 )
 
 @Stable
-data class MissionDetail(
+internal data class MissionDetail(
     val title: String = "",
     val value: MissionValue = MissionValue()
 )
 
-@Stable
-data class MissionTitle(
+
+internal data class MissionTitle(
     val title : String = "",
     @DrawableRes val image : Int,
-    val contentColor : Color = StepWalkColor.blue_200.color,
-    val containerColor : Color = StepWalkColor.blue_400.color
+    val mode : MissionMode = MissionMode.time
 )
 
 @Stable
-data class MissionValue(
+internal data class MissionValue(
     val now : Int = 0,
     val max : Int = 3
 ){
@@ -35,11 +32,22 @@ data class MissionValue(
     fun isMatched() = now == max
 }
 
-fun mergerToMission(title: List<MissionTitle>, value: List<MissionValue>) : List<Mission> = title.zip(value){ t,v ->
+internal fun mergerToMission(title: List<MissionTitle>, value: List<MissionValue>) : List<Mission> = title.zip(value){ t,v ->
     Mission(t,v)
 }
 
-object MissionList {
+enum class MissionMode {
+    time,repeat
+}
+
+internal fun Int.toMissionMode() : MissionMode = when(this){
+    1 -> MissionMode.repeat
+    else -> MissionMode.time
+}
+
+
+//임시 테스트용 -> room으로 이전예정
+internal object MissionList {
     val list = listOf(
         MissionTitle(
             title = "주간 미션",
@@ -52,10 +60,17 @@ object MissionList {
         MissionTitle(
             title = "걸음 미션",
             image = R.drawable.ic_fire,
+            mode = MissionMode.repeat
         ),
         MissionTitle(
             title = "칼로리 미션",
             image = R.drawable.ic_fire,
+            mode = MissionMode.repeat
+        ),
+        MissionTitle(
+            title = "심박수 미션",
+            image = R.drawable.ic_fire,
+            mode = MissionMode.repeat
         )
     )
 }

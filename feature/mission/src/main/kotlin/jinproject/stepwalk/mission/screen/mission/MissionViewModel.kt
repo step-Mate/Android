@@ -25,8 +25,10 @@ internal class MissionViewModel @Inject constructor(
 
 }
 
-object TestList {
+//임시 테스트용
+internal object TestList {
     val list = listOf(
+        MissionValue(),
         MissionValue(),
         MissionValue(),
         MissionValue(),
