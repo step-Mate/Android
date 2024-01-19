@@ -1,7 +1,7 @@
 package jinproject.stepwalk.mission.component
 
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -12,7 +12,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 
 @Composable
-internal fun MissionLayout(
+internal fun ColumnScope.MissionLayout(
     title : String,
     reward : Int,
     weight : Float,
@@ -22,22 +22,18 @@ internal fun MissionLayout(
     var dialogState by remember { mutableStateOf(false) }
 
     Column(
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier
+            .fillMaxWidth()
+            .weight(weight),
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .weight(weight),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            topView { dialogState = true }
-        }
-        MissionDetailBottom(
-            modifier = Modifier.weight(1-weight),
-            text = title,
-            lazyColumn = bottomView
-        )
+        topView { dialogState = true }
     }
+    MissionDetailBottom(
+        modifier = Modifier.weight(1-weight),
+        text = title,
+        lazyColumn = bottomView
+    )
     if (dialogState) {
         MissionDialog(
             onDismissRequest = { dialogState = false },

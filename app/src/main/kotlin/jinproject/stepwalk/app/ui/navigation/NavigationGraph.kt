@@ -40,7 +40,7 @@ internal fun NavigationGraph(
 
     NavHost(
         navController = navController,
-        startDestination = "mission",
+        startDestination = BottomNavigationDestination.HOME.route,
         modifier = modifier
     ) {
         homeNavGraph(
