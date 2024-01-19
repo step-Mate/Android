@@ -72,7 +72,7 @@ fun MissionDialog(
 
 @Composable
 @Preview(backgroundColor = 0xFFFFFFFF)
-private fun PreviewDialog(
+private fun PreviewMissionDialog(
     
 ) = StepWalkTheme {
     MissionDialog(

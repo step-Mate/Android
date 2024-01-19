@@ -201,7 +201,7 @@ internal fun MissionBar(
 
 @Composable
 @Preview(showBackground = true, backgroundColor = 0xFFFFFF)
-private fun PreviewCircleview(
+private fun PreviewMissionSuccessCircleView(
 
 ) = StepWalkTheme {
     MissionSuccessCircleView(
@@ -213,7 +213,7 @@ private fun PreviewCircleview(
 
 @Composable
 @Preview(showBackground = true, backgroundColor = 0xFFFFFF)
-private fun PreviewLinear(
+private fun PreviewMissionBar(
 
 ) = StepWalkTheme {
     MissionBar(
@@ -225,7 +225,7 @@ private fun PreviewLinear(
 
 @Composable
 @Preview(showBackground = true, backgroundColor = 0xFFFFFFFF)
-private fun PreviewCircleProgress(
+private fun PreviewAnimatedCircularProgressIndicator(
 
 ) = StepWalkTheme {
     AnimatedCircularProgressIndicator(

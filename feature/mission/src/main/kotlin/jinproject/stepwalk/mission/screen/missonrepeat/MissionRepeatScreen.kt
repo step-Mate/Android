@@ -77,7 +77,7 @@ private fun MissionRepeatScreen(
 
 @Composable
 @Preview
-private fun PreviewMissionDetail(
+private fun PreviewMissionRepeatScreen(
 
 ) = StepWalkTheme {
     MissionRepeatScreen(

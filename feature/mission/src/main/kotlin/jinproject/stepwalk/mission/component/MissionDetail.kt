@@ -1,14 +1,18 @@
 package jinproject.stepwalk.mission.component
 
-
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.airbnb.lottie.compose.LottieAnimation
@@ -19,7 +23,6 @@ import com.airbnb.lottie.compose.rememberLottieComposition
 import jinproject.stepwalk.design.component.HeadlineText
 import jinproject.stepwalk.design.theme.StepWalkColor
 import jinproject.stepwalk.mission.screen.state.MissionValue
-import jinproject.stepwalk.mission.utils.detailBottomSheet
 
 @Composable
 internal fun MissionTimeTop(
@@ -91,7 +94,12 @@ internal fun MissionDetailBottom(
 ){
     Column(
         modifier = modifier
-            .detailBottomSheet()
+            .shadow(
+                elevation = 8.dp,
+                shape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp)
+            )
+            .background(MaterialTheme.colorScheme.secondary)
+            .fillMaxWidth()
     ) {
         HeadlineText(
             modifier = Modifier

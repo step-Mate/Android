@@ -73,7 +73,7 @@ private fun MissionTimeScreen(
 
 @Composable
 @Preview
-private fun PreviewMissionDetail2(
+private fun PreviewMissionTimeScreen(
 
 ) = StepWalkTheme {
     MissionTimeScreen(
