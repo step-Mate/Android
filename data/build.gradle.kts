@@ -12,6 +12,7 @@ android {
 dependencies {
     implementation(project(":domain"))
     implementation(libs.bundles.datastore)
+    implementation(libs.bundles.square)
 }
 
 protobuf {
