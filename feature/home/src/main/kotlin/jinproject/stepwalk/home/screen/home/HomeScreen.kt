@@ -26,6 +26,7 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import jinproject.stepwalk.core.SnackBarMessage
 import jinproject.stepwalk.design.component.HideableTopBarLayout
 import jinproject.stepwalk.design.component.VerticalSpacer
 import jinproject.stepwalk.design.component.systembarhiding.SystemBarHidingState
@@ -38,7 +39,6 @@ import jinproject.stepwalk.home.screen.home.component.tab.HealthTabLayout
 import jinproject.stepwalk.home.screen.home.component.tab.chart.addChartPopUpDismiss
 import jinproject.stepwalk.home.screen.home.component.userinfo.UserInfoLayout
 import jinproject.stepwalk.home.screen.home.state.Day
-import jinproject.stepwalk.home.screen.home.state.SnackBarMessage
 import jinproject.stepwalk.home.screen.home.state.Time
 import jinproject.stepwalk.home.service.StepService
 import jinproject.stepwalk.home.utils.onKorea

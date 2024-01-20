@@ -30,9 +30,9 @@ import jinproject.stepwalk.app.ui.StepWalkViewModel
 import jinproject.stepwalk.app.ui.navigation.BottomNavigationGraph
 import jinproject.stepwalk.app.ui.navigation.NavigationGraph
 import jinproject.stepwalk.app.ui.navigation.Router
+import jinproject.stepwalk.core.SnackBarMessage
 import jinproject.stepwalk.design.component.StepMateSnackBar
 import jinproject.stepwalk.design.theme.StepWalkTheme
-import jinproject.stepwalk.home.screen.home.state.SnackBarMessage
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 

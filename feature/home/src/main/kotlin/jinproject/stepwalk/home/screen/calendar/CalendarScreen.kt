@@ -16,6 +16,7 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import jinproject.stepwalk.core.SnackBarMessage
 import jinproject.stepwalk.design.component.DefaultLayout
 import jinproject.stepwalk.design.component.StepMateProgressIndicatorRotating
 import jinproject.stepwalk.design.component.VerticalSpacer
@@ -31,7 +32,6 @@ import jinproject.stepwalk.home.screen.home.component.PopUpState
 import jinproject.stepwalk.home.screen.home.component.tab.chart.addChartPopUpDismiss
 import jinproject.stepwalk.home.screen.home.state.CaloriesMenuFactory
 import jinproject.stepwalk.home.screen.home.state.Day
-import jinproject.stepwalk.home.screen.home.state.SnackBarMessage
 import jinproject.stepwalk.home.screen.home.state.TimeMenuFactory
 import kotlin.math.ceil
 import kotlin.math.roundToLong

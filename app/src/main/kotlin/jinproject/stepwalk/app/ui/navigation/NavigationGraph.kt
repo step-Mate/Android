@@ -19,8 +19,8 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import jinproject.stepwalk.core.SnackBarMessage
 import jinproject.stepwalk.home.navigation.homeGraph
-import jinproject.stepwalk.home.screen.home.state.SnackBarMessage
 import jinproject.stepwalk.home.navigation.homeNavGraph
 import jinproject.stepwalk.home.navigation.navigateToCalendar
 import jinproject.stepwalk.login.navigation.authNavGraph
@@ -33,7 +33,7 @@ import jinproject.stepwalk.login.navigation.navigateToSignUpDetail
 internal fun NavigationGraph(
     router: Router,
     modifier: Modifier = Modifier,
-    showSnackBar: (SnackBarMessage) -> Unit,
+    showSnackBar: (jinproject.stepwalk.core.SnackBarMessage) -> Unit,
 ) {
     val navController = router.navController
 
@@ -55,12 +55,21 @@ internal fun NavigationGraph(
             navigateToFindPassword = navController::navigateToFindPassword,
             popBackStack = navController::popBackStackIfCan,
             popBackStacks = navController::popBackStack,
-            showSnackBar = { showSnackBar(SnackBarMessage(it.headerMessage,it.contentMessage))}
+            showSnackBar = {
+                showSnackBar(
+                    SnackBarMessage(
+                        it.headerMessage,
+                        it.contentMessage
+                    )
+                )
+            }
         )
 
 
         composable(route = BottomNavigationDestination.Profile.route) {
-            Column(modifier = Modifier.fillMaxSize().wrapContentSize()) {
+            Column(modifier = Modifier
+                .fillMaxSize()
+                .wrapContentSize()) {
                 Image(
                     painter = painterResource(id = jinproject.stepwalk.design.R.drawable.ic_setting),
                     contentDescription = "settingIcon"
@@ -69,7 +78,9 @@ internal fun NavigationGraph(
         }
 
         composable(route = BottomNavigationDestination.Ranking.route) {
-            Column(modifier = Modifier.fillMaxSize().wrapContentSize()) {
+            Column(modifier = Modifier
+                .fillMaxSize()
+                .wrapContentSize()) {
                 Image(
                     painter = painterResource(id = jinproject.stepwalk.design.R.drawable.ic_rankboard),
                     contentDescription = "settingIcon"
@@ -78,7 +89,9 @@ internal fun NavigationGraph(
         }
 
         composable(route = BottomNavigationDestination.Mission.route) {
-            Column(modifier = Modifier.fillMaxSize().wrapContentSize()) {
+            Column(modifier = Modifier
+                .fillMaxSize()
+                .wrapContentSize()) {
                 Image(
                     painter = painterResource(id = jinproject.stepwalk.design.R.drawable.ic_bookmark),
                     contentDescription = "settingIcon"
@@ -92,7 +105,7 @@ internal fun NavigationGraph(
 @Composable
 internal fun BottomNavigationGraph(
     router: Router,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     when {
         router.currentDestination.showBottomBarOrHide() -> {
@@ -157,5 +170,5 @@ private fun RowScope.NavigationBarItem(
 @Stable
 private object NavigationDefaults {
     @Composable
-    fun navigationIndicatorColor() =  MaterialTheme.colorScheme.background
+    fun navigationIndicatorColor() = MaterialTheme.colorScheme.background
 }
