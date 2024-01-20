@@ -58,7 +58,7 @@ internal fun Day(
             buildAnnotatedString {
                 appendColorText(
                     text = (day + (dayOfLastDayOnLastMonth - weekOfLastDayOnLastMonth)).toString(),
-                    color = MaterialTheme.colorScheme.scrim,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
         }
@@ -67,7 +67,7 @@ internal fun Day(
             buildAnnotatedString {
                 appendColorText(
                     text = (day - (lastDayOfThisMonth + weekOfLastDayOnLastMonth)).toString(),
-                    color = MaterialTheme.colorScheme.scrim,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
         }
@@ -76,7 +76,7 @@ internal fun Day(
             clickEnabled = true
             val dayOnThisMonth = day - weekOfLastDayOnLastMonth
             val textColor =
-                if (clickedDay == dayOnThisMonth) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onBackground
+                if (clickedDay == dayOnThisMonth) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface
 
             buildAnnotatedString {
                 appendColorText(
@@ -88,7 +88,7 @@ internal fun Day(
     }
 
     val backgroundColor =
-        if (clickedDay == text.text.toInt() && clickEnabled) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.background
+        if (clickedDay == text.text.toInt() && clickEnabled) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surface
 
     DefaultButton(
         onClick = { onClickDay(text.text.toInt()) },

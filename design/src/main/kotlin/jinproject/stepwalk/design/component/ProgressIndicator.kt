@@ -1,5 +1,6 @@
 package jinproject.stepwalk.design.component
 
+import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
@@ -7,8 +8,15 @@ import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.size
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.pullrefresh.PullRefreshState
+import androidx.compose.material.pullrefresh.pullRefreshIndicatorTransform
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -26,23 +34,58 @@ import kotlin.math.cos
 import kotlin.math.sin
 
 @Composable
-fun StepMateProgressIndicator(
+fun StepMateProgressIndicatorRotating(
     modifier: Modifier = Modifier,
 ) {
     Box(
-        modifier = modifier.fillMaxSize(),
+        modifier = modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.surface),
         contentAlignment = Alignment.Center
     ) {
-        StepMateProgressIndicatorRotating()
+        StepMateProgressIndicatorInfiniteRotating()
+    }
+}
+
+@OptIn(ExperimentalMaterialApi::class)
+@Composable
+fun StepMatePullRefreshIndicator(
+    modifier: Modifier = Modifier,
+    state: PullRefreshState,
+    isRefreshing: Boolean,
+) {
+    Box(
+        modifier = modifier
+            .fillMaxWidth()
+            .size(40.dp)
+            .pullRefreshIndicatorTransform(state)
+            .background(
+                color = MaterialTheme.colorScheme.surface,
+            ),
+        contentAlignment = Alignment.Center
+    ) {
+        Crossfade(
+            targetState = isRefreshing,
+            animationSpec = tween(100),
+            label = "CrossFade Refreshing"
+        ) { isRefreshing ->
+            if (isRefreshing) {
+                StepMateProgressIndicatorInfiniteRotating()
+            } else {
+                StepMateProgressIndicatorRotatingByParam(
+                    progress = state.progress,
+                )
+            }
+        }
     }
 }
 
 @Composable
-private fun StepMateProgressIndicator(
+private fun StepMateProgressIndicatorRotatingByParam(
     progress: Float,
     modifier: Modifier = Modifier,
     counter: Int = 8,
-    color: Color = MaterialTheme.colorScheme.onBackground,
+    color: Color = MaterialTheme.colorScheme.onSurface,
 ) {
     Canvas(modifier = modifier) {
 
@@ -73,10 +116,10 @@ private fun StepMateProgressIndicator(
 }
 
 @Composable
-private fun StepMateProgressIndicatorRotating(
+private fun StepMateProgressIndicatorInfiniteRotating(
     modifier: Modifier = Modifier,
     counter: Int = 8,
-    color: Color = MaterialTheme.colorScheme.onBackground,
+    color: Color = MaterialTheme.colorScheme.onSurface,
 ) {
     val infiniteTransition = rememberInfiniteTransition(label = "infinite Transition")
     val rotationAnimation by infiniteTransition.animateFloat(
@@ -154,6 +197,28 @@ private class StepMateProgressIndicatorOffset(
 
 @Composable
 @Preview(showBackground = true)
-private fun PreviewStepMateProgressIndicator() = StepWalkTheme {
-    StepMateProgressIndicator()
+private fun PreviewStepMateProgressIndicatorInfiniteRotating() = StepWalkTheme {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(320.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        StepMateProgressIndicatorInfiniteRotating()
+    }
+}
+
+@Composable
+@Preview(showBackground = true)
+private fun PreviewStepMateProgressIndicatorRotatingByParam() = StepWalkTheme {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(320.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        StepMateProgressIndicatorRotatingByParam(
+            0.5f
+        )
+    }
 }

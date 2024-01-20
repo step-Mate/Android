@@ -30,9 +30,9 @@ import jinproject.stepwalk.app.ui.StepWalkViewModel
 import jinproject.stepwalk.app.ui.navigation.BottomNavigationGraph
 import jinproject.stepwalk.app.ui.navigation.NavigationGraph
 import jinproject.stepwalk.app.ui.navigation.Router
-import jinproject.stepwalk.design.component.SnackBarHostCustom
+import jinproject.stepwalk.core.SnackBarMessage
+import jinproject.stepwalk.design.component.StepMateSnackBar
 import jinproject.stepwalk.design.theme.StepWalkTheme
-import jinproject.stepwalk.home.screen.home.state.SnackBarMessage
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -108,11 +108,11 @@ class StepWalkActivity : ComponentActivity() {
                     )
                 },
                 snackbarHost = {
-                    SnackBarHostCustom(headerMessage = snackBarHostState.currentSnackbarData?.message
+                    StepMateSnackBar(headerMessage = snackBarHostState.currentSnackbarData?.message
                         ?: "",
                         contentMessage = snackBarHostState.currentSnackbarData?.actionLabel ?: "",
                         snackBarHostState = snackBarHostState,
-                        disMissSnackBar = { snackBarHostState.currentSnackbarData?.dismiss() })
+                        dismissSnackBar = { snackBarHostState.currentSnackbarData?.dismiss() })
                 }
             ) { paddingValues ->
                 NavigationGraph(

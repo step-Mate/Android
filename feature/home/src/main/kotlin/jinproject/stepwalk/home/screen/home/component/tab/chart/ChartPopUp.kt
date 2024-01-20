@@ -119,7 +119,6 @@ internal fun Modifier.addChartPopUpDismiss(
         }
     }
 
-@Stable
 internal class HealthPopUpData(val figure: String) : ParentDataModifier {
     override fun Density.modifyParentData(parentData: Any?): Any {
         return this@HealthPopUpData
