@@ -49,7 +49,7 @@ fun HeadlineText(
     modifier: Modifier = Modifier,
     text: String,
     maxLines: Int = 1,
-    color: Color = MaterialTheme.colorScheme.onBackground,
+    color: Color = MaterialTheme.colorScheme.onSurface,
     textAlign: TextAlign = TextAlign.Start,
 ) {
     DefaultText(
@@ -66,7 +66,7 @@ fun HeadlineText(
 fun DescriptionLargeText(
     modifier: Modifier = Modifier,
     text: String,
-    color: Color = MaterialTheme.colorScheme.onBackground,
+    color: Color = MaterialTheme.colorScheme.onSurface,
     textAlign: TextAlign = TextAlign.Start,
 ) {
     DefaultText(
@@ -84,7 +84,7 @@ fun DescriptionLargeText(
 fun DescriptionSmallText(
     modifier: Modifier = Modifier,
     text: String,
-    color: Color = MaterialTheme.colorScheme.onBackground,
+    color: Color = MaterialTheme.colorScheme.onSurface,
     textAlign: TextAlign = TextAlign.Start,
 ) {
     DefaultText(
@@ -102,7 +102,7 @@ fun DescriptionSmallText(
 fun FooterText(
     modifier: Modifier = Modifier,
     text: String,
-    color: Color = MaterialTheme.colorScheme.onBackground,
+    color: Color = MaterialTheme.colorScheme.onSurface,
     textAlign: TextAlign = TextAlign.Start,
 ) {
     DefaultText(
@@ -121,7 +121,7 @@ fun DefaultText(
     modifier: Modifier = Modifier,
     text: String,
     style: TextStyle,
-    color: Color = MaterialTheme.colorScheme.onBackground,
+    color: Color = MaterialTheme.colorScheme.onSurface,
     textAlign: TextAlign = TextAlign.Start,
     overflow: TextOverflow = TextOverflow.Clip,
     maxLines: Int = 1,
@@ -144,7 +144,7 @@ fun DefaultAnnotatedText(
     modifier: Modifier = Modifier,
     text: AnnotatedString,
     style: TextStyle,
-    color: Color = MaterialTheme.colorScheme.onBackground,
+    color: Color = MaterialTheme.colorScheme.onSurface,
     textAlign: TextAlign = TextAlign.Start,
     overflow: TextOverflow = TextOverflow.Clip,
     maxLines: Int = 1,
@@ -166,7 +166,7 @@ fun DefaultAnnotatedText(
 fun DescriptionAnnotatedLargeText(
     modifier: Modifier = Modifier,
     text: AnnotatedString,
-    color: Color = MaterialTheme.colorScheme.onBackground,
+    color: Color = MaterialTheme.colorScheme.onSurface,
     textAlign: TextAlign = TextAlign.Start,
 ) {
     DefaultAnnotatedText(
@@ -184,7 +184,7 @@ fun DescriptionAnnotatedLargeText(
 fun DescriptionAnnotatedSmallText(
     modifier: Modifier = Modifier,
     text: AnnotatedString,
-    color: Color = MaterialTheme.colorScheme.onBackground,
+    color: Color = MaterialTheme.colorScheme.onSurface,
     textAlign: TextAlign = TextAlign.Start,
 ) {
     DefaultAnnotatedText(

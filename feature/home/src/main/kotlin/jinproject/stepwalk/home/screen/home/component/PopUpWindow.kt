@@ -2,6 +2,7 @@ package jinproject.stepwalk.home.screen.home.component
 
 import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.core.updateTransition
 import androidx.compose.foundation.background
@@ -9,6 +10,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -19,6 +21,7 @@ import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
@@ -39,6 +42,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupPositionProvider
 import androidx.compose.ui.window.PopupProperties
+import jinproject.stepwalk.design.component.DescriptionSmallText
 import jinproject.stepwalk.design.component.VerticalSpacer
 import jinproject.stepwalk.design.theme.StepWalkColor
 import jinproject.stepwalk.design.theme.StepWalkTheme
@@ -63,47 +67,13 @@ internal fun HomePopUp(
     offPopUp: () -> Unit,
     onClickPopUpItem: (Time) -> Unit,
 ) {
-    val transitionState = remember {
-        MutableTransitionState(false)
-    }
-    transitionState.targetState = popUpState
-    val transition = updateTransition(transitionState, label = "PopupTransition")
+    val animState by animateFloatAsState(
+        targetValue = if (popUpState) 1f else 0f,
+        label = "PopUp Animation State",
+        animationSpec = tween(300)
+    )
 
-    val scale by transition.animateFloat(
-        transitionSpec = {
-            if (false isTransitioningTo true) {
-                tween(durationMillis = 300)
-            } else {
-                tween(durationMillis = 250)
-            }
-        },
-        label = "PopupScale"
-    ) {
-        if (it) {
-            1f
-        } else {
-            0f
-        }
-    }
-
-    val alpha by transition.animateFloat(
-        transitionSpec = {
-            if (false isTransitioningTo true) {
-                tween(durationMillis = 300)
-            } else {
-                tween(durationMillis = 250)
-            }
-        },
-        label = "PopupAlpha"
-    ) {
-        if (it) {
-            1f
-        } else {
-            0f
-        }
-    }
-
-    if (transitionState.currentState || transitionState.targetState) {
+    if (popUpState) {
         Popup(
             popupPositionProvider = object : PopupPositionProvider {
                 override fun calculatePosition(
@@ -124,21 +94,19 @@ internal fun HomePopUp(
             Column(
                 modifier = Modifier
                     .graphicsLayer {
-                        scaleX = scale
-                        scaleY = scale
-                        this.alpha = alpha
+                        scaleX = animState
+                        scaleY = animState
+                        alpha = animState
                     }
                     .width(100.dp)
-                    .shadow(5.dp, RoundedCornerShape(10.dp))
-                    .background(MaterialTheme.colorScheme.background)
-                    .padding(horizontal = 8.dp, vertical = 8.dp),
+                    .shadow(5.dp, RoundedCornerShape(10.dp), true)
+                    .background(MaterialTheme.colorScheme.surface)
+                    .padding(8.dp),
                 verticalArrangement = Arrangement.Center
             ) {
                 Time.values.forEachIndexed { index, time ->
-                    Text(
+                    DescriptionSmallText(
                         text = time.display(),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onBackground,
                         modifier = Modifier
                             .fillMaxWidth()
                             .clickable {
@@ -154,30 +122,18 @@ internal fun HomePopUp(
     }
 }
 
-@Composable
-private fun PopUpItem(
-    text: String,
-    modifier: Modifier = Modifier,
-) {
-    Text(
-        text = text,
-        style = MaterialTheme.typography.bodySmall,
-        modifier = modifier,
-    )
-}
-
-@Preview
-@Composable
-private fun PreviewPopUpItem() = StepWalkTheme {
-    PopUpItem(text = "305")
-}
-
-@Preview(widthDp = 400, heightDp = 830)
+@Preview(showBackground = true)
 @Composable
 private fun PreviewHomePopUp() = StepWalkTheme {
-    HomePopUp(
-        popUpState = true,
-        offPopUp = {},
-        onClickPopUpItem = {}
-    )
+    Column(
+        Modifier
+            .fillMaxWidth()
+            .height(300.dp)
+    ) {
+        HomePopUp(
+            popUpState = true,
+            offPopUp = {},
+            onClickPopUpItem = {}
+        )
+    }
 }

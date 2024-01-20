@@ -13,7 +13,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import jinproject.stepwalk.design.PreviewStepWalkTheme
-import jinproject.stepwalk.design.component.BoxScopeTopBar
+import jinproject.stepwalk.design.component.ColumnScopeTopBar
+import jinproject.stepwalk.design.component.DefaultIconButton
 import jinproject.stepwalk.design.component.HorizontalWeightSpacer
 
 @Composable
@@ -24,7 +25,7 @@ internal fun HomeTopAppBar(
     onClickHome: () -> Unit,
     content: @Composable ColumnScope.() -> Unit = {},
 ) {
-    BoxScopeTopBar(
+    ColumnScopeTopBar(
         modifier = modifier
             .height(200.dp)
             .fillMaxWidth(),
@@ -32,26 +33,16 @@ internal fun HomeTopAppBar(
         onClick = onClickTime,
         headerContent = {
             HorizontalWeightSpacer(float = 1f)
-            IconButton(
+            DefaultIconButton(
+                icon = jinproject.stepwalk.design.R.drawable.ic_setting,
                 onClick = onClickSetting,
-                modifier = Modifier.size(48.dp)
-            ) {
-                Icon(
-                    painter = painterResource(id = jinproject.stepwalk.design.R.drawable.ic_setting),
-                    contentDescription = "SettingIcon",
-                    tint = MaterialTheme.colorScheme.onSurface
-                )
-            }
-            IconButton(
+                iconTint = MaterialTheme.colorScheme.onSurface
+            )
+            DefaultIconButton(
+                icon = jinproject.stepwalk.design.R.drawable.ic_home,
                 onClick = onClickHome,
-                modifier = Modifier.size(48.dp)
-            ) {
-                Icon(
-                    painter = painterResource(id = jinproject.stepwalk.design.R.drawable.ic_home),
-                    contentDescription = "HomeIcon",
-                    tint = MaterialTheme.colorScheme.onSurface
-                )
-            }
+                iconTint = MaterialTheme.colorScheme.onSurface
+            )
         },
         bodyContent = content
     )

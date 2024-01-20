@@ -23,6 +23,7 @@ import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.scale
 import androidx.compose.ui.input.pointer.PointerEventPass
+import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ParentDataModifier
 import androidx.compose.ui.text.drawText
@@ -113,12 +114,11 @@ internal fun Modifier.addChartPopUpDismiss(
     this.pointerInput(popUpState.enabled) {
         awaitPointerEventScope {
             val event = awaitPointerEvent(PointerEventPass.Initial)
-            if (event.changes.any { it.pressed })
+            if (event.type == PointerEventType.Press)
                 setPopUpState(popUpState.copy(enabled = false))
         }
     }
 
-@Stable
 internal class HealthPopUpData(val figure: String) : ParentDataModifier {
     override fun Density.modifyParentData(parentData: Any?): Any {
         return this@HealthPopUpData

@@ -14,7 +14,7 @@ internal enum class AchievementDegree {
         Perfect -> StepWalkColor.blue_500.color
         Normal -> StepWalkColor.orange_300.color
         Less -> StepWalkColor.yellow_300.color
-        Lack -> StepWalkColor.red.color
+        Lack -> StepWalkColor.red_800.color
     }
 }
 

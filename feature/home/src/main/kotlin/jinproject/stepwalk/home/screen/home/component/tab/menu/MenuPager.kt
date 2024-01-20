@@ -20,6 +20,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.tooling.preview.Preview
@@ -97,10 +98,12 @@ internal fun MenuPager(
                 CircularProgressIndicator(
                     progress = progress,
                     modifier = Modifier
-                        .fillMaxSize(),
+                        .fillMaxSize()
+                        .background(MaterialTheme.colorScheme.surface),
                     strokeWidth = 4.dp,
                     color = progress.toAchievementDegree().toColor(),
-                    trackColor = MaterialTheme.colorScheme.onSurfaceVariant
+                    trackColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f),
+                    strokeCap = StrokeCap.Round,
                 )
                 Column(
                     modifier = Modifier
