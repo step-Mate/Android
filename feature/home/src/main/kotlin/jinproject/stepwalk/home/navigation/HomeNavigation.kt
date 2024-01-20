@@ -12,7 +12,7 @@ import jinproject.stepwalk.home.screen.home.HomeScreen
 import jinproject.stepwalk.home.screen.home.state.SnackBarMessage
 
 const val homeGraph = "homeGraph"
-private const val homeRoute = "home"
+const val homeRoute = "home"
 private const val calendarRoute = "calendar"
 private const val calendarLink = "$calendarRoute/{start}"
 

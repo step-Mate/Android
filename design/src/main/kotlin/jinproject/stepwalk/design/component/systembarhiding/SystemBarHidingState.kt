@@ -86,9 +86,7 @@ class SystemBarHidingState(
         val maxHeight: Int
         val minHeight: Int
 
-        data class TOPBAR(override val maxHeight: Int, override val minHeight: Int) : Bar {
-        }
-
+        data class TOPBAR(override val maxHeight: Int, override val minHeight: Int) : Bar
         data class NAVIGATIONBAR(override val maxHeight: Int, override val minHeight: Int) : Bar
     }
 }

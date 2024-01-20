@@ -94,14 +94,12 @@ internal fun StepBar(
     )
 }
 
-@Stable
 internal class HealthChartData(
     val height: Long,
 ) : ParentDataModifier {
     override fun Density.modifyParentData(parentData: Any?): Any {
         return this@HealthChartData
     }
-
 }
 
 @Composable

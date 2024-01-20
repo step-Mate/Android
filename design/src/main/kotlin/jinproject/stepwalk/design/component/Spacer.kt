@@ -58,7 +58,6 @@ private fun VerticalSpacerPreview() {
         VerticalSpacer(20.dp)
         Box(Modifier.fillMaxWidth().weight(1f).background(Color.White))
     }
-
 }
 
 @Preview(showBackground = true, widthDp = 320, heightDp = 320)

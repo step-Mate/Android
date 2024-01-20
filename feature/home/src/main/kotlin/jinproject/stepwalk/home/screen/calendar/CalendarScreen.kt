@@ -1,7 +1,9 @@
 package jinproject.stepwalk.home.screen.calendar
 
 import android.graphics.Color
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -15,7 +17,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import jinproject.stepwalk.design.component.DefaultLayout
-import jinproject.stepwalk.design.component.StepMateProgressIndicator
+import jinproject.stepwalk.design.component.StepMateProgressIndicatorRotating
 import jinproject.stepwalk.design.component.VerticalSpacer
 import jinproject.stepwalk.design.component.VerticalWeightSpacer
 import jinproject.stepwalk.design.theme.StepWalkColor
@@ -74,7 +76,7 @@ internal fun CalendarScreen(
 ) {
     when (uiState) {
         CalendarViewModel.UiState.Loading -> {
-            StepMateProgressIndicator()
+            StepMateProgressIndicatorRotating()
         }
 
         is CalendarViewModel.UiState.Success -> {
@@ -109,10 +111,12 @@ internal fun OnSuccessCalendarScreen(
     }
 
     DefaultLayout(
-        modifier = Modifier.addChartPopUpDismiss(
-            popUpState = popUpState,
-            setPopUpState = { state -> popUpState = state }
-        ),
+        modifier = Modifier
+            .background(MaterialTheme.colorScheme.background)
+            .addChartPopUpDismiss(
+                popUpState = popUpState,
+                setPopUpState = { state -> popUpState = state }
+            ),
         contentPaddingValues = PaddingValues(vertical = 16.dp, horizontal = 12.dp),
         topBar = {
             CalendarAppBar(

@@ -23,7 +23,7 @@ internal class Router(val navController: NavHostController) {
         @Composable get() = navController
             .currentBackStackEntryAsState().value?.destination
 
-    internal fun navigate(destination: BottomNavigationDestination) {
+    internal fun navigateOnBottomNavigationBar(destination: BottomNavigationDestination) {
         val navOptions = navOptions {
             popUpTo(navController.graph.findStartDestination().id) {
                 saveState = true
@@ -33,15 +33,17 @@ internal class Router(val navController: NavHostController) {
         }
 
         when (destination) {
-            BottomNavigationDestination.HOME -> navController.navigateToHome(navOptions)
-            BottomNavigationDestination.SETTING -> navController.navigateToSetting(navOptions)
+            BottomNavigationDestination.Home -> navController.navigateToHome(navOptions)
+            BottomNavigationDestination.Profile -> navController.navigateToProfile(navOptions)
+            BottomNavigationDestination.Ranking -> navController.navigateToRanking(navOptions)
+            BottomNavigationDestination.Mission -> navController.navigateToMission(navOptions)
         }
     }
 
 }
 
 fun NavDestination?.showBottomBarOrHide(): Boolean =
-    (this?.route ?: false) in BottomNavigationDestination.values
+    (this?.route ?: false) in BottomNavigationDestination.entries
         .map { it.route }
 
 fun NavDestination?.isDestinationInHierarchy(destination: BottomNavigationDestination) =
@@ -49,6 +51,20 @@ fun NavDestination?.isDestinationInHierarchy(destination: BottomNavigationDestin
         it.route?.contains(destination.route, true) ?: false
     } ?: false
 
-fun NavController.navigateToSetting(navOptions: NavOptions?) {
-    this.navigate(BottomNavigationDestination.SETTING.route, navOptions = navOptions)
+fun NavController.popBackStackIfCan() {
+    this.previousBackStackEntry?.let {
+        this.popBackStack()
+    }
+}
+
+fun NavController.navigateToProfile(navOptions: NavOptions?) {
+    this.navigate(BottomNavigationDestination.Profile.route, navOptions = navOptions)
+}
+
+fun NavController.navigateToRanking(navOptions: NavOptions?) {
+    this.navigate(BottomNavigationDestination.Ranking.route, navOptions = navOptions)
+}
+
+fun NavController.navigateToMission(navOptions: NavOptions?) {
+    this.navigate(BottomNavigationDestination.Mission.route, navOptions = navOptions)
 }

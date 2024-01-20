@@ -130,7 +130,6 @@ internal fun HealthChartLayout(
     }
 }
 
-@Stable
 internal fun <T : Number> Number.stepToSizeByMax(barHeight: Float, max: T) =
     when {
         this.toInt() == 0 -> 0f

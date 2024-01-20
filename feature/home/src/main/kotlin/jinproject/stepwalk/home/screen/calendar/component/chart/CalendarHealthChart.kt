@@ -34,8 +34,7 @@ internal fun ColumnScope.CalendarHealthChart(
         modifier = Modifier
             .fillMaxWidth()
             .height(150.dp)
-            .clip(RoundedCornerShape(20.dp))
-            .background(MaterialTheme.colorScheme.secondary)
+            .background(MaterialTheme.colorScheme.surfaceVariant, RoundedCornerShape(20.dp))
             .padding(10.dp),
         header = {
             DescriptionLargeText(
