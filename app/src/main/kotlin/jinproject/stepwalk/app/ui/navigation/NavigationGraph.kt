@@ -33,7 +33,7 @@ import jinproject.stepwalk.login.navigation.navigateToSignUpDetail
 internal fun NavigationGraph(
     router: Router,
     modifier: Modifier = Modifier,
-    showSnackBar: (jinproject.stepwalk.core.SnackBarMessage) -> Unit,
+    showSnackBar: (SnackBarMessage) -> Unit,
 ) {
     val navController = router.navController
 
@@ -55,14 +55,7 @@ internal fun NavigationGraph(
             navigateToFindPassword = navController::navigateToFindPassword,
             popBackStack = navController::popBackStackIfCan,
             popBackStacks = navController::popBackStack,
-            showSnackBar = {
-                showSnackBar(
-                    SnackBarMessage(
-                        it.headerMessage,
-                        it.contentMessage
-                    )
-                )
-            }
+            showSnackBar = showSnackBar
         )
 
 

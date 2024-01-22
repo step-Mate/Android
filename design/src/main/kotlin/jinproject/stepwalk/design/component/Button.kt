@@ -137,7 +137,7 @@ fun DefaultTextButton(
     onClick: () -> Unit,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
 ) {
-    val avoidDuplicationClickEvent = remember(onClick) {
+    val avoidDuplicationClickEvent = remember {
         AvoidDuplicationClickEvent(onClick)
     }
     TextButton(

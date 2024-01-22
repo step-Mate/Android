@@ -48,19 +48,19 @@ class Account(
             } ?: SignValid.blank
         }
 
-    fun checkEmailCodeValid(check : (String) -> Boolean) = debouncedValueFilter
+    suspend fun checkEmailCodeValid(check : suspend (String) -> Boolean) = debouncedValueFilter
         .onEach {
             valid = it?.let {
                 when {
                     it.isBlank() -> SignValid.blank
-                    it.isValidEmailCode() -> SignValid.notValid
+                    !it.isValidEmailCode() -> SignValid.notValid
                     !check(it) -> SignValid.notValid
                     else -> SignValid.success
                 }
             } ?: SignValid.blank
         }
 
-    fun checkIdValid(checkId : (String) -> Boolean) = debouncedValueFilter
+    suspend fun checkIdValid(checkId : suspend (String) -> Boolean) = debouncedValueFilter
         .onEach {
             valid = it?.let {
                 when {

@@ -1,6 +1,5 @@
 package jinproject.stepwalk.login.screen.login
 
-import android.content.Context
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -15,6 +14,7 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -22,11 +22,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import jinproject.stepwalk.core.SnackBarMessage
 import jinproject.stepwalk.login.component.FindAndSignUpButtons
 import jinproject.stepwalk.login.utils.MAX_ID_LENGTH
 import jinproject.stepwalk.login.utils.MAX_PASS_LENGTH
@@ -37,12 +38,9 @@ import jinproject.stepwalk.design.theme.StepWalkTheme
 import jinproject.stepwalk.login.component.EnableButton
 import jinproject.stepwalk.login.component.IdField
 import jinproject.stepwalk.login.component.PasswordField
-import jinproject.stepwalk.login.utils.SnackBarMessage
-import jinproject.stepwalk.design.R.string as AppText
 
 @Composable
 internal fun LoginScreen(
-    context : Context = LocalContext.current,
     loginViewModel: LoginViewModel = hiltViewModel(),
     navigateToSignUp : () -> Unit,
     navigateToFindId : () -> Unit,
@@ -50,57 +48,18 @@ internal fun LoginScreen(
     popBackStack : () -> Unit,
     showSnackBar : (SnackBarMessage) -> Unit
 ){
-    val checkValidAccount = remember<(String,String) -> Unit> {
-        { id,password ->
-            when(loginViewModel.checkValidAccount(id,password)){
-                Valid.ID_BLANK -> {
-                    showSnackBar(
-                        SnackBarMessage(
-                            headerMessage = context.resources.getString(AppText.blank_id_header),
-                            contentMessage = context.resources.getString(AppText.blank_id_content),
-                        )
-                    )
-                }
-                Valid.ID_NOT_VALID -> {
-                    showSnackBar(
-                        SnackBarMessage(
-                            headerMessage = context.resources.getString(AppText.not_valid_id_header),
-                            contentMessage = context.resources.getString(AppText.not_valid_id_content),
-                        )
-                    )
-                }
-                Valid.PASS_BLANK -> {
-                    showSnackBar(
-                        SnackBarMessage(
-                            headerMessage = context.resources.getString(AppText.blank_password_header),
-                            contentMessage = context.resources.getString(AppText.blank_password_content),
-                        )
-                    )
-                }
-                Valid.PASS_NOT_VALID -> {
-                    showSnackBar(
-                        SnackBarMessage(
-                            headerMessage = context.resources.getString(AppText.not_valid_password_header),
-                            contentMessage = context.resources.getString(AppText.not_valid_password_content),
-                        )
-                    )
-                }
-                Valid.ACCOUNT_NOT_VALID -> {
-                    showSnackBar(
-                        SnackBarMessage(
-                            headerMessage = context.resources.getString(AppText.not_valid_account_header),
-                            contentMessage = context.resources.getString(AppText.not_valid_account_content),
-                        )
-                    )
-                }
-                Valid.ACCOUNT_VALID -> {
-                    popBackStack()
-                }//홈화면 복귀?
-            }
-        }
+    val state by loginViewModel.state.collectAsStateWithLifecycle()
+
+    LaunchedEffect(key1 = state){
+        if (state.isSuccess)
+            popBackStack()
+        else
+            if (state.errorMessage.isNotEmpty())
+                showSnackBar(SnackBarMessage(state.errorMessage))
     }
+
     LoginScreen(
-        checkValidAccount = checkValidAccount,
+        checkValidAccount = loginViewModel::checkValidAccount,
         navigateToSignUp = navigateToSignUp,
         navigateToFindId = navigateToFindId,
         navigateToFindPassword = navigateToFindPassword
@@ -216,7 +175,7 @@ private fun LoginScreen(
 private fun PreviewHomeScreen(
 ) = StepWalkTheme {
     LoginScreen(
-        checkValidAccount = { a,b -> Valid.ACCOUNT_VALID },
+        checkValidAccount = {_,_ ->},
         navigateToSignUp = {},
         navigateToFindId = {},
         navigateToFindPassword = {}

@@ -13,6 +13,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -21,6 +22,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import jinproject.stepwalk.core.SnackBarMessage
 import jinproject.stepwalk.login.component.EnableButton
 import jinproject.stepwalk.login.utils.MAX_AGE_LENGTH
 import jinproject.stepwalk.login.utils.MAX_HEIGHT_LENGTH
@@ -40,8 +42,20 @@ import jinproject.stepwalk.login.utils.MAX_EMAIL_LENGTH
 @Composable
 internal fun SignUpDetailScreen(
     signUpDetailViewModel: SignUpDetailViewModel = hiltViewModel(),
-    popBackStacks: (String,Boolean,Boolean) -> Unit
+    popBackStacks: (String,Boolean,Boolean) -> Unit,
+    showSnackBar: (SnackBarMessage) -> Unit
 ) {
+    val state by signUpDetailViewModel.state.collectAsStateWithLifecycle()
+
+    LaunchedEffect(key1 = state){
+        if (state.isSuccess){
+            popBackStacks("home",false,false)
+        }else{
+            if (state.errorMessage.isNotEmpty()){
+                showSnackBar(SnackBarMessage(state.errorMessage))
+            }
+        }
+    }
 
     SignUpDetailScreen(
         nickname = signUpDetailViewModel.nickname,
@@ -50,9 +64,7 @@ internal fun SignUpDetailScreen(
         weight = signUpDetailViewModel.weight,
         email = signUpDetailViewModel.email,
         emailCode = signUpDetailViewModel.emailCode,
-        updateUserEvent = signUpDetailViewModel::updateUserEvent,
-        requestEmailVerification = signUpDetailViewModel::requestEmailVerification,
-        popBackStacks = popBackStacks
+        onEvent = signUpDetailViewModel::onEvent
     )
 }
 
@@ -64,9 +76,7 @@ private fun SignUpDetailScreen(
     weight : Account,
     email : Account,
     emailCode : Account,
-    updateUserEvent : (UserEvent,String) -> Unit,
-    requestEmailVerification : () -> Unit,
-    popBackStacks: (String,Boolean,Boolean) -> Unit
+    onEvent : (SignUpDetailEvent) -> Unit
 ){
     val scrollState = rememberScrollState()
     val nicknameValue by nickname.value.collectAsStateWithLifecycle()
@@ -87,7 +97,9 @@ private fun SignUpDetailScreen(
             Text(
                 text = stringResource(id = R.string.signup_title),
                 style = MaterialTheme.typography.titleMedium,
-                modifier = Modifier.fillMaxWidth().padding(start = 12.dp)
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 12.dp)
             )
             VerticalSpacer(height = 30.dp)
             InformationField(
@@ -98,7 +110,7 @@ private fun SignUpDetailScreen(
             ){
                 val text = it.trim()
                 if (text.length <= MAX_NICKNAME_LENGTH)
-                    updateUserEvent(UserEvent.nickname,text)
+                    onEvent(SignUpDetailEvent.nickname(text))
             }
 
             InformationField(
@@ -110,7 +122,7 @@ private fun SignUpDetailScreen(
             ){
                 val text = it.trim()
                 if (text.length <= MAX_AGE_LENGTH)
-                    updateUserEvent(UserEvent.age,text)
+                    onEvent(SignUpDetailEvent.age(text))
             }
 
             InformationField(
@@ -122,7 +134,7 @@ private fun SignUpDetailScreen(
             ){
                 val text = it.trim()
                 if (text.length <= MAX_HEIGHT_LENGTH)
-                    updateUserEvent(UserEvent.height,text)
+                    onEvent(SignUpDetailEvent.height(text))
             }
 
             InformationField(
@@ -134,7 +146,7 @@ private fun SignUpDetailScreen(
             ){
                 val text = it.trim()
                 if (text.length <= MAX_WEIGHT_LENGTH)
-                    updateUserEvent(UserEvent.weight,text)
+                    onEvent(SignUpDetailEvent.weight(text))
             }
             
             EmailVerificationField(
@@ -142,16 +154,16 @@ private fun SignUpDetailScreen(
                 emailCode = emailCodeValue,
                 emailValid = email.valid,
                 emailCodeValid = emailCode.valid,
-                requestEmailVerification = requestEmailVerification,
+                requestEmailVerification = {onEvent(SignUpDetailEvent.requestEmail)},
                 onEmailValue = {
                     val text = it.trim()
                     if (text.length <= MAX_EMAIL_LENGTH)
-                        updateUserEvent(UserEvent.email,it)
+                        onEvent(SignUpDetailEvent.email(text))
                 },
                 onVerificationCodeValue = {
                     val text = it.trim()
                     if (text.length <= MAX_EMAIL_CODE_LENGTH)
-                        updateUserEvent(UserEvent.emailCode,it)
+                        onEvent(SignUpDetailEvent.emailCode(text))
                 }
             )
         }
@@ -169,8 +181,7 @@ private fun SignUpDetailScreen(
                 enabled = nickname.isSuccessful() && age.isSuccessful() && height.isSuccessful() && weight.isSuccessful() &&
                 email.isSuccessful() && emailCode.isSuccessful()
             ) {
-                //서버로 데이터 전송 대기후 이동
-                popBackStacks("home",false,false)//추후 수정??
+                onEvent(SignUpDetailEvent.signUp)
             }
         }
     }
@@ -188,8 +199,6 @@ private fun PreviewSignUpDetailScreen(
         weight = Account(500),
         email = Account(500),
         emailCode = Account(500),
-        updateUserEvent = {_,_ ->},
-        requestEmailVerification = {},
-        popBackStacks = {_,_,_ ->}
+        onEvent = {}
     )
 }

@@ -1,44 +1,68 @@
 package jinproject.stepwalk.login.screen.findid
 
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import jinproject.stepwalk.login.screen.FindViewModel
-import jinproject.stepwalk.login.screen.state.SignValid
+import jinproject.stepwalk.domain.model.onException
+import jinproject.stepwalk.domain.model.onSuccess
+import jinproject.stepwalk.domain.usecase.auth.FindIdUseCase
+import jinproject.stepwalk.domain.usecase.auth.RequestEmailCodeUseCase
+import jinproject.stepwalk.domain.usecase.auth.VerificationEmailCodeUseCase
+import jinproject.stepwalk.login.screen.EmailViewModel
 import jinproject.stepwalk.login.utils.isValidEmail
+import jinproject.stepwalk.login.utils.isValidEmailCode
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 import javax.inject.Inject
+
+sealed interface FindIdEvent{
+    data object findId : FindIdEvent
+    data object requestEmail : FindIdEvent
+    data class email(val value : String) : FindIdEvent
+    data class emailCode(val value: String) : FindIdEvent
+}
 
 @HiltViewModel
 internal class FindIdViewModel @Inject constructor(
+    requestEmailCodeUseCase: RequestEmailCodeUseCase,
+    verificationEmailCodeUseCase: VerificationEmailCodeUseCase,
+    private val findIdUseCase: FindIdUseCase
+) : EmailViewModel(requestEmailCodeUseCase, verificationEmailCodeUseCase){
 
-) : FindViewModel(){
-
-    val id = mutableStateOf("")
+    var id by mutableStateOf("")
 
     init {
         email.checkValid { it.isValidEmail() }.launchIn(viewModelScope)
-        emailCode.checkValid { it -> true }.launchIn(viewModelScope)//추후에 서버에 이메일 코드 일치하는지로 교체
+        emailCode.checkValid { it.isValidEmailCode()}.launchIn(viewModelScope)
     }
 
-    fun updateEmail(email : String){
-        this.email.updateValue(email)
-    }
-
-    fun updateEmailCode(emailCode : String){
-        this.emailCode.updateValue(emailCode)
-    }
-
-    override fun requestFindAccount() {
-        //서버에 아이디 요청후 받아오기
-        //받아오면 화면전환
-        id.value = "test"
-        nextStep.value = true
-    }
-
-    override fun requestEmailVerification() {
-        //서버에 이메일 인증코드 보내도록 요청
-        email.updateValid(SignValid.verifying)
-        requestEmail = email.now()
+    fun onEvent(event: FindIdEvent) {
+        when(event){
+            FindIdEvent.findId -> {
+                viewModelScope.launch(Dispatchers.IO) {
+                    val response = findIdUseCase(requestEmail,emailCode.now().toInt())
+                    response.onSuccess {findId ->
+                        _state.update {
+                            it.copy(isSuccess = true)
+                        }
+                        id = findId
+                    }
+                    response.onException { code, message ->
+                        _state.update { it.copy(errorMessage = message) }
+                    }
+                }
+            }
+            FindIdEvent.requestEmail -> {
+                viewModelScope.launch {
+                    requestEmailVerification()
+                }
+            }
+            is FindIdEvent.email -> email.updateValue(event.value)
+            is FindIdEvent.emailCode -> emailCode.updateValue(event.value)
+        }
     }
 }

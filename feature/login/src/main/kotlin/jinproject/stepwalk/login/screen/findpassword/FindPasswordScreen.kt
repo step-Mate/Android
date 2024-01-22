@@ -12,6 +12,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -21,6 +22,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import jinproject.stepwalk.core.SnackBarMessage
 import jinproject.stepwalk.design.R
 import jinproject.stepwalk.design.component.DefaultLayout
 import jinproject.stepwalk.design.component.VerticalSpacer
@@ -38,8 +40,21 @@ import jinproject.stepwalk.login.utils.MAX_PASS_LENGTH
 @Composable
 internal fun FindPasswordScreen(
     findPasswordViewModel: FindPasswordViewModel = hiltViewModel(),
-    popBackStack :() -> Unit
+    popBackStack :() -> Unit,
+    showSnackBar: (SnackBarMessage) -> Unit
 ) {
+    val state by findPasswordViewModel.state.collectAsStateWithLifecycle()
+    val nextStep by findPasswordViewModel.nextStep.collectAsStateWithLifecycle()
+
+    LaunchedEffect(key1 = state){
+        if (state.isSuccess){
+            popBackStack()
+        }else{
+            if (state.errorMessage.isNotEmpty())
+                showSnackBar(SnackBarMessage(state.errorMessage))
+        }
+    }
+
 
     FindPasswordScreen(
         id = findPasswordViewModel.id,
@@ -47,11 +62,8 @@ internal fun FindPasswordScreen(
         repeatPassword = findPasswordViewModel.repeatPassword,
         email = findPasswordViewModel.email,
         emailCode = findPasswordViewModel.emailCode,
-        nextStep = findPasswordViewModel.nextStep.value,
-        updateFindEvent = findPasswordViewModel::updateFindEvent,
-        requestEmailVerification = findPasswordViewModel::requestEmailVerification,
-        requestFindAccount = findPasswordViewModel::requestFindAccount,
-        requestResetPassword = findPasswordViewModel::requestResetPassword,
+        nextStep = nextStep,
+        onEvent = findPasswordViewModel::onEvent,
         popBackStack = popBackStack
     )
 }
@@ -64,10 +76,7 @@ private fun FindPasswordScreen(
     email : Account,
     emailCode : Account,
     nextStep : Boolean,
-    updateFindEvent : (FindEvent,String) -> Unit,
-    requestEmailVerification : () -> Unit,
-    requestFindAccount: () -> Unit,
-    requestResetPassword : () -> Unit,
+    onEvent : (FindPasswordEvent) -> Unit,
     popBackStack: () -> Unit
 ){
     val scrollState = rememberScrollState()
@@ -99,7 +108,9 @@ private fun FindPasswordScreen(
                 Text(
                     text = "재설정할 비밀번호를 입력해주세요.",
                     style = MaterialTheme.typography.titleMedium,
-                    modifier = Modifier.fillMaxWidth().padding(start = 12.dp)
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 12.dp)
                 )
                 VerticalSpacer(height = 30.dp)
                 PasswordDetail(
@@ -110,12 +121,12 @@ private fun FindPasswordScreen(
                     onNewPassword = {
                         val text = it.trim()
                         if (text.length <= MAX_PASS_LENGTH)
-                            updateFindEvent(FindEvent.password,text)
+                            onEvent(FindPasswordEvent.password(text))
                     },
                     onNewRepeatPassword = {
                         val text = it.trim()
                         if (text.length <= MAX_PASS_LENGTH)
-                            updateFindEvent(FindEvent.repeatPassword,text)
+                            onEvent(FindPasswordEvent.repeatPassword(text))
                     }
                 )
                 VerticalSpacer(height = 20.dp)
@@ -127,8 +138,8 @@ private fun FindPasswordScreen(
                         .height(50.dp),
                     enabled = password.isSuccessful() && repeatPassword.isSuccessful()
                 ) {
-                    requestResetPassword()
-                    popBackStack()
+                    onEvent(FindPasswordEvent.resetPassword)
+                    popBackStack()//수정
                 }
             }else{
                 IdDetail(
@@ -137,7 +148,7 @@ private fun FindPasswordScreen(
                     onNewIdValue = {
                         val text = it.trim()
                         if (text.length <= MAX_ID_LENGTH)
-                            updateFindEvent(FindEvent.id,text)
+                            onEvent(FindPasswordEvent.id(text))
                     }
                 )
                 EmailVerificationField(
@@ -145,16 +156,16 @@ private fun FindPasswordScreen(
                     emailCode = emailCodeValue,
                     emailValid = email.valid,
                     emailCodeValid = emailCode.valid,
-                    requestEmailVerification = requestEmailVerification,
+                    requestEmailVerification = {onEvent(FindPasswordEvent.requestEmail)},
                     onEmailValue = {
                         val text = it.trim()
                         if (text.length <= MAX_EMAIL_LENGTH)
-                            updateFindEvent(FindEvent.email,it)
+                            onEvent(FindPasswordEvent.email(text))
                     },
                     onVerificationCodeValue = {
                         val text = it.trim()
                         if (text.length <= MAX_EMAIL_CODE_LENGTH)
-                            updateFindEvent(FindEvent.emailCode,it)
+                            onEvent(FindPasswordEvent.emailCode(text))
                     }
                 )
                 VerticalSpacer(height = 20.dp)
@@ -166,7 +177,7 @@ private fun FindPasswordScreen(
                         .height(50.dp),
                     enabled = email.isSuccessful() && emailCode.isSuccessful()
                 ) {
-                    requestFindAccount()
+                    onEvent(FindPasswordEvent.checkVerification)
                 }
             }
         }
@@ -185,11 +196,9 @@ private fun PreviewFindPasswordScreen(
         email= Account(500),
         emailCode = Account(500),
         nextStep = false,
-        updateFindEvent = {_,_ ->},
-        requestEmailVerification = {  },
-        requestFindAccount = {  },
-        requestResetPassword = {  }) {
-    }
+        onEvent = {},
+        popBackStack = {}
+    )
 }
 
 @Composable
@@ -204,9 +213,7 @@ private fun PreviewFindPasswordScreen2(
         email= Account(500),
         emailCode = Account(500),
         nextStep = true,
-        updateFindEvent = {_,_ ->},
-        requestEmailVerification = {  },
-        requestFindAccount = {  },
-        requestResetPassword = {  }) {
-    }
+        onEvent = {},
+        popBackStack = {}
+    )
 }

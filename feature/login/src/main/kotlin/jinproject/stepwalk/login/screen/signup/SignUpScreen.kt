@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -17,6 +18,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import jinproject.stepwalk.core.SnackBarMessage
 import jinproject.stepwalk.design.component.DefaultLayout
 import jinproject.stepwalk.design.component.VerticalSpacer
 import jinproject.stepwalk.design.theme.StepWalkTheme
@@ -26,7 +28,6 @@ import jinproject.stepwalk.login.component.PasswordDetail
 import jinproject.stepwalk.login.screen.state.Account
 import jinproject.stepwalk.login.utils.MAX_ID_LENGTH
 import jinproject.stepwalk.login.utils.MAX_PASS_LENGTH
-import jinproject.stepwalk.login.utils.SnackBarMessage
 import jinproject.stepwalk.design.R.string as AppText
 
 @Composable
@@ -35,15 +36,21 @@ internal fun SignUpScreen(
     navigateToSignUpDetail : (String,String) -> Unit,
     showSnackBar : (SnackBarMessage) -> Unit
 ) {
+    val state by signUpViewModel.state.collectAsStateWithLifecycle()
+
+    LaunchedEffect(key1 = state.isSuccess){
+        if (state.isSuccess)
+            navigateToSignUpDetail(signUpViewModel.id.now(),signUpViewModel.password.now())
+        else
+            if (state.errorMessage.isNotEmpty())
+                showSnackBar(SnackBarMessage(state.errorMessage))
+    }
 
     SignUpScreen(
         id = signUpViewModel.id,
         password = signUpViewModel.password,
         repeatPassword = signUpViewModel.repeatPassword,
-        updateAccountEvent = signUpViewModel::updateAccountEvent,
-        checkAccountValid = signUpViewModel::checkAccountValid,
-        navigateToSignUpDetail = navigateToSignUpDetail,
-        showSnackBar = showSnackBar
+        onEvent = signUpViewModel::onEvent
     )
 }
 
@@ -52,10 +59,7 @@ private fun SignUpScreen(
     id : Account,
     password : Account,
     repeatPassword : Account,
-    updateAccountEvent : (AccountEvent,String) -> Unit,
-    checkAccountValid : () -> Boolean,
-    navigateToSignUpDetail : (String,String) -> Unit,
-    showSnackBar : (SnackBarMessage) -> Unit
+    onEvent : (SignUpEvent) -> Unit
 ){
     val idValue by id.value.collectAsStateWithLifecycle()
     val passwordValue by password.value.collectAsStateWithLifecycle()
@@ -79,7 +83,7 @@ private fun SignUpScreen(
             onNewIdValue = {
                 val text = it.trim()
                 if (text.length <= MAX_ID_LENGTH)
-                    updateAccountEvent(AccountEvent.id,text)
+                    onEvent(SignUpEvent.id(text))
             }
         )
 
@@ -91,12 +95,12 @@ private fun SignUpScreen(
             onNewPassword = {
                 val text = it.trim()
                 if (text.length <= MAX_PASS_LENGTH)
-                    updateAccountEvent(AccountEvent.password,text)
+                    onEvent(SignUpEvent.password(text))
             },
             onNewRepeatPassword = {
                 val text = it.trim()
                 if (text.length <= MAX_PASS_LENGTH)
-                    updateAccountEvent(AccountEvent.repeatPassword,text)
+                    onEvent(SignUpEvent.repeatPassword(text))
             }
         )
 
@@ -112,14 +116,7 @@ private fun SignUpScreen(
                     .height(50.dp),
                 enabled = id.isSuccessful() && password.isSuccessful() && repeatPassword.isSuccessful()
             ) {
-                if (checkAccountValid())
-                    navigateToSignUpDetail(idValue,passwordValue)
-                else
-                    showSnackBar(
-                        SnackBarMessage(
-                            headerMessage = "계정 정보를 다시 한번 확인해주세요."
-                        )
-                    )
+                onEvent(SignUpEvent.nextStep)
             }
         }
     }
@@ -134,9 +131,6 @@ private fun PreviewSignUpScreen(
         id = Account(500),
         password = Account(500),
         repeatPassword = Account(500),
-        updateAccountEvent = {_,_ ->},
-        checkAccountValid = {true},
-        navigateToSignUpDetail = {_,_ ->},
-        showSnackBar = {}
+        onEvent = {}
     )
 }

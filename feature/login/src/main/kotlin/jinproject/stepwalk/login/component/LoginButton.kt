@@ -6,9 +6,10 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
@@ -73,6 +74,7 @@ internal fun FindAndSignUpButtons(
         horizontalArrangement = Arrangement.Center,
         modifier = Modifier
             .fillMaxWidth()
+            .height(IntrinsicSize.Min)
             .padding(horizontal = 12.dp)
     ) {
         DefaultTextButton(
@@ -81,14 +83,14 @@ internal fun FindAndSignUpButtons(
             onClick = findAccountId,
             modifier = Modifier.padding(horizontal = 10.dp)
         )
-        VerticalDivider(modifier = Modifier.heightIn(min = 10.dp,max = 20.dp))
+        VerticalDivider(modifier = Modifier.padding(vertical = 10.dp))
         DefaultTextButton(
             text = "비밀번호 찾기",
             textColor = MaterialTheme.colorScheme.scrim,
             onClick = findAccountPassword,
             modifier = Modifier.padding(horizontal = 10.dp)
         )
-        VerticalDivider(modifier = Modifier.heightIn(min = 10.dp,max = 20.dp))
+        VerticalDivider(modifier = Modifier.padding(vertical = 10.dp))
         DefaultTextButton(
             text = "회원가입",
             textColor = MaterialTheme.colorScheme.scrim,

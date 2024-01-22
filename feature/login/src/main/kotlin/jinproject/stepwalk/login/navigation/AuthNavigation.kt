@@ -7,22 +7,22 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import androidx.navigation.navigation
+import jinproject.stepwalk.core.SnackBarMessage
 import jinproject.stepwalk.login.screen.login.LoginScreen
 import jinproject.stepwalk.login.screen.findid.FindIdScreen
 import jinproject.stepwalk.login.screen.findpassword.FindPasswordScreen
 import jinproject.stepwalk.login.screen.signup.SignUpScreen
 import jinproject.stepwalk.login.screen.signupdetail.SignUpDetailScreen
-import jinproject.stepwalk.login.utils.SnackBarMessage
 import jinproject.stepwalk.login.utils.slideDownOut
 import jinproject.stepwalk.login.utils.slideLeftOut
 import jinproject.stepwalk.login.utils.slideRightIn
 import jinproject.stepwalk.login.utils.slideUpIn
 
 const val loginGraph = "loginGraph"
-private const val loginRoute = "login"
+const val loginRoute = "login"
 private const val signUpRoute = "signUp"
 private const val signUpDetailRoute = "signUpDetail"
-private const val signUpDetailLink = "$signUpDetailRoute?id={id}&password={password}"
+private const val signUpDetailLink = "$signUpDetailRoute/{id}/{password}"
 private const val findIdRoute = "findId"
 private const val findPasswordRoute = "findPassword"
 
@@ -80,7 +80,8 @@ fun NavGraphBuilder.authNavGraph(
             )
         ){
             SignUpDetailScreen(
-                popBackStacks = popBackStacks
+                popBackStacks = popBackStacks,
+                showSnackBar = showSnackBar
             )
         }
 
@@ -90,7 +91,8 @@ fun NavGraphBuilder.authNavGraph(
             exitTransition = slideLeftOut(500),
         ){
             FindIdScreen(
-                popBackStack = popBackStack
+                popBackStack = popBackStack,
+                showSnackBar = showSnackBar
             )
         }
 
@@ -100,7 +102,8 @@ fun NavGraphBuilder.authNavGraph(
             exitTransition = slideLeftOut(500),
         ){
             FindPasswordScreen (
-                popBackStack = popBackStack
+                popBackStack = popBackStack,
+                showSnackBar = showSnackBar
             )
         }
     }
@@ -117,7 +120,7 @@ fun NavController.navigateToSignUp() {
 }
 
 fun NavController.navigateToSignUpDetail(id : String, password : String) {
-    this.navigate("$signUpDetailRoute?id={$id}&password={$password}"){
+    this.navigate("$signUpDetailRoute/{$id}/{$password}"){
         launchSingleTop = true
     }
 }

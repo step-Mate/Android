@@ -13,6 +13,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -22,6 +23,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import jinproject.stepwalk.core.SnackBarMessage
 import jinproject.stepwalk.design.R
 import jinproject.stepwalk.design.component.DefaultButton
 import jinproject.stepwalk.design.component.DefaultLayout
@@ -37,18 +39,22 @@ import jinproject.stepwalk.login.utils.MAX_EMAIL_LENGTH
 @Composable
 internal fun FindIdScreen(
     findIdViewModel: FindIdViewModel = hiltViewModel(),
-    popBackStack : () -> Unit
+    popBackStack : () -> Unit,
+    showSnackBar: (SnackBarMessage) -> Unit
 ){
+    val state by findIdViewModel.state.collectAsStateWithLifecycle()
+
+    LaunchedEffect(key1 = state.errorMessage){
+        if (state.errorMessage.isNotEmpty())
+            showSnackBar(SnackBarMessage(state.errorMessage))
+    }
 
     FindIdScreen(
-        id = findIdViewModel.id.value,
+        id = findIdViewModel.id,
         email = findIdViewModel.email,
         emailCode = findIdViewModel.emailCode,
-        nextStep = findIdViewModel.nextStep.value,
-        updateEmail = findIdViewModel::updateEmail,
-        updateEmailCode = findIdViewModel::updateEmailCode,
-        requestEmailVerification = findIdViewModel::requestEmailVerification,
-        requestFindAccount = findIdViewModel::requestFindAccount,
+        nextStep = state.isSuccess,
+        onEvent = findIdViewModel::onEvent,
         popBackStack = popBackStack
     )
 }
@@ -59,10 +65,7 @@ private fun FindIdScreen(
     email : Account,
     emailCode : Account,
     nextStep : Boolean,
-    updateEmail : (String) -> Unit,
-    updateEmailCode : (String) -> Unit,
-    requestEmailVerification : () -> Unit,
-    requestFindAccount: () -> Unit,
+    onEvent: (FindIdEvent) -> Unit,
     popBackStack: () -> Unit
 ){
     val scrollState = rememberScrollState()
@@ -105,16 +108,16 @@ private fun FindIdScreen(
                     emailCode = emailCodeValue,
                     emailValid = email.valid,
                     emailCodeValid = emailCode.valid,
-                    requestEmailVerification = requestEmailVerification,
+                    requestEmailVerification = {onEvent(FindIdEvent.requestEmail)},
                     onEmailValue = {
                         val text = it.trim()
                         if (text.length <= MAX_EMAIL_LENGTH)
-                            updateEmail(text)
+                            onEvent(FindIdEvent.email(text))
                     },
                     onVerificationCodeValue = {
                         val text = it.trim()
                         if (text.length <= MAX_EMAIL_CODE_LENGTH)
-                            updateEmailCode(text)
+                            onEvent(FindIdEvent.emailCode(text))
                     }
                 )
                 VerticalSpacer(height = 20.dp)
@@ -126,7 +129,7 @@ private fun FindIdScreen(
                         .height(50.dp),
                     enabled = email.isSuccessful() && emailCode.isSuccessful()
                 ) {
-                    requestFindAccount()
+                    onEvent(FindIdEvent.findId)
                 }
             }
         }
@@ -143,10 +146,7 @@ private fun PreviewFindAccountScreen2(
         email= Account(500),
         emailCode = Account(500),
         nextStep = false,
-        updateEmail = {},
-        updateEmailCode = {},
-        requestEmailVerification = {},
-        requestFindAccount = {},
+        onEvent = {},
         popBackStack = {}
     )
 }
@@ -161,10 +161,7 @@ private fun PreviewFindAccountScreen(
         email= Account(500),
         emailCode = Account(500),
         nextStep = true,
-        updateEmail = {},
-        updateEmailCode = {},
-        requestEmailVerification = {},
-        requestFindAccount = {},
+        onEvent = {},
         popBackStack = {}
     )
 }
