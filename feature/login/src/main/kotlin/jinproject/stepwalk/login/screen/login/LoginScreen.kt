@@ -2,17 +2,11 @@ package jinproject.stepwalk.login.screen.login
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -32,11 +26,11 @@ import jinproject.stepwalk.login.component.FindAndSignUpButtons
 import jinproject.stepwalk.login.utils.MAX_ID_LENGTH
 import jinproject.stepwalk.login.utils.MAX_PASS_LENGTH
 import jinproject.stepwalk.design.R
-import jinproject.stepwalk.design.component.DefaultLayout
 import jinproject.stepwalk.design.component.VerticalSpacer
 import jinproject.stepwalk.design.theme.StepWalkTheme
 import jinproject.stepwalk.login.component.EnableButton
 import jinproject.stepwalk.login.component.IdField
+import jinproject.stepwalk.login.component.LoginLayout
 import jinproject.stepwalk.login.component.PasswordField
 
 @Composable
@@ -62,7 +56,8 @@ internal fun LoginScreen(
         checkValidAccount = loginViewModel::checkValidAccount,
         navigateToSignUp = navigateToSignUp,
         navigateToFindId = navigateToFindId,
-        navigateToFindPassword = navigateToFindPassword
+        navigateToFindPassword = navigateToFindPassword,
+        popBackStack = popBackStack
     )
 }
 
@@ -71,29 +66,22 @@ private fun LoginScreen(
     checkValidAccount : (String,String) -> Unit,
     navigateToSignUp: () -> Unit,
     navigateToFindId : () -> Unit,
-    navigateToFindPassword : () -> Unit
+    navigateToFindPassword : () -> Unit,
+    popBackStack : () -> Unit
 ) {
     var id by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
-    val scrollState = rememberScrollState()
 
-    DefaultLayout(
-        modifier = Modifier,
-        contentPaddingValues = PaddingValues(vertical = 20.dp)
-    ) {
-        Column(
-            modifier = Modifier
-                .imePadding()
-                .verticalScroll(scrollState)
-        ) {
-            //이미지? or 캐릭터? 수정예정
+    LoginLayout(
+        text = "로그인",
+        modifier = Modifier.padding(top = 20.dp),
+        content = {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Center,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .wrapContentHeight()
-                    .padding(horizontal = 12.dp, vertical = 30.dp),
+                    .padding(vertical = 30.dp),
             ) {
                 Image(
                     imageVector = ImageVector.vectorResource(R.drawable.ic_fire),
@@ -101,7 +89,7 @@ private fun LoginScreen(
                     modifier = Modifier.size(200.dp)
                 )
             }
-            VerticalSpacer(height = 40.dp)
+            VerticalSpacer(height = 20.dp)
 
             IdField(
                 value = id,
@@ -118,13 +106,12 @@ private fun LoginScreen(
                         password = it
                 }
             )
-            VerticalSpacer(height = 20.dp)
-
+        },
+        bottomContent = {
             EnableButton(
                 text = "로그인",
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 12.dp)
                     .height(50.dp),
                 enabled = true
             ) {
@@ -136,39 +123,9 @@ private fun LoginScreen(
                 findAccountPassword = navigateToFindPassword,
                 createAccount = navigateToSignUp
             )
-
-
-//        VerticalSpacer(height = 10.dp)
-//        Row (
-//            verticalAlignment = Alignment.CenterVertically,
-//            horizontalArrangement = Arrangement.SpaceBetween,
-//            modifier = Modifier
-//                .fillMaxWidth()
-//                .padding(horizontal = 12.dp, vertical = 6.dp)
-//        ){
-//            GrayHorizontalDivider(modifier = Modifier.weight(0.4f))
-//            Text(
-//                text = "간편 로그인",
-//                style = MaterialTheme.typography.bodySmall,
-//                color = MaterialTheme.colorScheme.scrim,
-//                modifier = Modifier.padding(horizontal = 10.dp)
-//            )
-//            GrayHorizontalDivider(modifier = Modifier.weight(0.4f))
-//        }
-//
-//        VerticalSpacer(height = 20.dp)
-//
-//        IconButton(
-//            icon = R.drawable.ic_kakao_simbol,
-//            containerColor = StepWalkColor.kakao_yellow.color,
-//            simbolColor = StepWalkColor.kakao_black.color,
-//            labelColor = StepWalkColor.kakao_black.color,
-//            text = AppText.kakao_login_button
-//        ) {
-//            //카카오 로그인 or 회원가입 처리
-//        }
-        }
-    }
+        },
+        popBackStack = popBackStack
+    )
 }
 @Composable
 @Preview
@@ -178,6 +135,7 @@ private fun PreviewHomeScreen(
         checkValidAccount = {_,_ ->},
         navigateToSignUp = {},
         navigateToFindId = {},
-        navigateToFindPassword = {}
+        navigateToFindPassword = {},
+        popBackStack = {}
     )
 }

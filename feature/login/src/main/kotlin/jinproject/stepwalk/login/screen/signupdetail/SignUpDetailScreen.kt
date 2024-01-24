@@ -1,15 +1,8 @@
 package jinproject.stepwalk.login.screen.signupdetail
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.imePadding
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -29,11 +22,11 @@ import jinproject.stepwalk.login.utils.MAX_HEIGHT_LENGTH
 import jinproject.stepwalk.login.utils.MAX_NICKNAME_LENGTH
 import jinproject.stepwalk.login.utils.MAX_WEIGHT_LENGTH
 import jinproject.stepwalk.design.R
-import jinproject.stepwalk.design.component.DefaultLayout
 import jinproject.stepwalk.design.component.VerticalSpacer
 import jinproject.stepwalk.design.theme.StepWalkTheme
 import jinproject.stepwalk.login.component.EmailVerificationField
 import jinproject.stepwalk.login.component.InformationField
+import jinproject.stepwalk.login.component.LoginLayout
 import jinproject.stepwalk.login.screen.state.Account
 import jinproject.stepwalk.login.screen.state.isError
 import jinproject.stepwalk.login.utils.MAX_EMAIL_CODE_LENGTH
@@ -42,6 +35,7 @@ import jinproject.stepwalk.login.utils.MAX_EMAIL_LENGTH
 @Composable
 internal fun SignUpDetailScreen(
     signUpDetailViewModel: SignUpDetailViewModel = hiltViewModel(),
+    popBackStack : () -> Unit,
     popBackStacks: (String,Boolean,Boolean) -> Unit,
     showSnackBar: (SnackBarMessage) -> Unit
 ) {
@@ -64,7 +58,8 @@ internal fun SignUpDetailScreen(
         weight = signUpDetailViewModel.weight,
         email = signUpDetailViewModel.email,
         emailCode = signUpDetailViewModel.emailCode,
-        onEvent = signUpDetailViewModel::onEvent
+        onEvent = signUpDetailViewModel::onEvent,
+        popBackStack = popBackStack
     )
 }
 
@@ -76,9 +71,9 @@ private fun SignUpDetailScreen(
     weight : Account,
     email : Account,
     emailCode : Account,
-    onEvent : (SignUpDetailEvent) -> Unit
+    onEvent : (SignUpDetailEvent) -> Unit,
+    popBackStack : () -> Unit,
 ){
-    val scrollState = rememberScrollState()
     val nicknameValue by nickname.value.collectAsStateWithLifecycle()
     val ageValue by age.value.collectAsStateWithLifecycle()
     val heightValue by height.value.collectAsStateWithLifecycle()
@@ -86,105 +81,103 @@ private fun SignUpDetailScreen(
     val emailValue by email.value.collectAsStateWithLifecycle()
     val emailCodeValue by emailCode.value.collectAsStateWithLifecycle()
 
-    DefaultLayout(
-        contentPaddingValues = PaddingValues(vertical = 60.dp)
-    ) {
-        Column(
-            modifier = Modifier
-                .imePadding()
-                .verticalScroll(scrollState)
-        ) {
+    val nicknameValid by nickname.valid.collectAsStateWithLifecycle()
+    val ageValid by age.valid.collectAsStateWithLifecycle()
+    val heightValid by height.valid.collectAsStateWithLifecycle()
+    val weightValid by weight.valid.collectAsStateWithLifecycle()
+    val emailValid by email.valid.collectAsStateWithLifecycle()
+    val emailCodeValid by emailCode.valid.collectAsStateWithLifecycle()
+
+    LoginLayout(
+        text = "회원가입",
+        modifier = Modifier.fillMaxSize(),
+        content = {
             Text(
                 text = stringResource(id = R.string.signup_title),
                 style = MaterialTheme.typography.titleMedium,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(start = 12.dp)
             )
             VerticalSpacer(height = 30.dp)
             InformationField(
                 informationText = "닉네임",
                 errorMessage = "한글,영어,숫자가능,특수문자불가,2~10글자까지 입력가능",
                 value = nicknameValue,
-                isError = nickname.valid.isError()
+                isError = nicknameValid.isError()
             ){
                 val text = it.trim()
                 if (text.length <= MAX_NICKNAME_LENGTH)
-                    onEvent(SignUpDetailEvent.nickname(text))
+                    onEvent(SignUpDetailEvent.Nickname(text))
             }
 
             InformationField(
                 informationText = "나이",
                 errorMessage = "정확한 나이를 입력해주세요.",
                 value = ageValue,
-                isError = age.valid.isError(),
+                isError = ageValid.isError(),
                 keyboardType = KeyboardType.NumberPassword
             ){
                 val text = it.trim()
                 if (text.length <= MAX_AGE_LENGTH)
-                    onEvent(SignUpDetailEvent.age(text))
+                    onEvent(SignUpDetailEvent.Age(text))
             }
 
             InformationField(
                 informationText = "키",
                 errorMessage = "정확한 키를 입력해주세요.",
                 value = heightValue,
-                isError = height.valid.isError(),
+                isError = heightValid.isError(),
                 keyboardType = KeyboardType.Decimal
             ){
                 val text = it.trim()
                 if (text.length <= MAX_HEIGHT_LENGTH)
-                    onEvent(SignUpDetailEvent.height(text))
+                    onEvent(SignUpDetailEvent.Height(text))
             }
 
             InformationField(
                 informationText = "몸무게",
                 errorMessage = "정확한 몸무게를 입력해주세요.",
                 value = weightValue,
-                isError = weight.valid.isError(),
+                isError = weightValid.isError(),
                 keyboardType = KeyboardType.Decimal
             ){
                 val text = it.trim()
                 if (text.length <= MAX_WEIGHT_LENGTH)
-                    onEvent(SignUpDetailEvent.weight(text))
+                    onEvent(SignUpDetailEvent.Weight(text))
             }
-            
+
             EmailVerificationField(
                 email = emailValue,
                 emailCode = emailCodeValue,
-                emailValid = email.valid,
-                emailCodeValid = emailCode.valid,
-                requestEmailVerification = {onEvent(SignUpDetailEvent.requestEmail)},
+                emailValid = emailValid,
+                emailCodeValid = emailCodeValid,
+                requestEmailVerification = {onEvent(SignUpDetailEvent.RequestEmail)},
                 onEmailValue = {
                     val text = it.trim()
                     if (text.length <= MAX_EMAIL_LENGTH)
-                        onEvent(SignUpDetailEvent.email(text))
+                        onEvent(SignUpDetailEvent.Email(text))
                 },
                 onVerificationCodeValue = {
                     val text = it.trim()
                     if (text.length <= MAX_EMAIL_CODE_LENGTH)
-                        onEvent(SignUpDetailEvent.emailCode(text))
+                        onEvent(SignUpDetailEvent.EmailCode(text))
                 }
             )
-        }
-
-        Column(
-            verticalArrangement = Arrangement.Bottom,
-            modifier = Modifier.fillMaxHeight()
-        ) {
+        },
+        bottomContent = {
             EnableButton(
                 text = "계정 생성",
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 12.dp)
                     .height(50.dp),
                 enabled = nickname.isSuccessful() && age.isSuccessful() && height.isSuccessful() && weight.isSuccessful() &&
-                email.isSuccessful() && emailCode.isSuccessful()
+                        email.isSuccessful() && emailCode.isSuccessful()
             ) {
-                onEvent(SignUpDetailEvent.signUp)
+                onEvent(SignUpDetailEvent.SignUp)
             }
-        }
-    }
+        },
+        popBackStack = popBackStack
+    )
 }
 
 @Composable
@@ -199,6 +192,7 @@ private fun PreviewSignUpDetailScreen(
         weight = Account(500),
         email = Account(500),
         emailCode = Account(500),
-        onEvent = {}
+        onEvent = {},
+        popBackStack = {}
     )
 }

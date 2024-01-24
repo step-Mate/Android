@@ -1,7 +1,6 @@
 package jinproject.stepwalk.login.component
 
 import androidx.annotation.DrawableRes
-import androidx.annotation.StringRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -21,13 +20,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import jinproject.stepwalk.design.component.DefaultButton
 import jinproject.stepwalk.design.component.DefaultTextButton
 import jinproject.stepwalk.design.component.VerticalDivider
+import jinproject.stepwalk.design.theme.StepWalkColor
 import jinproject.stepwalk.design.theme.StepWalkTheme
 
 //간편 로그인용
@@ -37,14 +36,13 @@ internal fun IconButton(
     containerColor : Color,
     simbolColor : Color,
     labelColor : Color,
-    @StringRes text : Int,
+    text : String,
     onClick : () -> Unit
 ) {
     Box(
         modifier = Modifier
-            .fieldModifier()
             .clickable(onClick = onClick)
-            .clip(RoundedCornerShape(12))
+            .clip(RoundedCornerShape(5.dp))
             .background(containerColor)
             .padding(horizontal = 15.dp, vertical = 10.dp),
     ) {
@@ -55,7 +53,7 @@ internal fun IconButton(
             modifier = Modifier.align(Alignment.CenterStart)
         )
         Text(
-            text = stringResource(id = text),
+            text =  text,
             style = MaterialTheme.typography.bodyMedium,
             color = labelColor,
             modifier = Modifier.align(Alignment.Center)
@@ -75,7 +73,6 @@ internal fun FindAndSignUpButtons(
         modifier = Modifier
             .fillMaxWidth()
             .height(IntrinsicSize.Min)
-            .padding(horizontal = 12.dp)
     ) {
         DefaultTextButton(
             text = "아이디 찾기",
@@ -112,13 +109,13 @@ internal fun EnableButton(
         onClick = onClick,
         modifier = modifier,
         enabled = enabled,
-        backgroundColor = MaterialTheme.colorScheme.primary.copy(alpha = if(enabled) 1f else 0.5f),
+        backgroundColor = MaterialTheme.colorScheme.primary,
         shape = RoundedCornerShape(5.dp)
     ) {
         Text(
             text = text,
             style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onPrimary.copy(alpha = if(enabled) 1f else 0.5f)
+            color = MaterialTheme.colorScheme.onPrimary.copy(alpha = if(enabled) 1f else 0.3f)
         )
     }
 }
@@ -133,10 +130,10 @@ private fun PreviewIconButton(
 ) = StepWalkTheme {
     IconButton(
         icon = jinproject.stepwalk.design.R.drawable.ic_kakao_simbol,
-        containerColor = Color.Yellow,
-        simbolColor = Color.Black,
-        labelColor = Color.Black,
-        text = jinproject.stepwalk.design.R.string.kakao_login_button
+        containerColor = StepWalkColor.kakao_yellow.color,
+        simbolColor = StepWalkColor.kakao_black.color,
+        labelColor = StepWalkColor.kakao_black.color,
+        text = "카카오톡 간편로그인"
     ) {
     }
 }

@@ -1,45 +1,45 @@
 package jinproject.stepwalk.login.screen.state
 
 import androidx.compose.runtime.Stable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import jinproject.stepwalk.login.utils.debouncedFilter
 import jinproject.stepwalk.login.utils.isValidEmailCode
 import jinproject.stepwalk.login.utils.isValidID
-import jinproject.stepwalk.login.utils.isValidPassword
 import jinproject.stepwalk.login.utils.passwordMatches
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.update
 
 @Stable
 class Account(
     time : Long
 ){
     private val _value = MutableStateFlow("")
-    val value = _value.asStateFlow()
-    var valid by mutableStateOf(SignValid.blank)
+    val value get() = _value.asStateFlow()
+
+    private val _valid = MutableStateFlow(SignValid.blank)
+    val valid get() = _valid.asStateFlow()
 
     private val debouncedValueFilter : Flow<String?> = value
         .debouncedFilter(time)
 
     fun updateValue(value : String){
-        _value.value = value
+        _value.update { value }
     }
 
     fun updateValid(valid: SignValid){
-        this.valid = valid
+        _valid.update { valid }
     }
 
     fun now() = value.value
 
-    fun isSuccessful() : Boolean = valid == SignValid.success
+    fun isSuccessful() : Boolean = valid.value == SignValid.success
 
     fun checkValid(check : (String) -> Boolean) = debouncedValueFilter
         .onEach {
-            valid = it?.let {
+            _valid.value = it?.let {
                 when {
                     it.isBlank() -> SignValid.blank
                     !check(it) -> SignValid.notValid
@@ -50,7 +50,7 @@ class Account(
 
     suspend fun checkEmailCodeValid(check : suspend (String) -> Boolean) = debouncedValueFilter
         .onEach {
-            valid = it?.let {
+            _valid.value = it?.let {
                 when {
                     it.isBlank() -> SignValid.blank
                     !it.isValidEmailCode() -> SignValid.notValid
@@ -62,7 +62,7 @@ class Account(
 
     suspend fun checkIdValid(checkId : suspend (String) -> Boolean) = debouncedValueFilter
         .onEach {
-            valid = it?.let {
+            _valid.value = it?.let {
                 when {
                     it.isBlank() -> SignValid.blank
                     !it.isValidID() -> SignValid.notValid
@@ -72,13 +72,12 @@ class Account(
             } ?: SignValid.blank
         }
 
-    fun checkRepeatPasswordValid(password : String) = debouncedValueFilter
+    fun checkRepeatPasswordValid(password : StateFlow<String>) = debouncedValueFilter
         .onEach {
-            valid = it?.let {
+            _valid.value = it?.let {
                 when {
                     it.isBlank() -> SignValid.blank
-                    !it.isValidPassword() -> SignValid.notValid
-                    !it.passwordMatches(password) -> SignValid.notMatch
+                    !it.passwordMatches(password.value) -> SignValid.notMatch
                     else -> SignValid.success
                 }
             } ?: SignValid.blank

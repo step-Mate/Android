@@ -36,18 +36,25 @@ interface StepMateApi {
     @GET("users/findId")
     suspend fun findAccountId(
         @Query("email") email : String,
-        @Query("authCode") code : Int
+        @Query("authCode") code : String
     ) : IdResponse
 
     @GET("email/verifications")
     suspend fun verificationEmailCode(
         @Query("email") email : String,
-        @Query("authCode") code : Int
+        @Query("authCode") code : String
     ) : Response
 
     @GET("email/verification-request")
     suspend fun requestEmailCode(
         @Query("email") email : String
+    ) : Response
+
+    @GET("email/verification-password")//수정
+    suspend fun verificationUserEmail(
+        @Query("id") id : String,
+        @Query("email") email : String,
+        @Query("authCode") code : String
     ) : Response
 
 }

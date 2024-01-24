@@ -27,14 +27,13 @@ internal object RetrofitModule {
             .build()
     }
 
-
     @Singleton
     @Provides
     fun provideRetrofit(okHttpClient: OkHttpClient): Retrofit {
         return Retrofit.Builder()
             .addConverterFactory(ScalarsConverterFactory.create())
             .addConverterFactory(GsonConverterFactory.create(GsonBuilder().setLenient().create()))
-            .baseUrl("")
+            .baseUrl("http://google.com")
             .client(okHttpClient)
             .build()
     }

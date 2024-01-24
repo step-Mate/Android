@@ -6,7 +6,7 @@ import jinproject.stepwalk.domain.model.onException
 import jinproject.stepwalk.domain.model.onSuccess
 import jinproject.stepwalk.domain.usecase.auth.RequestEmailCodeUseCase
 import jinproject.stepwalk.domain.usecase.auth.ResetPasswordUseCase
-import jinproject.stepwalk.domain.usecase.auth.VerificationEmailCodeUseCase
+import jinproject.stepwalk.domain.usecase.auth.VerificationUserEmailUseCase
 import jinproject.stepwalk.login.screen.EmailViewModel
 import jinproject.stepwalk.login.screen.state.Account
 import jinproject.stepwalk.login.utils.isValidEmail
@@ -19,27 +19,28 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 sealed interface FindPasswordEvent{
-    data object resetPassword : FindPasswordEvent
-    data object requestEmail : FindPasswordEvent
-    data object checkVerification : FindPasswordEvent
-    data class id(val value: String) : FindPasswordEvent
-    data class password(val value: String) : FindPasswordEvent
-    data class repeatPassword(val value: String) : FindPasswordEvent
-    data class email(val value : String) : FindPasswordEvent
-    data class emailCode(val value: String) : FindPasswordEvent
+    data object ResetPassword : FindPasswordEvent
+    data object RequestEmail : FindPasswordEvent
+    data object CheckVerification : FindPasswordEvent
+    data class Id(val value: String) : FindPasswordEvent
+    data class Password(val value: String) : FindPasswordEvent
+    data class RepeatPassword(val value: String) : FindPasswordEvent
+    data class Email(val value : String) : FindPasswordEvent
+    data class EmailCode(val value: String) : FindPasswordEvent
 }
 
 @HiltViewModel
 internal class FindPasswordViewModel @Inject constructor(
     requestEmailCodeUseCase: RequestEmailCodeUseCase,
-    verificationEmailCodeUseCase: VerificationEmailCodeUseCase,
+    private val verificationUserEmailUseCase: VerificationUserEmailUseCase,
     private val resetPasswordUseCase: ResetPasswordUseCase
-) : EmailViewModel(requestEmailCodeUseCase, verificationEmailCodeUseCase){
+) : EmailViewModel(requestEmailCodeUseCase){
     private val _nextStep = MutableStateFlow(false)
-    val nextStep = _nextStep.asStateFlow()
+    val nextStep get() = _nextStep.asStateFlow()
 
     val id = Account(WAIT_TIME)
     val password = Account(WAIT_TIME)
@@ -48,43 +49,58 @@ internal class FindPasswordViewModel @Inject constructor(
     init {
         id.checkValid { it.isValidID() }.launchIn(viewModelScope)
         password.checkValid { it.isValidPassword() }.launchIn(viewModelScope)
-        repeatPassword.checkRepeatPasswordValid(password.now()).launchIn(viewModelScope)
+        repeatPassword.checkRepeatPasswordValid(password.value).launchIn(viewModelScope)
         email.checkValid { it.isValidEmail() }.launchIn(viewModelScope)
         emailCode.checkValid { it.isValidEmailCode() }.launchIn(viewModelScope)
     }
 
     fun onEvent(event: FindPasswordEvent) {
         when(event){
-            FindPasswordEvent.resetPassword -> {
+            FindPasswordEvent.ResetPassword -> {
                 viewModelScope.launch(Dispatchers.IO) {
-                    val response = resetPasswordUseCase(id.now(),password.now())
-                    response.onSuccess {findId ->
-                        _state.update {
-                            it.copy(isSuccess = true)
+                    resetPasswordUseCase(id.now(),password.now())
+                        .onSuccess {findId ->
+                            _state.update {
+                                it.copy(isSuccess = true)
+                            }
                         }
-                    }
-                    response.onException { code, message ->
-                        _state.update { it.copy(errorMessage = message) }
-                    }
+                        .onException { code, message ->
+                            _state.update { it.copy(errorMessage = message) }
+                        }
                 }
             }
-            FindPasswordEvent.checkVerification -> {
+            FindPasswordEvent.CheckVerification -> {
                 viewModelScope.launch(Dispatchers.IO) {
-                    val result = checkEmailVerification(requestEmail,emailCode.now().toInt())
-                    _nextStep.value = result
+                    _nextStep.value = checkEmailVerification(id.now(),requestEmail,emailCode.now())
                 }
             }
-            FindPasswordEvent.requestEmail -> {
+            FindPasswordEvent.RequestEmail -> {
                 viewModelScope.launch(Dispatchers.IO) {
                     requestEmailVerification()
                 }
             }
-            is FindPasswordEvent.id -> id.updateValue(event.value)
-            is FindPasswordEvent.password -> password.updateValue(event.value)
-            is FindPasswordEvent.repeatPassword -> repeatPassword.updateValue(event.value)
-            is FindPasswordEvent.email -> email.updateValue(event.value)
-            is FindPasswordEvent.emailCode -> emailCode.updateValue(event.value)
+            is FindPasswordEvent.Id -> id.updateValue(event.value)
+            is FindPasswordEvent.Password -> password.updateValue(event.value)
+            is FindPasswordEvent.RepeatPassword -> repeatPassword.updateValue(event.value)
+            is FindPasswordEvent.Email -> email.updateValue(event.value)
+            is FindPasswordEvent.EmailCode -> emailCode.updateValue(event.value)
         }
+    }
+
+    private suspend fun checkEmailVerification(id : String, email : String, code : String) : Boolean{
+        var result = false
+        withContext(Dispatchers.IO){
+            verificationUserEmailUseCase(id,email, code)
+                .onSuccess {
+                    result = true
+                }
+                .onException { code,message ->
+                    result = false
+                    if (code != 403)
+                        _state.update { it.copy(errorMessage = message) }
+                }
+        }
+        return result
     }
 
     companion object {

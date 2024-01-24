@@ -19,10 +19,10 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 sealed interface SignUpEvent{
-    data object nextStep : SignUpEvent
-    data class id(val value : String) : SignUpEvent
-    data class password(val value : String) : SignUpEvent
-    data class repeatPassword(val value : String) : SignUpEvent
+    data object NextStep : SignUpEvent
+    data class Id(val value : String) : SignUpEvent
+    data class Password(val value : String) : SignUpEvent
+    data class RepeatPassword(val value : String) : SignUpEvent
 }
 
 @HiltViewModel
@@ -30,7 +30,7 @@ internal class SignUpViewModel @Inject constructor(
     private val checkIdUseCase: CheckIdUseCase
 ) : ViewModel() {
     private val _state = MutableStateFlow(AuthState())
-    val state = _state.asStateFlow()
+    val state get() = _state.asStateFlow()
 
     val id = Account(WAIT_TIME)
     val password = Account(WAIT_TIME)
@@ -40,17 +40,17 @@ internal class SignUpViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             id.checkIdValid {
                 checkId(it)
-            }.launchIn(viewModelScope)//안에 아이디 서버 중복 체크하는거 추가
+            }.launchIn(viewModelScope)
         }
         password.checkValid { it.isValidPassword() }.launchIn(viewModelScope)
-        repeatPassword.checkRepeatPasswordValid(password.now()).launchIn(viewModelScope)
+        repeatPassword.checkRepeatPasswordValid(password.value).launchIn(viewModelScope)
     }
 
 
 
     fun onEvent(event: SignUpEvent){
         when(event){
-            SignUpEvent.nextStep -> {
+            SignUpEvent.NextStep -> {
                 viewModelScope.launch(Dispatchers.IO) {
                     _state.update {
                         it.copy(isSuccess = password.now().isValidPassword()
@@ -59,23 +59,21 @@ internal class SignUpViewModel @Inject constructor(
                     }
                 }
             }
-            is SignUpEvent.id -> id.updateValue(event.value)
-            is SignUpEvent.password -> password.updateValue(event.value)
-            is SignUpEvent.repeatPassword -> repeatPassword.updateValue(event.value)
+            is SignUpEvent.Id -> id.updateValue(event.value)
+            is SignUpEvent.Password -> password.updateValue(event.value)
+            is SignUpEvent.RepeatPassword -> repeatPassword.updateValue(event.value)
         }
     }
 
     private suspend fun checkId(id : String) : Boolean{
         var result = false
         viewModelScope.launch(Dispatchers.IO) {
-            val response = checkIdUseCase(id)
-            response.onSuccess {
-                result = true
-            }
-            response.onException { code, message ->
-                result = false
-                _state.update { it.copy(errorMessage = message) }
-            }
+            checkIdUseCase(id)
+                .onSuccess { result = true }
+                .onException { code, message ->
+                    result = false
+                    _state.update { it.copy(errorMessage = message) }
+                }
         }
         return result
     }

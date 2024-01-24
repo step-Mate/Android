@@ -1,15 +1,10 @@
 package jinproject.stepwalk.login.screen.findid
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -26,12 +21,12 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import jinproject.stepwalk.core.SnackBarMessage
 import jinproject.stepwalk.design.R
 import jinproject.stepwalk.design.component.DefaultButton
-import jinproject.stepwalk.design.component.DefaultLayout
 import jinproject.stepwalk.design.component.VerticalSpacer
 import jinproject.stepwalk.design.theme.StepWalkTheme
 import jinproject.stepwalk.login.component.EmailVerificationField
 import jinproject.stepwalk.login.component.EnableButton
 import jinproject.stepwalk.login.component.IdResultDetail
+import jinproject.stepwalk.login.component.LoginLayout
 import jinproject.stepwalk.login.screen.state.Account
 import jinproject.stepwalk.login.utils.MAX_EMAIL_CODE_LENGTH
 import jinproject.stepwalk.login.utils.MAX_EMAIL_LENGTH
@@ -68,25 +63,23 @@ private fun FindIdScreen(
     onEvent: (FindIdEvent) -> Unit,
     popBackStack: () -> Unit
 ){
-    val scrollState = rememberScrollState()
     val emailValue by email.value.collectAsStateWithLifecycle()
     val emailCodeValue by emailCode.value.collectAsStateWithLifecycle()
 
-    DefaultLayout(
-        contentPaddingValues = PaddingValues(vertical = 60.dp)
-    ) {
-        Column(
-            modifier = Modifier
-                .imePadding()
-                .verticalScroll(scrollState)
-        ) {
+    val emailValid by email.valid.collectAsStateWithLifecycle()
+    val emailCodeValid by emailCode.valid.collectAsStateWithLifecycle()
+
+    LoginLayout(
+        text = "회원가입",
+        modifier = Modifier.padding(top = 20.dp),
+        content = {
             Image(
                 imageVector = ImageVector.vectorResource(R.drawable.ic_fire),
                 contentDescription = "캐릭터?or 운동이미지?",
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(260.dp)
-                    .padding(horizontal = 12.dp, vertical = 30.dp),
+                    .padding(vertical = 30.dp),
                 alignment = Alignment.Center
             )
             VerticalSpacer(height = 30.dp)
@@ -95,45 +88,47 @@ private fun FindIdScreen(
                 DefaultButton(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 12.dp, vertical = 8.dp)
+                        .padding(vertical = 8.dp)
                         .height(50.dp),
                     onClick = popBackStack,
                     shape = RoundedCornerShape(5.dp)
                 ) {
-                   Text(text = "확인", style = MaterialTheme.typography.bodyLarge)
+                    Text(text = "확인", style = MaterialTheme.typography.bodyLarge)
                 }
             } else {
                 EmailVerificationField(
                     email = emailValue,
                     emailCode = emailCodeValue,
-                    emailValid = email.valid,
-                    emailCodeValid = emailCode.valid,
-                    requestEmailVerification = {onEvent(FindIdEvent.requestEmail)},
+                    emailValid = emailValid,
+                    emailCodeValid = emailCodeValid,
+                    requestEmailVerification = {onEvent(FindIdEvent.RequestEmail)},
                     onEmailValue = {
                         val text = it.trim()
                         if (text.length <= MAX_EMAIL_LENGTH)
-                            onEvent(FindIdEvent.email(text))
+                            onEvent(FindIdEvent.Email(text))
                     },
                     onVerificationCodeValue = {
                         val text = it.trim()
                         if (text.length <= MAX_EMAIL_CODE_LENGTH)
-                            onEvent(FindIdEvent.emailCode(text))
+                            onEvent(FindIdEvent.EmailCode(text))
                     }
                 )
-                VerticalSpacer(height = 20.dp)
-                EnableButton(
-                    text = "아이디 찾기",
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 12.dp, vertical = 4.dp)
-                        .height(50.dp),
-                    enabled = email.isSuccessful() && emailCode.isSuccessful()
-                ) {
-                    onEvent(FindIdEvent.findId)
-                }
             }
-        }
-    }
+        },
+        bottomContent = {
+            EnableButton(
+                text = "아이디 찾기",
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 4.dp)
+                    .height(50.dp),
+                enabled = email.isSuccessful() && emailCode.isSuccessful()
+            ) {
+                onEvent(FindIdEvent.FindId)
+            }
+        },
+        popBackStack = popBackStack
+    )
 }
 
 @Composable

@@ -54,7 +54,7 @@ class AuthRepositoryImpl @Inject constructor(
             )
         }
 
-    override suspend fun findAccountId(email: String, code: Int): ResponseState<String> =
+    override suspend fun findAccountId(email: String, code: String): ResponseState<String> =
         checkApiException {
             val response = stepMateApi.findAccountId(email, code)
             transResponseState(
@@ -64,7 +64,7 @@ class AuthRepositoryImpl @Inject constructor(
             )
         }
 
-    override suspend fun verificationEmailCode(email: String, code: Int): ResponseState<Boolean> =
+    override suspend fun verificationEmailCode(email: String, code: String): ResponseState<Boolean> =
         checkApiException {
             val response = stepMateApi.verificationEmailCode(email, code)
             transResponseState(
@@ -77,6 +77,16 @@ class AuthRepositoryImpl @Inject constructor(
     override suspend fun requestEmailCode(email: String): ResponseState<Boolean> =
         checkApiException {
             val response = stepMateApi.requestEmailCode(email)
+            transResponseState(
+                code = response.code,
+                message = response.message,
+                result = true
+            )
+        }
+
+    override suspend fun verificationUserEmail(id: String, email: String, code: String) : ResponseState<Boolean> =
+        checkApiException {
+            val response = stepMateApi.verificationUserEmail(id, email, code)
             transResponseState(
                 code = response.code,
                 message = response.message,

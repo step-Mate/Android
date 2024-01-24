@@ -7,6 +7,6 @@ import javax.inject.Inject
 class FindIdUseCase @Inject constructor(
     private val authRepository: AuthRepository
 ) {
-    suspend operator fun invoke(email : String, code : Int) : ResponseState<String> =
+    suspend operator fun invoke(email : String, code : String) : ResponseState<String> =
         authRepository.findAccountId(email, code)
 }

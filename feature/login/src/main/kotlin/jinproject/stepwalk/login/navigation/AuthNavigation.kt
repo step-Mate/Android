@@ -13,10 +13,10 @@ import jinproject.stepwalk.login.screen.findid.FindIdScreen
 import jinproject.stepwalk.login.screen.findpassword.FindPasswordScreen
 import jinproject.stepwalk.login.screen.signup.SignUpScreen
 import jinproject.stepwalk.login.screen.signupdetail.SignUpDetailScreen
-import jinproject.stepwalk.login.utils.slideDownOut
-import jinproject.stepwalk.login.utils.slideLeftOut
-import jinproject.stepwalk.login.utils.slideRightIn
-import jinproject.stepwalk.login.utils.slideUpIn
+import jinproject.stepwalk.core.slideDownOut
+import jinproject.stepwalk.core.slideLeftOut
+import jinproject.stepwalk.core.slideRightIn
+import jinproject.stepwalk.core.slideUpIn
 
 const val loginGraph = "loginGraph"
 const val loginRoute = "login"
@@ -36,11 +36,11 @@ fun NavGraphBuilder.authNavGraph(
     showSnackBar: (SnackBarMessage) -> Unit
 ){
     navigation(
-        startDestination = loginGraph,
-        route = loginRoute
+        startDestination = loginRoute,
+        route = loginGraph
     ){
         composable(
-            route = loginGraph,
+            route = loginRoute,
             enterTransition = slideUpIn(500),
             exitTransition = slideDownOut(500)
         ){
@@ -60,6 +60,7 @@ fun NavGraphBuilder.authNavGraph(
         ){
             SignUpScreen(
                 navigateToSignUpDetail = navigateToSignUpDetail,
+                popBackStack = popBackStack,
                 showSnackBar = showSnackBar
             )
         }
@@ -80,6 +81,7 @@ fun NavGraphBuilder.authNavGraph(
             )
         ){
             SignUpDetailScreen(
+                popBackStack = popBackStack,
                 popBackStacks = popBackStacks,
                 showSnackBar = showSnackBar
             )

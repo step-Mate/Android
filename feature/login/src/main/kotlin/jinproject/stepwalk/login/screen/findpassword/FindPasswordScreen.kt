@@ -1,14 +1,9 @@
 package jinproject.stepwalk.login.screen.findpassword
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -24,12 +19,12 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import jinproject.stepwalk.core.SnackBarMessage
 import jinproject.stepwalk.design.R
-import jinproject.stepwalk.design.component.DefaultLayout
 import jinproject.stepwalk.design.component.VerticalSpacer
 import jinproject.stepwalk.design.theme.StepWalkTheme
 import jinproject.stepwalk.login.component.EmailVerificationField
 import jinproject.stepwalk.login.component.EnableButton
-import jinproject.stepwalk.login.component.IdDetail
+import jinproject.stepwalk.login.component.IdField
+import jinproject.stepwalk.login.component.LoginLayout
 import jinproject.stepwalk.login.component.PasswordDetail
 import jinproject.stepwalk.login.screen.state.Account
 import jinproject.stepwalk.login.utils.MAX_EMAIL_CODE_LENGTH
@@ -79,28 +74,30 @@ private fun FindPasswordScreen(
     onEvent : (FindPasswordEvent) -> Unit,
     popBackStack: () -> Unit
 ){
-    val scrollState = rememberScrollState()
     val idValue by id.value.collectAsStateWithLifecycle()
     val passwordValue by password.value.collectAsStateWithLifecycle()
     val repeatPasswordValue by repeatPassword.value.collectAsStateWithLifecycle()
     val emailValue by email.value.collectAsStateWithLifecycle()
     val emailCodeValue by emailCode.value.collectAsStateWithLifecycle()
 
-    DefaultLayout(
-        contentPaddingValues = PaddingValues(vertical = 60.dp)
-    ) {
-        Column(
-            modifier = Modifier
-                .imePadding()
-                .verticalScroll(scrollState)
-        ) {
+    val idValid by id.valid.collectAsStateWithLifecycle()
+    val passwordValid by password.valid.collectAsStateWithLifecycle()
+    val repeatPasswordValid by repeatPassword.valid.collectAsStateWithLifecycle()
+    val emailValid by email.valid.collectAsStateWithLifecycle()
+    val emailCodeValid by emailCode.valid.collectAsStateWithLifecycle()
+
+
+    LoginLayout(
+        text = "회원가입",
+        modifier = Modifier.padding(top = 20.dp),
+        content = {
             Image(
                 imageVector = ImageVector.vectorResource(R.drawable.ic_fire),
                 contentDescription = "캐릭터?or 운동이미지?",
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(260.dp)
-                    .padding(horizontal = 12.dp, vertical = 30.dp),
+                    .padding(vertical = 30.dp),
                 alignment = Alignment.Center
             )
             VerticalSpacer(height = 30.dp)
@@ -110,78 +107,72 @@ private fun FindPasswordScreen(
                     style = MaterialTheme.typography.titleMedium,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(start = 12.dp)
                 )
                 VerticalSpacer(height = 30.dp)
                 PasswordDetail(
                     password = passwordValue,
                     repeatPassword = repeatPasswordValue,
-                    passwordValid = password.valid,
-                    repeatPasswordValid = repeatPassword.valid,
+                    passwordValid = passwordValid,
+                    repeatPasswordValid = repeatPasswordValid,
                     onNewPassword = {
                         val text = it.trim()
                         if (text.length <= MAX_PASS_LENGTH)
-                            onEvent(FindPasswordEvent.password(text))
+                            onEvent(FindPasswordEvent.Password(text))
                     },
                     onNewRepeatPassword = {
                         val text = it.trim()
                         if (text.length <= MAX_PASS_LENGTH)
-                            onEvent(FindPasswordEvent.repeatPassword(text))
+                            onEvent(FindPasswordEvent.RepeatPassword(text))
                     }
                 )
-                VerticalSpacer(height = 20.dp)
-                EnableButton(
-                    text = "비밀번호 재설정",
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 12.dp, vertical = 4.dp)
-                        .height(50.dp),
-                    enabled = password.isSuccessful() && repeatPassword.isSuccessful()
-                ) {
-                    onEvent(FindPasswordEvent.resetPassword)
-                    popBackStack()//수정
-                }
-            }else{
-                IdDetail(
-                    id = idValue,
-                    idValid = id.valid ,
-                    onNewIdValue = {
+            }else {
+                IdField(
+                    value = idValue,
+                    onNewValue = {
                         val text = it.trim()
                         if (text.length <= MAX_ID_LENGTH)
-                            onEvent(FindPasswordEvent.id(text))
-                    }
+                            onEvent(FindPasswordEvent.Id(text))
+                    },
+                    idValid = idValid
                 )
                 EmailVerificationField(
                     email = emailValue,
                     emailCode = emailCodeValue,
-                    emailValid = email.valid,
-                    emailCodeValid = emailCode.valid,
-                    requestEmailVerification = {onEvent(FindPasswordEvent.requestEmail)},
+                    emailValid = emailValid,
+                    emailCodeValid = emailCodeValid,
+                    requestEmailVerification = { onEvent(FindPasswordEvent.RequestEmail) },
                     onEmailValue = {
                         val text = it.trim()
                         if (text.length <= MAX_EMAIL_LENGTH)
-                            onEvent(FindPasswordEvent.email(text))
+                            onEvent(FindPasswordEvent.Email(text))
                     },
                     onVerificationCodeValue = {
                         val text = it.trim()
                         if (text.length <= MAX_EMAIL_CODE_LENGTH)
-                            onEvent(FindPasswordEvent.emailCode(text))
+                            onEvent(FindPasswordEvent.EmailCode(text))
                     }
                 )
-                VerticalSpacer(height = 20.dp)
-                EnableButton(
-                    text = "비밀번호 재설정",
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 12.dp, vertical = 4.dp)
-                        .height(50.dp),
-                    enabled = email.isSuccessful() && emailCode.isSuccessful()
-                ) {
-                    onEvent(FindPasswordEvent.checkVerification)
-                }
             }
-        }
-    }
+        },
+        bottomContent = {
+            EnableButton(
+                text = "비밀번호 재설정",
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 4.dp)
+                    .height(50.dp),
+                enabled = if(nextStep) password.isSuccessful() && repeatPassword.isSuccessful() else email.isSuccessful() && emailCode.isSuccessful()
+            ) {
+                if (nextStep){
+                    onEvent(FindPasswordEvent.ResetPassword)
+                }else{
+                    onEvent(FindPasswordEvent.CheckVerification)
+                }
+
+            }
+        },
+        popBackStack = popBackStack
+    )
 }
 
 @Composable

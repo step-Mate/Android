@@ -23,7 +23,7 @@ internal class LoginViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(AuthState())
-    val state = _state.asStateFlow()
+    val state get() = _state.asStateFlow()
 
     fun checkValidAccount(id : String, password : String) {
         when{
@@ -33,14 +33,13 @@ internal class LoginViewModel @Inject constructor(
             !password.isValidPassword() -> _state.update { it.copy(errorMessage = "잘못된 비밀번호 양식이에요. 8~16글자까지 입력가능하고 영어,숫자,!@#\$%^&amp;*특수문자만 사용가능해요.") }
             else -> {
                 viewModelScope.launch(Dispatchers.IO) {
-                    val response = signInUseCase(id,password)
-                    response.onSuccess {
-                        _state.update { it.copy(isSuccess = true) }
-                        //토큰 저장
-                    }
-                    response.onException { code, message ->
-                        _state.update { it.copy(errorMessage = message) }
-                    }
+                    signInUseCase(id,password)
+                        .onSuccess {
+                            _state.update { it.copy(isSuccess = true) }
+                        }//토큰 저장 추가
+                        .onException { code, message ->
+                            _state.update { it.copy(errorMessage = message) }
+                        }
                 }
             }
         }

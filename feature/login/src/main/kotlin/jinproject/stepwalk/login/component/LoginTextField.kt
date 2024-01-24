@@ -4,6 +4,7 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -24,6 +25,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.input.KeyboardType
@@ -31,6 +33,8 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import jinproject.stepwalk.design.component.DescriptionSmallText
+import jinproject.stepwalk.design.theme.StepWalkColor
 import jinproject.stepwalk.design.theme.StepWalkTheme
 import jinproject.stepwalk.login.screen.state.SignValid
 import jinproject.stepwalk.login.screen.state.isError
@@ -38,45 +42,56 @@ import jinproject.stepwalk.design.R.drawable as AppIcon
 
 @Composable
 internal fun InformationField(
+    modifier: Modifier = Modifier,
     informationText : String,
     errorMessage : String = "",
     value: String,
     isError : Boolean = false,
+    enabled : Boolean = true,
+    errorColor : Color = MaterialTheme.colorScheme.error,
     keyboardType: KeyboardType = KeyboardType.Email,
     leadingIcon: @Composable (() -> Unit)? = null,
     trailingIcon: @Composable (() -> Unit)? = null,
     visualTransformation: VisualTransformation = VisualTransformation.None,
-    modifier: Modifier = Modifier,
     onNewValue: (String) -> Unit
 ){
-    Column {
-        OutlinedTextField(
-            singleLine = true,
-            modifier = modifier.fieldModifier(),
-            value = value,
-            isError = isError,
-            textStyle = MaterialTheme.typography.bodyMedium,
-            onValueChange = onNewValue,
-            leadingIcon = leadingIcon,
-            trailingIcon = trailingIcon,
-            label = { Text(informationText, style = MaterialTheme.typography.bodyMedium) },
-            keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
-            visualTransformation = visualTransformation
-        )
-        ErrorMessage(message = errorMessage, isError = isError)
-    }
+    OutlinedTextField(
+        singleLine = true,
+        modifier = modifier.fillMaxWidth(),
+        value = value,
+        isError = isError,
+        enabled = enabled,
+        textStyle = MaterialTheme.typography.bodyMedium,
+        onValueChange = onNewValue,
+        leadingIcon = leadingIcon,
+        trailingIcon = trailingIcon,
+        label = { Text(informationText, style = MaterialTheme.typography.bodyMedium) },
+        supportingText = {
+             if (isError){
+                 DescriptionSmallText(text = errorMessage, color = errorColor)
+             }
+        },
+        keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
+        visualTransformation = visualTransformation
+    )
 }
 
 @Composable
-internal fun IdField(value: String, onNewValue: (String) -> Unit, idValid : SignValid = SignValid.blank) {
+internal fun IdField(
+    value: String,
+    onNewValue: (String) -> Unit,
+    idValid: SignValid = SignValid.blank,
+    isError: Boolean? = null,
+    errorMessage: String? = null
+) {
     InformationField(
         informationText = "아이디",
-        errorMessage = when (idValid){
+        errorMessage = errorMessage ?: when (idValid){
             SignValid.notValid -> "잘못된 아이디 양식이에요. 영어,숫자,_만 입력가능하고 4~12글자까지 입력가능해요."
             SignValid.duplicationId -> "중복되는 아이디가 존재합니다."
             else -> "아이디를 입력해주세요."},
         value = value,
-        isError = idValid.isError(),
+        isError = isError ?: idValid.isError(),
         keyboardType = KeyboardType.Email,
         leadingIcon = { Icon(imageVector = Icons.Default.Person, contentDescription = "Email") },
         onNewValue = onNewValue
@@ -110,91 +125,82 @@ internal fun PasswordField(informationText: String, value: String, onNewValue: (
 
 
 @Composable
-internal fun EmailVerificationField(
+internal fun ColumnScope.EmailVerificationField(
     email: String,
     emailCode : String,
     emailValid : SignValid,
     emailCodeValid : SignValid,
     requestEmailVerification : () -> Unit,
-    keyboardType: KeyboardType = KeyboardType.Email,
     onEmailValue: (String) -> Unit,
     onVerificationCodeValue : (String) -> Unit
 ){
-    Column(
+    Row(
         modifier = Modifier
-            .fillMaxWidth(),
-        horizontalAlignment = Alignment.CenterHorizontally,
+            .fillMaxWidth()
+            .height(IntrinsicSize.Min)
+            .padding(vertical = 4.dp),
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(IntrinsicSize.Max)
-                .padding(horizontal = 12.dp, vertical = 4.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            OutlinedTextField(
-                singleLine = true,
-                modifier = Modifier.weight(0.7f),
-                value = email,
-                enabled = emailCodeValid != SignValid.success,
-                isError = emailValid == SignValid.notValid,
-                textStyle = MaterialTheme.typography.bodyMedium,
-                onValueChange = onEmailValue,
-                label = {Text(text = "이메일 입력", style = MaterialTheme.typography.bodyMedium)},
-                keyboardOptions = KeyboardOptions(keyboardType = keyboardType)
-            )
-            EnableButton(
-                text = "인증",
-                modifier = Modifier
-                    .fillMaxHeight()
-                    .weight(0.3f)
-                    .padding(start = 10.dp, top = 10.dp),
-                enabled = emailValid == SignValid.success
-            ) {
-                requestEmailVerification()//서버에서 이메일 코드처리
+        InformationField(
+            informationText = "이메일 입력",
+            modifier = Modifier.weight(0.7f),
+            value = email,
+            onNewValue = onEmailValue,
+            enabled = emailCodeValid != SignValid.success,
+            isError = emailCodeValid == SignValid.success || emailValid == SignValid.notValid || emailValid == SignValid.verifying,
+            errorMessage = when {
+                emailCodeValid == SignValid.success -> "이메일이 인증되었습니다."
+                emailValid == SignValid.notValid -> "잘못된 이메일 양식입니다."
+                emailValid == SignValid.verifying -> "메일함을 확인후 코드를 입력해주세요."
+                else -> ""
+            },
+            errorColor = when {
+                emailCodeValid == SignValid.success -> StepWalkColor.success.color
+                emailValid == SignValid.notValid -> MaterialTheme.colorScheme.error
+                else -> StepWalkColor.blue_400.color
             }
-        }
-        EmailErrorMessage(
-            errorMessage = "잘못된 이메일 양식입니다.",
-            verifyingMessage = "메일함을 확인후 코드를 입력해주세요.",
-            successMessage = "이메일이 인증되었습니다.",
-            emailValid = emailValid,
-            emailCodeValid = emailCodeValid
         )
-        AnimatedVisibility(
-            visible = emailValid == SignValid.verifying || emailCodeValid == SignValid.notValid,
-            enter = slideInVertically { -it },
-            exit = slideOutVertically { -it }
+        EnableButton(
+            text = "인증",
+            modifier = Modifier
+                .weight(0.3f)
+                .fillMaxHeight(0.8f)
+                .padding(start = 10.dp,bottom = 5.dp),
+            enabled = emailValid == SignValid.success
         ) {
-            InformationField(
-                informationText = "인증코드 입력",
-                errorMessage = "잘못된 인증코드 입니다.",
-                value = emailCode,
-                isError = emailCodeValid == SignValid.notValid,
-                keyboardType = KeyboardType.NumberPassword,
-                onNewValue = onVerificationCodeValue
-            )
+            requestEmailVerification()//서버에서 이메일 코드처리
         }
     }
+    AnimatedVisibility(
+        visible = emailValid == SignValid.verifying || emailCodeValid == SignValid.notValid,
+        enter = slideInVertically { -it },
+        exit = slideOutVertically { -it }
+    ) {
+        InformationField(
+            informationText = "인증코드 입력",
+            errorMessage = "잘못된 인증코드 입니다.",
+            value = emailCode,
+            isError = emailCodeValid == SignValid.notValid,
+            keyboardType = KeyboardType.NumberPassword,
+            onNewValue = onVerificationCodeValue
+        )
+    }
 }
-
-internal fun Modifier.fieldModifier(): Modifier = this
-    .fillMaxWidth()
-    .padding(12.dp, 4.dp)
-
 
 @Composable
 @Preview
 private fun PreviewInformationField(
 
 ) = StepWalkTheme {
-    InformationField(
-        informationText = "닉네임",
-        errorMessage = "잘못된 양식입니다.",
-        value = "",
-        isError = true,
-        onNewValue = {}
-    )
+    Column {
+        InformationField(
+            informationText = "닉네임",
+            errorMessage = "잘못된 양식입니다.",
+            value = "",
+            isError = true,
+            onNewValue = {}
+        )
+    }
 }
 
 @Composable
@@ -202,7 +208,9 @@ private fun PreviewInformationField(
 private fun PreviewIdField(
 
 ) = StepWalkTheme {
-    IdField(value = "", onNewValue = {})
+    Column {
+        IdField(value = "", onNewValue = {})
+    }
 }
 
 @Composable
@@ -210,7 +218,9 @@ private fun PreviewIdField(
 private fun PreviewPasswordField(
 
 ) = StepWalkTheme {
-    PasswordField(informationText = "비밀번호",value = "", onNewValue = {})
+    Column {
+        PasswordField(informationText = "비밀번호", value = "", onNewValue = {})
+    }
 }
 
 @Composable
@@ -218,13 +228,15 @@ private fun PreviewPasswordField(
 private fun PreviewEmailValidField(
 
 ) = StepWalkTheme {
-    EmailVerificationField(
-        email =  "",
-        emailCode =  "" ,
-        emailValid = SignValid.success ,
-        emailCodeValid = SignValid.success,
-        requestEmailVerification = {  },
-        onEmailValue = {},
-        onVerificationCodeValue = {}
-    )
+    Column {
+        EmailVerificationField(
+            email = "",
+            emailCode = "",
+            emailValid = SignValid.success,
+            emailCodeValid = SignValid.success,
+            requestEmailVerification = { },
+            onEmailValue = {},
+            onVerificationCodeValue = {}
+        )
+    }
 }
