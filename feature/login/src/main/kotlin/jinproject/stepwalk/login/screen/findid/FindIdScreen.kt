@@ -38,6 +38,7 @@ internal fun FindIdScreen(
     showSnackBar: (SnackBarMessage) -> Unit
 ){
     val state by findIdViewModel.state.collectAsStateWithLifecycle()
+    val id by findIdViewModel.id.collectAsStateWithLifecycle()
 
     LaunchedEffect(key1 = state.errorMessage){
         if (state.errorMessage.isNotEmpty())
@@ -45,10 +46,11 @@ internal fun FindIdScreen(
     }
 
     FindIdScreen(
-        id = findIdViewModel.id,
+        id = id,
         email = findIdViewModel.email,
         emailCode = findIdViewModel.emailCode,
         nextStep = state.isSuccess,
+        isLoading = state.isLoading,
         onEvent = findIdViewModel::onEvent,
         popBackStack = popBackStack
     )
@@ -60,6 +62,7 @@ private fun FindIdScreen(
     email : Account,
     emailCode : Account,
     nextStep : Boolean,
+    isLoading : Boolean,
     onEvent: (FindIdEvent) -> Unit,
     popBackStack: () -> Unit
 ){
@@ -122,7 +125,8 @@ private fun FindIdScreen(
                     .fillMaxWidth()
                     .padding(vertical = 4.dp)
                     .height(50.dp),
-                enabled = email.isSuccessful() && emailCode.isSuccessful()
+                enabled = email.isSuccessful() && emailCode.isSuccessful() && !isLoading,
+                loading = isLoading
             ) {
                 onEvent(FindIdEvent.FindId)
             }
@@ -141,6 +145,7 @@ private fun PreviewFindAccountScreen2(
         email= Account(500),
         emailCode = Account(500),
         nextStep = false,
+        isLoading = false,
         onEvent = {},
         popBackStack = {}
     )
@@ -156,6 +161,7 @@ private fun PreviewFindAccountScreen(
         email= Account(500),
         emailCode = Account(500),
         nextStep = true,
+        isLoading = true,
         onEvent = {},
         popBackStack = {}
     )

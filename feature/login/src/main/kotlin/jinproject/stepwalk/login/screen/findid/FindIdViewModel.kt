@@ -1,11 +1,9 @@
 package jinproject.stepwalk.login.screen.findid
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import jinproject.stepwalk.domain.model.onException
+import jinproject.stepwalk.domain.model.onLoading
 import jinproject.stepwalk.domain.model.onSuccess
 import jinproject.stepwalk.domain.usecase.auth.FindIdUseCase
 import jinproject.stepwalk.domain.usecase.auth.RequestEmailCodeUseCase
@@ -13,7 +11,10 @@ import jinproject.stepwalk.login.screen.EmailViewModel
 import jinproject.stepwalk.login.utils.isValidEmail
 import jinproject.stepwalk.login.utils.isValidEmailCode
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -31,7 +32,8 @@ internal class FindIdViewModel @Inject constructor(
     private val findIdUseCase: FindIdUseCase
 ) : EmailViewModel(requestEmailCodeUseCase){
 
-    var id by mutableStateOf("")
+    private val _id = MutableStateFlow("")
+    val id get() = _id.asStateFlow()
 
     init {
         email.checkValid { it.isValidEmail() }.launchIn(viewModelScope)
@@ -43,15 +45,17 @@ internal class FindIdViewModel @Inject constructor(
             FindIdEvent.FindId -> {
                 viewModelScope.launch(Dispatchers.IO) {
                     findIdUseCase(requestEmail,emailCode.now())
-                        .onSuccess {findId ->
-                            _state.update {
-                                it.copy(isSuccess = true)
+                        .onEach {
+                            it.onSuccess {findId ->
+                                _state.update {state -> state.copy(isSuccess = true, isLoading = false) }
+                                _id.value = findId
+                            }.onException { code, message ->
+                                _state.update { state -> state.copy(errorMessage = message, isLoading = false) }
+                            }.onLoading {
+                                _state.update { state -> state.copy(isLoading = true) }
                             }
-                            id = findId
-                        }
-                        .onException { code, message ->
-                            _state.update { it.copy(errorMessage = message) }
-                        }
+                        }.launchIn(viewModelScope)
+
                 }
             }
             FindIdEvent.RequestEmail -> {

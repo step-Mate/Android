@@ -16,5 +16,10 @@ inline fun <reified T : Any> ResponseState<T>.onException(action : (code : Int, 
     return this
 }
 
+inline fun <reified T : Any> ResponseState<T>.onLoading(action : () -> Unit) : ResponseState<T> {
+    if (this is ResponseState.Loading) action()
+    return this
+}
+
 fun <T> transResponseState(code: Int, message: String, result : T) : ResponseState<T> =
     if (code == 200) ResponseState.Result(result) else ResponseState.Exception(code,message)

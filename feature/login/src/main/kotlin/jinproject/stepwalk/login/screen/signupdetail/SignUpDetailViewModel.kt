@@ -15,6 +15,7 @@ import jinproject.stepwalk.domain.usecase.auth.VerificationEmailCodeUseCase
 import jinproject.stepwalk.login.screen.EmailViewModel
 import jinproject.stepwalk.login.screen.state.Account
 import jinproject.stepwalk.login.utils.isValidEmail
+import jinproject.stepwalk.login.utils.onEachState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.update
@@ -80,14 +81,8 @@ internal class SignUpDetailViewModel @Inject constructor(
                                 weight = weight.now().toInt(),
                                 email = email.now()
                             )
-                        )
-                        .onSuccess {
-                            _state.update { it.copy(isSuccess = true) }
-                            //jwt save + user data
-                        }
-                        .onException{ code, message ->
-                            _state.update { it.copy(errorMessage = message)}
-                        }
+                        ).onEachState(_state)
+                        .launchIn(viewModelScope)
                     }
                 }else{
                     _state.update { it.copy(errorMessage = "입력조건이 잘못되었습니다.")}

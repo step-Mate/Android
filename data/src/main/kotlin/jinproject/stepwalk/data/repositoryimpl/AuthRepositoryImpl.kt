@@ -7,12 +7,14 @@ import jinproject.stepwalk.data.remote.dto.request.AccountRequest
 import jinproject.stepwalk.data.remote.dto.request.DuplicationRequest
 import jinproject.stepwalk.data.remote.mapper.toSignUpRequest
 import jinproject.stepwalk.data.remote.utils.checkApiException
+import jinproject.stepwalk.data.remote.utils.exchangeResultFlow
 import jinproject.stepwalk.domain.model.CurrentAuth
 import jinproject.stepwalk.domain.model.ResponseState
 import jinproject.stepwalk.domain.model.UserData
 import jinproject.stepwalk.domain.model.transResponseState
 import jinproject.stepwalk.domain.repository.AuthRepository
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
@@ -31,8 +33,8 @@ class AuthRepositoryImpl @Inject constructor(
             )
         }
 
-    override suspend fun signUpAccount(userData: UserData): ResponseState<Boolean> =
-        checkApiException {
+    override suspend fun signUpAccount(userData: UserData): Flow<ResponseState<Boolean>> =
+        exchangeResultFlow {
             val response = stepMateApi.signUpAccount(userData.toSignUpRequest())
             if (response.code == 200){
                 userDataSource.setUserData(userData,response.result.token)//refresh token + 유저정보 저장
@@ -44,8 +46,8 @@ class AuthRepositoryImpl @Inject constructor(
             )
         }
 
-    override suspend fun signInAccount(id: String, password: String, isAutoLogin : Boolean): ResponseState<Boolean> =
-        checkApiException {
+    override suspend fun signInAccount(id: String, password: String, isAutoLogin : Boolean): Flow<ResponseState<Boolean>> =
+        exchangeResultFlow {
             val response = stepMateApi.signInAccount(AccountRequest(id,password))
             if (response.code == 200){
                 if (isAutoLogin){
@@ -71,8 +73,8 @@ class AuthRepositoryImpl @Inject constructor(
             )
         }
 
-    override suspend fun findAccountId(email: String, code: String): ResponseState<String> =
-        checkApiException {
+    override suspend fun findAccountId(email: String, code: String): Flow<ResponseState<String>> =
+        exchangeResultFlow {
             val response = stepMateApi.findAccountId(email, code)
             transResponseState(
                 code = response.code,
@@ -101,8 +103,8 @@ class AuthRepositoryImpl @Inject constructor(
             )
         }
 
-    override suspend fun verificationUserEmail(id: String, email: String, code: String) : ResponseState<Boolean> =
-        checkApiException {
+    override suspend fun verificationUserEmail(id: String, email: String, code: String) : Flow<ResponseState<Boolean>> =
+        exchangeResultFlow {
             val response = stepMateApi.verificationUserEmail(id, email, code)
             transResponseState(
                 code = response.code,

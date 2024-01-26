@@ -81,6 +81,8 @@ internal fun InformationField(
         keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
         visualTransformation = visualTransformation,
         colors = TextFieldDefaults.colors(
+            focusedContainerColor = MaterialTheme.colorScheme.background,
+            unfocusedContainerColor = MaterialTheme.colorScheme.background,
             errorIndicatorColor = errorColor,
             errorLabelColor = errorColor,
             errorSupportingTextColor = errorColor,

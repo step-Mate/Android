@@ -50,12 +50,13 @@ internal fun LoginScreen(
         if (state.isSuccess)
             popBackStack()
         else
-            if (state.errorMessage.isNotEmpty())
+            if (state.errorMessage.isNotEmpty() || !state.isLoading)
                 showSnackBar(SnackBarMessage(state.errorMessage))
     }
 
     LoginScreen(
         checkValidAccount = loginViewModel::checkValidAccount,
+        isLoading = state.isLoading,
         navigateToSignUp = navigateToSignUp,
         navigateToFindId = navigateToFindId,
         navigateToFindPassword = navigateToFindPassword,
@@ -66,6 +67,7 @@ internal fun LoginScreen(
 @Composable
 private fun LoginScreen(
     checkValidAccount : (String,String,Boolean) -> Unit,
+    isLoading : Boolean,
     navigateToSignUp: () -> Unit,
     navigateToFindId : () -> Unit,
     navigateToFindPassword : () -> Unit,
@@ -125,7 +127,8 @@ private fun LoginScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(50.dp),
-                enabled = true
+                enabled = !isLoading,
+                loading = isLoading
             ) {
                 checkValidAccount(id, password,isAutoLogin)//수정
             }
@@ -144,6 +147,7 @@ private fun PreviewHomeScreen(
 ) = StepWalkTheme {
     LoginScreen(
         checkValidAccount = {_,_,_ ->},
+        isLoading = false,
         navigateToSignUp = {},
         navigateToFindId = {},
         navigateToFindPassword = {},

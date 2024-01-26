@@ -3,6 +3,7 @@ package jinproject.stepwalk.login.screen.findpassword
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import jinproject.stepwalk.domain.model.onException
+import jinproject.stepwalk.domain.model.onLoading
 import jinproject.stepwalk.domain.model.onSuccess
 import jinproject.stepwalk.domain.usecase.auth.RequestEmailCodeUseCase
 import jinproject.stepwalk.domain.usecase.auth.ResetPasswordUseCase
@@ -17,9 +18,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 sealed interface FindPasswordEvent{
@@ -71,7 +72,20 @@ internal class FindPasswordViewModel @Inject constructor(
             }
             FindPasswordEvent.CheckVerification -> {
                 viewModelScope.launch(Dispatchers.IO) {
-                    _nextStep.value = checkEmailVerification(id.now(),requestEmail,emailCode.now())
+                    verificationUserEmailUseCase(id.now(),requestEmail, emailCode.now())
+                        .onEach {
+                            it.onSuccess {
+                                _nextStep.value = true
+                                _state.update { state -> state.copy(isLoading = false) }
+                            }.onException { code,message ->
+                                if (code != 403)
+                                    _state.update { it.copy(errorMessage = message, isLoading = false) }
+                                else
+                                    _state.update { state -> state.copy(isLoading = false) }
+                            }.onLoading {
+                                _state.update { state -> state.copy(isLoading = false) }
+                            }
+                        }.launchIn(viewModelScope)
                 }
             }
             FindPasswordEvent.RequestEmail -> {
@@ -85,22 +99,6 @@ internal class FindPasswordViewModel @Inject constructor(
             is FindPasswordEvent.Email -> email.updateValue(event.value)
             is FindPasswordEvent.EmailCode -> emailCode.updateValue(event.value)
         }
-    }
-
-    private suspend fun checkEmailVerification(id : String, email : String, code : String) : Boolean{
-        var result = false
-        withContext(Dispatchers.IO){
-            verificationUserEmailUseCase(id,email, code)
-                .onSuccess {
-                    result = true
-                }
-                .onException { code,message ->
-                    result = false
-                    if (code != 403)
-                        _state.update { it.copy(errorMessage = message) }
-                }
-        }
-        return result
     }
 
     companion object {

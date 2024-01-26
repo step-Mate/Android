@@ -45,7 +45,7 @@ internal fun FindPasswordScreen(
         if (state.isSuccess){
             popBackStack()
         }else{
-            if (state.errorMessage.isNotEmpty())
+            if (state.errorMessage.isNotEmpty() || !state.isLoading)
                 showSnackBar(SnackBarMessage(state.errorMessage))
         }
     }
@@ -58,6 +58,7 @@ internal fun FindPasswordScreen(
         email = findPasswordViewModel.email,
         emailCode = findPasswordViewModel.emailCode,
         nextStep = nextStep,
+        isLoading = state.isLoading,
         onEvent = findPasswordViewModel::onEvent,
         popBackStack = popBackStack
     )
@@ -71,6 +72,7 @@ private fun FindPasswordScreen(
     email : Account,
     emailCode : Account,
     nextStep : Boolean,
+    isLoading : Boolean,
     onEvent : (FindPasswordEvent) -> Unit,
     popBackStack: () -> Unit
 ){
@@ -161,7 +163,8 @@ private fun FindPasswordScreen(
                     .fillMaxWidth()
                     .padding(vertical = 4.dp)
                     .height(50.dp),
-                enabled = if(nextStep) password.isSuccessful() && repeatPassword.isSuccessful() else email.isSuccessful() && emailCode.isSuccessful()
+                enabled = if(nextStep) password.isSuccessful() && repeatPassword.isSuccessful() else email.isSuccessful() && emailCode.isSuccessful() && !isLoading,
+                loading = isLoading
             ) {
                 if (nextStep){
                     onEvent(FindPasswordEvent.ResetPassword)
@@ -187,6 +190,7 @@ private fun PreviewFindPasswordScreen(
         email= Account(500),
         emailCode = Account(500),
         nextStep = false,
+        isLoading = false,
         onEvent = {},
         popBackStack = {}
     )
@@ -204,6 +208,7 @@ private fun PreviewFindPasswordScreen2(
         email= Account(500),
         emailCode = Account(500),
         nextStep = true,
+        isLoading = false,
         onEvent = {},
         popBackStack = {}
     )

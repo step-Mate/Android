@@ -48,7 +48,7 @@ internal fun SignUpDetailScreen(
         if (state.isSuccess){
             popBackStacks("home",false,false)
         }else{
-            if (state.errorMessage.isNotEmpty()){
+            if (state.errorMessage.isNotEmpty() || !state.isLoading){
                 showSnackBar(SnackBarMessage(state.errorMessage))
             }
         }
@@ -61,6 +61,7 @@ internal fun SignUpDetailScreen(
         weight = signUpDetailViewModel.weight,
         email = signUpDetailViewModel.email,
         emailCode = signUpDetailViewModel.emailCode,
+        isLoading = state.isLoading,
         onEvent = signUpDetailViewModel::onEvent,
         popBackStack = popBackStack
     )
@@ -74,6 +75,7 @@ private fun SignUpDetailScreen(
     weight : Account,
     email : Account,
     emailCode : Account,
+    isLoading : Boolean,
     onEvent : (SignUpDetailEvent) -> Unit,
     popBackStack : () -> Unit,
 ){
@@ -180,7 +182,8 @@ private fun SignUpDetailScreen(
                     .fillMaxWidth()
                     .height(50.dp),
                 enabled = nickname.isSuccessful() && age.isSuccessful() && height.isSuccessful() && weight.isSuccessful() &&
-                        email.isSuccessful() && emailCode.isSuccessful()
+                        email.isSuccessful() && emailCode.isSuccessful() && !isLoading,
+                loading = isLoading
             ) {
                 onEvent(SignUpDetailEvent.SignUp)
             }
@@ -202,6 +205,7 @@ private fun PreviewSignUpDetailScreen(
         weight = state,
         email = state,
         emailCode = state,
+        isLoading = false,
         onEvent = {},
         popBackStack = {}
     )

@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -103,6 +104,7 @@ internal fun EnableButton(
     text: String,
     modifier: Modifier,
     enabled : Boolean = false,
+    loading : Boolean = false,
     onClick: () -> Unit
 ){
     DefaultButton(
@@ -112,11 +114,15 @@ internal fun EnableButton(
         backgroundColor = MaterialTheme.colorScheme.primary,
         shape = RoundedCornerShape(5.dp)
     ) {
-        Text(
-            text = text,
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onPrimary.copy(alpha = if(enabled) 1f else 0.3f)
-        )
+        if (loading){
+            CircularProgressIndicator(modifier = Modifier.height(IntrinsicSize.Min),color = MaterialTheme.colorScheme.onPrimary)
+        }else{
+            Text(
+                text = text,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onPrimary.copy(alpha = if(enabled) 1f else 0.3f)
+            )
+        }
     }
 }
 
@@ -159,7 +165,8 @@ private fun PreviewEnableButton(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 12.dp),
-        enabled = true
+        enabled = true,
+        loading = true
     ) {
 
     }

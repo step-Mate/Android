@@ -4,15 +4,14 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import jinproject.stepwalk.login.utils.isValidID
 import jinproject.stepwalk.login.utils.isValidPassword
-
 import dagger.hilt.android.lifecycle.HiltViewModel
-import jinproject.stepwalk.domain.model.onException
-import jinproject.stepwalk.domain.model.onSuccess
 import jinproject.stepwalk.domain.usecase.auth.SignInUseCase
 import jinproject.stepwalk.login.screen.state.AuthState
+import jinproject.stepwalk.login.utils.onEachState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -34,12 +33,8 @@ internal class LoginViewModel @Inject constructor(
             else -> {
                 viewModelScope.launch(Dispatchers.IO) {
                     signInUseCase(id,password,isAutoLogin)
-                        .onSuccess {
-                            _state.update { it.copy(isSuccess = true) }
-                        }//토큰 저장 추가
-                        .onException { code, message ->
-                            _state.update { it.copy(errorMessage = message) }
-                        }
+                        .onEachState(_state)
+                        .launchIn(viewModelScope)
                 }
             }
         }
