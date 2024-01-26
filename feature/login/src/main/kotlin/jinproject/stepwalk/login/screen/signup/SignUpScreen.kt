@@ -3,6 +3,9 @@ package jinproject.stepwalk.login.screen.signup
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -10,19 +13,23 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import jinproject.stepwalk.core.SnackBarMessage
 import jinproject.stepwalk.design.component.VerticalSpacer
+import jinproject.stepwalk.design.theme.StepWalkColor
 import jinproject.stepwalk.design.theme.StepWalkTheme
 import jinproject.stepwalk.login.component.EnableButton
-import jinproject.stepwalk.login.component.IdField
+import jinproject.stepwalk.login.component.InformationField
 import jinproject.stepwalk.login.component.LoginLayout
 import jinproject.stepwalk.login.component.PasswordDetail
 import jinproject.stepwalk.login.screen.state.Account
 import jinproject.stepwalk.login.screen.state.SignValid
+import jinproject.stepwalk.login.screen.state.isError
 import jinproject.stepwalk.login.utils.MAX_ID_LENGTH
 import jinproject.stepwalk.login.utils.MAX_PASS_LENGTH
 import jinproject.stepwalk.design.R.string as AppText
@@ -81,18 +88,25 @@ private fun SignUpScreen(
             )
             VerticalSpacer(height = 30.dp)
 
-            IdField(
+            InformationField(
+                informationText = "아이디",
+                errorMessage = when (idValid) {
+                    SignValid.notValid -> "잘못된 아이디 양식이에요. 영어,숫자,_만 입력가능하고 4~12글자까지 입력가능해요."
+                    SignValid.duplicationId -> "중복되는 아이디가 존재합니다."
+                    SignValid.success -> "사용가능한 아이디 입니다."
+                    else -> "아이디를 입력해주세요."
+                },
                 value = idValue,
+                isError = idValid.isError() || idValid == SignValid.success,
+                errorColor = if (idValid.isError()) MaterialTheme.colorScheme.error else StepWalkColor.success.color,
+                keyboardType = KeyboardType.Email,
+                leadingIcon = { Icon(imageVector = Icons.Default.Person, contentDescription = "Email") },
                 onNewValue = {
                     val text = it.trim()
                     if (text.length <= MAX_ID_LENGTH)
                         onEvent(SignUpEvent.Id(text))
-                },
-                idValid= idValid,
-                isError = idValid == SignValid.success,
-                errorMessage = "사용가능한 아이디입니다.",
+                }
             )
-
             PasswordDetail(
                 password = passwordValue,
                 repeatPassword = repeatPasswordValue,
@@ -128,12 +142,13 @@ private fun SignUpScreen(
 @Composable
 @Preview
 private fun PreviewSignUpScreen(
-
+    @PreviewParameter(SignUpStatePreviewParameters::class)
+    state : Account,
 ) = StepWalkTheme {
     SignUpScreen(
-        id = Account(500),
-        password = Account(500),
-        repeatPassword = Account(500),
+        id = state,
+        password = state,
+        repeatPassword = state,
         onEvent = {},
         popBackStack = {}
     )

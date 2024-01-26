@@ -13,10 +13,8 @@ import jinproject.stepwalk.login.screen.findid.FindIdScreen
 import jinproject.stepwalk.login.screen.findpassword.FindPasswordScreen
 import jinproject.stepwalk.login.screen.signup.SignUpScreen
 import jinproject.stepwalk.login.screen.signupdetail.SignUpDetailScreen
-import jinproject.stepwalk.core.slideDownOut
 import jinproject.stepwalk.core.slideLeftOut
 import jinproject.stepwalk.core.slideRightIn
-import jinproject.stepwalk.core.slideUpIn
 
 const val loginGraph = "loginGraph"
 const val loginRoute = "login"
@@ -41,8 +39,8 @@ fun NavGraphBuilder.authNavGraph(
     ){
         composable(
             route = loginRoute,
-            enterTransition = slideUpIn(500),
-            exitTransition = slideDownOut(500)
+            enterTransition = slideRightIn(500),
+            exitTransition = slideLeftOut(500),
         ){
             LoginScreen(
                 navigateToSignUp = navigateToSignUp,

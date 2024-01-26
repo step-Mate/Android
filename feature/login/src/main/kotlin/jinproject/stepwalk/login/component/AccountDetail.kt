@@ -72,7 +72,7 @@ private fun PreviewPasswordDetail(
         password = "",
         repeatPassword =  "",
         passwordValid =  SignValid.notValid ,
-        repeatPasswordValid =  SignValid.notMatch ,
+        repeatPasswordValid = SignValid.notMatch ,
         onNewPassword = {},
         onNewRepeatPassword = {}
     )

@@ -10,3 +10,8 @@ message StepWalkPreferences {
   bool isReboot = 4;
   int64 stepAfterReboot = 5;
 }
+
+message CurrentAuthPreferences {
+  string id = 1;
+  string accessToken = 2;
+}

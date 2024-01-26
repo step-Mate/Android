@@ -4,9 +4,13 @@ import jinproject.stepwalk.domain.model.ResponseState
 import jinproject.stepwalk.domain.repository.AuthRepository
 import javax.inject.Inject
 
-class FindIdUseCase @Inject constructor(
+interface FindIdUseCase {
+    suspend operator fun invoke(email : String, code : String) : ResponseState<String>
+}
+
+class FindIdUseCaseImpl @Inject constructor(
     private val authRepository: AuthRepository
-) {
-    suspend operator fun invoke(email : String, code : String) : ResponseState<String> =
+) : FindIdUseCase {
+    override suspend operator fun invoke(email : String, code : String) : ResponseState<String> =
         authRepository.findAccountId(email, code)
 }

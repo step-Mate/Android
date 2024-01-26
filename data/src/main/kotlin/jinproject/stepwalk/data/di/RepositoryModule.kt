@@ -4,8 +4,8 @@ import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
-import jinproject.stepwalk.data.AuthRepositoryImpl
-import jinproject.stepwalk.data.StepRepositoryImpl
+import jinproject.stepwalk.data.repositoryimpl.AuthRepositoryImpl
+import jinproject.stepwalk.data.repositoryimpl.StepRepositoryImpl
 import jinproject.stepwalk.domain.repository.AuthRepository
 import jinproject.stepwalk.domain.repository.StepRepository
 import javax.inject.Singleton

@@ -13,6 +13,11 @@ dependencies {
     implementation(project(":domain"))
     implementation(libs.bundles.datastore)
     implementation(libs.bundles.square)
+
+    implementation(libs.androidx.room.ktx)
+    annotationProcessor(libs.androidx.room.compiler)
+    ksp(libs.androidx.room.compiler)
+    testImplementation(libs.androidx.room.testing)
 }
 
 protobuf {

@@ -12,6 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -22,11 +23,13 @@ import jinproject.stepwalk.login.utils.MAX_HEIGHT_LENGTH
 import jinproject.stepwalk.login.utils.MAX_NICKNAME_LENGTH
 import jinproject.stepwalk.login.utils.MAX_WEIGHT_LENGTH
 import jinproject.stepwalk.design.R
+import jinproject.stepwalk.design.component.DescriptionSmallText
 import jinproject.stepwalk.design.component.VerticalSpacer
 import jinproject.stepwalk.design.theme.StepWalkTheme
 import jinproject.stepwalk.login.component.EmailVerificationField
 import jinproject.stepwalk.login.component.InformationField
 import jinproject.stepwalk.login.component.LoginLayout
+import jinproject.stepwalk.login.screen.signup.SignUpStatePreviewParameters
 import jinproject.stepwalk.login.screen.state.Account
 import jinproject.stepwalk.login.screen.state.isError
 import jinproject.stepwalk.login.utils.MAX_EMAIL_CODE_LENGTH
@@ -127,7 +130,10 @@ private fun SignUpDetailScreen(
                 errorMessage = "정확한 키를 입력해주세요.",
                 value = heightValue,
                 isError = heightValid.isError(),
-                keyboardType = KeyboardType.Decimal
+                keyboardType = KeyboardType.Decimal,
+                suffix = {
+                    DescriptionSmallText(text = "cm")
+                }
             ){
                 val text = it.trim()
                 if (text.length <= MAX_HEIGHT_LENGTH)
@@ -139,7 +145,10 @@ private fun SignUpDetailScreen(
                 errorMessage = "정확한 몸무게를 입력해주세요.",
                 value = weightValue,
                 isError = weightValid.isError(),
-                keyboardType = KeyboardType.Decimal
+                keyboardType = KeyboardType.Decimal,
+                suffix = {
+                    DescriptionSmallText(text = "kg")
+                }
             ){
                 val text = it.trim()
                 if (text.length <= MAX_WEIGHT_LENGTH)
@@ -183,15 +192,16 @@ private fun SignUpDetailScreen(
 @Composable
 @Preview
 private fun PreviewSignUpDetailScreen(
-
+    @PreviewParameter(SignUpStatePreviewParameters::class)
+    state : Account
 ) = StepWalkTheme {
     SignUpDetailScreen(
-        nickname = Account(500),
-        age = Account(500),
-        height = Account(500),
-        weight = Account(500),
-        email = Account(500),
-        emailCode = Account(500),
+        nickname = state,
+        age = state,
+        height = state,
+        weight = state,
+        email = state,
+        emailCode = state,
         onEvent = {},
         popBackStack = {}
     )

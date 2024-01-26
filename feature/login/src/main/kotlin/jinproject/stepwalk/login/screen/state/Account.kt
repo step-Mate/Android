@@ -14,12 +14,14 @@ import kotlinx.coroutines.flow.update
 
 @Stable
 class Account(
-    time : Long
+    time : Long,
+    initValue: String = "",
+    initValid : SignValid = SignValid.blank
 ){
-    private val _value = MutableStateFlow("")
+    private val _value = MutableStateFlow(initValue)
     val value get() = _value.asStateFlow()
 
-    private val _valid = MutableStateFlow(SignValid.blank)
+    private val _valid = MutableStateFlow(initValid)
     val valid get() = _valid.asStateFlow()
 
     private val debouncedValueFilter : Flow<String?> = value
@@ -34,6 +36,8 @@ class Account(
     }
 
     fun now() = value.value
+
+    fun nowValid() = valid.value
 
     fun isSuccessful() : Boolean = valid.value == SignValid.success
 
