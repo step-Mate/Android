@@ -30,7 +30,7 @@ protobuf = "3.23.4"
 room = "2.5.2"
 work = "2.8.1"
 retrofit2 = "2.9.0"
-okhttp3 = "4.9.3"
+okhttp3 = "4.12.0"
 
 # plugin
 androidStudioGradlePlugin = "8.1.0"
@@ -139,7 +139,7 @@ square-retrofit2 = { group = "com.squareup.retrofit2", name = "retrofit", versio
 square-retrofit2-converter-gson = { group = "com.squareup.retrofit2", name = "converter-gson", version.ref = "retrofit2" }
 square-retrofit2-converter-scalars = { group = "com.squareup.retrofit2", name = "converter-scalars", version.ref = "retrofit2" }
 square-okhttp3-intercepter = { group = "com.squareup.okhttp3", name = "logging-interceptor", version.ref = "okhttp3" }
-
+square-okhttp3-mockwebserver ={ group = "com.squareup.okhttp3", name = "mockwebserver", version.ref = "okhttp3" }
 
 [bundles]
 

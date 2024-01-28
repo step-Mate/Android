@@ -4,13 +4,9 @@ import jinproject.stepwalk.domain.model.ResponseState
 import jinproject.stepwalk.domain.repository.AuthRepository
 import javax.inject.Inject
 
-interface RequestEmailCodeUseCase {
-    suspend operator fun invoke(email : String) : ResponseState<Boolean>
-}
-
-class RequestEmailCodeUseCaseImpl @Inject constructor(
+class RequestEmailCodeUseCase @Inject constructor(
     private val authRepository: AuthRepository
-) : RequestEmailCodeUseCase {
-    override suspend operator fun invoke(email : String) : ResponseState<Boolean> =
+) {
+    suspend operator fun invoke(email : String) : ResponseState<Boolean> =
         authRepository.requestEmailCode(email)
 }

@@ -40,7 +40,7 @@ internal object RetrofitModule {
 
     @Singleton
     @Provides
-    fun createRestaurantService(retrofit: Retrofit): StepMateApi {
+    fun createStepMateService(retrofit: Retrofit): StepMateApi {
         return retrofit.create(StepMateApi::class.java)
     }
 

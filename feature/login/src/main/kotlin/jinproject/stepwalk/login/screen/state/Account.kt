@@ -13,78 +13,87 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
 
 @Stable
+data class FieldValue(
+    val text: String = "",
+    val valid : SignValid = SignValid.blank
+)
+
+@Stable
 class Account(
-    time : Long,
-    initValue: String = "",
-    initValid : SignValid = SignValid.blank
+    time : Long
 ){
-    private val _value = MutableStateFlow(initValue)
+    private val _value = MutableStateFlow(FieldValue())
     val value get() = _value.asStateFlow()
 
-    private val _valid = MutableStateFlow(initValid)
-    val valid get() = _valid.asStateFlow()
-
-    private val debouncedValueFilter : Flow<String?> = value
+    private val debouncedValueFilter : Flow<FieldValue?> = value
         .debouncedFilter(time)
 
     fun updateValue(value : String){
-        _value.update { value }
+        _value.update { it.copy(text = value) }
     }
 
     fun updateValid(valid: SignValid){
-        _valid.update { valid }
+        _value.update { it.copy(valid = valid) }
     }
 
-    fun now() = value.value
+    fun now() = value.value.text
 
-    fun nowValid() = valid.value
+    fun nowValid() = value.value.valid
 
-    fun isSuccessful() : Boolean = valid.value == SignValid.success
+    fun isSuccessful() : Boolean = nowValid() == SignValid.success
 
     fun checkValid(check : (String) -> Boolean) = debouncedValueFilter
         .onEach {
-            _valid.value = it?.let {
-                when {
-                    it.isBlank() -> SignValid.blank
-                    !check(it) -> SignValid.notValid
-                    else -> SignValid.success
+            it?.let {
+                _value.update {fieldValue ->
+                    fieldValue.copy(valid = when {
+                        it.text.isBlank() -> SignValid.blank
+                        !check(it.text) -> SignValid.notValid
+                        else -> SignValid.success
+                    })
                 }
-            } ?: SignValid.blank
+            }
         }
 
     suspend fun checkEmailCodeValid(check : suspend (String) -> Boolean) = debouncedValueFilter
         .onEach {
-            _valid.value = it?.let {
-                when {
-                    it.isBlank() -> SignValid.blank
-                    !it.isValidEmailCode() -> SignValid.notValid
-                    !check(it) -> SignValid.notValid
-                    else -> SignValid.success
+            it?.let {
+                _value.update {fieldValue ->
+                    fieldValue.copy(valid = when {
+                        it.text.isBlank() -> SignValid.blank
+                        it.text.isValidEmailCode() -> SignValid.notValid
+                        !check(it.text) -> SignValid.notValid
+                        else -> SignValid.success
+                    })
                 }
-            } ?: SignValid.blank
+            }
         }
 
     suspend fun checkIdValid(checkId : suspend (String) -> Boolean) = debouncedValueFilter
         .onEach {
-            _valid.value = it?.let {
-                when {
-                    it.isBlank() -> SignValid.blank
-                    !it.isValidID() -> SignValid.notValid
-                    !checkId(it) -> SignValid.duplicationId
-                    else -> SignValid.success
+            it?.let {
+                _value.update {fieldValue ->
+                    fieldValue.copy(valid = when {
+                        it.text.isBlank() -> SignValid.blank
+                        !it.text.isValidID() -> SignValid.notValid
+                        !checkId(it.text) -> SignValid.notValid
+                        else -> SignValid.success
+                    })
                 }
-            } ?: SignValid.blank
+            }
         }
 
     fun checkRepeatPasswordValid(password : StateFlow<String>) = debouncedValueFilter
         .onEach {
-            _valid.value = it?.let {
-                when {
-                    it.isBlank() -> SignValid.blank
-                    !it.passwordMatches(password.value) -> SignValid.notMatch
-                    else -> SignValid.success
+            it?.let {
+                _value.update {fieldValue ->
+                    fieldValue.copy(valid = when {
+                        it.text.isBlank() -> SignValid.blank
+                        !it.text.passwordMatches(password.value) -> SignValid.notMatch
+                        else -> SignValid.success
+                    })
                 }
-            } ?: SignValid.blank
+            }
         }
 }
 

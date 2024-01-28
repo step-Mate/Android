@@ -5,13 +5,9 @@ import jinproject.stepwalk.domain.repository.AuthRepository
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
-interface SignInUseCase {
-    suspend operator fun invoke(id : String, password : String, isAutoLogin : Boolean) : Flow<ResponseState<Boolean>>
-}
-
-class SignInUseCaseImpl @Inject constructor(
+class SignInUseCase @Inject constructor(
     private val authRepository: AuthRepository
-) : SignInUseCase {
-    override suspend operator fun invoke(id : String, password : String, isAutoLogin : Boolean) : Flow<ResponseState<Boolean>> =
+) {
+    suspend operator fun invoke(id : String, password : String, isAutoLogin : Boolean) : Flow<ResponseState<Boolean>> =
         authRepository.signInAccount(id, password,isAutoLogin)
 }

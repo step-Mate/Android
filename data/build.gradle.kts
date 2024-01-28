@@ -7,17 +7,27 @@ plugins {
 
 android {
     namespace = "jinproject.stepwalk.data"
+    testOptions {
+        unitTests.all {
+            it.useJUnitPlatform()
+        }
+    }
 }
 
 dependencies {
     implementation(project(":domain"))
     implementation(libs.bundles.datastore)
     implementation(libs.bundles.square)
+    testImplementation(libs.square.okhttp3.mockwebserver)
 
     implementation(libs.androidx.room.ktx)
     annotationProcessor(libs.androidx.room.compiler)
     ksp(libs.androidx.room.compiler)
     testImplementation(libs.androidx.room.testing)
+
+    testImplementation(libs.bundles.testing)
+    testImplementation(libs.bundles.kotest)
+    testRuntimeOnly(libs.junit.jupiter.engine)
 }
 
 protobuf {

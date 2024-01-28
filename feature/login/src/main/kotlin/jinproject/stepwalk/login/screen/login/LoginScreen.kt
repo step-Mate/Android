@@ -50,7 +50,7 @@ internal fun LoginScreen(
         if (state.isSuccess)
             popBackStack()
         else
-            if (state.errorMessage.isNotEmpty() || !state.isLoading)
+            if (state.errorMessage.isNotEmpty() && !state.isLoading)
                 showSnackBar(SnackBarMessage(state.errorMessage))
     }
 

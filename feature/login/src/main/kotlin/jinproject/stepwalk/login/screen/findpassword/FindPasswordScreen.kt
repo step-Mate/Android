@@ -45,7 +45,7 @@ internal fun FindPasswordScreen(
         if (state.isSuccess){
             popBackStack()
         }else{
-            if (state.errorMessage.isNotEmpty() || !state.isLoading)
+            if (state.errorMessage.isNotEmpty() && !state.isLoading)
                 showSnackBar(SnackBarMessage(state.errorMessage))
         }
     }
@@ -82,13 +82,6 @@ private fun FindPasswordScreen(
     val emailValue by email.value.collectAsStateWithLifecycle()
     val emailCodeValue by emailCode.value.collectAsStateWithLifecycle()
 
-    val idValid by id.valid.collectAsStateWithLifecycle()
-    val passwordValid by password.valid.collectAsStateWithLifecycle()
-    val repeatPasswordValid by repeatPassword.valid.collectAsStateWithLifecycle()
-    val emailValid by email.valid.collectAsStateWithLifecycle()
-    val emailCodeValid by emailCode.valid.collectAsStateWithLifecycle()
-
-
     LoginLayout(
         text = "회원가입",
         modifier = Modifier.padding(top = 20.dp),
@@ -112,10 +105,10 @@ private fun FindPasswordScreen(
                 )
                 VerticalSpacer(height = 30.dp)
                 PasswordDetail(
-                    password = passwordValue,
-                    repeatPassword = repeatPasswordValue,
-                    passwordValid = passwordValid,
-                    repeatPasswordValid = repeatPasswordValid,
+                    password = passwordValue.text,
+                    repeatPassword = repeatPasswordValue.text,
+                    passwordValid = passwordValue.valid,
+                    repeatPasswordValid = repeatPasswordValue.valid,
                     onNewPassword = {
                         val text = it.trim()
                         if (text.length <= MAX_PASS_LENGTH)
@@ -129,19 +122,19 @@ private fun FindPasswordScreen(
                 )
             }else {
                 IdField(
-                    value = idValue,
+                    value = idValue.text,
                     onNewValue = {
                         val text = it.trim()
                         if (text.length <= MAX_ID_LENGTH)
                             onEvent(FindPasswordEvent.Id(text))
                     },
-                    idValid = idValid
+                    idValid = idValue.valid
                 )
                 EmailVerificationField(
-                    email = emailValue,
-                    emailCode = emailCodeValue,
-                    emailValid = emailValid,
-                    emailCodeValid = emailCodeValid,
+                    email = emailValue.text,
+                    emailCode = emailCodeValue.text,
+                    emailValid = emailValue.valid,
+                    emailCodeValid = emailCodeValue.valid,
                     requestEmailVerification = { onEvent(FindPasswordEvent.RequestEmail) },
                     onEmailValue = {
                         val text = it.trim()

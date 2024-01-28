@@ -5,13 +5,9 @@ import jinproject.stepwalk.domain.repository.AuthRepository
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
-interface FindIdUseCase {
-    suspend operator fun invoke(email : String, code : String) : Flow<ResponseState<String>>
-}
-
-class FindIdUseCaseImpl @Inject constructor(
+class FindIdUseCase @Inject constructor(
     private val authRepository: AuthRepository
-) : FindIdUseCase {
-    override suspend operator fun invoke(email : String, code : String) : Flow<ResponseState<String>> =
+) {
+    suspend operator fun invoke(email : String, code : String) : Flow<ResponseState<String>> =
         authRepository.findAccountId(email, code)
 }

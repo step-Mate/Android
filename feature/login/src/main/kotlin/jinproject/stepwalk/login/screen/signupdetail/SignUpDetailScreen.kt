@@ -48,7 +48,7 @@ internal fun SignUpDetailScreen(
         if (state.isSuccess){
             popBackStacks("home",false,false)
         }else{
-            if (state.errorMessage.isNotEmpty() || !state.isLoading){
+            if (state.errorMessage.isNotEmpty() && !state.isLoading){
                 showSnackBar(SnackBarMessage(state.errorMessage))
             }
         }
@@ -86,13 +86,6 @@ private fun SignUpDetailScreen(
     val emailValue by email.value.collectAsStateWithLifecycle()
     val emailCodeValue by emailCode.value.collectAsStateWithLifecycle()
 
-    val nicknameValid by nickname.valid.collectAsStateWithLifecycle()
-    val ageValid by age.valid.collectAsStateWithLifecycle()
-    val heightValid by height.valid.collectAsStateWithLifecycle()
-    val weightValid by weight.valid.collectAsStateWithLifecycle()
-    val emailValid by email.valid.collectAsStateWithLifecycle()
-    val emailCodeValid by emailCode.valid.collectAsStateWithLifecycle()
-
     LoginLayout(
         text = "회원가입",
         modifier = Modifier.fillMaxSize(),
@@ -107,8 +100,8 @@ private fun SignUpDetailScreen(
             InformationField(
                 informationText = "닉네임",
                 errorMessage = "한글,영어,숫자가능,특수문자불가,2~10글자까지 입력가능",
-                value = nicknameValue,
-                isError = nicknameValid.isError()
+                value = nicknameValue.text,
+                isError = nicknameValue.valid.isError()
             ){
                 val text = it.trim()
                 if (text.length <= MAX_NICKNAME_LENGTH)
@@ -118,8 +111,8 @@ private fun SignUpDetailScreen(
             InformationField(
                 informationText = "나이",
                 errorMessage = "정확한 나이를 입력해주세요.",
-                value = ageValue,
-                isError = ageValid.isError(),
+                value = ageValue.text,
+                isError = ageValue.valid.isError(),
                 keyboardType = KeyboardType.NumberPassword
             ){
                 val text = it.trim()
@@ -130,8 +123,8 @@ private fun SignUpDetailScreen(
             InformationField(
                 informationText = "키",
                 errorMessage = "정확한 키를 입력해주세요.",
-                value = heightValue,
-                isError = heightValid.isError(),
+                value = heightValue.text,
+                isError = heightValue.valid.isError(),
                 keyboardType = KeyboardType.Decimal,
                 suffix = {
                     DescriptionSmallText(text = "cm")
@@ -145,8 +138,8 @@ private fun SignUpDetailScreen(
             InformationField(
                 informationText = "몸무게",
                 errorMessage = "정확한 몸무게를 입력해주세요.",
-                value = weightValue,
-                isError = weightValid.isError(),
+                value = weightValue.text,
+                isError = weightValue.valid.isError(),
                 keyboardType = KeyboardType.Decimal,
                 suffix = {
                     DescriptionSmallText(text = "kg")
@@ -158,10 +151,10 @@ private fun SignUpDetailScreen(
             }
 
             EmailVerificationField(
-                email = emailValue,
-                emailCode = emailCodeValue,
-                emailValid = emailValid,
-                emailCodeValid = emailCodeValid,
+                email = emailValue.text,
+                emailCode = emailCodeValue.text,
+                emailValid = emailValue.valid,
+                emailCodeValid = emailCodeValue.valid,
                 requestEmailVerification = {onEvent(SignUpDetailEvent.RequestEmail)},
                 onEmailValue = {
                     val text = it.trim()

@@ -6,12 +6,9 @@ import jinproject.stepwalk.domain.repository.AuthRepository
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
-interface SignUpUseCase {
-    suspend operator fun invoke(userData: UserData) : Flow<ResponseState<Boolean>>
-}
-
-class SignUpUseCaseImpl @Inject constructor(
+class SignUpUseCase @Inject constructor(
     private val authRepository: AuthRepository
-) : SignUpUseCase{
-    override suspend operator fun invoke(userData: UserData) : Flow<ResponseState<Boolean>> = authRepository.signUpAccount(userData)
+) {
+    suspend operator fun invoke(userData: UserData) : Flow<ResponseState<Boolean>> =
+        authRepository.signUpAccount(userData)
 }

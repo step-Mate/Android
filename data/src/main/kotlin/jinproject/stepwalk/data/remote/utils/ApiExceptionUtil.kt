@@ -1,6 +1,5 @@
 package jinproject.stepwalk.data.remote.utils
 
-import android.util.Log
 import jinproject.stepwalk.domain.model.ResponseState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.awaitClose
@@ -22,7 +21,6 @@ suspend inline fun <T> checkApiException(
     }catch (e: Exception){
         withContext(Dispatchers.Main){
             e.printStackTrace()
-            Log.e("apiCallError", "Call error: ${e.localizedMessage}", e.cause)
             when(e){
                 is HttpException -> { ResponseState.Exception(e.code(),e.message()) }
                 is SocketTimeoutException -> { ResponseState.Exception(900,"서버에 연결할 수 없습니다.")}

@@ -5,8 +5,10 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
@@ -32,7 +34,7 @@ internal fun LoginLayout(
             StepMateBoxDefaultTopBar(
                 modifier = Modifier
                     .background(MaterialTheme.colorScheme.surface)
-                    .height(80.dp),//임시방편
+                    .windowInsetsPadding(WindowInsets.statusBars),
                 icon = R.drawable.ic_arrow_left_small,
                 onClick = popBackStack
             ) {

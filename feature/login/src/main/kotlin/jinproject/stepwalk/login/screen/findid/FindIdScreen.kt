@@ -69,9 +69,6 @@ private fun FindIdScreen(
     val emailValue by email.value.collectAsStateWithLifecycle()
     val emailCodeValue by emailCode.value.collectAsStateWithLifecycle()
 
-    val emailValid by email.valid.collectAsStateWithLifecycle()
-    val emailCodeValid by emailCode.valid.collectAsStateWithLifecycle()
-
     LoginLayout(
         text = "회원가입",
         modifier = Modifier.padding(top = 20.dp),
@@ -100,10 +97,10 @@ private fun FindIdScreen(
                 }
             } else {
                 EmailVerificationField(
-                    email = emailValue,
-                    emailCode = emailCodeValue,
-                    emailValid = emailValid,
-                    emailCodeValid = emailCodeValid,
+                    email = emailValue.text,
+                    emailCode = emailCodeValue.text,
+                    emailValid = emailValue.valid,
+                    emailCodeValid = emailCodeValue.valid,
                     requestEmailVerification = {onEvent(FindIdEvent.RequestEmail)},
                     onEmailValue = {
                         val text = it.trim()

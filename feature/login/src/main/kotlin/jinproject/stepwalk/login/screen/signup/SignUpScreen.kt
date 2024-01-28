@@ -72,10 +72,6 @@ private fun SignUpScreen(
     val passwordValue by password.value.collectAsStateWithLifecycle()
     val repeatPasswordValue by repeatPassword.value.collectAsStateWithLifecycle()
 
-    val idValid by id.valid.collectAsStateWithLifecycle()
-    val passwordValid by password.valid.collectAsStateWithLifecycle()
-    val repeatPasswordValid by repeatPassword.valid.collectAsStateWithLifecycle()
-
     LoginLayout(
         text = "회원가입",
         modifier = Modifier.fillMaxSize(),
@@ -90,15 +86,15 @@ private fun SignUpScreen(
 
             InformationField(
                 informationText = "아이디",
-                errorMessage = when (idValid) {
+                errorMessage = when (idValue.valid) {
                     SignValid.notValid -> "잘못된 아이디 양식이에요. 영어,숫자,_만 입력가능하고 4~12글자까지 입력가능해요."
                     SignValid.duplicationId -> "중복되는 아이디가 존재합니다."
                     SignValid.success -> "사용가능한 아이디 입니다."
                     else -> "아이디를 입력해주세요."
                 },
-                value = idValue,
-                isError = idValid.isError() || idValid == SignValid.success,
-                errorColor = if (idValid.isError()) MaterialTheme.colorScheme.error else StepWalkColor.success.color,
+                value = idValue.text,
+                isError = idValue.valid.isError() || idValue.valid == SignValid.success,
+                errorColor = if (idValue.valid.isError()) MaterialTheme.colorScheme.error else StepWalkColor.success.color,
                 keyboardType = KeyboardType.Email,
                 leadingIcon = { Icon(imageVector = Icons.Default.Person, contentDescription = "Email") },
                 onNewValue = {
@@ -108,10 +104,10 @@ private fun SignUpScreen(
                 }
             )
             PasswordDetail(
-                password = passwordValue,
-                repeatPassword = repeatPasswordValue,
-                passwordValid = passwordValid ,
-                repeatPasswordValid = repeatPasswordValid ,
+                password = passwordValue.text,
+                repeatPassword = repeatPasswordValue.text,
+                passwordValid = passwordValue.valid ,
+                repeatPasswordValid = repeatPasswordValue.valid ,
                 onNewPassword = {
                     val text = it.trim()
                     if (text.length <= MAX_PASS_LENGTH)
