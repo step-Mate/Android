@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.material3.Checkbox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -27,7 +26,6 @@ import jinproject.stepwalk.login.component.FindAndSignUpButtons
 import jinproject.stepwalk.login.utils.MAX_ID_LENGTH
 import jinproject.stepwalk.login.utils.MAX_PASS_LENGTH
 import jinproject.stepwalk.design.R
-import jinproject.stepwalk.design.component.DescriptionSmallText
 import jinproject.stepwalk.design.component.VerticalSpacer
 import jinproject.stepwalk.design.theme.StepWalkTheme
 import jinproject.stepwalk.login.component.EnableButton
@@ -66,7 +64,7 @@ internal fun LoginScreen(
 
 @Composable
 private fun LoginScreen(
-    checkValidAccount : (String,String,Boolean) -> Unit,
+    checkValidAccount : (String,String) -> Unit,
     isLoading : Boolean,
     navigateToSignUp: () -> Unit,
     navigateToFindId : () -> Unit,
@@ -75,7 +73,6 @@ private fun LoginScreen(
 ) {
     var id by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
-    var isAutoLogin by remember { mutableStateOf(false) }
 
     LoginLayout(
         text = "로그인",
@@ -113,15 +110,6 @@ private fun LoginScreen(
             )
         },
         bottomContent = {
-            Row(
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Checkbox(
-                    checked = isAutoLogin,
-                    onCheckedChange = {isAutoLogin = !isAutoLogin}
-                )
-                DescriptionSmallText(text = "자동 로그인")
-            }
             EnableButton(
                 text = "로그인",
                 modifier = Modifier
@@ -130,7 +118,7 @@ private fun LoginScreen(
                 enabled = !isLoading,
                 loading = isLoading
             ) {
-                checkValidAccount(id, password,isAutoLogin)//수정
+                checkValidAccount(id, password)//수정
             }
             FindAndSignUpButtons(
                 findAccountId = navigateToFindId,
@@ -146,7 +134,7 @@ private fun LoginScreen(
 private fun PreviewHomeScreen(
 ) = StepWalkTheme {
     LoginScreen(
-        checkValidAccount = {_,_,_ ->},
+        checkValidAccount = {_,_ ->},
         isLoading = false,
         navigateToSignUp = {},
         navigateToFindId = {},

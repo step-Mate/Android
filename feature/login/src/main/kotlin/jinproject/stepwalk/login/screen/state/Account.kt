@@ -2,12 +2,8 @@ package jinproject.stepwalk.login.screen.state
 
 import androidx.compose.runtime.Stable
 import jinproject.stepwalk.login.utils.debouncedFilter
-import jinproject.stepwalk.login.utils.isValidEmailCode
-import jinproject.stepwalk.login.utils.isValidID
-import jinproject.stepwalk.login.utils.passwordMatches
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
@@ -20,9 +16,11 @@ data class FieldValue(
 
 @Stable
 class Account(
-    time : Long
+    time : Long,
+    initText : String = "",
+    initValid : SignValid = SignValid.blank
 ){
-    private val _value = MutableStateFlow(FieldValue())
+    private val _value = MutableStateFlow(FieldValue(initText,initValid))
     val value get() = _value.asStateFlow()
 
     private val debouncedValueFilter : Flow<FieldValue?> = value
@@ -42,54 +40,32 @@ class Account(
 
     fun isSuccessful() : Boolean = nowValid() == SignValid.success
 
-    fun checkValid(check : (String) -> Boolean) = debouncedValueFilter
+    fun checkValid(
+        checkValid: SignValid = SignValid.notValid,
+        check : (String) -> Boolean) = debouncedValueFilter
+        .onEach {
+            it?.let {
+                _value.update {fieldValue ->
+                    fieldValue.copy(valid = when {
+                        it.text.isBlank() -> SignValid.blank
+                        !check(it.text) -> checkValid
+                        else -> SignValid.success
+                    })
+                }
+            }
+        }
+
+    suspend fun checkValids(
+        check : (String) -> Boolean,
+        suspendCheck : suspend (String) -> Boolean,
+        suspendValid: SignValid) = debouncedValueFilter
         .onEach {
             it?.let {
                 _value.update {fieldValue ->
                     fieldValue.copy(valid = when {
                         it.text.isBlank() -> SignValid.blank
                         !check(it.text) -> SignValid.notValid
-                        else -> SignValid.success
-                    })
-                }
-            }
-        }
-
-    suspend fun checkEmailCodeValid(check : suspend (String) -> Boolean) = debouncedValueFilter
-        .onEach {
-            it?.let {
-                _value.update {fieldValue ->
-                    fieldValue.copy(valid = when {
-                        it.text.isBlank() -> SignValid.blank
-                        it.text.isValidEmailCode() -> SignValid.notValid
-                        !check(it.text) -> SignValid.notValid
-                        else -> SignValid.success
-                    })
-                }
-            }
-        }
-
-    suspend fun checkIdValid(checkId : suspend (String) -> Boolean) = debouncedValueFilter
-        .onEach {
-            it?.let {
-                _value.update {fieldValue ->
-                    fieldValue.copy(valid = when {
-                        it.text.isBlank() -> SignValid.blank
-                        !it.text.isValidID() -> SignValid.notValid
-                        !checkId(it.text) -> SignValid.notValid
-                        else -> SignValid.success
-                    })
-                }
-            }
-        }
-
-    fun checkRepeatPasswordValid(password : StateFlow<String>) = debouncedValueFilter
-        .onEach {
-            it?.let {
-                _value.update {fieldValue ->
-                    fieldValue.copy(valid = when {
-                        it.text.isBlank() -> SignValid.blank
-                        !it.text.passwordMatches(password.value) -> SignValid.notMatch
+                        !suspendCheck(it.text) -> suspendValid
                         else -> SignValid.success
                     })
                 }
@@ -102,3 +78,5 @@ enum class SignValid {
 }
 
 internal fun SignValid.isError() : Boolean = (this != SignValid.success) and (this != SignValid.blank)
+
+internal fun SignValid.isSuccess() : Boolean = this == SignValid.success

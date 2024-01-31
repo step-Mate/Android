@@ -27,6 +27,7 @@ import jinproject.stepwalk.login.component.IdField
 import jinproject.stepwalk.login.component.LoginLayout
 import jinproject.stepwalk.login.component.PasswordDetail
 import jinproject.stepwalk.login.screen.state.Account
+import jinproject.stepwalk.login.screen.state.isSuccess
 import jinproject.stepwalk.login.utils.MAX_EMAIL_CODE_LENGTH
 import jinproject.stepwalk.login.utils.MAX_EMAIL_LENGTH
 import jinproject.stepwalk.login.utils.MAX_ID_LENGTH
@@ -131,10 +132,8 @@ private fun FindPasswordScreen(
                     idValid = idValue.valid
                 )
                 EmailVerificationField(
-                    email = emailValue.text,
-                    emailCode = emailCodeValue.text,
-                    emailValid = emailValue.valid,
-                    emailCodeValid = emailCodeValue.valid,
+                    email = email,
+                    emailCode = emailCode,
                     requestEmailVerification = { onEvent(FindPasswordEvent.RequestEmail) },
                     onEmailValue = {
                         val text = it.trim()
@@ -156,7 +155,10 @@ private fun FindPasswordScreen(
                     .fillMaxWidth()
                     .padding(vertical = 4.dp)
                     .height(50.dp),
-                enabled = if(nextStep) password.isSuccessful() && repeatPassword.isSuccessful() else email.isSuccessful() && emailCode.isSuccessful() && !isLoading,
+                enabled = if(nextStep)
+                    passwordValue.valid.isSuccess() && repeatPasswordValue.valid.isSuccess()
+                else
+                    emailValue.valid.isSuccess() && emailCodeValue.valid.isSuccess() && !isLoading,
                 loading = isLoading
             ) {
                 if (nextStep){

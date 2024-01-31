@@ -3,7 +3,7 @@ package jinproject.stepwalk.data.local.datasource.impl
 import androidx.datastore.core.DataStore
 import jinproject.stepwalk.data.CurrentAuthPreferences
 import jinproject.stepwalk.data.local.datasource.CurrentAuthDataSource
-import jinproject.stepwalk.domain.model.CurrentAuth
+import jinproject.stepwalk.domain.model.BodyData
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
@@ -23,20 +23,18 @@ class CurrentAuthDataSourceImpl @Inject constructor(
             }
         }
 
-    override fun getCurrentAuth(): Flow<CurrentAuth> = data.map { prefs ->
-        CurrentAuth(
-            id = prefs.id,
-            token = prefs.accessToken
-        )
-    }
+    override fun getNickname(): Flow<String> =
+        data.map { it.nickname }
 
-    override suspend fun setId(id: String) {
-        prefs.updateData { pref ->
-            pref.toBuilder()
-                .setId(id)
-                .build()
-        }
-    }
+    override fun getAccessToken(): Flow<String> =
+        data.map { it.accessToken }
+
+    override fun getBodyData(): Flow<BodyData> =
+        data.map { BodyData(it.age,it.height,it.weight) }
+
+    override fun getRefreshToken(): Flow<String> =
+        data.map { it.refreshToken }
+
 
     override suspend fun setAccessToken(token: String) {
         prefs.updateData { pref ->
@@ -46,11 +44,46 @@ class CurrentAuthDataSourceImpl @Inject constructor(
         }
     }
 
-    override suspend fun setCurrentAuth(auth: CurrentAuth) {
+    override suspend fun setRefreshToken(token: String) {
         prefs.updateData { pref ->
             pref.toBuilder()
-                .setId(auth.id)
-                .setAccessToken(auth.token)
+                .setRefreshToken(token)
+                .build()
+        }
+    }
+
+    override suspend fun setToken(accessToken: String, refreshToken: String) {
+        prefs.updateData { pref ->
+            pref.toBuilder()
+                .setAccessToken(accessToken)
+                .setRefreshToken(refreshToken)
+                .build()
+        }
+    }
+
+    override suspend fun setBodyData(body: BodyData) {
+        prefs.updateData { pref ->
+            pref.toBuilder()
+                .setAge(body.age)
+                .setHeight(body.height)
+                .setWeight(body.weight)
+                .build()
+        }
+    }
+
+    override suspend fun setNickname(nickname: String) {
+        prefs.updateData { pref ->
+            pref.toBuilder()
+                .setNickname(nickname)
+                .build()
+        }
+    }
+
+    override suspend fun setAuthData(nickname: String,refreshToken: String) {
+        prefs.updateData { pref ->
+            pref.toBuilder()
+                .setNickname(nickname)
+                .setRefreshToken(refreshToken)
                 .build()
         }
     }
@@ -58,8 +91,9 @@ class CurrentAuthDataSourceImpl @Inject constructor(
     override suspend fun clearAuth() {
         prefs.updateData { pref ->
             pref.toBuilder()
-                .clearId()
                 .clearAccessToken()
+                .clearRefreshToken()
+                .clearNickname()
                 .build()
         }
     }

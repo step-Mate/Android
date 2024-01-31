@@ -28,6 +28,7 @@ import jinproject.stepwalk.login.component.EnableButton
 import jinproject.stepwalk.login.component.IdResultDetail
 import jinproject.stepwalk.login.component.LoginLayout
 import jinproject.stepwalk.login.screen.state.Account
+import jinproject.stepwalk.login.screen.state.isSuccess
 import jinproject.stepwalk.login.utils.MAX_EMAIL_CODE_LENGTH
 import jinproject.stepwalk.login.utils.MAX_EMAIL_LENGTH
 
@@ -97,10 +98,8 @@ private fun FindIdScreen(
                 }
             } else {
                 EmailVerificationField(
-                    email = emailValue.text,
-                    emailCode = emailCodeValue.text,
-                    emailValid = emailValue.valid,
-                    emailCodeValid = emailCodeValue.valid,
+                    email = email,
+                    emailCode = emailCode,
                     requestEmailVerification = {onEvent(FindIdEvent.RequestEmail)},
                     onEmailValue = {
                         val text = it.trim()
@@ -122,7 +121,7 @@ private fun FindIdScreen(
                     .fillMaxWidth()
                     .padding(vertical = 4.dp)
                     .height(50.dp),
-                enabled = email.isSuccessful() && emailCode.isSuccessful() && !isLoading,
+                enabled = emailValue.valid.isSuccess() && emailCodeValue.valid.isSuccess() && !isLoading,
                 loading = isLoading
             ) {
                 onEvent(FindIdEvent.FindId)

@@ -5,7 +5,9 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import jinproject.stepwalk.data.BuildConfig
 import jinproject.stepwalk.data.remote.api.StepMateApi
+import jinproject.stepwalk.data.remote.utils.ResultCallAdapterFactory
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
@@ -31,9 +33,10 @@ internal object RetrofitModule {
     @Provides
     fun provideRetrofit(okHttpClient: OkHttpClient): Retrofit {
         return Retrofit.Builder()
+            .addCallAdapterFactory(ResultCallAdapterFactory())
             .addConverterFactory(ScalarsConverterFactory.create())
             .addConverterFactory(GsonConverterFactory.create(GsonBuilder().setLenient().create()))
-            .baseUrl("http://google.com")
+            .baseUrl(BuildConfig.SERVER_IP)
             .client(okHttpClient)
             .build()
     }
@@ -43,5 +46,4 @@ internal object RetrofitModule {
     fun createStepMateService(retrofit: Retrofit): StepMateApi {
         return retrofit.create(StepMateApi::class.java)
     }
-
 }

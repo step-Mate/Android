@@ -19,8 +19,8 @@ import kotlinx.coroutines.flow.update
 @OptIn(FlowPreview::class)
 fun StateFlow<FieldValue>.debouncedFilter(millis : Long) =
     this.debounce(millis)
-    .filter {it.text.isNotEmpty() }
-    .distinctUntilChanged()
+        .filter {it.text.isNotEmpty() }
+        .distinctUntilChanged { old, new -> old.text == new.text}
 
 fun Flow<ResponseState<Boolean>>.onEachState(state : MutableStateFlow<AuthState>) : Flow<ResponseState<Boolean>>
     = this.onEach {

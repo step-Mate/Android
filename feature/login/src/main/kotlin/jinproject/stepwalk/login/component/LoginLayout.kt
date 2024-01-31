@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.rememberScrollState
@@ -51,7 +52,7 @@ internal fun LoginLayout(
             content()
         }
         Column(
-            modifier = modifier,
+            modifier = modifier.padding(bottom = 10.dp),
             verticalArrangement = Arrangement.Bottom
         ){
             bottomContent()

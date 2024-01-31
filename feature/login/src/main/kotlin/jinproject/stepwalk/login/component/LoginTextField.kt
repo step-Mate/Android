@@ -22,6 +22,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -35,6 +36,7 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import jinproject.stepwalk.design.component.DescriptionSmallText
 import jinproject.stepwalk.design.theme.StepWalkColor
 import jinproject.stepwalk.design.theme.StepWalkTheme
@@ -83,6 +85,7 @@ internal fun InformationField(
         colors = TextFieldDefaults.colors(
             focusedContainerColor = MaterialTheme.colorScheme.background,
             unfocusedContainerColor = MaterialTheme.colorScheme.background,
+            errorContainerColor = MaterialTheme.colorScheme.background,
             errorIndicatorColor = errorColor,
             errorLabelColor = errorColor,
             errorSupportingTextColor = errorColor,
@@ -136,17 +139,17 @@ internal fun PasswordField(informationText: String, value: String, onNewValue: (
     )
 }
 
-
 @Composable
-internal fun ColumnScope.EmailVerificationField(
-    email: String,
-    emailCode : String,
-    emailValid : SignValid,
-    emailCodeValid : SignValid,
+internal fun ColumnScope.EmailVerificationField(//account로 수정
+    email: Account,
+    emailCode : Account,
     requestEmailVerification : () -> Unit,
     onEmailValue: (String) -> Unit,
     onVerificationCodeValue : (String) -> Unit
 ){
+    val emailValue by email.value.collectAsStateWithLifecycle()
+    val emailCodeValue by emailCode.value.collectAsStateWithLifecycle()
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -157,19 +160,19 @@ internal fun ColumnScope.EmailVerificationField(
         InformationField(
             informationText = "이메일 입력",
             modifier = Modifier.weight(0.7f),
-            value = email,
+            value = emailValue.text,
             onNewValue = onEmailValue,
-            enabled = emailCodeValid != SignValid.success,
-            isError = emailCodeValid == SignValid.success || emailValid == SignValid.notValid || emailValid == SignValid.verifying,
+            enabled = emailCodeValue.valid != SignValid.success,
+                isError = emailCodeValue.valid == SignValid.success || emailValue.valid == SignValid.notValid || emailValue.valid == SignValid.verifying,
             errorMessage = when {
-                emailCodeValid == SignValid.success -> "이메일이 인증되었습니다."
-                emailValid == SignValid.notValid -> "잘못된 이메일 양식입니다."
-                emailValid == SignValid.verifying -> "메일함을 확인후 코드를 입력해주세요."
+                emailCodeValue.valid == SignValid.success -> "이메일이 인증되었습니다."
+                emailValue.valid == SignValid.notValid -> "잘못된 이메일 양식입니다."
+                emailValue.valid == SignValid.verifying -> "메일함을 확인후 코드를 입력해주세요."
                 else -> ""
             },
             errorColor = when {
-                emailCodeValid == SignValid.success -> StepWalkColor.success.color
-                emailValid == SignValid.notValid -> MaterialTheme.colorScheme.error
+                emailCodeValue.valid == SignValid.success -> StepWalkColor.green_600.color
+                emailValue.valid == SignValid.notValid -> MaterialTheme.colorScheme.error
                 else -> StepWalkColor.blue_400.color
             }
         )
@@ -179,21 +182,21 @@ internal fun ColumnScope.EmailVerificationField(
                 .weight(0.3f)
                 .fillMaxHeight(0.8f)
                 .padding(start = 10.dp, bottom = 5.dp),
-            enabled = emailValid == SignValid.success
+            enabled = emailValue.valid == SignValid.success
         ) {
             requestEmailVerification()//서버에서 이메일 코드처리
         }
     }
     AnimatedVisibility(
-        visible = if (emailCodeValid == SignValid.success) false else emailValid == SignValid.verifying || emailCodeValid == SignValid.notValid,
+        visible = if (emailCodeValue.valid == SignValid.success) false else emailValue.valid == SignValid.verifying || emailCodeValue.valid == SignValid.notValid,
         enter = slideInVertically { -it },
         exit = slideOutVertically { -it }
     ) {
         InformationField(
             informationText = "인증코드 입력",
             errorMessage = "잘못된 인증코드 입니다.",
-            value = emailCode,
-            isError = emailCodeValid == SignValid.notValid,
+            value = emailCodeValue.text,
+            isError = emailCodeValue.valid == SignValid.notValid,
             keyboardType = KeyboardType.NumberPassword,
             onNewValue = onVerificationCodeValue
         )
@@ -251,10 +254,8 @@ private fun PreviewEmailValidField(
 ) = StepWalkTheme {
     Column {
         EmailVerificationField(
-            email = state.first().now(),
-            emailCode = state.last().now(),
-            emailValid = state.first().nowValid(),
-            emailCodeValid = state.last().nowValid(),
+            email = state.first(),
+            emailCode = state.last(),
             requestEmailVerification = { },
             onEmailValue = {},
             onVerificationCodeValue = {}

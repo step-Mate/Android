@@ -30,6 +30,7 @@ import jinproject.stepwalk.login.component.PasswordDetail
 import jinproject.stepwalk.login.screen.state.Account
 import jinproject.stepwalk.login.screen.state.SignValid
 import jinproject.stepwalk.login.screen.state.isError
+import jinproject.stepwalk.login.screen.state.isSuccess
 import jinproject.stepwalk.login.utils.MAX_ID_LENGTH
 import jinproject.stepwalk.login.utils.MAX_PASS_LENGTH
 import jinproject.stepwalk.design.R.string as AppText
@@ -44,11 +45,14 @@ internal fun SignUpScreen(
     val state by signUpViewModel.state.collectAsStateWithLifecycle()
 
     LaunchedEffect(key1 = state){
-        if (state.isSuccess)
-            navigateToSignUpDetail(signUpViewModel.id.now(),signUpViewModel.password.now())
-        else
+        if (state.isSuccess) {
+            navigateToSignUpDetail(signUpViewModel.id.now(), signUpViewModel.password.now())
+            signUpViewModel.onEvent(SignUpEvent.BackStack)
+        }
+        else {
             if (state.errorMessage.isNotEmpty())
                 showSnackBar(SnackBarMessage(state.errorMessage))
+        }
     }
 
     SignUpScreen(
@@ -94,7 +98,7 @@ private fun SignUpScreen(
                 },
                 value = idValue.text,
                 isError = idValue.valid.isError() || idValue.valid == SignValid.success,
-                errorColor = if (idValue.valid.isError()) MaterialTheme.colorScheme.error else StepWalkColor.success.color,
+                errorColor = if (idValue.valid.isError()) MaterialTheme.colorScheme.error else StepWalkColor.green_600.color,
                 keyboardType = KeyboardType.Email,
                 leadingIcon = { Icon(imageVector = Icons.Default.Person, contentDescription = "Email") },
                 onNewValue = {
@@ -126,7 +130,7 @@ private fun SignUpScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(50.dp),
-                enabled = id.isSuccessful() && password.isSuccessful() && repeatPassword.isSuccessful()
+                enabled = idValue.valid.isSuccess() && passwordValue.valid.isSuccess() && repeatPasswordValue.valid.isSuccess()
             ) {
                 onEvent(SignUpEvent.NextStep)
             }

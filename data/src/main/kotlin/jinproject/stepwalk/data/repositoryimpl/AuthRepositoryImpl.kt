@@ -1,116 +1,90 @@
 package jinproject.stepwalk.data.repositoryimpl
 
 import jinproject.stepwalk.data.local.datasource.CurrentAuthDataSource
-import jinproject.stepwalk.data.local.datasource.UserDataSource
 import jinproject.stepwalk.data.remote.api.StepMateApi
 import jinproject.stepwalk.data.remote.dto.request.AccountRequest
-import jinproject.stepwalk.data.remote.dto.request.DuplicationRequest
+import jinproject.stepwalk.data.remote.dto.request.DuplicationIdRequest
+import jinproject.stepwalk.data.remote.dto.request.DuplicationNicknameRequest
 import jinproject.stepwalk.data.remote.mapper.toSignUpRequest
-import jinproject.stepwalk.data.remote.utils.checkApiException
 import jinproject.stepwalk.data.remote.utils.exchangeResultFlow
-import jinproject.stepwalk.domain.model.CurrentAuth
+import jinproject.stepwalk.data.remote.utils.getResult
 import jinproject.stepwalk.domain.model.ResponseState
 import jinproject.stepwalk.domain.model.UserData
-import jinproject.stepwalk.domain.model.transResponseState
+import jinproject.stepwalk.domain.model.onSuccess
 import jinproject.stepwalk.domain.repository.AuthRepository
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 class AuthRepositoryImpl @Inject constructor(
     private val stepMateApi: StepMateApi,
-    private val userDataSource: UserDataSource,
     private val currentAuthDataSource: CurrentAuthDataSource
 ) : AuthRepository {
     override suspend fun checkDuplicationId(id: String): ResponseState<Boolean> =
-        checkApiException {
-            val response = stepMateApi.checkDuplicationId(DuplicationRequest(id))
-            transResponseState(
-                code = response.code,
-                message = response.message,
-                result = true
-            )
+        withContext(Dispatchers.IO) {
+            return@withContext stepMateApi.checkDuplicationId(DuplicationIdRequest(id)).getResult()
+        }
+
+    override suspend fun checkDuplicationNickname(nickname: String): ResponseState<Boolean> =
+        withContext(Dispatchers.IO) {
+            return@withContext stepMateApi.checkDuplicationNickname(DuplicationNicknameRequest(nickname)).getResult()
         }
 
     override suspend fun signUpAccount(userData: UserData): Flow<ResponseState<Boolean>> =
         exchangeResultFlow {
-            val response = stepMateApi.signUpAccount(userData.toSignUpRequest())
-            if (response.code == 200){
-                userDataSource.setUserData(userData,response.result.token)//refresh token + 유저정보 저장
+            val body = async { currentAuthDataSource.getBodyData().first()}
+            val response = async {
+                stepMateApi.signUpAccount(
+                    userData.copy(
+                        age = body.await().age,
+                        height = body.await().height,
+                        weight = body.await().weight
+                    ).toSignUpRequest()
+                )
             }
-            transResponseState(
-                code = response.code,
-                message = response.message,
-                result = true
-            )
+            response.await().onSuccess {
+                currentAuthDataSource.setAuthData(userData.nickname,it?.result!!.token)
+            }
+            return@exchangeResultFlow response.await().getResult { ResponseState.Result(true) }
         }
 
-    override suspend fun signInAccount(id: String, password: String, isAutoLogin : Boolean): Flow<ResponseState<Boolean>> =
+    override suspend fun signInAccount(id: String, password: String): Flow<ResponseState<Boolean>> =
         exchangeResultFlow {
-            val response = stepMateApi.signInAccount(AccountRequest(id,password))
-            if (response.code == 200){
-                if (isAutoLogin){
-                    currentAuthDataSource.setCurrentAuth(CurrentAuth(id,response.result.token))
-                }else{
-                    currentAuthDataSource.setAccessToken(response.result.token)
-                }
+            val response = async { stepMateApi.signInAccount(AccountRequest(id,password))}
+            response.await().onSuccess {
+                currentAuthDataSource.setToken(accessToken = it?.result!!.token, refreshToken = "")//추후 api수정시 수정
             }
-            transResponseState(
-                code = response.code,
-                message = response.message,
-                result = true
-            )
+            return@exchangeResultFlow response.await().getResult { ResponseState.Result(true) }
         }
 
     override suspend fun resetPasswordAccount(id: String, password: String): ResponseState<Boolean> =
-        checkApiException {
-            val response = stepMateApi.resetPasswordAccount(AccountRequest(id, password))
-            transResponseState(
-                code = response.code,
-                message = response.message,
-                result = true
-            )
+        withContext(Dispatchers.IO) {
+            return@withContext stepMateApi.resetPasswordAccount(AccountRequest(id, password)).getResult()
         }
 
     override suspend fun findAccountId(email: String, code: String): Flow<ResponseState<String>> =
         exchangeResultFlow {
-            val response = stepMateApi.findAccountId(email, code)
-            transResponseState(
-                code = response.code,
-                message = response.message,
-                result = response.result.id
-            )
+            return@exchangeResultFlow stepMateApi.findAccountId(email, code).getResult{
+                ResponseState.Result(it?.id)
+            }
         }
 
     override suspend fun verificationEmailCode(email: String, code: String): ResponseState<Boolean> =
-        checkApiException {
-            val response = stepMateApi.verificationEmailCode(email, code)
-            transResponseState(
-                code = response.code,
-                message = response.message,
-                result = true
-            )
+        withContext(Dispatchers.IO) {
+            return@withContext stepMateApi.verificationEmailCode(email, code).getResult()
         }
 
     override suspend fun requestEmailCode(email: String): ResponseState<Boolean> =
-        checkApiException {
-            val response = stepMateApi.requestEmailCode(email)
-            transResponseState(
-                code = response.code,
-                message = response.message,
-                result = true
-            )
+        withContext(Dispatchers.IO) {
+            return@withContext stepMateApi.requestEmailCode(email).getResult()
         }
 
     override suspend fun verificationUserEmail(id: String, email: String, code: String) : Flow<ResponseState<Boolean>> =
         exchangeResultFlow {
-            val response = stepMateApi.verificationUserEmail(id, email, code)
-            transResponseState(
-                code = response.code,
-                message = response.message,
-                result = true
-            )
+            return@exchangeResultFlow stepMateApi.verificationUserEmail(id, email, code).getResult()
         }
 
     override suspend fun logoutAccount() {

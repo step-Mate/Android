@@ -30,7 +30,7 @@ fun NavGraphBuilder.authNavGraph(
     navigateToFindId : () -> Unit,
     navigateToFindPassword : () -> Unit,
     popBackStack: () -> Unit,
-    popBackStacks: (String,Boolean,Boolean) -> Unit,
+    backStackToLogin: () -> Unit,
     showSnackBar: (SnackBarMessage) -> Unit
 ){
     navigation(
@@ -80,7 +80,7 @@ fun NavGraphBuilder.authNavGraph(
         ){
             SignUpDetailScreen(
                 popBackStack = popBackStack,
-                popBackStacks = popBackStacks,
+                backStackToLogin = backStackToLogin,
                 showSnackBar = showSnackBar
             )
         }
@@ -113,9 +113,14 @@ fun NavController.navigateToLogin(navOptions: NavOptions?) {
     this.navigate(loginRoute, navOptions = navOptions)
 }
 
+fun NavController.backStackToLogin() {
+    this.popBackStack(loginRoute,inclusive = false)
+}
+
 fun NavController.navigateToSignUp() {
     this.navigate(signUpRoute){
         launchSingleTop = true
+        restoreState = true
     }
 }
 

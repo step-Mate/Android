@@ -10,10 +10,12 @@ import jinproject.stepwalk.domain.usecase.auth.ResetPasswordUseCase
 import jinproject.stepwalk.domain.usecase.auth.VerificationUserEmailUseCase
 import jinproject.stepwalk.login.screen.EmailViewModel
 import jinproject.stepwalk.login.screen.state.Account
+import jinproject.stepwalk.login.screen.state.SignValid
 import jinproject.stepwalk.login.utils.isValidEmail
 import jinproject.stepwalk.login.utils.isValidEmailCode
 import jinproject.stepwalk.login.utils.isValidID
 import jinproject.stepwalk.login.utils.isValidPassword
+import jinproject.stepwalk.login.utils.passwordMatches
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -50,7 +52,10 @@ internal class FindPasswordViewModel @Inject constructor(
     init {
         id.checkValid { it.isValidID() }.launchIn(viewModelScope)
         password.checkValid { it.isValidPassword() }.launchIn(viewModelScope)
-        repeatPassword.checkRepeatPasswordValid(password.value).launchIn(viewModelScope)
+        repeatPassword.checkValid(
+            checkValid = SignValid.notMatch,
+            check = {it.passwordMatches(password.now())}
+            ).launchIn(viewModelScope)
         email.checkValid { it.isValidEmail() }.launchIn(viewModelScope)
         emailCode.checkValid { it.isValidEmailCode() }.launchIn(viewModelScope)
     }
@@ -60,7 +65,7 @@ internal class FindPasswordViewModel @Inject constructor(
             FindPasswordEvent.ResetPassword -> {
                 viewModelScope.launch(Dispatchers.IO) {
                     resetPasswordUseCase(id.now(),password.now())
-                        .onSuccess {findId ->
+                        .onSuccess {
                             _state.update {
                                 it.copy(isSuccess = true)
                             }

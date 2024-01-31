@@ -48,7 +48,7 @@ internal class FindIdViewModel @Inject constructor(
                         .onEach {
                             it.onSuccess {findId ->
                                 _state.update {state -> state.copy(isSuccess = true, isLoading = false) }
-                                _id.value = findId
+                                _id.value = findId ?: ""
                             }.onException { code, message ->
                                 _state.update { state -> state.copy(errorMessage = message, isLoading = false) }
                             }.onLoading {
