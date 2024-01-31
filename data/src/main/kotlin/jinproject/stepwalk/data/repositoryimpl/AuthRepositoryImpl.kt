@@ -1,5 +1,6 @@
 package jinproject.stepwalk.data.repositoryimpl
 
+import android.util.Log
 import jinproject.stepwalk.data.local.datasource.CurrentAuthDataSource
 import jinproject.stepwalk.data.remote.api.StepMateApi
 import jinproject.stepwalk.data.remote.dto.request.AccountRequest
@@ -46,7 +47,7 @@ class AuthRepositoryImpl @Inject constructor(
                 )
             }
             response.await().onSuccess {
-                currentAuthDataSource.setAuthData(userData.nickname,it?.result!!.token)
+                currentAuthDataSource.setAuthData(userData.nickname,it?.result!!.accessToken,it.result.refreshToken)
             }
             return@exchangeResultFlow response.await().getResult { ResponseState.Result(true) }
         }
@@ -55,7 +56,9 @@ class AuthRepositoryImpl @Inject constructor(
         exchangeResultFlow {
             val response = async { stepMateApi.signInAccount(AccountRequest(id,password))}
             response.await().onSuccess {
-                currentAuthDataSource.setToken(accessToken = it?.result!!.token, refreshToken = "")//추후 api수정시 수정
+                currentAuthDataSource.setToken(accessToken = it?.result!!.accessToken, refreshToken = it.result.refreshToken)
+                val token = currentAuthDataSource.getAccessToken()
+                Log.d("token",token.first().toString())
             }
             return@exchangeResultFlow response.await().getResult { ResponseState.Result(true) }
         }

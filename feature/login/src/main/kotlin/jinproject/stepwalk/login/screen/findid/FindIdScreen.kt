@@ -67,7 +67,6 @@ private fun FindIdScreen(
     onEvent: (FindIdEvent) -> Unit,
     popBackStack: () -> Unit
 ){
-    val emailValue by email.value.collectAsStateWithLifecycle()
     val emailCodeValue by emailCode.value.collectAsStateWithLifecycle()
 
     LoginLayout(
@@ -115,16 +114,18 @@ private fun FindIdScreen(
             }
         },
         bottomContent = {
-            EnableButton(
-                text = "아이디 찾기",
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 4.dp)
-                    .height(50.dp),
-                enabled = emailValue.valid.isSuccess() && emailCodeValue.valid.isSuccess() && !isLoading,
-                loading = isLoading
-            ) {
-                onEvent(FindIdEvent.FindId)
+            if (!nextStep){
+                EnableButton(
+                    text = "아이디 찾기",
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 4.dp)
+                        .height(50.dp),
+                    enabled = emailCodeValue.valid.isSuccess() && !isLoading,
+                    loading = isLoading
+                ) {
+                    onEvent(FindIdEvent.FindId)
+                }
             }
         },
         popBackStack = popBackStack

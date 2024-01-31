@@ -1,5 +1,6 @@
 package jinproject.stepwalk.login.screen.signupdetail
 
+import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import jinproject.stepwalk.login.utils.isValidNickname
@@ -50,6 +51,7 @@ internal class SignUpDetailViewModel @Inject constructor(
     init {
         id = savedStateHandle.get<String>("id") ?: ""
         password = savedStateHandle.get<String>("password") ?: ""
+        Log.d("id",id)
         nickname.checkValid { it.isValidNickname() }.launchIn(viewModelScope)//제거
         email.checkValid { it.isValidEmail() }.launchIn(viewModelScope)
         viewModelScope.launch(Dispatchers.IO) {
@@ -69,7 +71,7 @@ internal class SignUpDetailViewModel @Inject constructor(
     fun onEvent(event : SignUpDetailEvent){
         when(event){
             SignUpDetailEvent.SignUp -> {
-                if(nickname.isSuccessful() && email.isSuccessful() && emailCode.isSuccessful()){
+                if(nickname.isSuccessful() && emailCode.isSuccessful()){
                     viewModelScope.launch(Dispatchers.IO) {
                         signUpUseCase(
                             UserData(

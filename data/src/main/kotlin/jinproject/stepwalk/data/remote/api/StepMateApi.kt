@@ -4,8 +4,8 @@ import jinproject.stepwalk.data.remote.dto.request.AccountRequest
 import jinproject.stepwalk.data.remote.dto.request.DuplicationIdRequest
 import jinproject.stepwalk.data.remote.dto.request.DuplicationNicknameRequest
 import jinproject.stepwalk.data.remote.dto.request.SignUpRequest
+import jinproject.stepwalk.data.remote.dto.response.AccessToken
 import jinproject.stepwalk.data.remote.dto.response.ApiResponse
-import jinproject.stepwalk.data.remote.dto.response.JwtToken
 import jinproject.stepwalk.data.remote.dto.response.Token
 import jinproject.stepwalk.data.remote.dto.response.UserId
 import jinproject.stepwalk.domain.model.ResponseState
@@ -35,7 +35,7 @@ interface StepMateApi {
     @POST("sign-in")
     suspend fun signInAccount(
         @Body accountRequest: AccountRequest
-    ) : ResponseState<ApiResponse<JwtToken>>
+    ) : ResponseState<ApiResponse<Token>>
 
     @PATCH("users/reset-password")
     suspend fun resetPasswordAccount(
@@ -61,9 +61,14 @@ interface StepMateApi {
 
     @GET("users/findPwd")
     suspend fun verificationUserEmail(
-        @Query("id") id : String,
+        @Query("userId") id : String,
         @Query("email") email : String,
         @Query("authCode") code : String
     ) : ResponseState<ApiResponse<Nothing>>
+
+    @GET("reissue")
+    suspend fun reIssueAccessToken(
+        @Query("Authorization") refreshToken : String
+    ) : ResponseState<ApiResponse<AccessToken>>
 
 }

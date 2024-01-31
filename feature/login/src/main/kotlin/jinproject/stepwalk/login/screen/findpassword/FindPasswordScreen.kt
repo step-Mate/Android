@@ -51,7 +51,6 @@ internal fun FindPasswordScreen(
         }
     }
 
-
     FindPasswordScreen(
         id = findPasswordViewModel.id,
         password = findPasswordViewModel.password,
@@ -80,7 +79,6 @@ private fun FindPasswordScreen(
     val idValue by id.value.collectAsStateWithLifecycle()
     val passwordValue by password.value.collectAsStateWithLifecycle()
     val repeatPasswordValue by repeatPassword.value.collectAsStateWithLifecycle()
-    val emailValue by email.value.collectAsStateWithLifecycle()
     val emailCodeValue by emailCode.value.collectAsStateWithLifecycle()
 
     LoginLayout(
@@ -134,6 +132,7 @@ private fun FindPasswordScreen(
                 EmailVerificationField(
                     email = email,
                     emailCode = emailCode,
+                    codeVisibility = true,
                     requestEmailVerification = { onEvent(FindPasswordEvent.RequestEmail) },
                     onEmailValue = {
                         val text = it.trim()
@@ -149,24 +148,28 @@ private fun FindPasswordScreen(
             }
         },
         bottomContent = {
-            EnableButton(
-                text = "비밀번호 재설정",
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 4.dp)
-                    .height(50.dp),
-                enabled = if(nextStep)
-                    passwordValue.valid.isSuccess() && repeatPasswordValue.valid.isSuccess()
-                else
-                    emailValue.valid.isSuccess() && emailCodeValue.valid.isSuccess() && !isLoading,
-                loading = isLoading
-            ) {
-                if (nextStep){
-                    onEvent(FindPasswordEvent.ResetPassword)
-                }else{
-                    onEvent(FindPasswordEvent.CheckVerification)
-                }
-
+            if (nextStep){
+                EnableButton(
+                    text = "비밀번호 변경",
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 4.dp)
+                        .height(50.dp),
+                    enabled = passwordValue.valid.isSuccess() && repeatPasswordValue.valid.isSuccess(),
+                    loading = isLoading,
+                    onClick = {onEvent(FindPasswordEvent.ResetPassword)},
+                )
+            }else{
+                EnableButton(
+                    text = "비밀번호 재설정",
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 4.dp)
+                        .height(50.dp),
+                    enabled = emailCodeValue.valid.isSuccess() && !isLoading,
+                    loading = isLoading,
+                    onClick = {onEvent(FindPasswordEvent.CheckVerification)},
+                )
             }
         },
         popBackStack = popBackStack

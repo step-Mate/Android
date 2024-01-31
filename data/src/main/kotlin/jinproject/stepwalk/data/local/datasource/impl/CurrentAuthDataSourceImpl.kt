@@ -79,10 +79,11 @@ class CurrentAuthDataSourceImpl @Inject constructor(
         }
     }
 
-    override suspend fun setAuthData(nickname: String,refreshToken: String) {
+    override suspend fun setAuthData(nickname: String, accessToken: String, refreshToken: String) {
         prefs.updateData { pref ->
             pref.toBuilder()
                 .setNickname(nickname)
+                .setAccessToken(accessToken)
                 .setRefreshToken(refreshToken)
                 .build()
         }

@@ -143,6 +143,7 @@ internal fun PasswordField(informationText: String, value: String, onNewValue: (
 internal fun ColumnScope.EmailVerificationField(//account로 수정
     email: Account,
     emailCode : Account,
+    codeVisibility : Boolean = false,
     requestEmailVerification : () -> Unit,
     onEmailValue: (String) -> Unit,
     onVerificationCodeValue : (String) -> Unit
@@ -163,7 +164,7 @@ internal fun ColumnScope.EmailVerificationField(//account로 수정
             value = emailValue.text,
             onNewValue = onEmailValue,
             enabled = emailCodeValue.valid != SignValid.success,
-                isError = emailCodeValue.valid == SignValid.success || emailValue.valid == SignValid.notValid || emailValue.valid == SignValid.verifying,
+            isError = emailCodeValue.valid == SignValid.success || emailValue.valid == SignValid.notValid || emailValue.valid == SignValid.verifying,
             errorMessage = when {
                 emailCodeValue.valid == SignValid.success -> "이메일이 인증되었습니다."
                 emailValue.valid == SignValid.notValid -> "잘못된 이메일 양식입니다."
@@ -188,7 +189,7 @@ internal fun ColumnScope.EmailVerificationField(//account로 수정
         }
     }
     AnimatedVisibility(
-        visible = if (emailCodeValue.valid == SignValid.success) false else emailValue.valid == SignValid.verifying || emailCodeValue.valid == SignValid.notValid,
+        visible = if (emailCodeValue.valid == SignValid.success && !codeVisibility) false else if(codeVisibility) true else emailValue.valid == SignValid.verifying || emailCodeValue.valid == SignValid.notValid,
         enter = slideInVertically { -it },
         exit = slideOutVertically { -it }
     ) {

@@ -13,6 +13,6 @@ interface CurrentAuthDataSource {
     suspend fun setToken(accessToken: String, refreshToken : String)
     suspend fun setBodyData(body : BodyData)
     suspend fun setNickname(nickname: String)
-    suspend fun setAuthData(nickname: String, refreshToken : String)
+    suspend fun setAuthData(nickname: String,accessToken: String, refreshToken : String)
     suspend fun clearAuth()
 }

@@ -71,7 +71,6 @@ private fun SignUpDetailScreen(
     popBackStack : () -> Unit,
 ){
     val nicknameValue by nickname.value.collectAsStateWithLifecycle()
-    val emailValue by email.value.collectAsStateWithLifecycle()
     val emailCodeValue by emailCode.value.collectAsStateWithLifecycle()
 
     LoginLayout(
@@ -119,7 +118,7 @@ private fun SignUpDetailScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(50.dp),
-                enabled = nicknameValue.valid.isSuccess() && emailValue.valid.isSuccess() && emailCodeValue.valid.isSuccess() && !isLoading,
+                enabled = nicknameValue.valid.isSuccess() && emailCodeValue.valid.isSuccess() && !isLoading,
                 loading = isLoading
             ) {
                 onEvent(SignUpDetailEvent.SignUp)

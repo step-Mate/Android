@@ -20,11 +20,11 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import jinproject.stepwalk.core.SnackBarMessage
+import jinproject.stepwalk.home.navigation.backStackToHome
 import jinproject.stepwalk.home.navigation.homeGraph
 import jinproject.stepwalk.home.navigation.homeNavGraph
 import jinproject.stepwalk.home.navigation.navigateToCalendar
 import jinproject.stepwalk.login.navigation.authNavGraph
-import jinproject.stepwalk.login.navigation.backStackToLogin
 import jinproject.stepwalk.login.navigation.navigateToFindId
 import jinproject.stepwalk.login.navigation.navigateToFindPassword
 import jinproject.stepwalk.login.navigation.navigateToSignUp
@@ -55,7 +55,7 @@ internal fun NavigationGraph(
             navigateToFindId = navController::navigateToFindId,
             navigateToFindPassword = navController::navigateToFindPassword,
             popBackStack = navController::popBackStackIfCan,
-            backStackToLogin = navController::backStackToLogin,
+            backStackToHome = navController::backStackToHome,
             showSnackBar = showSnackBar
         )
 
