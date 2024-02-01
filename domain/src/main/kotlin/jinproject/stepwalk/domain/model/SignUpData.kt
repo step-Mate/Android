@@ -1,6 +1,6 @@
 package jinproject.stepwalk.domain.model
 
-data class UserData(
+data class SignUpData(
     val id : String = "",
     val password : String = "",
     val nickname : String = "",

@@ -1,10 +1,10 @@
 package jinproject.stepwalk.data.remote.mapper
 
 import jinproject.stepwalk.data.remote.dto.request.SignUpRequest
-import jinproject.stepwalk.domain.model.UserData
+import jinproject.stepwalk.domain.model.SignUpData
 
-fun UserData.toSignUpRequest() = SignUpRequest(
-    id = id,
+fun SignUpData.toSignUpRequest() = SignUpRequest(
+    userId = id,
     password = password,
     nickname = nickname,
     email = email,

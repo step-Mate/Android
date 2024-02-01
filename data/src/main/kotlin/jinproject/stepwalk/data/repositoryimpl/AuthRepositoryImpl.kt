@@ -1,6 +1,6 @@
 package jinproject.stepwalk.data.repositoryimpl
 
-import android.util.Log
+import jinproject.stepwalk.data.local.datasource.BodyDataSource
 import jinproject.stepwalk.data.local.datasource.CurrentAuthDataSource
 import jinproject.stepwalk.data.remote.api.StepMateApi
 import jinproject.stepwalk.data.remote.dto.request.AccountRequest
@@ -10,7 +10,7 @@ import jinproject.stepwalk.data.remote.mapper.toSignUpRequest
 import jinproject.stepwalk.data.remote.utils.exchangeResultFlow
 import jinproject.stepwalk.data.remote.utils.getResult
 import jinproject.stepwalk.domain.model.ResponseState
-import jinproject.stepwalk.domain.model.UserData
+import jinproject.stepwalk.domain.model.SignUpData
 import jinproject.stepwalk.domain.model.onSuccess
 import jinproject.stepwalk.domain.repository.AuthRepository
 import kotlinx.coroutines.Dispatchers
@@ -22,7 +22,8 @@ import javax.inject.Inject
 
 class AuthRepositoryImpl @Inject constructor(
     private val stepMateApi: StepMateApi,
-    private val currentAuthDataSource: CurrentAuthDataSource
+    private val currentAuthDataSource: CurrentAuthDataSource,
+    private val bodyDataSource: BodyDataSource,
 ) : AuthRepository {
     override suspend fun checkDuplicationId(id: String): ResponseState<Boolean> =
         withContext(Dispatchers.IO) {
@@ -34,12 +35,12 @@ class AuthRepositoryImpl @Inject constructor(
             return@withContext stepMateApi.checkDuplicationNickname(DuplicationNicknameRequest(nickname)).getResult()
         }
 
-    override suspend fun signUpAccount(userData: UserData): Flow<ResponseState<Boolean>> =
+    override suspend fun signUpAccount(signUpData: SignUpData): Flow<ResponseState<Boolean>> =
         exchangeResultFlow {
-            val body = async { currentAuthDataSource.getBodyData().first()}
+            val body = async { bodyDataSource.getBodyData().first()}
             val response = async {
                 stepMateApi.signUpAccount(
-                    userData.copy(
+                    signUpData.copy(
                         age = body.await().age,
                         height = body.await().height,
                         weight = body.await().weight
@@ -47,7 +48,7 @@ class AuthRepositoryImpl @Inject constructor(
                 )
             }
             response.await().onSuccess {
-                currentAuthDataSource.setAuthData(userData.nickname,it?.result!!.accessToken,it.result.refreshToken)
+                currentAuthDataSource.setToken(it?.result!!.accessToken,it.result.refreshToken)
             }
             return@exchangeResultFlow response.await().getResult { ResponseState.Result(true) }
         }
@@ -57,8 +58,6 @@ class AuthRepositoryImpl @Inject constructor(
             val response = async { stepMateApi.signInAccount(AccountRequest(id,password))}
             response.await().onSuccess {
                 currentAuthDataSource.setToken(accessToken = it?.result!!.accessToken, refreshToken = it.result.refreshToken)
-                val token = currentAuthDataSource.getAccessToken()
-                Log.d("token",token.first().toString())
             }
             return@exchangeResultFlow response.await().getResult { ResponseState.Result(true) }
         }
@@ -71,7 +70,7 @@ class AuthRepositoryImpl @Inject constructor(
     override suspend fun findAccountId(email: String, code: String): Flow<ResponseState<String>> =
         exchangeResultFlow {
             return@exchangeResultFlow stepMateApi.findAccountId(email, code).getResult{
-                ResponseState.Result(it?.id)
+                ResponseState.Result(it?.userId)
             }
         }
 

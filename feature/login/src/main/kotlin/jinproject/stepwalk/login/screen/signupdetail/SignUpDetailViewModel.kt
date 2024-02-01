@@ -5,7 +5,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import jinproject.stepwalk.login.utils.isValidNickname
 import dagger.hilt.android.lifecycle.HiltViewModel
-import jinproject.stepwalk.domain.model.UserData
+import jinproject.stepwalk.domain.model.SignUpData
 import jinproject.stepwalk.domain.model.onException
 import jinproject.stepwalk.domain.model.onSuccess
 import jinproject.stepwalk.domain.usecase.auth.CheckNicknameUseCase
@@ -74,7 +74,7 @@ internal class SignUpDetailViewModel @Inject constructor(
                 if(nickname.isSuccessful() && emailCode.isSuccessful()){
                     viewModelScope.launch(Dispatchers.IO) {
                         signUpUseCase(
-                            UserData(
+                            SignUpData(
                                 id = id,
                                 password = password,
                                 nickname = nickname.now(),
