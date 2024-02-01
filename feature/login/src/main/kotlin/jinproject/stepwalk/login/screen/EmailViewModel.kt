@@ -6,16 +6,14 @@ import jinproject.stepwalk.domain.usecase.auth.RequestEmailCodeUseCase
 import jinproject.stepwalk.login.screen.state.Account
 import jinproject.stepwalk.login.screen.state.AuthState
 import jinproject.stepwalk.login.screen.state.SignValid
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.withContext
 
 
 abstract class EmailViewModel(
     private val requestEmailCodeUseCase: RequestEmailCodeUseCase,
-) : ViewModel(){
+) : ViewModel() {
     val email = Account(800)
     val emailCode = Account(1000)
 
@@ -24,14 +22,12 @@ abstract class EmailViewModel(
 
     protected var requestEmail = ""
 
-    protected suspend fun requestEmailVerification(){
+    protected suspend fun requestEmailVerification() {
         email.updateValid(SignValid.verifying)
         requestEmail = email.now()
-        withContext(Dispatchers.IO) {
-            requestEmailCodeUseCase(requestEmail).onException { _, message ->
-                _state.update { it.copy(errorMessage = message) }
-                email.updateValid(SignValid.notValid)
-            }
+        requestEmailCodeUseCase(requestEmail).onException { _, message ->
+            _state.update { it.copy(errorMessage = message) }
+            email.updateValid(SignValid.notValid)
         }
     }
 }

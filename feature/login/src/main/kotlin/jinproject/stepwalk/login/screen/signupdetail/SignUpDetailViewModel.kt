@@ -19,11 +19,9 @@ import jinproject.stepwalk.login.utils.isValidEmail
 import jinproject.stepwalk.login.utils.isValidEmailCode
 import jinproject.stepwalk.login.utils.onEachState
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 sealed interface SignUpDetailEvent{
@@ -55,12 +53,12 @@ internal class SignUpDetailViewModel @Inject constructor(
         nickname.checkValid { it.isValidNickname() }.launchIn(viewModelScope)//제거
         email.checkValid { it.isValidEmail() }.launchIn(viewModelScope)
         viewModelScope.launch(Dispatchers.IO) {
-            emailCode.checkValids(
+            emailCode.checkValid(
                 check = {it.isValidEmailCode()},
                 suspendCheck = {checkEmailVerification(requestEmail,it)},
                 suspendValid = SignValid.notValid
             ).launchIn(viewModelScope)
-//            nickname.checkValids(
+//            nickname.checkValid(
 //                check = {it.isValidNickname()},
 //                suspendCheck = {checkDuplicationNickname(it)},
 //                suspendValid = SignValid.duplicationId
@@ -98,34 +96,28 @@ internal class SignUpDetailViewModel @Inject constructor(
         }
     }
 
-    private suspend fun checkEmailVerification(email : String, code : String) : Boolean = withContext(Dispatchers.IO){
+    private suspend fun checkEmailVerification(email : String, code : String) : Boolean {
         var result = false
-        val job = async {
-            verificationEmailCodeUseCase(email, code)
-                .onSuccess { result = true }
-                .onException { code, message ->
-                    result = false
-                    if (code != 403)
-                        _state.update { it.copy(errorMessage = message) }
-                }
-        }
-        job.await()
-        return@withContext result
+        verificationEmailCodeUseCase(email, code)
+            .onSuccess { result = true }
+            .onException { code, message ->
+                result = false
+                if (code != 403)
+                    _state.update { it.copy(errorMessage = message) }
+            }
+        return result
     }
 
-    private suspend fun checkDuplicationNickname(nickname: String) : Boolean = withContext(Dispatchers.IO){
+    private suspend fun checkDuplicationNickname(nickname: String) : Boolean {
         var result = false
-        val job = async {
-            checkNicknameUseCase(nickname)
-                .onSuccess { result = true }
-                .onException { code, message ->
-                    result = false
-                    //if추가로 중복 오류 메시지 제거
-                    _state.update { it.copy(errorMessage = message) }
-                }
-        }
-        job.await()
-        return@withContext result
+        checkNicknameUseCase(nickname)
+            .onSuccess { result = true }
+            .onException { code, message ->
+                result = false
+                //if추가로 중복 오류 메시지 제거
+                _state.update { it.copy(errorMessage = message) }
+            }
+        return result
     }
     
     companion object {

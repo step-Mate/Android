@@ -21,5 +21,6 @@ class CurrentAuthPreferencesSerializer @Inject constructor() : Serializer<Curren
         }
     }
 
-    override suspend fun writeTo(t: CurrentAuthPreferences, output: OutputStream) = t.writeTo(output)
+    override suspend fun writeTo(t: CurrentAuthPreferences, output: OutputStream) =
+        t.writeTo(output)
 }

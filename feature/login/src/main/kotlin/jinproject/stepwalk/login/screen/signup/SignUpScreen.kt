@@ -38,18 +38,17 @@ import jinproject.stepwalk.design.R.string as AppText
 @Composable
 internal fun SignUpScreen(
     signUpViewModel: SignUpViewModel = hiltViewModel(),
-    navigateToSignUpDetail : (String,String) -> Unit,
-    showSnackBar : (SnackBarMessage) -> Unit,
-    popBackStack : () -> Unit,
+    navigateToSignUpDetail: (String, String) -> Unit,
+    showSnackBar: (SnackBarMessage) -> Unit,
+    popBackStack: () -> Unit,
 ) {
     val state by signUpViewModel.state.collectAsStateWithLifecycle()
 
-    LaunchedEffect(key1 = state){
+    LaunchedEffect(key1 = state) {
         if (state.isSuccess) {
             navigateToSignUpDetail(signUpViewModel.id.now(), signUpViewModel.password.now())
             signUpViewModel.onEvent(SignUpEvent.BackStack)
-        }
-        else {
+        } else {
             if (state.errorMessage.isNotEmpty())
                 showSnackBar(SnackBarMessage(state.errorMessage))
         }
@@ -66,12 +65,12 @@ internal fun SignUpScreen(
 
 @Composable
 private fun SignUpScreen(
-    id : Account,
-    password : Account,
-    repeatPassword : Account,
-    onEvent : (SignUpEvent) -> Unit,
-    popBackStack : () -> Unit,
-){
+    id: Account,
+    password: Account,
+    repeatPassword: Account,
+    onEvent: (SignUpEvent) -> Unit,
+    popBackStack: () -> Unit,
+) {
     val idValue by id.value.collectAsStateWithLifecycle()
     val passwordValue by password.value.collectAsStateWithLifecycle()
     val repeatPasswordValue by repeatPassword.value.collectAsStateWithLifecycle()
@@ -100,7 +99,12 @@ private fun SignUpScreen(
                 isError = idValue.valid.isError() || idValue.valid == SignValid.success,
                 errorColor = if (idValue.valid.isError()) MaterialTheme.colorScheme.error else StepWalkColor.green_600.color,
                 keyboardType = KeyboardType.Email,
-                leadingIcon = { Icon(imageVector = Icons.Default.Person, contentDescription = "Email") },
+                leadingIcon = {
+                    Icon(
+                        imageVector = Icons.Default.Person,
+                        contentDescription = "Email"
+                    )
+                },
                 onNewValue = {
                     val text = it.trim()
                     if (text.length <= MAX_ID_LENGTH)
@@ -110,8 +114,8 @@ private fun SignUpScreen(
             PasswordDetail(
                 password = passwordValue.text,
                 repeatPassword = repeatPasswordValue.text,
-                passwordValid = passwordValue.valid ,
-                repeatPasswordValid = repeatPasswordValue.valid ,
+                passwordValid = passwordValue.valid,
+                repeatPasswordValid = repeatPasswordValue.valid,
                 onNewPassword = {
                     val text = it.trim()
                     if (text.length <= MAX_PASS_LENGTH)
@@ -143,7 +147,7 @@ private fun SignUpScreen(
 @Preview
 private fun PreviewSignUpScreen(
     @PreviewParameter(SignUpStatePreviewParameters::class)
-    state : Account,
+    state: Account,
 ) = StepWalkTheme {
     SignUpScreen(
         id = state,

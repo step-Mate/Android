@@ -25,14 +25,14 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-sealed interface FindPasswordEvent{
+sealed interface FindPasswordEvent {
     data object ResetPassword : FindPasswordEvent
     data object RequestEmail : FindPasswordEvent
     data object CheckVerification : FindPasswordEvent
     data class Id(val value: String) : FindPasswordEvent
     data class Password(val value: String) : FindPasswordEvent
     data class RepeatPassword(val value: String) : FindPasswordEvent
-    data class Email(val value : String) : FindPasswordEvent
+    data class Email(val value: String) : FindPasswordEvent
     data class EmailCode(val value: String) : FindPasswordEvent
 }
 
@@ -41,7 +41,7 @@ internal class FindPasswordViewModel @Inject constructor(
     requestEmailCodeUseCase: RequestEmailCodeUseCase,
     private val verificationUserEmailUseCase: VerificationUserEmailUseCase,
     private val resetPasswordUseCase: ResetPasswordUseCase
-) : EmailViewModel(requestEmailCodeUseCase){
+) : EmailViewModel(requestEmailCodeUseCase) {
     private val _nextStep = MutableStateFlow(false)
     val nextStep get() = _nextStep.asStateFlow()
 
@@ -54,17 +54,17 @@ internal class FindPasswordViewModel @Inject constructor(
         password.checkValid { it.isValidPassword() }.launchIn(viewModelScope)
         repeatPassword.checkValid(
             checkValid = SignValid.notMatch,
-            check = {it.passwordMatches(password.now())}
-            ).launchIn(viewModelScope)
+            check = { it.passwordMatches(password.now()) }
+        ).launchIn(viewModelScope)
         email.checkValid { it.isValidEmail() }.launchIn(viewModelScope)
         emailCode.checkValid { it.isValidEmailCode() }.launchIn(viewModelScope)
     }
 
     fun onEvent(event: FindPasswordEvent) {
-        when(event){
+        when (event) {
             FindPasswordEvent.ResetPassword -> {
                 viewModelScope.launch(Dispatchers.IO) {
-                    resetPasswordUseCase(id.now(),password.now())
+                    resetPasswordUseCase(id.now(), password.now())
                         .onSuccess {
                             _state.update {
                                 it.copy(isSuccess = true)
@@ -75,16 +75,22 @@ internal class FindPasswordViewModel @Inject constructor(
                         }
                 }
             }
+
             FindPasswordEvent.CheckVerification -> {
                 viewModelScope.launch(Dispatchers.IO) {
-                    verificationUserEmailUseCase(id.now(),requestEmail, emailCode.now())
+                    verificationUserEmailUseCase(id.now(), requestEmail, emailCode.now())
                         .onEach {
                             it.onSuccess {
                                 _nextStep.value = true
                                 _state.update { state -> state.copy(isLoading = false) }
-                            }.onException { code,message ->
+                            }.onException { code, message ->
                                 if (code != 403)
-                                    _state.update { it.copy(errorMessage = message, isLoading = false) }
+                                    _state.update {
+                                        it.copy(
+                                            errorMessage = message,
+                                            isLoading = false
+                                        )
+                                    }
                                 else
                                     _state.update { state -> state.copy(isLoading = false) }
                             }.onLoading {
@@ -93,11 +99,13 @@ internal class FindPasswordViewModel @Inject constructor(
                         }.launchIn(viewModelScope)
                 }
             }
+
             FindPasswordEvent.RequestEmail -> {
                 viewModelScope.launch(Dispatchers.IO) {
                     requestEmailVerification()
                 }
             }
+
             is FindPasswordEvent.Id -> id.updateValue(event.value)
             is FindPasswordEvent.Password -> password.updateValue(event.value)
             is FindPasswordEvent.RepeatPassword -> repeatPassword.updateValue(event.value)

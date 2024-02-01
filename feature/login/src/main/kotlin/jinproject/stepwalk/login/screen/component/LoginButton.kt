@@ -34,12 +34,12 @@ import jinproject.stepwalk.design.theme.StepWalkTheme
 //간편 로그인용
 @Composable
 internal fun IconButton(
-    @DrawableRes icon : Int,
-    containerColor : Color,
-    simbolColor : Color,
-    labelColor : Color,
-    text : String,
-    onClick : () -> Unit
+    @DrawableRes icon: Int,
+    containerColor: Color,
+    simbolColor: Color,
+    labelColor: Color,
+    text: String,
+    onClick: () -> Unit
 ) {
     Box(
         modifier = Modifier
@@ -55,7 +55,7 @@ internal fun IconButton(
             modifier = Modifier.align(Alignment.CenterStart)
         )
         Text(
-            text =  text,
+            text = text,
             style = MaterialTheme.typography.bodyMedium,
             color = labelColor,
             modifier = Modifier.align(Alignment.Center)
@@ -65,10 +65,10 @@ internal fun IconButton(
 
 @Composable
 internal fun FindAndSignUpButtons(
-    findAccountId : () -> Unit,
-    findAccountPassword : () -> Unit,
-    createAccount : () -> Unit,
-){
+    findAccountId: () -> Unit,
+    findAccountPassword: () -> Unit,
+    createAccount: () -> Unit,
+) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Center,
@@ -104,10 +104,10 @@ internal fun FindAndSignUpButtons(
 internal fun EnableButton(
     text: String,
     modifier: Modifier,
-    enabled : Boolean = false,
-    loading : Boolean = false,
+    enabled: Boolean = false,
+    loading: Boolean = false,
     onClick: () -> Unit
-){
+) {
     DefaultButton(
         onClick = onClick,
         modifier = modifier,
@@ -115,19 +115,20 @@ internal fun EnableButton(
         backgroundColor = MaterialTheme.colorScheme.primary,
         shape = RoundedCornerShape(5.dp)
     ) {
-        if (loading){
-            CircularProgressIndicator(modifier = Modifier.height(IntrinsicSize.Min),color = MaterialTheme.colorScheme.onPrimary)
-        }else{
+        if (loading) {
+            CircularProgressIndicator(
+                modifier = Modifier.height(IntrinsicSize.Min),
+                color = MaterialTheme.colorScheme.onPrimary
+            )
+        } else {
             Text(
                 text = text,
                 style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onPrimary.copy(alpha = if(enabled) 1f else 0.3f)
+                color = MaterialTheme.colorScheme.onPrimary.copy(alpha = if (enabled) 1f else 0.3f)
             )
         }
     }
 }
-
-
 
 
 @Composable
@@ -151,7 +152,7 @@ private fun PreviewFindAndSignUp(
 
 ) = StepWalkTheme {
     FindAndSignUpButtons(
-        findAccountId = {  },
+        findAccountId = { },
         findAccountPassword = { }) {
     }
 }

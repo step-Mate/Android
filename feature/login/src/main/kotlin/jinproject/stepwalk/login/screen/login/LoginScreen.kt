@@ -36,15 +36,15 @@ import jinproject.stepwalk.login.screen.component.PasswordField
 @Composable
 internal fun LoginScreen(
     loginViewModel: LoginViewModel = hiltViewModel(),
-    navigateToSignUp : () -> Unit,
-    navigateToFindId : () -> Unit,
-    navigateToFindPassword : () -> Unit,
-    popBackStack : () -> Unit,
-    showSnackBar : (SnackBarMessage) -> Unit
-){
+    navigateToSignUp: () -> Unit,
+    navigateToFindId: () -> Unit,
+    navigateToFindPassword: () -> Unit,
+    popBackStack: () -> Unit,
+    showSnackBar: (SnackBarMessage) -> Unit
+) {
     val state by loginViewModel.state.collectAsStateWithLifecycle()
 
-    LaunchedEffect(key1 = state){
+    LaunchedEffect(key1 = state) {
         if (state.isSuccess)
             popBackStack()
         else
@@ -64,12 +64,12 @@ internal fun LoginScreen(
 
 @Composable
 private fun LoginScreen(
-    checkValidAccount : (String,String) -> Unit,
-    isLoading : Boolean,
+    checkValidAccount: (String, String) -> Unit,
+    isLoading: Boolean,
     navigateToSignUp: () -> Unit,
-    navigateToFindId : () -> Unit,
-    navigateToFindPassword : () -> Unit,
-    popBackStack : () -> Unit
+    navigateToFindId: () -> Unit,
+    navigateToFindPassword: () -> Unit,
+    popBackStack: () -> Unit
 ) {
     var id by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
@@ -129,12 +129,13 @@ private fun LoginScreen(
         popBackStack = popBackStack
     )
 }
+
 @Composable
 @Preview
 private fun PreviewHomeScreen(
 ) = StepWalkTheme {
     LoginScreen(
-        checkValidAccount = {_,_ ->},
+        checkValidAccount = { _, _ -> },
         isLoading = false,
         navigateToSignUp = {},
         navigateToFindId = {},

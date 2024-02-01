@@ -11,8 +11,8 @@ import java.io.IOException
 import javax.inject.Inject
 
 class BodyDataSourceImpl @Inject constructor(
-    private val prefs : DataStore<BodyDataPreferences>
-) : BodyDataSource{
+    private val prefs: DataStore<BodyDataPreferences>
+) : BodyDataSource {
 
     private val data = prefs.data
         .catch { exception ->
@@ -22,8 +22,9 @@ class BodyDataSourceImpl @Inject constructor(
                 throw exception
             }
         }
+
     override fun getBodyData(): Flow<BodyData> =
-        data.map { BodyData(it.age,it.height,it.weight) }
+        data.map { BodyData(it.age, it.height, it.weight) }
 
     override suspend fun setAge(age: Int) {
         prefs.updateData { pref ->

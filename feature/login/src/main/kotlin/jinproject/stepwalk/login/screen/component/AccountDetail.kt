@@ -20,13 +20,13 @@ import jinproject.stepwalk.login.screen.state.SignValid
 
 @Composable
 internal fun PasswordDetail(
-    password : String,
-    repeatPassword : String,
-    passwordValid : SignValid,
+    password: String,
+    repeatPassword: String,
+    passwordValid: SignValid,
     repeatPasswordValid: SignValid,
-    onNewPassword : (String) -> Unit,
-    onNewRepeatPassword : (String) -> Unit
-){
+    onNewPassword: (String) -> Unit,
+    onNewRepeatPassword: (String) -> Unit
+) {
     Column {
         PasswordField(
             informationText = "비밀번호",
@@ -45,8 +45,8 @@ internal fun PasswordDetail(
 
 @Composable
 internal fun IdResultDetail(
-    findAccountId : String
-){
+    findAccountId: String
+) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -57,8 +57,17 @@ internal fun IdResultDetail(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text(text = "조회된 내역은 다음과 같습니다.", style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSurface, modifier = Modifier.padding(bottom = 10.dp))
-        Text(text = "아이디 : $findAccountId", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurface)
+        Text(
+            text = "조회된 내역은 다음과 같습니다.",
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.onSurface,
+            modifier = Modifier.padding(bottom = 10.dp)
+        )
+        Text(
+            text = "아이디 : $findAccountId",
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurface
+        )
     }
 }
 
@@ -70,9 +79,9 @@ private fun PreviewPasswordDetail(
 ) = StepWalkTheme {
     PasswordDetail(
         password = "",
-        repeatPassword =  "",
-        passwordValid =  SignValid.notValid ,
-        repeatPasswordValid = SignValid.notMatch ,
+        repeatPassword = "",
+        passwordValid = SignValid.notValid,
+        repeatPasswordValid = SignValid.notMatch,
         onNewPassword = {},
         onNewRepeatPassword = {}
     )

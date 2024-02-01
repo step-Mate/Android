@@ -10,8 +10,8 @@ import java.io.IOException
 import javax.inject.Inject
 
 class CurrentAuthDataSourceImpl @Inject constructor(
-    private val prefs : DataStore<CurrentAuthPreferences>
-) : CurrentAuthDataSource{
+    private val prefs: DataStore<CurrentAuthPreferences>
+) : CurrentAuthDataSource {
     private val data = prefs.data
         .catch { exception ->
             if (exception is IOException) {

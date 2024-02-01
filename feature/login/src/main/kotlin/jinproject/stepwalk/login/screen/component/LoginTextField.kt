@@ -50,19 +50,19 @@ import jinproject.stepwalk.design.R.drawable as AppIcon
 @Composable
 internal fun InformationField(
     modifier: Modifier = Modifier,
-    informationText : String,
-    errorMessage : String = "",
+    informationText: String,
+    errorMessage: String = "",
     value: String,
-    isError : Boolean = false,
-    enabled : Boolean = true,
-    errorColor : Color = MaterialTheme.colorScheme.error,
+    isError: Boolean = false,
+    enabled: Boolean = true,
+    errorColor: Color = MaterialTheme.colorScheme.error,
     keyboardType: KeyboardType = KeyboardType.Email,
     leadingIcon: @Composable (() -> Unit)? = null,
     trailingIcon: @Composable (() -> Unit)? = null,
-    suffix : @Composable (() -> Unit)? = null,
+    suffix: @Composable (() -> Unit)? = null,
     visualTransformation: VisualTransformation = VisualTransformation.None,
     onNewValue: (String) -> Unit
-){
+) {
     OutlinedTextField(
         singleLine = true,
         modifier = modifier.fillMaxWidth(),
@@ -75,9 +75,9 @@ internal fun InformationField(
         trailingIcon = trailingIcon,
         label = { Text(informationText, style = MaterialTheme.typography.bodyMedium) },
         supportingText = {
-             if (isError){
-                 DescriptionSmallText(text = errorMessage, color = errorColor)
-             }
+            if (isError) {
+                DescriptionSmallText(text = errorMessage, color = errorColor)
+            }
         },
         suffix = suffix,
         keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
@@ -102,10 +102,11 @@ internal fun IdField(
 ) {
     InformationField(
         informationText = "아이디",
-        errorMessage = when (idValid){
+        errorMessage = when (idValid) {
             SignValid.notValid -> "잘못된 아이디 양식이에요. 영어,숫자,_만 입력가능하고 4~12글자까지 입력가능해요."
             SignValid.duplicationId -> "중복되는 아이디가 존재합니다."
-            else -> "아이디를 입력해주세요."},
+            else -> "아이디를 입력해주세요."
+        },
         value = value,
         isError = idValid.isError(),
         keyboardType = KeyboardType.Email,
@@ -115,23 +116,32 @@ internal fun IdField(
 }
 
 @Composable
-internal fun PasswordField(informationText: String, value: String, onNewValue: (String) -> Unit, passwordValid: SignValid = SignValid.blank) {
+internal fun PasswordField(
+    informationText: String,
+    value: String,
+    onNewValue: (String) -> Unit,
+    passwordValid: SignValid = SignValid.blank
+) {
     val isVisible = remember { mutableStateOf(false) }
 
     InformationField(
         informationText = informationText,
-        errorMessage = when (passwordValid){
+        errorMessage = when (passwordValid) {
             SignValid.notValid -> "잘못된 비밀번호 양식이에요. 8~16글자까지 입력가능하고 영어,숫자,!@#\$%^&amp;*특수문자만 사용가능해요."
             SignValid.notMatch -> "비밀번호가 일치하지 않습니다."
-            else -> "비밀번호를 입력해주세요."},
+            else -> "비밀번호를 입력해주세요."
+        },
         value = value,
         isError = passwordValid.isError(),
         keyboardType = KeyboardType.Password,
         leadingIcon = { Icon(imageVector = Icons.Default.Lock, contentDescription = "Lock") },
         trailingIcon = {
             IconButton(onClick = { isVisible.value = !isVisible.value }) {
-                Icon(imageVector =  if (isVisible.value) ImageVector.vectorResource(AppIcon.ic_visibility_on)
-                else ImageVector.vectorResource(AppIcon.ic_visibility_off), contentDescription = "Visibility")
+                Icon(
+                    imageVector = if (isVisible.value) ImageVector.vectorResource(AppIcon.ic_visibility_on)
+                    else ImageVector.vectorResource(AppIcon.ic_visibility_off),
+                    contentDescription = "Visibility"
+                )
             }
         },
         visualTransformation = if (isVisible.value) VisualTransformation.None else PasswordVisualTransformation(),
@@ -142,12 +152,12 @@ internal fun PasswordField(informationText: String, value: String, onNewValue: (
 @Composable
 internal fun ColumnScope.EmailVerificationField(//account로 수정
     email: Account,
-    emailCode : Account,
-    codeVisibility : Boolean = false,
-    requestEmailVerification : () -> Unit,
+    emailCode: Account,
+    codeVisibility: Boolean = false,
+    requestEmailVerification: () -> Unit,
     onEmailValue: (String) -> Unit,
-    onVerificationCodeValue : (String) -> Unit
-){
+    onVerificationCodeValue: (String) -> Unit
+) {
     val emailValue by email.value.collectAsStateWithLifecycle()
     val emailCodeValue by emailCode.value.collectAsStateWithLifecycle()
 
@@ -189,7 +199,7 @@ internal fun ColumnScope.EmailVerificationField(//account로 수정
         }
     }
     AnimatedVisibility(
-        visible = if (emailCodeValue.valid == SignValid.success && !codeVisibility) false else if(codeVisibility) true else emailValue.valid == SignValid.verifying || emailCodeValue.valid == SignValid.notValid,
+        visible = if (emailCodeValue.valid == SignValid.success && !codeVisibility) false else if (codeVisibility) true else emailValue.valid == SignValid.verifying || emailCodeValue.valid == SignValid.notValid,
         enter = slideInVertically { -it },
         exit = slideOutVertically { -it }
     ) {
@@ -215,7 +225,7 @@ private fun PreviewInformationField(
             errorMessage = "잘못된 양식입니다.",
             value = "",
             isError = true,
-            suffix = { DescriptionSmallText(text = "kg")},
+            suffix = { DescriptionSmallText(text = "kg") },
             onNewValue = {}
         )
     }
@@ -235,7 +245,7 @@ private fun PreviewIdField(
 @Preview
 private fun PreviewPasswordField(
     @PreviewParameter(PasswordStatePreviewParameters::class)
-    state : Account
+    state: Account
 ) = StepWalkTheme {
     Column {
         PasswordField(
@@ -251,7 +261,7 @@ private fun PreviewPasswordField(
 @Preview
 private fun PreviewEmailValidField(
     @PreviewParameter(EmailStatePreviewParameters::class)
-    state : List<Account>
+    state: List<Account>
 ) = StepWalkTheme {
     Column {
         EmailVerificationField(

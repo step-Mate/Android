@@ -35,13 +35,13 @@ import jinproject.stepwalk.login.utils.MAX_EMAIL_LENGTH
 @Composable
 internal fun FindIdScreen(
     findIdViewModel: FindIdViewModel = hiltViewModel(),
-    popBackStack : () -> Unit,
+    popBackStack: () -> Unit,
     showSnackBar: (SnackBarMessage) -> Unit
-){
+) {
     val state by findIdViewModel.state.collectAsStateWithLifecycle()
     val id by findIdViewModel.id.collectAsStateWithLifecycle()
 
-    LaunchedEffect(key1 = state.errorMessage){
+    LaunchedEffect(key1 = state.errorMessage) {
         if (state.errorMessage.isNotEmpty())
             showSnackBar(SnackBarMessage(state.errorMessage))
     }
@@ -59,14 +59,14 @@ internal fun FindIdScreen(
 
 @Composable
 private fun FindIdScreen(
-    id : String,
-    email : Account,
-    emailCode : Account,
-    nextStep : Boolean,
-    isLoading : Boolean,
+    id: String,
+    email: Account,
+    emailCode: Account,
+    nextStep: Boolean,
+    isLoading: Boolean,
     onEvent: (FindIdEvent) -> Unit,
     popBackStack: () -> Unit
-){
+) {
     val emailCodeValue by emailCode.value.collectAsStateWithLifecycle()
 
     LoginLayout(
@@ -99,7 +99,7 @@ private fun FindIdScreen(
                 EmailVerificationField(
                     email = email,
                     emailCode = emailCode,
-                    requestEmailVerification = {onEvent(FindIdEvent.RequestEmail)},
+                    requestEmailVerification = { onEvent(FindIdEvent.RequestEmail) },
                     onEmailValue = {
                         val text = it.trim()
                         if (text.length <= MAX_EMAIL_LENGTH)
@@ -114,7 +114,7 @@ private fun FindIdScreen(
             }
         },
         bottomContent = {
-            if (!nextStep){
+            if (!nextStep) {
                 EnableButton(
                     text = "아이디 찾기",
                     modifier = Modifier
@@ -139,7 +139,7 @@ private fun PreviewFindAccountScreen2(
 ) = StepWalkTheme {
     FindIdScreen(
         id = "",
-        email= Account(500),
+        email = Account(500),
         emailCode = Account(500),
         nextStep = false,
         isLoading = false,
@@ -155,7 +155,7 @@ private fun PreviewFindAccountScreen(
 ) = StepWalkTheme {
     FindIdScreen(
         id = "",
-        email= Account(500),
+        email = Account(500),
         emailCode = Account(500),
         nextStep = true,
         isLoading = true,

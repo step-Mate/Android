@@ -36,16 +36,16 @@ import jinproject.stepwalk.login.utils.MAX_PASS_LENGTH
 @Composable
 internal fun FindPasswordScreen(
     findPasswordViewModel: FindPasswordViewModel = hiltViewModel(),
-    popBackStack :() -> Unit,
+    popBackStack: () -> Unit,
     showSnackBar: (SnackBarMessage) -> Unit
 ) {
     val state by findPasswordViewModel.state.collectAsStateWithLifecycle()
     val nextStep by findPasswordViewModel.nextStep.collectAsStateWithLifecycle()
 
-    LaunchedEffect(key1 = state){
-        if (state.isSuccess){
+    LaunchedEffect(key1 = state) {
+        if (state.isSuccess) {
             popBackStack()
-        }else{
+        } else {
             if (state.errorMessage.isNotEmpty() && !state.isLoading)
                 showSnackBar(SnackBarMessage(state.errorMessage))
         }
@@ -66,16 +66,16 @@ internal fun FindPasswordScreen(
 
 @Composable
 private fun FindPasswordScreen(
-    id : Account,
-    password : Account,
-    repeatPassword : Account,
-    email : Account,
-    emailCode : Account,
-    nextStep : Boolean,
-    isLoading : Boolean,
-    onEvent : (FindPasswordEvent) -> Unit,
+    id: Account,
+    password: Account,
+    repeatPassword: Account,
+    email: Account,
+    emailCode: Account,
+    nextStep: Boolean,
+    isLoading: Boolean,
+    onEvent: (FindPasswordEvent) -> Unit,
     popBackStack: () -> Unit
-){
+) {
     val idValue by id.value.collectAsStateWithLifecycle()
     val passwordValue by password.value.collectAsStateWithLifecycle()
     val repeatPasswordValue by repeatPassword.value.collectAsStateWithLifecycle()
@@ -95,7 +95,7 @@ private fun FindPasswordScreen(
                 alignment = Alignment.Center
             )
             VerticalSpacer(height = 30.dp)
-            if (nextStep){
+            if (nextStep) {
                 Text(
                     text = "재설정할 비밀번호를 입력해주세요.",
                     style = MaterialTheme.typography.titleMedium,
@@ -119,7 +119,7 @@ private fun FindPasswordScreen(
                             onEvent(FindPasswordEvent.RepeatPassword(text))
                     }
                 )
-            }else {
+            } else {
                 IdField(
                     value = idValue.text,
                     onNewValue = {
@@ -148,7 +148,7 @@ private fun FindPasswordScreen(
             }
         },
         bottomContent = {
-            if (nextStep){
+            if (nextStep) {
                 EnableButton(
                     text = "비밀번호 변경",
                     modifier = Modifier
@@ -157,9 +157,9 @@ private fun FindPasswordScreen(
                         .height(50.dp),
                     enabled = passwordValue.valid.isSuccess() && repeatPasswordValue.valid.isSuccess(),
                     loading = isLoading,
-                    onClick = {onEvent(FindPasswordEvent.ResetPassword)},
+                    onClick = { onEvent(FindPasswordEvent.ResetPassword) },
                 )
-            }else{
+            } else {
                 EnableButton(
                     text = "비밀번호 재설정",
                     modifier = Modifier
@@ -168,7 +168,7 @@ private fun FindPasswordScreen(
                         .height(50.dp),
                     enabled = emailCodeValue.valid.isSuccess() && !isLoading,
                     loading = isLoading,
-                    onClick = {onEvent(FindPasswordEvent.CheckVerification)},
+                    onClick = { onEvent(FindPasswordEvent.CheckVerification) },
                 )
             }
         },
@@ -185,7 +185,7 @@ private fun PreviewFindPasswordScreen(
         id = Account(500),
         password = Account(500),
         repeatPassword = Account(500),
-        email= Account(500),
+        email = Account(500),
         emailCode = Account(500),
         nextStep = false,
         isLoading = false,
@@ -203,7 +203,7 @@ private fun PreviewFindPasswordScreen2(
         id = Account(500),
         password = Account(500),
         repeatPassword = Account(500),
-        email= Account(500),
+        email = Account(500),
         emailCode = Account(500),
         nextStep = true,
         isLoading = false,

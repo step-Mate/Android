@@ -13,21 +13,19 @@ import jinproject.stepwalk.login.utils.isValidID
 import jinproject.stepwalk.login.utils.isValidPassword
 import jinproject.stepwalk.login.utils.passwordMatches
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
-sealed interface SignUpEvent{
+sealed interface SignUpEvent {
     data object NextStep : SignUpEvent
     data object BackStack : SignUpEvent
-    data class Id(val value : String) : SignUpEvent
-    data class Password(val value : String) : SignUpEvent
-    data class RepeatPassword(val value : String) : SignUpEvent
+    data class Id(val value: String) : SignUpEvent
+    data class Password(val value: String) : SignUpEvent
+    data class RepeatPassword(val value: String) : SignUpEvent
 }
 
 @HiltViewModel
@@ -43,32 +41,33 @@ internal class SignUpViewModel @Inject constructor(
 
     init {
         viewModelScope.launch(Dispatchers.IO) {
-            id.checkValids(
-                check = {it.isValidID()},
-                suspendCheck = {checkId(it)},
+            id.checkValid(
+                check = { it.isValidID() },
+                suspendCheck = { checkId(it) },
                 suspendValid = SignValid.duplicationId
             ).launchIn(viewModelScope)
         }
         password.checkValid { it.isValidPassword() }.launchIn(viewModelScope)
         repeatPassword.checkValid(
             checkValid = SignValid.notMatch,
-            check = {it.passwordMatches(password.now())}
+            check = { it.passwordMatches(password.now()) }
         ).launchIn(viewModelScope)
     }
 
-
-
-    fun onEvent(event: SignUpEvent){
-        when(event){
+    fun onEvent(event: SignUpEvent) {
+        when (event) {
             SignUpEvent.NextStep -> {
                 viewModelScope.launch(Dispatchers.IO) {
                     _state.update {
-                        it.copy(isSuccess = password.now().isValidPassword()
-                                && repeatPassword.now().passwordMatches(password.now())
-                                && checkId(id.now()))
+                        it.copy(
+                            isSuccess = password.now().isValidPassword()
+                                    && repeatPassword.now().passwordMatches(password.now())
+                                    && checkId(id.now())
+                        )
                     }
                 }
             }
+
             SignUpEvent.BackStack -> _state.update { it.copy(isSuccess = false) }
             is SignUpEvent.Id -> id.updateValue(event.value)
             is SignUpEvent.Password -> password.updateValue(event.value)
@@ -76,18 +75,15 @@ internal class SignUpViewModel @Inject constructor(
         }
     }
 
-    private suspend fun checkId(id : String) : Boolean = withContext(Dispatchers.IO){
-        var result= false
-        val job = async {
-            checkIdUseCase(id)
-                .onSuccess { result = true }
-                .onException { code, message ->
-                    result = false
-                    _state.update { it.copy(errorMessage = message) }
-                }
-        }
-        job.await()
-        return@withContext result
+    private suspend fun checkId(id: String): Boolean {
+        var result = false
+        checkIdUseCase(id)
+            .onSuccess { result = true }
+            .onException { code, message ->
+                result = false
+                _state.update { it.copy(errorMessage = message) }
+            }
+        return result
     }
 
     companion object {

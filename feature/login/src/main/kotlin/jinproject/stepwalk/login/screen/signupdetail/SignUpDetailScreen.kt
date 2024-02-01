@@ -35,17 +35,17 @@ import jinproject.stepwalk.login.utils.MAX_EMAIL_LENGTH
 @Composable
 internal fun SignUpDetailScreen(
     signUpDetailViewModel: SignUpDetailViewModel = hiltViewModel(),
-    popBackStack : () -> Unit,
+    popBackStack: () -> Unit,
     backStackToLogin: () -> Unit,
     showSnackBar: (SnackBarMessage) -> Unit
 ) {
     val state by signUpDetailViewModel.state.collectAsStateWithLifecycle()
 
-    LaunchedEffect(key1 = state){
-        if (state.isSuccess){
+    LaunchedEffect(key1 = state) {
+        if (state.isSuccess) {
             backStackToLogin()
-        }else{
-            if (state.errorMessage.isNotEmpty() && !state.isLoading){
+        } else {
+            if (state.errorMessage.isNotEmpty() && !state.isLoading) {
                 showSnackBar(SnackBarMessage(state.errorMessage))
             }
         }
@@ -63,13 +63,13 @@ internal fun SignUpDetailScreen(
 
 @Composable
 private fun SignUpDetailScreen(
-    nickname : Account,
-    email : Account,
-    emailCode : Account,
-    isLoading : Boolean,
-    onEvent : (SignUpDetailEvent) -> Unit,
-    popBackStack : () -> Unit,
-){
+    nickname: Account,
+    email: Account,
+    emailCode: Account,
+    isLoading: Boolean,
+    onEvent: (SignUpDetailEvent) -> Unit,
+    popBackStack: () -> Unit,
+) {
     val nicknameValue by nickname.value.collectAsStateWithLifecycle()
     val emailCodeValue by emailCode.value.collectAsStateWithLifecycle()
 
@@ -90,7 +90,7 @@ private fun SignUpDetailScreen(
                 else "한글,영어,숫자가능,특수문자불가,2~10글자까지 입력가능",
                 value = nicknameValue.text,
                 isError = nicknameValue.valid.isError()
-            ){
+            ) {
                 val text = it.trim()
                 if (text.length <= MAX_NICKNAME_LENGTH)
                     onEvent(SignUpDetailEvent.Nickname(text))
@@ -99,7 +99,7 @@ private fun SignUpDetailScreen(
             EmailVerificationField(
                 email = email,
                 emailCode = emailCode,
-                requestEmailVerification = {onEvent(SignUpDetailEvent.RequestEmail)},
+                requestEmailVerification = { onEvent(SignUpDetailEvent.RequestEmail) },
                 onEmailValue = {
                     val text = it.trim()
                     if (text.length <= MAX_EMAIL_LENGTH)
@@ -132,7 +132,7 @@ private fun SignUpDetailScreen(
 @Preview
 private fun PreviewSignUpDetailScreen(
     @PreviewParameter(SignUpStatePreviewParameters::class)
-    state : Account
+    state: Account
 ) = StepWalkTheme {
     SignUpDetailScreen(
         nickname = state,

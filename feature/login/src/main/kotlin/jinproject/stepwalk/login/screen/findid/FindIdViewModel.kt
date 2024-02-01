@@ -19,10 +19,10 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-sealed interface FindIdEvent{
+sealed interface FindIdEvent {
     data object FindId : FindIdEvent
     data object RequestEmail : FindIdEvent
-    data class Email(val value : String) : FindIdEvent
+    data class Email(val value: String) : FindIdEvent
     data class EmailCode(val value: String) : FindIdEvent
 }
 
@@ -30,27 +30,37 @@ sealed interface FindIdEvent{
 internal class FindIdViewModel @Inject constructor(
     requestEmailCodeUseCase: RequestEmailCodeUseCase,
     private val findIdUseCase: FindIdUseCase
-) : EmailViewModel(requestEmailCodeUseCase){
+) : EmailViewModel(requestEmailCodeUseCase) {
 
     private val _id = MutableStateFlow("")
     val id get() = _id.asStateFlow()
 
     init {
         email.checkValid { it.isValidEmail() }.launchIn(viewModelScope)
-        emailCode.checkValid { it.isValidEmailCode()}.launchIn(viewModelScope)
+        emailCode.checkValid { it.isValidEmailCode() }.launchIn(viewModelScope)
     }
 
     fun onEvent(event: FindIdEvent) {
-        when(event){
+        when (event) {
             FindIdEvent.FindId -> {
                 viewModelScope.launch(Dispatchers.IO) {
-                    findIdUseCase(requestEmail,emailCode.now())
+                    findIdUseCase(requestEmail, emailCode.now())
                         .onEach {
-                            it.onSuccess {findId ->
-                                _state.update {state -> state.copy(isSuccess = true, isLoading = false) }
+                            it.onSuccess { findId ->
+                                _state.update { state ->
+                                    state.copy(
+                                        isSuccess = true,
+                                        isLoading = false
+                                    )
+                                }
                                 _id.value = findId ?: ""
                             }.onException { code, message ->
-                                _state.update { state -> state.copy(errorMessage = message, isLoading = false) }
+                                _state.update { state ->
+                                    state.copy(
+                                        errorMessage = message,
+                                        isLoading = false
+                                    )
+                                }
                             }.onLoading {
                                 _state.update { state -> state.copy(isLoading = true) }
                             }
@@ -58,11 +68,13 @@ internal class FindIdViewModel @Inject constructor(
 
                 }
             }
+
             FindIdEvent.RequestEmail -> {
-                viewModelScope.launch {
+                viewModelScope.launch(Dispatchers.IO) {
                     requestEmailVerification()
                 }
             }
+
             is FindIdEvent.Email -> email.updateValue(event.value)
             is FindIdEvent.EmailCode -> emailCode.updateValue(event.value)
         }

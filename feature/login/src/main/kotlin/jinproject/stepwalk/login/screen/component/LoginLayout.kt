@@ -24,11 +24,11 @@ import jinproject.stepwalk.design.component.StepMateBoxDefaultTopBar
 
 @Composable
 internal fun LoginLayout(
-    modifier : Modifier = Modifier,
-    text : String,
-    content : @Composable ColumnScope.() -> Unit,
-    bottomContent : @Composable ColumnScope.() -> Unit,
-    popBackStack : () -> Unit,
+    modifier: Modifier = Modifier,
+    text: String,
+    content: @Composable ColumnScope.() -> Unit,
+    bottomContent: @Composable ColumnScope.() -> Unit,
+    popBackStack: () -> Unit,
 ) {
     DefaultLayout(
         topBar = {
@@ -54,7 +54,7 @@ internal fun LoginLayout(
         Column(
             modifier = modifier.padding(bottom = 10.dp),
             verticalArrangement = Arrangement.Bottom
-        ){
+        ) {
             bottomContent()
         }
     }
