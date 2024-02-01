@@ -22,16 +22,16 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import jinproject.stepwalk.core.SnackBarMessage
-import jinproject.stepwalk.login.component.FindAndSignUpButtons
+import jinproject.stepwalk.login.screen.component.FindAndSignUpButtons
 import jinproject.stepwalk.login.utils.MAX_ID_LENGTH
 import jinproject.stepwalk.login.utils.MAX_PASS_LENGTH
 import jinproject.stepwalk.design.R
 import jinproject.stepwalk.design.component.VerticalSpacer
 import jinproject.stepwalk.design.theme.StepWalkTheme
-import jinproject.stepwalk.login.component.EnableButton
-import jinproject.stepwalk.login.component.IdField
-import jinproject.stepwalk.login.component.LoginLayout
-import jinproject.stepwalk.login.component.PasswordField
+import jinproject.stepwalk.login.screen.component.EnableButton
+import jinproject.stepwalk.login.screen.component.IdField
+import jinproject.stepwalk.login.screen.component.LoginLayout
+import jinproject.stepwalk.login.screen.component.PasswordField
 
 @Composable
 internal fun LoginScreen(

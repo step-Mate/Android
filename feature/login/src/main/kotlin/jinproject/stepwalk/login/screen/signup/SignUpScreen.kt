@@ -23,10 +23,10 @@ import jinproject.stepwalk.core.SnackBarMessage
 import jinproject.stepwalk.design.component.VerticalSpacer
 import jinproject.stepwalk.design.theme.StepWalkColor
 import jinproject.stepwalk.design.theme.StepWalkTheme
-import jinproject.stepwalk.login.component.EnableButton
-import jinproject.stepwalk.login.component.InformationField
-import jinproject.stepwalk.login.component.LoginLayout
-import jinproject.stepwalk.login.component.PasswordDetail
+import jinproject.stepwalk.login.screen.component.EnableButton
+import jinproject.stepwalk.login.screen.component.InformationField
+import jinproject.stepwalk.login.screen.component.LoginLayout
+import jinproject.stepwalk.login.screen.component.PasswordDetail
 import jinproject.stepwalk.login.screen.state.Account
 import jinproject.stepwalk.login.screen.state.SignValid
 import jinproject.stepwalk.login.screen.state.isError

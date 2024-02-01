@@ -23,10 +23,10 @@ import jinproject.stepwalk.design.R
 import jinproject.stepwalk.design.component.DefaultButton
 import jinproject.stepwalk.design.component.VerticalSpacer
 import jinproject.stepwalk.design.theme.StepWalkTheme
-import jinproject.stepwalk.login.component.EmailVerificationField
-import jinproject.stepwalk.login.component.EnableButton
-import jinproject.stepwalk.login.component.IdResultDetail
-import jinproject.stepwalk.login.component.LoginLayout
+import jinproject.stepwalk.login.screen.component.EmailVerificationField
+import jinproject.stepwalk.login.screen.component.EnableButton
+import jinproject.stepwalk.login.screen.component.IdResultDetail
+import jinproject.stepwalk.login.screen.component.LoginLayout
 import jinproject.stepwalk.login.screen.state.Account
 import jinproject.stepwalk.login.screen.state.isSuccess
 import jinproject.stepwalk.login.utils.MAX_EMAIL_CODE_LENGTH

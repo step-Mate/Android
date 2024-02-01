@@ -1,4 +1,4 @@
-package jinproject.stepwalk.login.component
+package jinproject.stepwalk.login.screen.component
 
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.background
@@ -24,6 +24,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import jinproject.stepwalk.design.R
 import jinproject.stepwalk.design.component.DefaultButton
 import jinproject.stepwalk.design.component.DefaultTextButton
 import jinproject.stepwalk.design.component.VerticalDivider
@@ -135,7 +136,7 @@ private fun PreviewIconButton(
 
 ) = StepWalkTheme {
     IconButton(
-        icon = jinproject.stepwalk.design.R.drawable.ic_kakao_simbol,
+        icon = R.drawable.ic_kakao_simbol,
         containerColor = StepWalkColor.kakao_yellow.color,
         simbolColor = StepWalkColor.kakao_black.color,
         labelColor = StepWalkColor.kakao_black.color,

@@ -1,4 +1,4 @@
-package jinproject.stepwalk.login.component
+package jinproject.stepwalk.login.screen.component
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
