@@ -48,8 +48,8 @@ data class CalorieMissionLeaf(
  * 미션의 수치를 decorate 하여 공통화된 것들(칭호, 설명)을 추상화한 인터페이스
  */
 interface MissionComponent : MissionFigure {
-    fun getDesignation(): String
-    fun getIntro(): String
+    fun getMissionDesignation(): String
+    fun getMissionIntro(): String
 }
 
 /**
@@ -61,8 +61,8 @@ abstract class MissionCommon(
     open val designation: String,
     open val intro: String,
 ) : MissionComponent {
-    override fun getDesignation(): String = designation
-    override fun getIntro(): String = intro
+    override fun getMissionDesignation(): String = designation
+    override fun getMissionIntro(): String = intro
 }
 
 /**
@@ -83,8 +83,8 @@ data class StepMission(
 
 /**
  * 공통화된 복합 미션의 구현체
- * @param designation 칭호
- * @param intro 설명
+ * @param getMissionDesignation 칭호
+ * @param getMissionIntro 설명
  * @param missions 복합 미션을 구성하는 단일 미션들
  */
 data class MissionComposite(
