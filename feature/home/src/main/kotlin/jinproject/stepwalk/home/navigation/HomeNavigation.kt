@@ -7,12 +7,12 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import androidx.navigation.navigation
+import jinproject.stepwalk.core.SnackBarMessage
 import jinproject.stepwalk.home.screen.calendar.CalendarScreen
 import jinproject.stepwalk.home.screen.home.HomeScreen
-import jinproject.stepwalk.home.screen.home.state.SnackBarMessage
 
 const val homeGraph = "homeGraph"
-private const val homeRoute = "home"
+const val homeRoute = "home"
 private const val calendarRoute = "calendar"
 private const val calendarLink = "$calendarRoute/{start}"
 

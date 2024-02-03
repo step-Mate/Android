@@ -1,7 +1,7 @@
 package jinproject.stepwalk.home.screen.calendar
 
 import android.graphics.Color
-import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -10,18 +10,15 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import jinproject.stepwalk.design.component.DefaultButton
+import jinproject.stepwalk.core.SnackBarMessage
 import jinproject.stepwalk.design.component.DefaultLayout
-import jinproject.stepwalk.design.component.DescriptionLargeText
-import jinproject.stepwalk.design.component.StepMateProgressIndicator
+import jinproject.stepwalk.design.component.StepMateProgressIndicatorRotating
 import jinproject.stepwalk.design.component.VerticalSpacer
 import jinproject.stepwalk.design.component.VerticalWeightSpacer
 import jinproject.stepwalk.design.theme.StepWalkColor
@@ -35,10 +32,7 @@ import jinproject.stepwalk.home.screen.home.component.PopUpState
 import jinproject.stepwalk.home.screen.home.component.tab.chart.addChartPopUpDismiss
 import jinproject.stepwalk.home.screen.home.state.CaloriesMenuFactory
 import jinproject.stepwalk.home.screen.home.state.Day
-import jinproject.stepwalk.home.screen.home.state.Month
-import jinproject.stepwalk.home.screen.home.state.SnackBarMessage
 import jinproject.stepwalk.home.screen.home.state.TimeMenuFactory
-import jinproject.stepwalk.home.screen.home.state.Year
 import kotlin.math.ceil
 import kotlin.math.roundToLong
 
@@ -82,7 +76,7 @@ internal fun CalendarScreen(
 ) {
     when (uiState) {
         CalendarViewModel.UiState.Loading -> {
-            StepMateProgressIndicator()
+            StepMateProgressIndicatorRotating()
         }
 
         is CalendarViewModel.UiState.Success -> {
@@ -117,53 +111,19 @@ internal fun OnSuccessCalendarScreen(
     }
 
     DefaultLayout(
-        modifier = Modifier.addChartPopUpDismiss(
-            popUpState = popUpState,
-            setPopUpState = { state -> popUpState = state }
-        ),
+        modifier = Modifier
+            .background(MaterialTheme.colorScheme.background)
+            .addChartPopUpDismiss(
+                popUpState = popUpState,
+                setPopUpState = { state -> popUpState = state }
+            ),
         contentPaddingValues = PaddingValues(vertical = 16.dp, horizontal = 12.dp),
         topBar = {
             CalendarAppBar(
                 calendarData = calendarData,
                 popBackStack = popBackStack,
-                onDateChange = { prevType ->
-                    setCalendarData(
-                        calendarData.copy(
-                            type = prevType,
-                        )
-                    )
-                }
-            ) {
-                val bool = when (calendarData.type) {
-                    Month -> calendarData.selectedTime.monthValue != 0
-                    Year -> calendarData.selectedTime.year != 0
-                    else -> false
-                }
-                val alpha by animateFloatAsState(
-                    targetValue = if (bool) 1f else 0f,
-                    label = "SelectionButtonAlpha"
-                )
-
-                DefaultButton(
-                    onClick = {
-                        when (calendarData.type) {
-                            Month -> setCalendarData(calendarData.copy(type = Day))
-                            Year -> setCalendarData(calendarData.copy(type = Month))
-                            else -> {}
-                        }
-                    },
-                    modifier = Modifier
-                        .align(Alignment.CenterEnd)
-                        .graphicsLayer {
-                            this.alpha = alpha
-                        }
-                ) {
-                    DescriptionLargeText(
-                        text = "선택",
-                        color = MaterialTheme.colorScheme.onPrimary
-                    )
-                }
-            }
+                setCalendarData = setCalendarData,
+            )
         }
     ) {
 
@@ -176,7 +136,8 @@ internal fun OnSuccessCalendarScreen(
 
         CalendarHealthChart(
             graph = uiState.healthTab.graph,
-            header = "시간당 걸음수",
+            header = "걸음수",
+            type = calendarData.type,
             barColor = listOf(
                 StepWalkColor.blue_700.color,
                 StepWalkColor.blue_600.color,
@@ -195,7 +156,8 @@ internal fun OnSuccessCalendarScreen(
             graph = uiState.healthTab.graph.map {
                 ceil(CaloriesMenuFactory.cal(it.toFloat()).toDouble()).roundToLong()
             },
-            header = "시간당 칼로리(Kcal)",
+            header = "칼로리(Kcal)",
+            type = calendarData.type,
             barColor = listOf(
                 StepWalkColor.orange_700.color,
                 StepWalkColor.orange_600.color,
@@ -214,7 +176,8 @@ internal fun OnSuccessCalendarScreen(
             graph = uiState.healthTab.graph.map {
                 TimeMenuFactory.cal(it).roundToLong()
             },
-            header = "시간당 걸은 시간(분)",
+            header = "걸은 시간(분)",
+            type = calendarData.type,
             barColor = listOf(
                 StepWalkColor.green_700.color,
                 StepWalkColor.green_600.color,

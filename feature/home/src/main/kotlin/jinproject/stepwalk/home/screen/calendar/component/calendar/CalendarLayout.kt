@@ -1,9 +1,12 @@
 package jinproject.stepwalk.home.screen.calendar.component.calendar
 
 import androidx.compose.animation.Crossfade
+import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
@@ -29,7 +32,8 @@ internal fun CalendarLayout(
                 CalendarDayLayout(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 12.dp)
+                        .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(20.dp))
+                        .padding(horizontal = 12.dp, vertical = 8.dp)
                         .pointerInput(calendarData.selectedTime.monthValue) {
                             detectHorizontalDragGestures { change, dragAmount ->
                                 val next = if (dragAmount > 0f)

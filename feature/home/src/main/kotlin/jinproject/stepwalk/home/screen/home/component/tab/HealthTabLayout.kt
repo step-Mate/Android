@@ -13,16 +13,16 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
-import jinproject.stepwalk.design.PreviewStepWalkTheme
 import jinproject.stepwalk.design.component.DefaultIconButton
 import jinproject.stepwalk.design.component.DescriptionLargeText
 import jinproject.stepwalk.design.component.VerticalSpacer
 import jinproject.stepwalk.design.theme.StepWalkColor
+import jinproject.stepwalk.design.theme.StepWalkTheme
 import jinproject.stepwalk.home.screen.home.HomeUiState
 import jinproject.stepwalk.home.screen.home.HomeUiStatePreviewParameters
 import jinproject.stepwalk.home.screen.home.component.PopUpState
@@ -40,7 +40,7 @@ import jinproject.stepwalk.home.utils.toDayOfWeekString
 import java.time.LocalDate
 
 @Composable
-internal fun HealthTabLayout(
+internal fun ColumnScope.HealthTabLayout(
     healthTab: HealthTab,
     navigateToDetailChart: () -> Unit,
     popUpState: PopUpState,
@@ -53,8 +53,7 @@ internal fun HealthTabLayout(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(20.dp))
-            .background(MaterialTheme.colorScheme.secondary)
+            .background(MaterialTheme.colorScheme.surfaceVariant, RoundedCornerShape(20.dp))
             .padding(10.dp)
     ) {
         HealthChart(
@@ -62,12 +61,13 @@ internal fun HealthTabLayout(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(300.dp)
-                .clip(RoundedCornerShape(20.dp))
-                .background(MaterialTheme.colorScheme.background)
+                .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(20.dp))
                 .padding(10.dp),
             header = {
                 Box(
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(MaterialTheme.colorScheme.surface)
                 ) {
                     DescriptionLargeText(
                         text = "시간당 걸음수",
@@ -77,7 +77,7 @@ internal fun HealthTabLayout(
                         modifier = Modifier.align(Alignment.CenterEnd),
                         icon = jinproject.stepwalk.design.R.drawable.ic_setting,
                         onClick = navigateToDetailChart,
-                        iconTint = MaterialTheme.colorScheme.onBackground
+                        iconTint = MaterialTheme.colorScheme.onSurface
                     )
                 }
             },
@@ -113,7 +113,11 @@ internal fun ColumnScope.HealthChart(
                     Week.toNumberOfDays() -> (index + 1).weekToString()
                     Day.toNumberOfDays() -> index.toString()
                     else -> (index + 1).toString()
-                }
+                },
+                textAlign = when (graph.size > 14) {
+                    true -> TextAlign.Left
+                    false -> TextAlign.Center
+                },
             )
         },
         verticalAxis = {
@@ -156,12 +160,16 @@ internal fun Int.weekToString() =
     }
 
 @Composable
-@Preview
+@Preview(showBackground = true)
 private fun PreviewUserSteps(
     @PreviewParameter(HomeUiStatePreviewParameters::class)
     uiState: HomeUiState,
-) = PreviewStepWalkTheme {
-    Column(modifier = Modifier.fillMaxSize()) {
+) = StepWalkTheme {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background)
+    ) {
         HealthTabLayout(
             healthTab = uiState.step,
             navigateToDetailChart = {},

@@ -71,7 +71,7 @@ fun StepMateTitleTopBar(
 }
 
 @Composable
-fun BoxScopeTopBar(
+fun ColumnScopeTopBar(
     modifier: Modifier = Modifier,
     @DrawableRes icon: Int,
     onClick: () -> Unit,
@@ -105,16 +105,11 @@ fun StepMateDefaultTopBar(
             .fillMaxWidth()
             .height(48.dp)
     ) {
-        IconButton(
+        DefaultIconButton(
+            icon = icon,
             onClick = onClick,
-            modifier = Modifier.size(48.dp)
-        ) {
-            Icon(
-                painter = painterResource(id = icon),
-                contentDescription = "StepMateTopBarIcon",
-                tint = MaterialTheme.colorScheme.onSurface
-            )
-        }
+            iconTint = MaterialTheme.colorScheme.onSurface
+        )
         content()
     }
 }
@@ -131,18 +126,13 @@ fun StepMateBoxDefaultTopBar(
             .fillMaxWidth()
             .height(48.dp)
     ) {
-        IconButton(
-            onClick = onClick,
+        DefaultIconButton(
             modifier = Modifier
-                .size(48.dp)
-                .align(Alignment.CenterStart)
-        ) {
-            Icon(
-                painter = painterResource(id = icon),
-                contentDescription = "StepMateTopBarIcon",
-                tint = MaterialTheme.colorScheme.onSurface
-            )
-        }
+                .align(Alignment.CenterStart),
+            icon = icon,
+            onClick = onClick,
+            iconTint = MaterialTheme.colorScheme.onSurface
+        )
         content()
     }
 }

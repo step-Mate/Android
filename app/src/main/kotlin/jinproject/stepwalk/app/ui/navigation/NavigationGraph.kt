@@ -26,26 +26,25 @@ import jinproject.stepwalk.login.navigation.navigateToFindId
 import jinproject.stepwalk.login.navigation.navigateToFindPassword
 import jinproject.stepwalk.login.navigation.navigateToSignUp
 import jinproject.stepwalk.login.navigation.navigateToSignUpDetail
-import jinproject.stepwalk.mission.navigation.missionNavGraph
-import jinproject.stepwalk.mission.navigation.navigateToMissionDetail
+
 
 
 @Composable
 internal fun NavigationGraph(
     router: Router,
     modifier: Modifier = Modifier,
-    showSnackBar: (SnackBarMessage) -> Unit,
+    showSnackBar: (jinproject.stepwalk.core.SnackBarMessage) -> Unit,
 ) {
     val navController = router.navController
 
     NavHost(
         navController = navController,
-        startDestination = BottomNavigationDestination.HOME.route,
+        startDestination = homeGraph,
         modifier = modifier
     ) {
         homeNavGraph(
             navigateToCalendar = navController::navigateToCalendar,
-            popBackStack = navController::popBackStack,
+            popBackStack = navController::popBackStackIfCan,
             showSnackBar = showSnackBar
         )
 
@@ -54,21 +53,47 @@ internal fun NavigationGraph(
             navigateToSignUpDetail = navController::navigateToSignUpDetail,
             navigateToFindId = navController::navigateToFindId,
             navigateToFindPassword = navController::navigateToFindPassword,
-            popBackStack = navController::popBackStack,
+            popBackStack = navController::popBackStackIfCan,
             popBackStacks = navController::popBackStack,
-            showSnackBar = { showSnackBar(SnackBarMessage(it.headerMessage,it.contentMessage))}
+            showSnackBar = {
+                showSnackBar(
+                    SnackBarMessage(
+                        it.headerMessage,
+                        it.contentMessage
+                    )
+                )
+            }
         )
 
-        missionNavGraph(
-            navigateToMissionDetail = navController::navigateToMissionDetail,
-            popBackStack = navController::popBackStack
-        )
 
-
-        composable(route = BottomNavigationDestination.SETTING.route) {
-            Column(modifier = Modifier.fillMaxSize()) {
+        composable(route = BottomNavigationDestination.Profile.route) {
+            Column(modifier = Modifier
+                .fillMaxSize()
+                .wrapContentSize()) {
                 Image(
                     painter = painterResource(id = jinproject.stepwalk.design.R.drawable.ic_setting),
+                    contentDescription = "settingIcon"
+                )
+            }
+        }
+
+        composable(route = BottomNavigationDestination.Ranking.route) {
+            Column(modifier = Modifier
+                .fillMaxSize()
+                .wrapContentSize()) {
+                Image(
+                    painter = painterResource(id = jinproject.stepwalk.design.R.drawable.ic_rankboard),
+                    contentDescription = "settingIcon"
+                )
+            }
+        }
+
+        composable(route = BottomNavigationDestination.Mission.route) {
+            Column(modifier = Modifier
+                .fillMaxSize()
+                .wrapContentSize()) {
+                Image(
+                    painter = painterResource(id = jinproject.stepwalk.design.R.drawable.ic_bookmark),
                     contentDescription = "settingIcon"
                 )
             }
@@ -80,32 +105,34 @@ internal fun NavigationGraph(
 @Composable
 internal fun BottomNavigationGraph(
     router: Router,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     when {
         router.currentDestination.showBottomBarOrHide() -> {
             NavigationBar(
                 modifier = modifier,
-                containerColor = Color.Transparent,
+                contentColor = MaterialTheme.colorScheme.onSurface,
+                containerColor = MaterialTheme.colorScheme.surface,
+                tonalElevation = 0.dp,
             ) {
-                BottomNavigationDestination.values.forEach { destination ->
+                BottomNavigationDestination.entries.forEach { destination ->
                     val selected = router.currentDestination.isDestinationInHierarchy(destination)
 
                     NavigationBarItem(
                         selected = selected,
-                        onClick = { router.navigate(destination) },
+                        onClick = { router.navigateOnBottomNavigationBar(destination) },
                         icon = {
                             Icon(
                                 imageVector = ImageVector.vectorResource(id = destination.icon),
                                 contentDescription = "clickIcon",
-                                tint = MaterialTheme.colorScheme.onBackground
+                                tint = MaterialTheme.colorScheme.onSurface
                             )
                         },
                         iconClicked = {
                             Icon(
                                 imageVector = ImageVector.vectorResource(id = destination.iconClicked),
                                 contentDescription = "clickedIcon",
-                                tint = MaterialTheme.colorScheme.onBackground
+                                tint = MaterialTheme.colorScheme.onSurface
                             )
                         }
                     )

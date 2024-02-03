@@ -25,20 +25,17 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.layout.ParentDataModifier
-import androidx.compose.ui.layout.boundsInWindow
-import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.layout.positionInWindow
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
+import jinproject.stepwalk.design.component.DescriptionSmallText
 import jinproject.stepwalk.design.theme.StepWalkColor
 import jinproject.stepwalk.design.theme.StepWalkTheme
 import jinproject.stepwalk.home.screen.home.HomeUiState
 import jinproject.stepwalk.home.screen.home.HomeUiStatePreviewParameters
 import jinproject.stepwalk.home.screen.home.component.PopUpState
-import kotlin.math.roundToInt
 
 @Composable
 internal fun StepBar(
@@ -92,29 +89,30 @@ internal fun StepBar(
                         cornerRadius = CornerRadius(x = 10f)
                     )
                 }
-            }.then(HealthChartData(graph[index]))
+            }
+            .then(HealthChartData(graph[index]))
     )
 }
 
-@Stable
 internal class HealthChartData(
-    val height: Long
-): ParentDataModifier {
+    val height: Long,
+) : ParentDataModifier {
     override fun Density.modifyParentData(parentData: Any?): Any {
         return this@HealthChartData
     }
-
 }
 
 @Composable
 internal fun StepGraphTail(
     item: String,
+    textAlign: TextAlign,
 ) {
-    Text(
+    val startPadding = if (item.length == 1) 3.dp else 0.dp
+
+    DescriptionSmallText(
         text = item,
-        textAlign = TextAlign.Left,
-        style = MaterialTheme.typography.bodySmall,
-        color = MaterialTheme.colorScheme.onBackground
+        modifier = Modifier.padding(start = startPadding),
+        textAlign = textAlign,
     )
 }
 

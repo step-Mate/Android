@@ -6,7 +6,7 @@ import jinproject.stepwalk.home.screen.home.state.Month
 import jinproject.stepwalk.home.screen.home.state.Year
 import java.time.ZonedDateTime
 
-internal object CalendarPreviewData : PreviewParameterProvider<CalendarData> {
+internal class CalendarPreviewData : PreviewParameterProvider<CalendarData> {
     private val today = ZonedDateTime.now()
     val month = CalendarData(
         type = Month,
