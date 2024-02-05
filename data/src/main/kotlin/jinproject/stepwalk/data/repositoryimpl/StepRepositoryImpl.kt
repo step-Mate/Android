@@ -1,6 +1,7 @@
-package jinproject.stepwalk.data
+package jinproject.stepwalk.data.repositoryimpl
 
 import androidx.datastore.core.DataStore
+import jinproject.stepwalk.data.StepwalkPrefs.StepWalkPreferences
 import jinproject.stepwalk.domain.model.StepData
 import jinproject.stepwalk.domain.repository.StepRepository
 import kotlinx.coroutines.flow.Flow

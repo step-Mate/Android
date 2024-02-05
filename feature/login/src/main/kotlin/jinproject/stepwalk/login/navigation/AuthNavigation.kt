@@ -7,22 +7,22 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import androidx.navigation.navigation
+import jinproject.stepwalk.core.SnackBarMessage
+import jinproject.stepwalk.core.slideLeftIn
 import jinproject.stepwalk.login.screen.login.LoginScreen
 import jinproject.stepwalk.login.screen.findid.FindIdScreen
 import jinproject.stepwalk.login.screen.findpassword.FindPasswordScreen
 import jinproject.stepwalk.login.screen.signup.SignUpScreen
 import jinproject.stepwalk.login.screen.signupdetail.SignUpDetailScreen
-import jinproject.stepwalk.login.utils.SnackBarMessage
-import jinproject.stepwalk.login.utils.slideDownOut
-import jinproject.stepwalk.login.utils.slideLeftOut
-import jinproject.stepwalk.login.utils.slideRightIn
-import jinproject.stepwalk.login.utils.slideUpIn
+import jinproject.stepwalk.core.slideLeftOut
+import jinproject.stepwalk.core.slideRightIn
+import jinproject.stepwalk.core.slideRightOut
 
 const val loginGraph = "loginGraph"
-private const val loginRoute = "login"
+const val loginRoute = "login"
 private const val signUpRoute = "signUp"
 private const val signUpDetailRoute = "signUpDetail"
-private const val signUpDetailLink = "$signUpDetailRoute?id={id}&password={password}"
+private const val signUpDetailLink = "$signUpDetailRoute/{id}/{password}"
 private const val findIdRoute = "findId"
 private const val findPasswordRoute = "findPassword"
 
@@ -32,42 +32,43 @@ fun NavGraphBuilder.authNavGraph(
     navigateToFindId : () -> Unit,
     navigateToFindPassword : () -> Unit,
     popBackStack: () -> Unit,
-    popBackStacks: (String,Boolean,Boolean) -> Unit,
+    backStackToHome: () -> Unit,
     showSnackBar: (SnackBarMessage) -> Unit
 ){
     navigation(
-        startDestination = loginGraph,
-        route = loginRoute
+        startDestination = loginRoute,
+        route = loginGraph
     ){
         composable(
-            route = loginGraph,
-            enterTransition = slideUpIn(500),
-            exitTransition = slideDownOut(500)
+            route = loginRoute,
+            enterTransition = slideRightIn(500),
+            exitTransition = slideLeftOut(500),
         ){
             LoginScreen(
                 navigateToSignUp = navigateToSignUp,
                 navigateToFindId = navigateToFindId,
                 navigateToFindPassword = navigateToFindPassword,
-                popBackStack = popBackStack,
+                popBackStack = backStackToHome,
                 showSnackBar = showSnackBar
             )
         }
 
         composable(
             route = signUpRoute,
-            enterTransition = slideRightIn(500),
-            exitTransition = slideLeftOut(500),
+            enterTransition = slideLeftIn(500),
+            exitTransition = slideRightOut(500),
         ){
             SignUpScreen(
                 navigateToSignUpDetail = navigateToSignUpDetail,
+                popBackStack = popBackStack,
                 showSnackBar = showSnackBar
             )
         }
 
         composable(
             route = signUpDetailLink,
-            enterTransition = slideRightIn(500),
-            exitTransition = slideLeftOut(500),
+            enterTransition = slideLeftIn(500),
+            exitTransition = slideRightOut(500),
             arguments = listOf(
                 navArgument("id"){
                     type = NavType.StringType
@@ -80,27 +81,31 @@ fun NavGraphBuilder.authNavGraph(
             )
         ){
             SignUpDetailScreen(
-                popBackStacks = popBackStacks
+                popBackStack = popBackStack,
+                backStackToLogin = backStackToHome,
+                showSnackBar = showSnackBar
             )
         }
 
         composable(
             route = findIdRoute,
-            enterTransition = slideRightIn(500),
-            exitTransition = slideLeftOut(500),
+            enterTransition = slideLeftIn(500),
+            exitTransition = slideRightOut(500),
         ){
             FindIdScreen(
-                popBackStack = popBackStack
+                popBackStack = popBackStack,
+                showSnackBar = showSnackBar
             )
         }
 
         composable(
             route = findPasswordRoute,
-            enterTransition = slideRightIn(500),
-            exitTransition = slideLeftOut(500),
+            enterTransition = slideLeftIn(500),
+            exitTransition = slideRightOut(500),
         ){
             FindPasswordScreen (
-                popBackStack = popBackStack
+                popBackStack = popBackStack,
+                showSnackBar = showSnackBar
             )
         }
     }
@@ -113,11 +118,12 @@ fun NavController.navigateToLogin(navOptions: NavOptions?) {
 fun NavController.navigateToSignUp() {
     this.navigate(signUpRoute){
         launchSingleTop = true
+        restoreState = true
     }
 }
 
 fun NavController.navigateToSignUpDetail(id : String, password : String) {
-    this.navigate("$signUpDetailRoute?id={$id}&password={$password}"){
+    this.navigate("$signUpDetailRoute/$id/$password"){
         launchSingleTop = true
     }
 }

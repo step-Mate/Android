@@ -50,3 +50,7 @@ fun NavController.navigateToHome(navOptions: NavOptions?) {
 fun NavController.navigateToCalendar(time: Long) {
     this.navigate("$calendarRoute/$time")
 }
+
+fun NavController.backStackToHome() {
+    this.popBackStack(homeRoute,inclusive = false)
+}

@@ -19,6 +19,8 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import jinproject.stepwalk.core.SnackBarMessage
+import jinproject.stepwalk.home.navigation.backStackToHome
 import jinproject.stepwalk.home.navigation.homeGraph
 import jinproject.stepwalk.home.navigation.homeNavGraph
 import jinproject.stepwalk.home.navigation.navigateToCalendar
@@ -43,7 +45,7 @@ internal fun NavigationGraph(
 
     NavHost(
         navController = navController,
-        startDestination = loginGraph,
+        startDestination = homeGraph,
         modifier = modifier
     ) {
         homeNavGraph(
@@ -58,15 +60,8 @@ internal fun NavigationGraph(
             navigateToFindId = navController::navigateToFindId,
             navigateToFindPassword = navController::navigateToFindPassword,
             popBackStack = navController::popBackStackIfCan,
-            popBackStacks = navController::popBackStack,
-            showSnackBar = {
-                showSnackBar(
-                    SnackBarMessage(
-                        it.headerMessage,
-                        it.contentMessage
-                    )
-                )
-            }
+            backStackToHome = navController::backStackToHome,
+            showSnackBar = showSnackBar
         )
 
 
@@ -169,5 +164,5 @@ private fun RowScope.NavigationBarItem(
 @Stable
 private object NavigationDefaults {
     @Composable
-    fun navigationIndicatorColor() =  MaterialTheme.colorScheme.background
+    fun navigationIndicatorColor() = MaterialTheme.colorScheme.background
 }

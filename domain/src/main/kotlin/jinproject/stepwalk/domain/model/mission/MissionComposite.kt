@@ -1,4 +1,7 @@
-package jinproject.stepwalk.domain.model
+package jinproject.stepwalk.domain.model.mission
+
+import jinproject.stepwalk.domain.model.Fraction
+import jinproject.stepwalk.domain.model.sumOrNull
 
 import androidx.annotation.DrawableRes
 
@@ -14,6 +17,8 @@ interface MissionFigure {
     fun getMissionGoal(): Int
     fun getMissionProgress() =
         (getMissionAchieved().toFloat() / getMissionGoal().toFloat()).coerceAtMost(1f)
+
+    fun getReward(): Int
 }
 
 /**
@@ -36,7 +41,9 @@ abstract class MissionLeaf(
 data class StepMissionLeaf(
     override val achieved: Int,
     override val goal: Int,
-) : MissionLeaf(achieved = achieved, goal = goal)
+) : MissionLeaf(achieved = achieved, goal = goal) {
+    override fun getReward(): Int = goal / 1000
+}
 
 /**
  * 칼로리의 수치화된 미션의 구현체
@@ -44,43 +51,8 @@ data class StepMissionLeaf(
 data class CalorieMissionLeaf(
     override val achieved: Int,
     override val goal: Int,
-) : MissionLeaf(achieved = achieved, goal = goal)
-
-/**
- * 미션의 수치를 decorate 하여 공통화된 것들(칭호, 설명)을 추상화한 인터페이스
- */
-interface MissionComponent : MissionFigure {
-    fun getMissionDesignation(): String
-    fun getMissionIntro(): String
-}
-
-/**
- * 공통화된 미션 자체를 추상화한 클래스
- * @param designation 칭호
- * @param intro 설명
- */
-abstract class MissionCommon(
-    open val designation: String,
-    open val intro: String,
-) : MissionComponent {
-    override fun getMissionDesignation(): String = designation
-    override fun getMissionIntro(): String = intro
-}
-
-/**
- * 공통화된 단일 미션의 걸음수 미션 구현체
- */
-data class StepMission(
-    override val designation: String,
-    override val intro: String,
-    val achieved: Int,
-    val goal: Int,
-) : MissionCommon(
-    designation = designation,
-    intro = intro,
-) {
-    override fun getMissionAchieved(): Int = achieved
-    override fun getMissionGoal(): Int = goal
+) : MissionLeaf(achieved = achieved, goal = goal) {
+    override fun getReward(): Int = goal / 10
 }
 
 /**
@@ -110,6 +82,13 @@ data class MissionComposite(
 
     override fun getMissionAchieved(): Int = fraction.son
     override fun getMissionGoal(): Int = fraction.mother
+    override fun getReward(): Int = missions.sumOf { mission ->
+        when (mission) {
+            is StepMissionLeaf -> mission.getMissionGoal() / 1000
+            is CalorieMissionLeaf -> mission.getMissionGoal() / 10
+            else -> throw IllegalArgumentException("$mission 은 정해지지 않은 미션 입니다.")
+        }
+    }
 }
 
 data class MissionList(

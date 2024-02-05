@@ -1,8 +1,9 @@
-package jinproject.stepwalk.data
+package jinproject.stepwalk.data.local.datastore
 
 import androidx.datastore.core.CorruptionException
 import androidx.datastore.core.Serializer
 import com.google.protobuf.InvalidProtocolBufferException
+import jinproject.stepwalk.data.StepwalkPrefs.StepWalkPreferences
 import java.io.InputStream
 import java.io.OutputStream
 import javax.inject.Inject
