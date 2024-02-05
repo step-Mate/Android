@@ -1,4 +1,4 @@
-package jinproject.stepwalk.login.utils
+package jinproject.stepwalk.core
 
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.EnterTransition

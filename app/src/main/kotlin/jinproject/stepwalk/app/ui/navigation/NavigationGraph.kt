@@ -20,6 +20,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import jinproject.stepwalk.core.SnackBarMessage
+import jinproject.stepwalk.home.navigation.backStackToHome
 import jinproject.stepwalk.home.navigation.homeGraph
 import jinproject.stepwalk.home.navigation.homeNavGraph
 import jinproject.stepwalk.home.navigation.navigateToCalendar
@@ -33,7 +34,7 @@ import jinproject.stepwalk.login.navigation.navigateToSignUpDetail
 internal fun NavigationGraph(
     router: Router,
     modifier: Modifier = Modifier,
-    showSnackBar: (jinproject.stepwalk.core.SnackBarMessage) -> Unit,
+    showSnackBar: (SnackBarMessage) -> Unit,
 ) {
     val navController = router.navController
 
@@ -54,15 +55,8 @@ internal fun NavigationGraph(
             navigateToFindId = navController::navigateToFindId,
             navigateToFindPassword = navController::navigateToFindPassword,
             popBackStack = navController::popBackStackIfCan,
-            popBackStacks = navController::popBackStack,
-            showSnackBar = {
-                showSnackBar(
-                    SnackBarMessage(
-                        it.headerMessage,
-                        it.contentMessage
-                    )
-                )
-            }
+            backStackToHome = navController::backStackToHome,
+            showSnackBar = showSnackBar
         )
 
 

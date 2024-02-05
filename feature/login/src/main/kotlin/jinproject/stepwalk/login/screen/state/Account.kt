@@ -1,92 +1,91 @@
 package jinproject.stepwalk.login.screen.state
 
 import androidx.compose.runtime.Stable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
-import jinproject.stepwalk.login.utils.debouncedFilter
-import jinproject.stepwalk.login.utils.isValidEmailCode
-import jinproject.stepwalk.login.utils.isValidID
-import jinproject.stepwalk.login.utils.isValidPassword
-import jinproject.stepwalk.login.utils.passwordMatches
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.update
+
+@Stable
+data class FieldValue(
+    val text: String = "",
+    val valid: SignValid = SignValid.blank
+)
 
 @Stable
 class Account(
-    time : Long
-){
-    private val _value = MutableStateFlow("")
-    val value = _value.asStateFlow()
-    var valid by mutableStateOf(SignValid.blank)
+    time: Long,
+    initText: String = "",
+    initValid: SignValid = SignValid.blank
+) {
+    private val _value = MutableStateFlow(FieldValue(initText, initValid))
+    val value get() = _value.asStateFlow()
 
-    private val debouncedValueFilter : Flow<String?> = value
-        .debouncedFilter(time)
+    @OptIn(FlowPreview::class)
+    private val debouncedValueFilter: Flow<FieldValue> = value
+        .debounce(time)
+        .filter { it.text.isNotEmpty() }
+        .distinctUntilChanged { old, new -> old.text == new.text }
 
-    fun updateValue(value : String){
-        _value.value = value
+    fun updateValue(value: String) {
+        _value.update { it.copy(text = value) }
     }
 
-    fun updateValid(valid: SignValid){
-        this.valid = valid
+    fun updateValid(valid: SignValid) {
+        _value.update { it.copy(valid = valid) }
     }
 
-    fun now() = value.value
+    fun now() = value.value.text
 
-    fun isSuccessful() : Boolean = valid == SignValid.success
+    fun nowValid() = value.value.valid
 
-    fun checkValid(check : (String) -> Boolean) = debouncedValueFilter
-        .onEach {
-            valid = it?.let {
-                when {
-                    it.isBlank() -> SignValid.blank
-                    !check(it) -> SignValid.notValid
-                    else -> SignValid.success
-                }
-            } ?: SignValid.blank
+    fun isSuccessful(): Boolean = nowValid() == SignValid.success
+
+    fun checkValid(
+        checkValid: SignValid = SignValid.notValid,
+        check: (String) -> Boolean
+    ) = debouncedValueFilter
+        .onEach { nowField ->
+            _value.update { fieldValue ->
+                fieldValue.copy(
+                    valid = when {
+                        nowField.text.isBlank() -> SignValid.blank
+                        !check(nowField.text) -> checkValid
+                        else -> SignValid.success
+                    }
+                )
+            }
         }
 
-    fun checkEmailCodeValid(check : (String) -> Boolean) = debouncedValueFilter
-        .onEach {
-            valid = it?.let {
-                when {
-                    it.isBlank() -> SignValid.blank
-                    it.isValidEmailCode() -> SignValid.notValid
-                    !check(it) -> SignValid.notValid
-                    else -> SignValid.success
-                }
-            } ?: SignValid.blank
-        }
-
-    fun checkIdValid(checkId : (String) -> Boolean) = debouncedValueFilter
-        .onEach {
-            valid = it?.let {
-                when {
-                    it.isBlank() -> SignValid.blank
-                    !it.isValidID() -> SignValid.notValid
-                    !checkId(it) -> SignValid.duplicationId
-                    else -> SignValid.success
-                }
-            } ?: SignValid.blank
-        }
-
-    fun checkRepeatPasswordValid(password : String) = debouncedValueFilter
-        .onEach {
-            valid = it?.let {
-                when {
-                    it.isBlank() -> SignValid.blank
-                    !it.isValidPassword() -> SignValid.notValid
-                    !it.passwordMatches(password) -> SignValid.notMatch
-                    else -> SignValid.success
-                }
-            } ?: SignValid.blank
+    suspend fun checkValid(
+        check: (String) -> Boolean,
+        suspendCheck: suspend (String) -> Boolean,
+        suspendValid: SignValid
+    ) = debouncedValueFilter
+        .onEach { nowField ->
+            _value.update { fieldValue ->
+                fieldValue.copy(
+                    valid = when {
+                        nowField.text.isBlank() -> SignValid.blank
+                        !check(nowField.text) -> SignValid.notValid
+                        !suspendCheck(nowField.text) -> suspendValid
+                        else -> SignValid.success
+                    }
+                )
+            }
         }
 }
 
 enum class SignValid {
-    blank,notValid,duplicationId,notMatch,verifying,success
+    blank, notValid, duplicationId, notMatch, verifying, success
 }
 
-internal fun SignValid.isError() : Boolean = (this != SignValid.success) and (this != SignValid.blank)
+internal fun SignValid.isError(): Boolean =
+    (this != SignValid.success) and (this != SignValid.blank)
+
+internal fun SignValid.isSuccess(): Boolean = this == SignValid.success
