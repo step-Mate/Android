@@ -29,6 +29,8 @@ import jinproject.stepwalk.login.navigation.navigateToFindId
 import jinproject.stepwalk.login.navigation.navigateToFindPassword
 import jinproject.stepwalk.login.navigation.navigateToSignUp
 import jinproject.stepwalk.login.navigation.navigateToSignUpDetail
+import jinproject.stepwalk.ranking.navigation.navigateToRankingUserDetail
+import jinproject.stepwalk.ranking.navigation.rankingNavGraph
 
 @Composable
 internal fun NavigationGraph(
@@ -59,6 +61,11 @@ internal fun NavigationGraph(
             showSnackBar = showSnackBar
         )
 
+        rankingNavGraph(
+            popBackStack = navController::popBackStackIfCan,
+            showSnackBar = showSnackBar,
+            navigateToRankingUserDetail = navController::navigateToRankingUserDetail
+        )
 
         composable(route = BottomNavigationDestination.Profile.route) {
             Column(modifier = Modifier
@@ -66,17 +73,6 @@ internal fun NavigationGraph(
                 .wrapContentSize()) {
                 Image(
                     painter = painterResource(id = jinproject.stepwalk.design.R.drawable.ic_setting),
-                    contentDescription = "settingIcon"
-                )
-            }
-        }
-
-        composable(route = BottomNavigationDestination.Ranking.route) {
-            Column(modifier = Modifier
-                .fillMaxSize()
-                .wrapContentSize()) {
-                Image(
-                    painter = painterResource(id = jinproject.stepwalk.design.R.drawable.ic_rankboard),
                     contentDescription = "settingIcon"
                 )
             }

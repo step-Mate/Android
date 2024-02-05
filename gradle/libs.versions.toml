@@ -8,11 +8,12 @@ billing = "6.0.1"
 coreKtx = "1.12.0-rc01"
 constraintLayout = "2.1.4"
 composeBom = "2023.10.01"
-composeCompiler = "1.5.1"
-composeFoundation = "1.6.0-alpha06"
+composeCompiler = "1.5.4"
+composeFoundation = "1.6.0-rc01"
 dagger = "2.48"
 datastore = "1.1.0-alpha06"
 espresso = "3.5.1"
+firebaseBom = "32.7.0"
 glide = "4.15.1"
 gmsServiceAds = "22.1.0"
 healthConnect = "1.1.0-alpha06"
@@ -21,12 +22,12 @@ kotlinCoroutine = "1.7.3"
 junit = "4.13.2"
 junitJupiter = "5.9.3"
 kotest = "5.6.0"
-lifecycle = "2.6.1"
+lifecycle = "2.7.0"
 lottie = "6.3.0"
 material = "1.9.0"
 mockk = "1.13.5"
 navigation = "2.7.0"
-protobuf = "3.23.4"
+protobuf = "3.25.0"
 room = "2.5.2"
 work = "2.8.1"
 retrofit2 = "2.9.0"
@@ -34,9 +35,10 @@ okhttp3 = "4.12.0"
 
 # plugin
 androidStudioGradlePlugin = "8.1.0"
-gmsGoogleServicePlugin = "4.3.15"
-kotlinPlugin = "1.9.0"
-kspPlugin = "1.9.0-1.0.12"
+crashlyticsGradlePlugin = "2.9.9"
+gmsGoogleServicePlugin = "4.4.0"
+kotlinPlugin = "1.9.20"
+kspPlugin = "1.9.20-1.0.14"
 junitPlugin = "1.9.3.0"
 protobufPlugin = "0.9.4"
 
@@ -47,6 +49,8 @@ gradle-android = { group = "com.android.tools.build", name = "gradle", version.r
 gradle-kotlin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlinPlugin" }
 gradle-hilt = { group = "com.google.dagger", name = "hilt-android-gradle-plugin", version.ref = "dagger" }
 gradle-google-devtools-ksp = { group = "com.google.devtools.ksp", name = "com.google.devtools.ksp.gradle.plugin", version.ref = "kspPlugin" }
+gradle-google-gms-google-services = { group = "com.google.gms.google-services", name = "com.google.gms.google-services.gradle.plugin", version.ref = "gmsGoogleServicePlugin" }
+gradle-google-firebase-crashlytics = { group = "com.google.firebase.crashlytics" , name = "com.google.firebase.crashlytics.gradle.plugin", version.ref = "crashlyticsGradlePlugin"}
 
 # Ads
 google-gms-services-ads = { group = "com.google.android.gms", name = "play-services-ads", version.ref = "gmsServiceAds" }
@@ -81,6 +85,11 @@ google-dagger = { module = "com.google.dagger:dagger", version.ref = "dagger" }
 google-dagger-hilt-android = { group = "com.google.dagger", name = "hilt-android", version.ref = "dagger" }
 google-dagger-hilt-android-compiler = { group = "com.google.dagger", name = "hilt-android-compiler", version.ref = "dagger" }
 google-dagger-hilt-android-testing = { group = "com.google.dagger", name = "hilt-android-testing", version.ref = "dagger" }
+
+# Firebase
+google-firebase-bom = { group = "com.google.firebase", name = "firebase-bom", version.ref = "firebaseBom" }
+google-firebase-analytics = { group = "com.google.firebase", name ="firebase-analytics"}
+google-firebase-crashlytics = { group = "com.google.firebase", name ="firebase-crashlytics"}
 
 # Glide
 bumptech-glide = { group = "com.github.bumptech.glide", name = "glide", version.ref = "glide" }

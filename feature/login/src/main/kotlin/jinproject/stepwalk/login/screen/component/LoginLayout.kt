@@ -18,9 +18,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import jinproject.stepwalk.design.R
-import jinproject.stepwalk.design.component.DefaultLayout
 import jinproject.stepwalk.design.component.HeadlineText
 import jinproject.stepwalk.design.component.StepMateBoxDefaultTopBar
+import jinproject.stepwalk.design.component.layout.DefaultLayout
 
 @Composable
 internal fun LoginLayout(

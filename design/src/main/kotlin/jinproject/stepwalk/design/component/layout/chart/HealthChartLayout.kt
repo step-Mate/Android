@@ -1,15 +1,14 @@
-package jinproject.stepwalk.home.screen.home.component.tab.chart
+package jinproject.stepwalk.design.component.layout.chart
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.Stable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.Layout
-import jinproject.stepwalk.design.component.asLoose
-import jinproject.stepwalk.home.screen.home.component.PopUpState
-import jinproject.stepwalk.home.screen.home.state.sortDayOfWeek
+import jinproject.stepwalk.design.component.layout.asLoose
+import java.time.LocalDateTime
+import java.time.ZoneOffset
 
 @Composable
-internal fun HealthChartLayout(
+fun HealthChartLayout(
     itemsCount: Int,
     modifier: Modifier = Modifier,
     horizontalAxis: @Composable (Int) -> Unit,
@@ -138,3 +137,26 @@ internal fun <T : Number> Number.stepToSizeByMax(barHeight: Float, max: T) =
 
         else -> barHeight / (max.toFloat() / this.toFloat())
     }
+
+/**
+ * 이번주에서 오늘이 가장 마지막에 위치하도록 값들을 sort 하는 함수
+ *
+ * *반드시 주단위로 정렬된 상태이어야 함
+ * @exception IllegalArgumentException : 리스트가 비어있거나, 크기가 7을 초과하는 경우
+ * @return 오늘이 가장 마지막인 7개의 요일 리스트
+ */
+fun <T : Number> List<T>.sortDayOfWeek() = run {
+    if (this.size > 7 || this.isEmpty())
+        throw IllegalArgumentException("비어있는 리스트 이거나 size가 7을 초과함")
+
+    val today = LocalDateTime.now().atZone(ZoneOffset.of("+9")).dayOfWeek.value
+    val arrayList = ArrayList<T>(7)
+
+    val subListBigger = this.filterIndexed { index, _ -> index + 1 > today }
+    val subListSmaller = this.filterIndexed { index, _ -> index + 1 <= today }
+
+    arrayList.apply {
+        addAll(subListBigger)
+        addAll(subListSmaller)
+    }
+}
