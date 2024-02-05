@@ -83,7 +83,7 @@ internal fun RankTop3(
                     setDialogState(
                         DialogState(
                             header = "월간 랭킹은 ${d_Day}일 뒤에 초기화 될 예정이에요.",
-                            content = "매월 1일 오전 9시에 초기화가 이루어져요.",
+                            content = "랭킹은 매일 자정 업데이트 되며, 매월 1일 자정에 초기화 되요.",
                             positiveMessage = "닫기",
                             onPositiveCallback = {
                                 setDialogState(dialogState.copy(isShown = false))

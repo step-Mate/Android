@@ -94,19 +94,16 @@ internal fun RankingScreen(
         uiState = uiState,
         user = user,
         rankBoard = rankBoard,
-        fetchRanking = rankingViewModel::fetchRanking,
         fetchMoreRankBoard = rankingViewModel::fetchMoreRankBoard,
         navigateToRankingUserDetail = navigateToRankingUserDetail,
     )
 }
 
-@OptIn(ExperimentalMaterialApi::class)
 @Composable
 private fun RankingScreen(
     uiState: RankingViewModel.UiState,
     user: User,
     rankBoard: RankBoard,
-    fetchRanking: (String) -> Unit,
     fetchMoreRankBoard: () -> Unit,
     navigateToRankingUserDetail: (String, Int) -> Unit,
 ) {
@@ -126,33 +123,14 @@ private fun RankingScreen(
         }
 
         RankingViewModel.UiState.Success -> {
-            val isPullRefreshing by remember {
-                mutableStateOf(false)
-            }
-            
-            val pullRefreshState = rememberPullRefreshState(
-                refreshing = isPullRefreshing,
-                onRefresh = {
-                    fetchRanking(user.info.name)
-                }
+            OnSuccessRankingScreen(
+                modifier = Modifier
+                    .fillMaxSize(),
+                user = user,
+                rankBoard = rankBoard,
+                fetchMoreRankBoard = fetchMoreRankBoard,
+                navigateToRankingUserDetail = navigateToRankingUserDetail,
             )
-
-            Box(modifier = Modifier.pullRefresh(pullRefreshState)) {
-                OnSuccessRankingScreen(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .align(Alignment.Center),
-                    user = user,
-                    rankBoard = rankBoard,
-                    fetchMoreRankBoard = fetchMoreRankBoard,
-                    navigateToRankingUserDetail = navigateToRankingUserDetail,
-                )
-                PullRefreshIndicator(
-                    modifier = Modifier.align(Alignment.TopCenter),
-                    refreshing = isPullRefreshing,
-                    state = pullRefreshState,
-                )
-            }
         }
     }
 }
@@ -329,7 +307,6 @@ private fun PreviewRankingScreen(
         uiState = RankingViewModel.UiState.Success,
         user = UserDetailPreviewParameter().values.first(),
         rankBoard = rankBoard,
-        fetchRanking = {},
         fetchMoreRankBoard = {},
         navigateToRankingUserDetail = { _, _ -> }
     )
