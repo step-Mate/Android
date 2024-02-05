@@ -8,7 +8,6 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.ServiceInfo
 import android.os.Build
-import android.util.Log
 import android.widget.RemoteViews
 import androidx.core.app.NotificationCompat
 import androidx.lifecycle.Lifecycle
@@ -18,8 +17,6 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.work.ExistingWorkPolicy
 import androidx.work.OneTimeWorkRequest
-import androidx.work.OneTimeWorkRequestBuilder
-import androidx.work.OutOfQuotaPolicy
 import androidx.work.WorkManager
 import dagger.hilt.android.AndroidEntryPoint
 import jinproject.stepwalk.home.R
@@ -27,8 +24,8 @@ import jinproject.stepwalk.home.receiver.AlarmReceiver
 import jinproject.stepwalk.home.utils.StepWalkChannelId
 import jinproject.stepwalk.home.utils.createChannel
 import jinproject.stepwalk.home.utils.setRepeating
-import jinproject.stepwalk.home.worker.RestartServiceWorker
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import java.util.Calendar
@@ -44,13 +41,16 @@ internal class StepService : LifecycleService() {
     private lateinit var notification: Notification
     private var exitFlag: Boolean? = null
 
+    @OptIn(ExperimentalCoroutinesApi::class)
+    val serviceDispatcher = Dispatchers.IO.limitedParallelism(1)
+
     private val alarmManager: AlarmManager by lazy { getSystemService(Context.ALARM_SERVICE) as AlarmManager }
     private val stepSensorManager: StepSensorManager by lazy {
         StepSensorManager(
             context = this,
             onSensorChanged = { event ->
                 val stepBySensor = event?.values?.first()?.toLong() ?: 0L
-                lifecycleScope.launch(Dispatchers.IO) {
+                lifecycleScope.launch(serviceDispatcher) {
                     stepSensorViewModel.onSensorChanged(stepBySensor)?.let { worker ->
                         setWorker(worker)
                     }
@@ -91,7 +91,6 @@ internal class StepService : LifecycleService() {
 
     private fun alarmUpdatingLastStep() {
         val time = Calendar.getInstance().apply {
-            timeInMillis = System.currentTimeMillis()
             add(Calendar.DAY_OF_MONTH, 1)
             set(Calendar.HOUR_OF_DAY, 0)
             set(Calendar.MINUTE, 0)
@@ -126,7 +125,7 @@ internal class StepService : LifecycleService() {
             }
         }
 
-        return START_STICKY
+        return START_REDELIVER_INTENT
     }
 
     private fun setWorker(worker: OneTimeWorkRequest) {
@@ -143,19 +142,6 @@ internal class StepService : LifecycleService() {
         if (::stepSensorViewModel.isInitialized)
             unRegisterSensor()
 
-        if (exitFlag == false) {
-            val workRequest = OneTimeWorkRequestBuilder<RestartServiceWorker>()
-                .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
-                .build()
-
-            WorkManager
-                .getInstance(this)
-                .enqueueUniqueWork(
-                    "restartStepService",
-                    ExistingWorkPolicy.REPLACE,
-                    workRequest
-                )
-        }
         super.onDestroy()
     }
 
@@ -187,10 +173,12 @@ internal class StepService : LifecycleService() {
                 .build()
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
-            startForeground(NOTIFICATION_ID, notification,
+            startForeground(
+                NOTIFICATION_ID, notification,
                 ServiceInfo.FOREGROUND_SERVICE_TYPE_HEALTH
             )
-        startForeground(NOTIFICATION_ID, notification)
+        else
+            startForeground(NOTIFICATION_ID, notification)
     }
 
     companion object {

@@ -31,7 +31,7 @@ import jinproject.stepwalk.login.component.FindAndSignUpButtons
 import jinproject.stepwalk.login.utils.MAX_ID_LENGTH
 import jinproject.stepwalk.login.utils.MAX_PASS_LENGTH
 import jinproject.stepwalk.design.R
-import jinproject.stepwalk.design.component.DefaultLayout
+import jinproject.stepwalk.design.component.layout.DefaultLayout
 import jinproject.stepwalk.design.component.VerticalSpacer
 import jinproject.stepwalk.design.theme.StepWalkTheme
 import jinproject.stepwalk.login.component.EnableButton
