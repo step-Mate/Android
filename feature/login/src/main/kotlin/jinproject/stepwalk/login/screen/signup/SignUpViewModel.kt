@@ -81,7 +81,8 @@ internal class SignUpViewModel @Inject constructor(
             .onSuccess { result = true }
             .onException { code, message ->
                 result = false
-                _state.update { it.copy(errorMessage = message) }
+                if (code != 412)
+                    _state.update { it.copy(errorMessage = message) }
             }
         return result
     }

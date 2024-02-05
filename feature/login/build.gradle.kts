@@ -6,3 +6,7 @@ plugins {
 android {
     namespace = "jinproject.stepwalk.login"
 }
+
+dependencies {
+    implementation(libs.airbnb.android.lottie.compose)
+}

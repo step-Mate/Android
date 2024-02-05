@@ -1,7 +1,7 @@
 package jinproject.stepwalk.data.local.datasource.impl
 
 import androidx.datastore.core.DataStore
-import jinproject.stepwalk.data.CurrentAuthPreferences
+import jinproject.stepwalk.data.AuthPrefs.CurrentAuthPreferences
 import jinproject.stepwalk.data.local.datasource.CurrentAuthDataSource
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch

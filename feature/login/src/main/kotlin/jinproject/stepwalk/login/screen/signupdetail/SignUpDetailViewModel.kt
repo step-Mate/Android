@@ -1,6 +1,5 @@
 package jinproject.stepwalk.login.screen.signupdetail
 
-import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import jinproject.stepwalk.login.utils.isValidNickname
@@ -49,8 +48,6 @@ internal class SignUpDetailViewModel @Inject constructor(
     init {
         id = savedStateHandle.get<String>("id") ?: ""
         password = savedStateHandle.get<String>("password") ?: ""
-        Log.d("id",id)
-        nickname.checkValid { it.isValidNickname() }.launchIn(viewModelScope)//제거
         email.checkValid { it.isValidEmail() }.launchIn(viewModelScope)
         viewModelScope.launch(Dispatchers.IO) {
             emailCode.checkValid(
@@ -58,11 +55,11 @@ internal class SignUpDetailViewModel @Inject constructor(
                 suspendCheck = {checkEmailVerification(requestEmail,it)},
                 suspendValid = SignValid.notValid
             ).launchIn(viewModelScope)
-//            nickname.checkValid(
-//                check = {it.isValidNickname()},
-//                suspendCheck = {checkDuplicationNickname(it)},
-//                suspendValid = SignValid.duplicationId
-//            ).launchIn(viewModelScope)
+            nickname.checkValid(
+                check = {it.isValidNickname()},
+                suspendCheck = {checkDuplicationNickname(it)},
+                suspendValid = SignValid.duplicationId
+            ).launchIn(viewModelScope)
         }
     }
     
@@ -100,9 +97,9 @@ internal class SignUpDetailViewModel @Inject constructor(
         var result = false
         verificationEmailCodeUseCase(email, code)
             .onSuccess { result = true }
-            .onException { code, message ->
+            .onException { errorCode, message ->
                 result = false
-                if (code != 403)
+                if (errorCode != 403)
                     _state.update { it.copy(errorMessage = message) }
             }
         return result
@@ -114,12 +111,12 @@ internal class SignUpDetailViewModel @Inject constructor(
             .onSuccess { result = true }
             .onException { code, message ->
                 result = false
-                //if추가로 중복 오류 메시지 제거
-                _state.update { it.copy(errorMessage = message) }
+                if (code != 432)
+                    _state.update { it.copy(errorMessage = message) }
             }
         return result
     }
-    
+
     companion object {
         private const val WAIT_TIME = 500L
     }

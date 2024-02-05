@@ -1,7 +1,6 @@
 syntax = "proto3";
 
 option java_package = "jinproject.stepwalk.data";
-option java_multiple_files = true;
 
 message StepWalkPreferences {
   int64 current = 1;
@@ -9,15 +8,4 @@ message StepWalkPreferences {
   int64 last = 3;
   bool isReboot = 4;
   int64 stepAfterReboot = 5;
-}
-
-message CurrentAuthPreferences {
-  string accessToken = 1;
-  string refreshToken = 2;
-}
-
-message BodyDataPreferences {
-  int32 age = 1;
-  int32 height = 2;
-  int32 weight = 3;
 }

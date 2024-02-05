@@ -3,13 +3,10 @@ package jinproject.stepwalk.login.screen.signupdetail
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
@@ -18,7 +15,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import jinproject.stepwalk.core.SnackBarMessage
 import jinproject.stepwalk.login.screen.component.EnableButton
 import jinproject.stepwalk.login.utils.MAX_NICKNAME_LENGTH
-import jinproject.stepwalk.design.R
 import jinproject.stepwalk.design.component.VerticalSpacer
 import jinproject.stepwalk.design.theme.StepWalkTheme
 import jinproject.stepwalk.login.screen.component.EmailVerificationField
@@ -77,13 +73,7 @@ private fun SignUpDetailScreen(
         text = "회원가입",
         modifier = Modifier.fillMaxSize(),
         content = {
-            Text(
-                text = stringResource(id = R.string.signup_title),
-                style = MaterialTheme.typography.titleMedium,
-                modifier = Modifier
-                    .fillMaxWidth()
-            )
-            VerticalSpacer(height = 30.dp)
+            VerticalSpacer(height = 80.dp)
             InformationField(
                 informationText = "닉네임",
                 errorMessage = if (nicknameValue.valid == SignValid.duplicationId) "중복된 닉네임이 존재합니다."

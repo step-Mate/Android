@@ -1,6 +1,5 @@
 package jinproject.stepwalk.login.screen.findpassword
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -9,16 +8,12 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import jinproject.stepwalk.core.SnackBarMessage
-import jinproject.stepwalk.design.R
 import jinproject.stepwalk.design.component.VerticalSpacer
 import jinproject.stepwalk.design.theme.StepWalkTheme
 import jinproject.stepwalk.login.screen.component.EmailVerificationField
@@ -82,19 +77,10 @@ private fun FindPasswordScreen(
     val emailCodeValue by emailCode.value.collectAsStateWithLifecycle()
 
     LoginLayout(
-        text = "회원가입",
+        text = "비밀번호 찾기",
         modifier = Modifier.padding(top = 20.dp),
         content = {
-            Image(
-                imageVector = ImageVector.vectorResource(R.drawable.ic_fire),
-                contentDescription = "캐릭터?or 운동이미지?",
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(260.dp)
-                    .padding(vertical = 30.dp),
-                alignment = Alignment.Center
-            )
-            VerticalSpacer(height = 30.dp)
+            VerticalSpacer(height = 100.dp)
             if (nextStep) {
                 Text(
                     text = "재설정할 비밀번호를 입력해주세요.",

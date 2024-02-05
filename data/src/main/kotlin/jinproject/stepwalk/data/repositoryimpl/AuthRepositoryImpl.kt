@@ -80,7 +80,7 @@ class AuthRepositoryImpl @Inject constructor(
             emit(ResponseState.Loading)
             emit(
                 stepMateApi.findAccountId(email, code)
-                    .getResult { findId -> ResponseState.Result(findId?.userId) })
+                    .getResult { findId -> ResponseState.Result(findId?.userId!!)})
         }
 
     override suspend fun verificationEmailCode(

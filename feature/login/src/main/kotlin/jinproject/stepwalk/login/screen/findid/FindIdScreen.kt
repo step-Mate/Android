@@ -1,6 +1,5 @@
 package jinproject.stepwalk.login.screen.findid
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -10,16 +9,12 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import jinproject.stepwalk.core.SnackBarMessage
-import jinproject.stepwalk.design.R
 import jinproject.stepwalk.design.component.DefaultButton
 import jinproject.stepwalk.design.component.VerticalSpacer
 import jinproject.stepwalk.design.theme.StepWalkTheme
@@ -70,19 +65,10 @@ private fun FindIdScreen(
     val emailCodeValue by emailCode.value.collectAsStateWithLifecycle()
 
     LoginLayout(
-        text = "회원가입",
+        text = "아이디 찾기",
         modifier = Modifier.padding(top = 20.dp),
         content = {
-            Image(
-                imageVector = ImageVector.vectorResource(R.drawable.ic_fire),
-                contentDescription = "캐릭터?or 운동이미지?",
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(260.dp)
-                    .padding(vertical = 30.dp),
-                alignment = Alignment.Center
-            )
-            VerticalSpacer(height = 30.dp)
+            VerticalSpacer(height = 150.dp)
             if (nextStep) {//조회후 화면
                 IdResultDetail(findAccountId = id)
                 DefaultButton(

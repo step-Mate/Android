@@ -7,12 +7,10 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
@@ -20,6 +18,8 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import jinproject.stepwalk.core.SnackBarMessage
+import jinproject.stepwalk.design.component.DescriptionLargeText
+import jinproject.stepwalk.design.component.HeadlineText
 import jinproject.stepwalk.design.component.VerticalSpacer
 import jinproject.stepwalk.design.theme.StepWalkColor
 import jinproject.stepwalk.design.theme.StepWalkTheme
@@ -33,7 +33,6 @@ import jinproject.stepwalk.login.screen.state.isError
 import jinproject.stepwalk.login.screen.state.isSuccess
 import jinproject.stepwalk.login.utils.MAX_ID_LENGTH
 import jinproject.stepwalk.login.utils.MAX_PASS_LENGTH
-import jinproject.stepwalk.design.R.string as AppText
 
 @Composable
 internal fun SignUpScreen(
@@ -79,11 +78,14 @@ private fun SignUpScreen(
         text = "회원가입",
         modifier = Modifier.fillMaxSize(),
         content = {
-            Text(
-                text = stringResource(id = AppText.signup_title),
-                style = MaterialTheme.typography.titleMedium,
+            VerticalSpacer(height = 30.dp)
+            HeadlineText(
+                text = "스텝워크에 오신걸 환영해요!"
+            )
+            VerticalSpacer(height = 20.dp)
+            DescriptionLargeText(
+                text = "정확한 서비스 이용을 위해 회원가입 절차가 필요해요.",
                 modifier = Modifier
-                    .fillMaxWidth()
             )
             VerticalSpacer(height = 30.dp)
 

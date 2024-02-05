@@ -19,12 +19,12 @@ interface StepMateApi {
 
     @POST("users/id/validation")
     suspend fun checkDuplicationId(
-        @Body buplicationRequest: DuplicationIdRequest
+        @Body duplicationRequest: DuplicationIdRequest
     ): ResponseState<ApiResponse<Nothing>>
 
     @POST("users/nickname/validation")
     suspend fun checkDuplicationNickname(
-        @Body buplicationRequest: DuplicationNicknameRequest
+        @Body duplicationRequest: DuplicationNicknameRequest
     ): ResponseState<ApiResponse<Nothing>>
 
     @POST("sign-up")

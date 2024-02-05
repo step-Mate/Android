@@ -1,7 +1,7 @@
 package jinproject.stepwalk.data.local.datasource.impl
 
 import androidx.datastore.core.DataStore
-import jinproject.stepwalk.data.BodyDataPreferences
+import jinproject.stepwalk.data.BodyDataPrefs.BodyDataPreferences
 import jinproject.stepwalk.data.local.datasource.BodyDataSource
 import jinproject.stepwalk.domain.model.BodyData
 import kotlinx.coroutines.flow.Flow

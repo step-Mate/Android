@@ -3,7 +3,7 @@ package jinproject.stepwalk.data.local.datastore
 import androidx.datastore.core.CorruptionException
 import androidx.datastore.core.Serializer
 import com.google.protobuf.InvalidProtocolBufferException
-import jinproject.stepwalk.data.CurrentAuthPreferences
+import jinproject.stepwalk.data.AuthPrefs.CurrentAuthPreferences
 import java.io.InputStream
 import java.io.OutputStream
 import javax.inject.Inject
