@@ -4,9 +4,9 @@ import androidx.annotation.DrawableRes
 import jinproject.stepwalk.design.R
 import jinproject.stepwalk.home.navigation.homeGraph
 import jinproject.stepwalk.home.navigation.homeRoute
+import jinproject.stepwalk.mission.navigation.missionRoute
 
 const val rankingRoute = "ranking"
-const val missionRoute = "mission"
 const val settingRoute = "setting"
 
 enum class BottomNavigationDestination(

@@ -1,5 +1,7 @@
 package jinproject.stepwalk.domain.model
 
+import androidx.annotation.DrawableRes
+
 /**
  * 미션의 수치(달성도, 목표)를 추상화한 인터페이스
  *
@@ -108,4 +110,15 @@ data class MissionComposite(
 
     override fun getMissionAchieved(): Int = fraction.son
     override fun getMissionGoal(): Int = fraction.mother
+}
+
+data class MissionList(
+    val title : String,
+    @DrawableRes val icon : Int,
+    val mode : MissionMode,
+    val list : List<MissionCommon>
+)
+
+enum class MissionMode {
+    repeat,time
 }

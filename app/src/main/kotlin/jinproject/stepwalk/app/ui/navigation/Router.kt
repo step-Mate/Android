@@ -11,6 +11,7 @@ import androidx.navigation.NavOptions
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.navOptions
 import jinproject.stepwalk.home.navigation.navigateToHome
+import jinproject.stepwalk.mission.navigation.navigateToMission
 
 /**
  * Navigation을 담당하는 클래스
@@ -63,8 +64,4 @@ fun NavController.navigateToProfile(navOptions: NavOptions?) {
 
 fun NavController.navigateToRanking(navOptions: NavOptions?) {
     this.navigate(BottomNavigationDestination.Ranking.route, navOptions = navOptions)
-}
-
-fun NavController.navigateToMission(navOptions: NavOptions?) {
-    this.navigate(BottomNavigationDestination.Mission.route, navOptions = navOptions)
 }

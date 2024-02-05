@@ -3,50 +3,52 @@ package jinproject.stepwalk.mission.screen.mission
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import jinproject.stepwalk.design.component.DefaultLayout
 import jinproject.stepwalk.design.theme.StepWalkTheme
+import jinproject.stepwalk.domain.model.MissionList
+import jinproject.stepwalk.domain.model.MissionMode
 import jinproject.stepwalk.mission.screen.mission.component.MissionItem
-import jinproject.stepwalk.mission.screen.mission.state.Mission
-import jinproject.stepwalk.mission.screen.mission.state.MissionMode
+
 
 @Composable
 internal fun MissionScreen(
     missionViewModel: MissionViewModel = hiltViewModel(),
-    navigateToMissionDetail : (String, MissionMode) -> Unit,
+    navigateToMissionDetail : (String,MissionMode) -> Unit,
 ) {
     MissionScreen(
-        missionList = missionViewModel.missionList,
+        missionList = missionViewModel.missionList.toList(),
         navigateToMissionDetail = navigateToMissionDetail
     )
 }
 
 @Composable
 private fun MissionScreen(
-    missionList : List<Mission>,
-    navigateToMissionDetail : (String, MissionMode) -> Unit
+    missionList : List<MissionList>,
+    navigateToMissionDetail : (String,MissionMode) -> Unit
 ){
     DefaultLayout(
         contentPaddingValues = PaddingValues(vertical = 30.dp, horizontal = 12.dp)
     ) {
-        LazyVerticalGrid(
-            columns = GridCells.Fixed(2),
+        LazyColumn(
             modifier = Modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.spacedBy(15.dp),
-            horizontalArrangement = Arrangement.spacedBy(20.dp),
+            state = rememberLazyListState(),
+            verticalArrangement = Arrangement.spacedBy(20.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
         ){
-            items(missionList, key = {it.title.title}){
+            items(items = missionList, key = {it.title}){missionList ->
                 MissionItem(
-                    mission = it,
+                    missionList = missionList,
                     onClick = {
-                        navigateToMissionDetail(it.title.title,it.title.mode)
+                        navigateToMissionDetail(missionList.title,it)
                     }
                 )
             }

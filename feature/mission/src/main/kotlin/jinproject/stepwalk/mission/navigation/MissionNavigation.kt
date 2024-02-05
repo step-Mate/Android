@@ -7,27 +7,26 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import androidx.navigation.navigation
+import jinproject.stepwalk.domain.model.MissionMode
 import jinproject.stepwalk.mission.screen.mission.MissionScreen
-import jinproject.stepwalk.mission.screen.missiondetail.missiontime.MissionTimeScreen
 import jinproject.stepwalk.mission.screen.missiondetail.missonrepeat.MissionRepeatScreen
-import jinproject.stepwalk.mission.screen.mission.state.MissionMode
-import jinproject.stepwalk.mission.screen.mission.state.toMissionMode
+
 
 const val missionGraph = "missionGraph"
-private const val missionRoute = "mission"
+const val missionRoute = "mission"
 private const val missionDetailRoute = "missionDetail"
-private const val missionDetailLink = "$missionDetailRoute/{title}/{missionType}"
+private const val missionDetailLink = "$missionDetailRoute/{title}/{mode}"
 
 fun NavGraphBuilder.missionNavGraph(
-    navigateToMissionDetail : (String, MissionMode) -> Unit,
+    navigateToMissionDetail : (String,MissionMode) -> Unit,
     popBackStack: () -> Unit
 ) {
     navigation(
-        startDestination = missionGraph,
-        route = missionRoute
+        startDestination = missionRoute,
+        route = missionGraph
     ){
         composable(
-            route = missionGraph
+            route = missionRoute
         ){
             MissionScreen(
                 navigateToMissionDetail = navigateToMissionDetail
@@ -41,19 +40,15 @@ fun NavGraphBuilder.missionNavGraph(
                     type = NavType.StringType
                     defaultValue = ""
                 },
-                navArgument("missionType"){
+                navArgument("mode"){
                     type = NavType.IntType
+                    defaultValue = 0
                 }
             )
-        ){nav ->
-            when(nav.arguments?.getInt("missionType")?.toMissionMode() ?: MissionMode.time){
-                MissionMode.time -> {
-                    MissionTimeScreen()
-                }
-                MissionMode.repeat -> {
-                    MissionRepeatScreen()
-                }
-            }
+        ){
+            MissionRepeatScreen(
+                popBackStack = popBackStack
+            )
         }
     }
 }
@@ -62,7 +57,7 @@ fun NavController.navigateToMission(navOptions: NavOptions?){
     this.navigate(missionRoute, navOptions = navOptions)
 }
 
-fun NavController.navigateToMissionDetail(title : String,mode : MissionMode){
+fun NavController.navigateToMissionDetail(title : String, mode : MissionMode){
     this.navigate("$missionDetailRoute/$title/${mode.ordinal}"){
         launchSingleTop = true
     }

@@ -4,6 +4,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
@@ -12,13 +13,13 @@ import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import jinproject.stepwalk.home.screen.home.state.SnackBarMessage
+import jinproject.stepwalk.home.navigation.homeGraph
 import jinproject.stepwalk.home.navigation.homeNavGraph
 import jinproject.stepwalk.home.navigation.navigateToCalendar
 import jinproject.stepwalk.login.navigation.authNavGraph
@@ -26,20 +27,23 @@ import jinproject.stepwalk.login.navigation.navigateToFindId
 import jinproject.stepwalk.login.navigation.navigateToFindPassword
 import jinproject.stepwalk.login.navigation.navigateToSignUp
 import jinproject.stepwalk.login.navigation.navigateToSignUpDetail
-
+import jinproject.stepwalk.core.SnackBarMessage
+import jinproject.stepwalk.login.navigation.loginGraph
+import jinproject.stepwalk.mission.navigation.missionNavGraph
+import jinproject.stepwalk.mission.navigation.navigateToMissionDetail
 
 
 @Composable
 internal fun NavigationGraph(
     router: Router,
     modifier: Modifier = Modifier,
-    showSnackBar: (jinproject.stepwalk.core.SnackBarMessage) -> Unit,
+    showSnackBar: (SnackBarMessage) -> Unit,
 ) {
     val navController = router.navController
 
     NavHost(
         navController = navController,
-        startDestination = homeGraph,
+        startDestination = loginGraph,
         modifier = modifier
     ) {
         homeNavGraph(
@@ -88,16 +92,11 @@ internal fun NavigationGraph(
             }
         }
 
-        composable(route = BottomNavigationDestination.Mission.route) {
-            Column(modifier = Modifier
-                .fillMaxSize()
-                .wrapContentSize()) {
-                Image(
-                    painter = painterResource(id = jinproject.stepwalk.design.R.drawable.ic_bookmark),
-                    contentDescription = "settingIcon"
-                )
-            }
-        }
+        missionNavGraph(
+            navigateToMissionDetail = navController::navigateToMissionDetail,
+            popBackStack = navController::popBackStackIfCan,
+        )
+
     }
 }
 
