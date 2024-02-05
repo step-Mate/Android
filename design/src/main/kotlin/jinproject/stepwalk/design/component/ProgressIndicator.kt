@@ -29,7 +29,6 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import jinproject.stepwalk.design.component.pushRefresh.PushRefreshState
 import jinproject.stepwalk.design.theme.StepWalkTheme
 import kotlin.math.cos
 import kotlin.math.sin
@@ -76,40 +75,6 @@ fun StepMatePullRefreshIndicator(
                 StepMateProgressIndicatorRotatingByParam(
                     progress = state.progress,
                 )
-            }
-        }
-    }
-}
-
-@Composable
-fun StepMatePushRefreshIndicator(
-    modifier: Modifier = Modifier,
-    state: PushRefreshState,
-    isRefreshing: Boolean,
-) {
-    Box(
-        modifier = modifier
-            .fillMaxWidth()
-            .height(
-                if (isRefreshing) {
-                    state.maxHeight.dp
-                } else
-                    (state.progress * state.maxHeight).dp
-            )
-            .background(
-                color = MaterialTheme.colorScheme.surface,
-            ),
-        contentAlignment = Alignment.Center
-    ) {
-        Crossfade(
-            targetState = isRefreshing,
-            animationSpec = tween(100),
-            label = "CrossFade Refreshing"
-        ) { isRefreshing ->
-            if (isRefreshing) {
-                StepMateProgressIndicatorInfiniteRotating()
-            } else {
-                StepMateProgressIndicatorRotatingByParam(state.progress)
             }
         }
     }

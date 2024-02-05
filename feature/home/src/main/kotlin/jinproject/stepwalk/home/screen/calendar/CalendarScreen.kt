@@ -17,12 +17,10 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import jinproject.stepwalk.core.SnackBarMessage
+import jinproject.stepwalk.design.component.DefaultLayout
 import jinproject.stepwalk.design.component.StepMateProgressIndicatorRotating
 import jinproject.stepwalk.design.component.VerticalSpacer
 import jinproject.stepwalk.design.component.VerticalWeightSpacer
-import jinproject.stepwalk.design.component.layout.DefaultLayout
-import jinproject.stepwalk.design.component.layout.chart.PopUpState
-import jinproject.stepwalk.design.component.layout.chart.addChartPopUpDismiss
 import jinproject.stepwalk.design.theme.StepWalkColor
 import jinproject.stepwalk.design.theme.StepWalkTheme
 import jinproject.stepwalk.home.screen.calendar.component.CalendarAppBar
@@ -30,6 +28,8 @@ import jinproject.stepwalk.home.screen.calendar.component.calendar.CalendarLayou
 import jinproject.stepwalk.home.screen.calendar.component.chart.CalendarHealthChart
 import jinproject.stepwalk.home.screen.home.HomeUiState
 import jinproject.stepwalk.home.screen.home.HomeUiStatePreviewParameters
+import jinproject.stepwalk.home.screen.home.component.PopUpState
+import jinproject.stepwalk.home.screen.home.component.tab.chart.addChartPopUpDismiss
 import jinproject.stepwalk.home.screen.home.state.CaloriesMenuFactory
 import jinproject.stepwalk.home.screen.home.state.Day
 import jinproject.stepwalk.home.screen.home.state.TimeMenuFactory

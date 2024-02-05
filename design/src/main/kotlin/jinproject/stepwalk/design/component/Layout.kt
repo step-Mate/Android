@@ -1,4 +1,4 @@
-package jinproject.stepwalk.design.component.layout
+package jinproject.stepwalk.design.component
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
@@ -14,7 +14,6 @@ import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastFirstOrNull
-import jinproject.stepwalk.design.component.VerticalSpacer
 import jinproject.stepwalk.design.component.systembarhiding.SystemBarHidingState
 import jinproject.stepwalk.design.component.systembarhiding.topBarHidingScroll
 import kotlin.math.roundToInt
@@ -22,7 +21,7 @@ import kotlin.math.roundToInt
 @Composable
 fun DefaultLayout(
     modifier: Modifier = Modifier,
-    contentPaddingValues: PaddingValues = PaddingValues(horizontal = 16.dp, vertical = 12.dp),
+    contentPaddingValues: PaddingValues,
     topBar: @Composable () -> Unit = {},
     content: @Composable ColumnScope.() -> Unit,
 ) {
@@ -62,11 +61,10 @@ fun HideableTopBarLayout(
                     .padding(horizontal = 12.dp)
             )
         },
-        modifier = Modifier
+        modifier = modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
-            .topBarHidingScroll(systemBarHidingState)
-            .then(modifier),
+            .topBarHidingScroll(systemBarHidingState),
     ) { measurables, constraints ->
         val looseConstraints = constraints.asLoose()
         val maxHeight = constraints.maxHeight

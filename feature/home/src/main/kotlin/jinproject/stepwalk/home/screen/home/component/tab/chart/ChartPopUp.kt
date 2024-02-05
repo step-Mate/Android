@@ -1,4 +1,4 @@
-package jinproject.stepwalk.design.component.layout.chart
+package jinproject.stepwalk.home.screen.home.component.tab.chart
 
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.layout.Arrangement
@@ -29,26 +29,17 @@ import androidx.compose.ui.layout.ParentDataModifier
 import androidx.compose.ui.text.drawText
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import jinproject.stepwalk.design.theme.StepWalkColor
 import jinproject.stepwalk.design.theme.StepWalkTheme
-
-@Stable
-data class PopUpState(
-    val enabled: Boolean,
-    val index: Int,
-) {
-    companion object {
-        fun getInitValues() = PopUpState(
-            enabled = false,
-            index = -1,
-        )
-    }
-}
+import jinproject.stepwalk.home.screen.home.HomeUiState
+import jinproject.stepwalk.home.screen.home.HomeUiStatePreviewParameters
+import jinproject.stepwalk.home.screen.home.component.PopUpState
 
 @Composable
-fun PopUp(
+internal fun PopUp(
     modifier: Modifier = Modifier,
     popUpState: PopUpState,
     graph: List<Long>,
@@ -116,7 +107,7 @@ fun PopUp(
 }
 
 @Composable
-fun Modifier.addChartPopUpDismiss(
+internal fun Modifier.addChartPopUpDismiss(
     popUpState: PopUpState,
     setPopUpState: (PopUpState) -> Unit,
 ) =
@@ -138,6 +129,8 @@ internal class HealthPopUpData(val figure: String) : ParentDataModifier {
 @Composable
 @Preview(showBackground = true)
 private fun PreviewChartPopUp(
+    @PreviewParameter(HomeUiStatePreviewParameters::class, limit = 1)
+    uiState: HomeUiState,
 ) = StepWalkTheme {
     Column(
         modifier = Modifier.size(200.dp),
@@ -147,15 +140,7 @@ private fun PreviewChartPopUp(
         PopUp(
             modifier = Modifier.size(40.dp),
             popUpState = PopUpState(enabled = true, index = 1),
-            graph = run {
-            mutableListOf<Long>().apply {
-                repeat(24) { idx ->
-                    add(
-                        1000 + idx.toLong() * 50
-                    )
-                }
-            }
-        },
+            graph = uiState.step.graph,
             barColor = listOf(
                 StepWalkColor.blue_700.color,
                 StepWalkColor.blue_600.color,

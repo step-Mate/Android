@@ -210,14 +210,6 @@ value class StepWalkColor private constructor(val color: Color) {
         @Stable
         val success = StepWalkColor(Color(0xFF00FF00))
 
-        @Stable
-        val gold = StepWalkColor(Color(0xFFFFD700))
-
-        @Stable
-        val silver = StepWalkColor(Color(0xFFC0C0C0))
-
-        @Stable
-        val bronze = StepWalkColor(Color(0xFFCD7F32))
 
         /*
         Light Theme
@@ -232,7 +224,7 @@ value class StepWalkColor private constructor(val color: Color) {
         val light_onSecondaryContainer = blueGrey_700
         val light_error = red_800
         val light_onError = white
-        val light_background = grey_100
+        val light_background = grey_50
         val light_onBackground = lightBlack
         val light_surface = white
         val light_surfaceVariant = grey_200

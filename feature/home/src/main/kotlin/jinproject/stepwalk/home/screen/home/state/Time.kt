@@ -1,7 +1,6 @@
 package jinproject.stepwalk.home.screen.home.state
 
 import androidx.compose.runtime.Stable
-import jinproject.stepwalk.design.component.layout.chart.sortDayOfWeek
 import jinproject.stepwalk.home.utils.onKorea
 import java.time.Instant
 import java.time.LocalDateTime
@@ -81,6 +80,29 @@ internal fun <T : HealthCare> Time.getGraph(list: List<T>): List<Long> {
     }
 
     return items.toList()
+}
+
+/**
+ * 이번주에서 오늘이 가장 마지막에 위치하도록 값들을 sort 하는 함수
+ *
+ * *반드시 주단위로 정렬된 상태이어야 함
+ * @exception IllegalArgumentException : 리스트가 비어있거나, 크기가 7을 초과하는 경우
+ * @return 오늘이 가장 마지막인 7개의 요일 리스트
+ */
+internal fun <T : Number> List<T>.sortDayOfWeek() = run {
+    if (this.size > 7 || this.isEmpty())
+        throw IllegalArgumentException("비어있는 리스트 이거나 size가 7을 초과함")
+
+    val today = LocalDateTime.now().onKorea().dayOfWeek.value
+    val arrayList = ArrayList<T>(7)
+
+    val subListBigger = this.filterIndexed { index, _ -> index + 1 > today }
+    val subListSmaller = this.filterIndexed { index, _ -> index + 1 <= today }
+
+    arrayList.apply {
+        addAll(subListBigger)
+        addAll(subListSmaller)
+    }
 }
 
 /**

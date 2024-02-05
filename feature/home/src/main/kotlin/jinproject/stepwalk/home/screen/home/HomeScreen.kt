@@ -1,10 +1,7 @@
 package jinproject.stepwalk.home.screen.home
 
-import android.app.AlarmManager
 import android.content.Context
 import android.content.Intent
-import android.os.Build
-import android.provider.Settings
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.compose.foundation.background
@@ -27,22 +24,19 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
-import androidx.core.content.ContextCompat.startActivity
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import jinproject.stepwalk.core.SnackBarMessage
+import jinproject.stepwalk.design.component.HideableTopBarLayout
 import jinproject.stepwalk.design.component.VerticalSpacer
-import jinproject.stepwalk.design.component.layout.HideableTopBarLayout
-import jinproject.stepwalk.design.component.layout.chart.PopUpState
-import jinproject.stepwalk.design.component.layout.chart.addChartPopUpDismiss
 import jinproject.stepwalk.design.component.systembarhiding.SystemBarHidingState
 import jinproject.stepwalk.design.component.systembarhiding.rememberSystemBarHidingState
 import jinproject.stepwalk.design.theme.StepWalkTheme
 import jinproject.stepwalk.home.screen.home.component.HomePopUp
 import jinproject.stepwalk.home.screen.home.component.HomeTopAppBar
+import jinproject.stepwalk.home.screen.home.component.PopUpState
 import jinproject.stepwalk.home.screen.home.component.tab.HealthTabLayout
+import jinproject.stepwalk.home.screen.home.component.tab.chart.addChartPopUpDismiss
 import jinproject.stepwalk.home.screen.home.component.userinfo.UserInfoLayout
 import jinproject.stepwalk.home.screen.home.state.Day
 import jinproject.stepwalk.home.screen.home.state.Time
@@ -79,22 +73,6 @@ internal fun HomeScreen(
 
     val uiState by homeViewModel.uiState.collectAsStateWithLifecycle()
     val time by homeViewModel.time.collectAsStateWithLifecycle()
-
-    LifecycleEventEffect(event = Lifecycle.Event.ON_START) {
-        if (Build.VERSION.SDK_INT >= 31) {
-            val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-
-            if (!alarmManager.canScheduleExactAlarms()) {
-                context.startActivity(Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM))
-                showSnackBar(
-                    SnackBarMessage(
-                        headerMessage = "정확한 알람 권한을 승인해 주세요.",
-                        contentMessage = "정확한 알람 권한이 없으면 오류가 발생할 수 있어요."
-                    )
-                )
-            }
-        }
-    }
 
     LaunchedEffect(time, permissionState.value) {
         if (homeViewModel::checkPermissions.invoke()) {
