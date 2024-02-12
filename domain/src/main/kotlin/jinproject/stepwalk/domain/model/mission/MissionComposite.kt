@@ -64,7 +64,7 @@ data class CalorieMissionLeaf(
 data class MissionComposite(
     override val designation: String,
     override val intro: String,
-    private val missions: List<MissionFigure> = emptyList(),
+    val missions: List<MissionFigure> = emptyList(),
 ) : MissionCommon(
     designation = designation,
     intro = intro,
@@ -89,15 +89,16 @@ data class MissionComposite(
             else -> throw IllegalArgumentException("$mission 은 정해지지 않은 미션 입니다.")
         }
     }
+    fun getOriginalAchieved() : Int = missions.sumOf { mission ->
+        mission.getMissionAchieved()
+    }
+    fun getOriginalGoal() : Int = missions.sumOf { mission ->
+        mission.getMissionGoal()
+    }
 }
 
 data class MissionList(
     val title : String,
-    @DrawableRes val icon : Int,
-    val mode : MissionMode,
     val list : List<MissionCommon>
 )
 
-enum class MissionMode {
-    repeat,time
-}

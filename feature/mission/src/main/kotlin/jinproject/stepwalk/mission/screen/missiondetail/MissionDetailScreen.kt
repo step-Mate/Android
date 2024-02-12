@@ -1,10 +1,11 @@
-package jinproject.stepwalk.mission.screen.missiondetail.missonrepeat
+package jinproject.stepwalk.mission.screen.missiondetail
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -13,45 +14,65 @@ import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import jinproject.stepwalk.design.R
 import jinproject.stepwalk.design.component.DefaultLayout
 import jinproject.stepwalk.design.component.HeadlineText
 import jinproject.stepwalk.design.component.StepMateBoxDefaultTopBar
-import jinproject.stepwalk.design.component.VerticalSpacer
 import jinproject.stepwalk.design.theme.StepWalkTheme
-import jinproject.stepwalk.domain.model.MissionList
-import jinproject.stepwalk.domain.model.MissionMode
-import jinproject.stepwalk.domain.model.StepMission
-import jinproject.stepwalk.mission.screen.mission.component.MissionBadge
-import jinproject.stepwalk.mission.screen.mission.component.MissionMedal
+import jinproject.stepwalk.domain.model.mission.MissionCommon
+import jinproject.stepwalk.domain.model.mission.MissionComposite
+import jinproject.stepwalk.domain.model.mission.MissionFigure
+import jinproject.stepwalk.domain.model.mission.MissionList
+import jinproject.stepwalk.domain.model.mission.StepMission
+import jinproject.stepwalk.mission.screen.component.MissionBadge
+import jinproject.stepwalk.mission.screen.component.MissionMedal
+import jinproject.stepwalk.mission.screen.missiondetail.component.MissionCommonView
+import jinproject.stepwalk.mission.screen.missiondetail.component.MissionCompositeView
+import jinproject.stepwalk.mission.util.getIcon
 
 @Composable
-internal fun MissionRepeatScreen(
+internal fun MissionDetailScreen(
     missionDetailViewModel: MissionDetailViewModel = hiltViewModel(),
     popBackStack: () -> Unit
 ) {
-    MissionRepeatScreen(
+    val missionList by missionDetailViewModel.missionList.collectAsStateWithLifecycle()
+
+    MissionDetailScreen(
         title = missionDetailViewModel.title,
-        detailList = missionDetailViewModel.list,
+        detailList = missionList,
         popBackStack = popBackStack
     )
 }
 
 @Composable
-private fun MissionRepeatScreen(
-    title : String,
-    detailList : MissionList,
+private fun MissionDetailScreen(
+    title: String,
+    detailList: MissionList,
     popBackStack: () -> Unit
-){
+) {
+    var selectMission by remember { mutableStateOf<MissionFigure>(detailList.list.first()) } //초기값으로 현재 진행중인 값 넣도록진행
+    LaunchedEffect(key1 = detailList) {
+        selectMission =
+            detailList.list.find { it.getMissionAchieved() > 0 && it.getMissionAchieved() < it.getMissionGoal() }
+                ?: detailList.list.last()
+    }
+
     DefaultLayout(
         contentPaddingValues = PaddingValues(),
         topBar = {
@@ -69,67 +90,71 @@ private fun MissionRepeatScreen(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .weight(0.4f),
+                .weight(0.65f),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            if (detailList.mode == MissionMode.repeat){
-                MissionMedal(
-                    modifier = Modifier.size(200.dp),
-                    icon = detailList.icon,
-                    mission = detailList.list[0],
-                    textStyle = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.primary,
-                )
-            }else{
-                MissionBadge(
-                    modifier = Modifier.size(200.dp),
-                    icon = detailList.icon,
-                    mission = detailList.list[0],
-                    textStyle = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.primary,
-                )
+            if (selectMission is MissionComposite) {
+                MissionCompositeView(selectMission = selectMission as MissionComposite)
+            } else {
+                MissionCommonView(selectMission = selectMission as MissionCommon)
             }
         }
 
         Column(
             modifier = Modifier
-                .weight(0.6f)
+                .weight(0.35f)
                 .shadow(
-                    elevation = 8.dp,
+                    elevation = 12.dp,
                     shape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp)
                 )
                 .background(MaterialTheme.colorScheme.surface)
                 .fillMaxWidth()
         ) {
-            VerticalSpacer(height = 20.dp)
             LazyVerticalGrid(
                 columns = GridCells.Fixed(3),
+                state = rememberLazyGridState(),
                 modifier = Modifier
-                    .fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(if (detailList.mode == MissionMode.repeat) 10.dp else 20.dp),
-                horizontalArrangement = Arrangement.spacedBy(20.dp),
-            ){
-                items(detailList.list, key = { it.designation }){ mission ->
-                    if (detailList.mode == MissionMode.repeat){
+                    .fillMaxSize()
+                    .padding(top = 10.dp, start = 10.dp, end = 10.dp),
+                verticalArrangement = Arrangement.spacedBy(if (detailList.list.first() is MissionComposite) 0.dp else 5.dp),
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
+            ) {
+                if (detailList.list.first() is MissionComposite) {
+                    if (detailList.list.size == 1) {//시간 미션(주간,월간)
+                        items(
+                            items = (detailList.list.first() as MissionComposite).missions,
+                            key = { it.hashCode() }) { mission ->
+                            MissionBadge(
+                                modifier = Modifier.size(100.dp),
+                                icon = mission.getIcon(),
+                                mission = mission,
+                                color = MaterialTheme.colorScheme.primary
+                            )
+                        }
+                    } else {//통합 미션
+                        items(items = detailList.list, key = { it.designation }) { mission ->
+                            MissionBadge(
+                                modifier = Modifier.size(100.dp),
+                                icon = mission.getIcon(),
+                                mission = mission,
+                                color = MaterialTheme.colorScheme.primary,
+                                onClick = { thisMission -> selectMission = thisMission }
+                            )
+                        }
+                    }
+                } else {//목표미션
+                    items(items = detailList.list, key = { it.designation }) { mission ->
                         MissionMedal(
                             modifier = Modifier.size(110.dp),
-                            icon = detailList.icon,
+                            icon = mission.getIcon(),
                             mission = mission,
                             color = MaterialTheme.colorScheme.primary,
-                        )
-                    }else{
-                        MissionBadge(
-                            modifier = Modifier.size(110.dp),
-                            icon = detailList.icon,
-                            mission = mission,
-                            color = MaterialTheme.colorScheme.primary,
+                            onClick = { thisMission -> selectMission = thisMission }
                         )
                     }
                 }
             }
         }
-
-
     }
 }
 
@@ -138,12 +163,10 @@ private fun MissionRepeatScreen(
 private fun PreviewMissionRepeatScreen(
 
 ) = StepWalkTheme {
-    MissionRepeatScreen(
+    MissionDetailScreen(
         title = "칼로리",
         detailList = MissionList(
             title = "일일 미션",
-            icon = R.drawable.ic_fire,
-            mode = MissionMode.repeat,
             list = listOf(
                 StepMission(
                     designation = "100 심박수",

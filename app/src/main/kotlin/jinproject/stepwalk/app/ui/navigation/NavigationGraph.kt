@@ -29,7 +29,6 @@ import jinproject.stepwalk.login.navigation.navigateToFindId
 import jinproject.stepwalk.login.navigation.navigateToFindPassword
 import jinproject.stepwalk.login.navigation.navigateToSignUp
 import jinproject.stepwalk.login.navigation.navigateToSignUpDetail
-import jinproject.stepwalk.core.SnackBarMessage
 import jinproject.stepwalk.login.navigation.loginGraph
 import jinproject.stepwalk.mission.navigation.missionNavGraph
 import jinproject.stepwalk.mission.navigation.navigateToMissionDetail

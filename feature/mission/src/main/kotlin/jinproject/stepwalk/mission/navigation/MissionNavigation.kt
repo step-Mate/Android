@@ -7,18 +7,19 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import androidx.navigation.navigation
-import jinproject.stepwalk.domain.model.MissionMode
+import jinproject.stepwalk.core.slideLeftIn
+import jinproject.stepwalk.core.slideRightOut
 import jinproject.stepwalk.mission.screen.mission.MissionScreen
-import jinproject.stepwalk.mission.screen.missiondetail.missonrepeat.MissionRepeatScreen
+import jinproject.stepwalk.mission.screen.missiondetail.MissionDetailScreen
 
 
 const val missionGraph = "missionGraph"
 const val missionRoute = "mission"
 private const val missionDetailRoute = "missionDetail"
-private const val missionDetailLink = "$missionDetailRoute/{title}/{mode}"
+private const val missionDetailLink = "$missionDetailRoute/{title}"
 
 fun NavGraphBuilder.missionNavGraph(
-    navigateToMissionDetail : (String,MissionMode) -> Unit,
+    navigateToMissionDetail : (String) -> Unit,
     popBackStack: () -> Unit
 ) {
     navigation(
@@ -35,18 +36,16 @@ fun NavGraphBuilder.missionNavGraph(
 
         composable(
             route = missionDetailLink,
+            enterTransition = slideLeftIn(500),
+            exitTransition = slideRightOut(700),
             arguments = listOf(
                 navArgument("title"){
                     type = NavType.StringType
                     defaultValue = ""
-                },
-                navArgument("mode"){
-                    type = NavType.IntType
-                    defaultValue = 0
                 }
             )
         ){
-            MissionRepeatScreen(
+            MissionDetailScreen(
                 popBackStack = popBackStack
             )
         }
@@ -57,8 +56,8 @@ fun NavController.navigateToMission(navOptions: NavOptions?){
     this.navigate(missionRoute, navOptions = navOptions)
 }
 
-fun NavController.navigateToMissionDetail(title : String, mode : MissionMode){
-    this.navigate("$missionDetailRoute/$title/${mode.ordinal}"){
+fun NavController.navigateToMissionDetail(title : String){
+    this.navigate("$missionDetailRoute/$title"){
         launchSingleTop = true
     }
 }
