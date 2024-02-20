@@ -116,8 +116,7 @@ private fun MissionDetailScreen(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(top = 10.dp, start = 10.dp, end = 10.dp),
-                verticalArrangement = Arrangement.spacedBy(if (detailList.list.first() is MissionComposite) 0.dp else 5.dp),
-                horizontalArrangement = Arrangement.spacedBy(10.dp),
+                verticalArrangement = Arrangement.spacedBy(if (detailList.list.first() is MissionComposite) 10.dp else 0.dp),
             ) {
                 if (detailList.list.first() is MissionComposite) {
                     if (detailList.list.size == 1) {//시간 미션(주간,월간)
@@ -125,7 +124,7 @@ private fun MissionDetailScreen(
                             items = (detailList.list.first() as MissionComposite).missions,
                             key = { it.hashCode() }) { mission ->
                             MissionBadge(
-                                modifier = Modifier.size(100.dp),
+                                modifier = Modifier.size(120.dp),
                                 icon = mission.getIcon(),
                                 mission = mission,
                                 color = MaterialTheme.colorScheme.primary
@@ -134,7 +133,7 @@ private fun MissionDetailScreen(
                     } else {//통합 미션
                         items(items = detailList.list, key = { it.designation }) { mission ->
                             MissionBadge(
-                                modifier = Modifier.size(100.dp),
+                                modifier = Modifier.size(120.dp),
                                 icon = mission.getIcon(),
                                 mission = mission,
                                 color = MaterialTheme.colorScheme.primary,
@@ -145,7 +144,7 @@ private fun MissionDetailScreen(
                 } else {//목표미션
                     items(items = detailList.list, key = { it.designation }) { mission ->
                         MissionMedal(
-                            modifier = Modifier.size(110.dp),
+                            modifier = Modifier.size(120.dp),
                             icon = mission.getIcon(),
                             mission = mission,
                             color = MaterialTheme.colorScheme.primary,

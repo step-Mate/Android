@@ -12,3 +12,4 @@ fun SignUpData.toSignUpRequest() = SignUpRequest(
     height = height,
     weight = weight
 )
+

@@ -45,7 +45,7 @@ internal fun MissionMedal(
     mission: MissionFigure,
     textStyle: TextStyle = MaterialTheme.typography.bodyMedium,
     color: Color,
-    backgroundColor: Color = MaterialTheme.colorScheme.background,
+    backgroundColor: Color = MaterialTheme.colorScheme.surface,
     containerColor: Color = MaterialTheme.colorScheme.scrim,
     trackColor: Color = MaterialTheme.colorScheme.onSurfaceVariant,
     onClick: ((MissionFigure) -> Unit)? = null
@@ -67,7 +67,7 @@ internal fun MissionMedal(
         }
     }
     val currentBackgroundColor: Color = when {
-        mission.getMissionAchieved() == 0 -> MaterialTheme.colorScheme.outline
+        mission.getMissionAchieved() == 0 -> MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f)
         mission.getMissionAchieved() == mission.getMissionGoal() -> MaterialTheme.colorScheme.primary
         else -> backgroundColor
     }
@@ -109,7 +109,7 @@ internal fun MissionMedal(
                         offset = Offset(width * 0.5f, height * 0.6f),
                         size = Size(width * 0.2f, height * 0.35f)
                     ),
-                    color = currentBackgroundColor
+                    color = currentBackgroundColor,
                 )
                 drawPath(
                     path = missionFlagpole(
@@ -174,7 +174,7 @@ internal fun MissionBadge(
     mission: MissionFigure,
     textStyle: TextStyle = MaterialTheme.typography.bodyMedium,
     color: Color,
-    backgroundColor: Color = MaterialTheme.colorScheme.background,
+    backgroundColor: Color = MaterialTheme.colorScheme.surface,
     containerColor: Color = MaterialTheme.colorScheme.scrim,
     trackColor: Color = MaterialTheme.colorScheme.onSurfaceVariant,
     onClick: ((MissionFigure) -> Unit)? = null
@@ -204,7 +204,7 @@ internal fun MissionBadge(
         }
     }
     val currentBackgroundColor: Color = when {
-        mission.getMissionAchieved() == 0 -> MaterialTheme.colorScheme.outline
+        mission.getMissionAchieved() == 0 -> MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f)
         mission.getMissionAchieved() == mission.getMissionGoal() -> MaterialTheme.colorScheme.primary
         else -> backgroundColor
     }
