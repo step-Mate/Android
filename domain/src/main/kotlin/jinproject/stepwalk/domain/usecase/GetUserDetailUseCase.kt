@@ -15,7 +15,7 @@ class GetUserDetailUseCase @Inject constructor() {
         //TODO 토큰으로 서버에서 User 정보 fetch
         val data = UserDetailData
 
-        val fetchedUser = data.find { it.user.name == "이지훈" }!!
+        val fetchedUser = data.find { it.user.name == userName }!!
 
         emit(
             UserDetailModel(

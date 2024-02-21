@@ -54,6 +54,7 @@ class GetRankBoardUseCase @Inject constructor() {
                 )
             )
         }
+
         emit(StepRankBoard.createRankBoardModel(arrayList))
     }
 }

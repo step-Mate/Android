@@ -2,6 +2,7 @@ package jinproject.stepwalk.ranking.navigation
 
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
+import androidx.navigation.NavOptions
 import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
@@ -19,6 +20,7 @@ fun NavGraphBuilder.rankingNavGraph(
     navigateToRankingUserDetail: (String, Int) -> Unit,
     popBackStack: () -> Unit,
     showSnackBar: (SnackBarMessage) -> Unit,
+    navigateToLogin: (NavOptions?) -> Unit,
 ) {
     navigation(
         startDestination = rankingRoute,
@@ -30,7 +32,8 @@ fun NavGraphBuilder.rankingNavGraph(
                 showSnackBar = showSnackBar,
                 navigateToRankingUserDetail = { userName, maxStep ->
                     navigateToRankingUserDetail(userName, maxStep)
-                }
+                },
+                navigateToLogin = navigateToLogin,
             )
         }
         composable(

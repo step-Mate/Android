@@ -92,9 +92,9 @@ fun StepMatePushRefreshIndicator(
             .fillMaxWidth()
             .height(
                 if (isRefreshing) {
-                    state.maxHeight.dp
+                    144.dp
                 } else
-                    (state.progress * state.maxHeight).dp
+                    (state.progress * 144).dp
             )
             .background(
                 color = MaterialTheme.colorScheme.surface,
@@ -151,7 +151,7 @@ private fun StepMateProgressIndicatorRotatingByParam(
 }
 
 @Composable
-private fun StepMateProgressIndicatorInfiniteRotating(
+fun StepMateProgressIndicatorInfiniteRotating(
     modifier: Modifier = Modifier,
     counter: Int = 8,
     color: Color = MaterialTheme.colorScheme.onSurface,

@@ -59,7 +59,6 @@ fun HideableTopBarLayout(
             content(
                 Modifier
                     .layoutId("content")
-                    .padding(horizontal = 12.dp)
             )
         },
         modifier = Modifier

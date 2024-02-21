@@ -47,6 +47,7 @@ import java.time.temporal.TemporalAdjusters
 
 @Composable
 internal fun RankTop3(
+    title: String,
     rankBoard: RankBoard,
     dialogState: DialogState,
     setDialogState: (DialogState) -> Unit,
@@ -54,6 +55,7 @@ internal fun RankTop3(
 ) {
     Column(
         modifier = Modifier
+            .padding(vertical = 8.dp)
             .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(20.dp))
             .padding(8.dp)
     ) {
@@ -64,7 +66,7 @@ internal fun RankTop3(
                 .padding(horizontal = 8.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            DescriptionLargeText(text = "월간 리그")
+            DescriptionLargeText(text = title)
             HorizontalSpacer(width = 4.dp)
             DefaultIconButton(
                 modifier = Modifier
@@ -82,7 +84,7 @@ internal fun RankTop3(
 
                     setDialogState(
                         DialogState(
-                            header = "월간 랭킹은 ${d_Day}일 뒤에 초기화 될 예정이에요.",
+                            header = "랭킹은 ${d_Day}일 뒤에 초기화 될 예정이에요.",
                             content = "랭킹은 매일 자정 업데이트 되며, 매월 1일 자정에 초기화 되요.",
                             positiveMessage = "닫기",
                             onPositiveCallback = {
@@ -100,30 +102,33 @@ internal fun RankTop3(
         VerticalSpacer(height = 20.dp)
 
         Row(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth().height(120.dp),
             verticalAlignment = Alignment.Bottom,
         ) {
             HorizontalWeightSpacer(float = 1f)
-            Ranker(
-                modifier = Modifier.height(90.dp),
-                rank = rankBoard.top3[1],
-                maxStep = rankBoard.highestStep,
-                navigateToRankingUserDetail = navigateToRankingUserDetail,
-            )
+            if (rankBoard.top3.getOrNull(1) != null)
+                Ranker(
+                    modifier = Modifier.height(90.dp),
+                    rank = rankBoard.top3[1],
+                    maxStep = rankBoard.highestStep,
+                    navigateToRankingUserDetail = navigateToRankingUserDetail,
+                )
             HorizontalWeightSpacer(float = 1f)
-            Ranker(
-                modifier = Modifier.height(120.dp),
-                rank = rankBoard.top3[0],
-                maxStep = rankBoard.highestStep,
-                navigateToRankingUserDetail = navigateToRankingUserDetail,
-            )
+            if (rankBoard.top3.getOrNull(0) != null)
+                Ranker(
+                    modifier = Modifier.height(120.dp),
+                    rank = rankBoard.top3[0],
+                    maxStep = rankBoard.highestStep,
+                    navigateToRankingUserDetail = navigateToRankingUserDetail,
+                )
             HorizontalWeightSpacer(float = 1f)
-            Ranker(
-                modifier = Modifier.height(90.dp),
-                rank = rankBoard.top3[2],
-                maxStep = rankBoard.highestStep,
-                navigateToRankingUserDetail = navigateToRankingUserDetail,
-            )
+            if (rankBoard.top3.getOrNull(2) != null)
+                Ranker(
+                    modifier = Modifier.height(90.dp),
+                    rank = rankBoard.top3[2],
+                    maxStep = rankBoard.highestStep,
+                    navigateToRankingUserDetail = navigateToRankingUserDetail,
+                )
             HorizontalWeightSpacer(float = 1f)
         }
     }
@@ -189,6 +194,7 @@ private fun PreviewRankTop3(
     rankBoard: RankBoard,
 ) = StepWalkTheme {
     RankTop3(
+        title = "월간 랭킹",
         rankBoard = rankBoard,
         dialogState = DialogState.getInitValue(),
         setDialogState = {},

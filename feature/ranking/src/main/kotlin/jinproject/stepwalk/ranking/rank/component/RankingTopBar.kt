@@ -29,6 +29,7 @@ import jinproject.stepwalk.design.component.VerticalSpacer
 import jinproject.stepwalk.design.theme.StepWalkTheme
 import jinproject.stepwalk.design.tu
 import jinproject.stepwalk.ranking.detail.UserDetailPreviewParameter
+import jinproject.stepwalk.ranking.rank.Rank
 import jinproject.stepwalk.ranking.rank.User
 import java.math.RoundingMode
 import java.text.DecimalFormat
@@ -36,7 +37,8 @@ import java.text.DecimalFormat
 @Composable
 internal fun RankingTopBar(
     modifier: Modifier = Modifier,
-    user: User,
+    user: Rank,
+    maxStep: Int,
 ) {
     Column(
         modifier = modifier
@@ -50,10 +52,10 @@ internal fun RankingTopBar(
             verticalAlignment = Alignment.Bottom
         ) {
             FooterText(
-                text = user.info.designation,
+                text = user.designation,
             )
             HorizontalSpacer(width = 4.dp)
-            DescriptionLargeText(text = user.info.name)
+            DescriptionLargeText(text = user.name)
             DescriptionSmallText(text = "님 화이팅!")
         }
         Row(
@@ -64,7 +66,7 @@ internal fun RankingTopBar(
                 append("지금까지 지구 ")
                 appendFontSizeWithColorText(
                     text = DecimalFormat("#.##").apply { roundingMode = RoundingMode.CEILING }
-                        .format(user.info.step * 0.0008f / 40075),
+                        .format(user.step * 0.0008f / 40075),
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     fontSize = 14.tu,
                 )
@@ -73,13 +75,13 @@ internal fun RankingTopBar(
             DescriptionAnnotatedSmallText(text = text)
             HorizontalWeightSpacer(float = 1f)
             RankNumber(
-                rank = user.info,
+                rank = user,
             )
         }
         VerticalSpacer(height = 4.dp)
         UserCharacterWithStepProgress(
-            rank = user.info,
-            maxStep = user.maxStep
+            rank = user,
+            maxStep = maxStep,
         )
     }
 }
@@ -91,6 +93,7 @@ private fun PreviewRankingTopBar(
     user: User,
 ) = StepWalkTheme {
     RankingTopBar(
-        user = user,
+        user = user.info,
+        maxStep = 3000,
     )
 }
