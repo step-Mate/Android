@@ -1,4 +1,4 @@
-package jinproject.stepwalk.data.repositoryimpl
+package jinproject.stepwalk.data.repositoryImpl
 
 import androidx.datastore.core.DataStore
 import jinproject.stepwalk.data.StepwalkPrefs.StepWalkPreferences

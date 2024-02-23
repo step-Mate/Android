@@ -1,18 +1,17 @@
-package jinproject.stepwalk.domain.usecase
+package jinproject.stepwalk.domain.usecase.user
 
-import jinproject.stepwalk.domain.UserDetailData
 import jinproject.stepwalk.domain.model.UserDetailModel
-import jinproject.stepwalk.domain.model.mission.CalorieMissionLeaf
-import jinproject.stepwalk.domain.model.mission.MissionComposite
-import jinproject.stepwalk.domain.model.mission.StepMission
-import jinproject.stepwalk.domain.model.mission.StepMissionLeaf
+import jinproject.stepwalk.domain.repository.UserRepository
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
 import javax.inject.Inject
 
-class GetUserDetailUseCase @Inject constructor() {
-    operator fun invoke(userName: String): Flow<UserDetailModel> = flow {
-        //TODO 토큰으로 서버에서 User 정보 fetch
+class GetUserDetailUseCase @Inject constructor(
+    private val userRepository: UserRepository,
+) {
+    operator fun invoke(userName: String): Flow<UserDetailModel> = userRepository.getUserDetail(userName)
+
+
+        /*flow {
         val data = UserDetailData
 
         val fetchedUser = data.find { it.user.name == userName }!!
@@ -45,5 +44,5 @@ class GetUserDetailUseCase @Inject constructor() {
                 ),
             )
         )
-    }
+    }*/
 }

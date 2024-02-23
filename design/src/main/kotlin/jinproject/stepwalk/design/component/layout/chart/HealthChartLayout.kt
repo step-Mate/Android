@@ -61,7 +61,7 @@ fun HealthChartLayout(
             )
         )
 
-        val itemWidth = (totalWidth - verticalPlacable.width) / horizontalItemCount
+        val itemWidth = if(horizontalItemCount > 0) (totalWidth - verticalPlacable.width) / horizontalItemCount else 0
 
         val horizontalPlacables = horizontalMeasurables.map { measurable ->
             measurable.measure(
@@ -72,11 +72,11 @@ fun HealthChartLayout(
             )
         }
 
-        val barWidth = if (itemsCount == horizontalItemCount) itemWidth else itemWidth / 2
+        val barWidth = if (itemsCount == 0 || itemsCount == horizontalItemCount) itemWidth else itemWidth / 2
 
-        val barMaxData = barMeasurables.maxOf { (it.parentData as HealthChartData).height }
+        val barMaxData = barMeasurables.maxOfOrNull { (it.parentData as HealthChartData).height }
         val barDatas = barMeasurables.map { (it.parentData as HealthChartData).height.toInt() }
-        val barMaxHeight = totalHeight - horizontalPlacables.first().height - headerPlaceable.height
+        val barMaxHeight = totalHeight - (horizontalPlacables.firstOrNull()?.height ?: 0) - headerPlaceable.height
 
         val barPlaceables = barMeasurables.map { barMeasurable ->
             barMeasurable.measure(
@@ -99,31 +99,34 @@ fun HealthChartLayout(
                 headerPlaceable.height
             )
 
-            val eachBarWidth = horizontalPlacables.first().width / horizontalStep
+            if(itemsCount != 0) {
+                val eachBarWidth = horizontalPlacables.first().width / horizontalStep
 
-            barPlaceables.forEachIndexed { index, placeable ->
+                barPlaceables.forEachIndexed { index, placeable ->
 
-                if (index % 2 == 0 || itemsCount == horizontalItemCount) {
-                    val horizontalPlaceable = horizontalPlacables[index / horizontalStep]
-                    horizontalPlaceable.place(xPos, totalHeight - horizontalPlaceable.height)
+                    if (index % 2 == 0 || itemsCount == horizontalItemCount) {
+                        val horizontalPlaceable = horizontalPlacables[index / horizontalStep]
+                        horizontalPlaceable.place(xPos, totalHeight - horizontalPlaceable.height)
+                    }
+
+                    placeable.place(
+                        xPos,
+                        totalHeight - horizontalPlacables.first().height - placeable.height
+                    )
+
+                    xPos += eachBarWidth
                 }
 
-                placeable.place(
-                    xPos,
-                    totalHeight - horizontalPlacables.first().height - placeable.height
-                )
+                barDatas.getOrNull(popUpState.index)?.let { data ->
+                    val barHeight = barMaxData?.let {
+                        data.stepToSizeByMax(barHeight = barMaxHeight.toFloat(), barMaxData).toInt()
+                    } ?: 0
 
-                xPos += eachBarWidth
-            }
-
-            barDatas.getOrNull(popUpState.index)?.let { data ->
-                val barHeight =
-                    data.stepToSizeByMax(barHeight = barMaxHeight.toFloat(), barMaxData).toInt()
-
-                popUpPlaceable.place(
-                    verticalPlacable.width + eachBarWidth * (popUpState.index) + eachBarWidth / 2,
-                    totalHeight - horizontalPlacables.first().height - barHeight - popUpPlaceable.height - 20
-                )
+                    popUpPlaceable.place(
+                        verticalPlacable.width + eachBarWidth * (popUpState.index) + eachBarWidth / 2,
+                        totalHeight - horizontalPlacables.first().height - barHeight - popUpPlaceable.height - 20
+                    )
+                }
             }
         }
     }

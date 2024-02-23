@@ -24,8 +24,8 @@ import jinproject.stepwalk.design.component.layout.chart.StepGraphHeader
 import jinproject.stepwalk.design.component.layout.chart.StepGraphTail
 import jinproject.stepwalk.design.theme.StepWalkColor
 import jinproject.stepwalk.design.theme.StepWalkTheme
+import jinproject.stepwalk.ranking.detail.User
 import jinproject.stepwalk.ranking.detail.UserDetailPreviewParameter
-import jinproject.stepwalk.ranking.rank.User
 
 @Composable
 internal fun ColumnScope.UserDetailHealthChart(

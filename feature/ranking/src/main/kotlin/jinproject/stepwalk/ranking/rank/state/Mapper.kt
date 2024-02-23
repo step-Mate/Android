@@ -3,9 +3,9 @@ package jinproject.stepwalk.ranking.rank.state
 import jinproject.stepwalk.domain.model.StepRankBoard
 import jinproject.stepwalk.domain.model.UserDetailModel
 import jinproject.stepwalk.domain.model.UserStepRank
+import jinproject.stepwalk.ranking.detail.User
 import jinproject.stepwalk.ranking.rank.Rank
 import jinproject.stepwalk.ranking.rank.RankBoard
-import jinproject.stepwalk.ranking.rank.User
 
 internal fun UserDetailModel.asUser(maxStep: Int) = User(
     info = Rank(

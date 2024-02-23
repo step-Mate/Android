@@ -28,9 +28,9 @@ import jinproject.stepwalk.design.component.HorizontalWeightSpacer
 import jinproject.stepwalk.design.component.VerticalSpacer
 import jinproject.stepwalk.design.theme.StepWalkTheme
 import jinproject.stepwalk.design.tu
+import jinproject.stepwalk.ranking.detail.User
 import jinproject.stepwalk.ranking.detail.UserDetailPreviewParameter
 import jinproject.stepwalk.ranking.rank.Rank
-import jinproject.stepwalk.ranking.rank.User
 import java.math.RoundingMode
 import java.text.DecimalFormat
 

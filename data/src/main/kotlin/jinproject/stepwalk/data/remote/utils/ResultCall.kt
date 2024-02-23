@@ -15,30 +15,44 @@ import retrofit2.Response
 import retrofit2.Retrofit
 import java.net.SocketTimeoutException
 
-class ResultCall<T>(private val call: Call<T>, private val retrofit: Retrofit) : Call<ResponseState<T>> {
+class ResultCall<T>(private val call: Call<T>, private val retrofit: Retrofit) :
+    Call<ResponseState<T>> {
     override fun enqueue(callback: Callback<ResponseState<T>>) {
         call.enqueue(object : Callback<T> {
             override fun onResponse(call: Call<T>, response: Response<T>) {
                 if (response.isSuccessful) {
-                    if(response.body() == null) {
-                        callback.onResponse(this@ResultCall, Response.success(ResponseState.Exception(1, "body가 비었습니다")))
-                    }
-                    else {
-                        callback.onResponse(this@ResultCall, Response.success(ResponseState.Result(response.body()!!)))
+                    if (response.body() == null) { // TODO 반드시 body 가 비어있는가?
+                        callback.onResponse(
+                            this@ResultCall,
+                            Response.success(ResponseState.Exception(1, "body가 비었습니다"))
+                        )
+                    } else {
+                        callback.onResponse(
+                            this@ResultCall,
+                            Response.success(ResponseState.Result(response.body()))
+                        )
                     }
                 } else {
-                    if(response.errorBody() == null) {
-                        callback.onResponse( this@ResultCall, Response.success(ResponseState.Exception(0, "errorBody가 비었습니다")))
-                    }
-                    else {
+                    val error = response.errorBody()
+
+                    if (error == null) { // TODO 반드시 error body 가 비어있는가?
+                        callback.onResponse(
+                            this@ResultCall,
+                            Response.success(ResponseState.Exception(0, "errorBody가 비었습니다"))
+                        )
+                    } else {
                         val errorBody = retrofit.responseBodyConverter<ErrorResponse>(
                             ErrorResponse::class.java,
                             ErrorResponse::class.java.annotations
-                        ).convert(response.errorBody()!!)
+                        ).convert(error)!!
 
-                        val message: String = errorBody?.message ?: "errorBody가 비었습니다"
-                        val code : Int = errorBody?.code ?: 0
-                        callback.onResponse(this@ResultCall, Response.success(ResponseState.Exception(code, message)))
+                        val message: String = errorBody.message
+                        val code: Int = errorBody.code
+
+                        callback.onResponse(
+                            this@ResultCall,
+                            Response.success(ResponseState.Exception(code, message))
+                        )
                     }
                 }
             }
@@ -46,20 +60,25 @@ class ResultCall<T>(private val call: Call<T>, private val retrofit: Retrofit) :
             override fun onFailure(call: Call<T>, t: Throwable) {
                 callback.onResponse(
                     this@ResultCall,
-                    Response.success(when (t) {
-                        is HttpException -> {
-                            ResponseState.Exception(903, "서버에 문제가 발생하였습니다")
+                    Response.success(
+                        when (t) {
+                            is HttpException -> {
+                                ResponseState.Exception(903, "서버에 문제가 발생하였습니다")
+                            }
+
+                            is SocketTimeoutException -> {
+                                ResponseState.Exception(900, "서버에 연결할 수 없습니다.")
+                            }
+
+                            is IOException -> {
+                                ResponseState.Exception(901, "인터넷 연결이 끊겼습니다.")
+                            }
+
+                            else -> {
+                                ResponseState.Exception(902, "에러: ${t.message} 가 발생했습니다.")
+                            }
                         }
-                        is SocketTimeoutException -> {
-                            ResponseState.Exception(900, "서버에 연결할 수 없습니다.")
-                        }
-                        is IOException -> {
-                            ResponseState.Exception(901, "인터넷 연결이 끊겼습니다.")
-                        }
-                        else -> {
-                            ResponseState.Exception(902, "원인불명에 장애가 발생하였습니다.")
-                        }
-                    })
+                    )
                 )
             }
         })
@@ -70,7 +89,7 @@ class ResultCall<T>(private val call: Call<T>, private val retrofit: Retrofit) :
     }
 
     override fun execute(): Response<ResponseState<T>> {
-        return Response.success(ResponseState.Result(call.execute().body()!!))
+        throw NotImplementedError("ResultCall 의 execute() 는 구현되지 않음")
     }
 
     override fun cancel() {
@@ -94,7 +113,7 @@ class ResultCall<T>(private val call: Call<T>, private val retrofit: Retrofit) :
     }
 }
 
-fun <T> ResponseState<ApiResponse<T>>.getResult() : ResponseState<T> {
+fun <T> ResponseState<ApiResponse<T>>.getResult(): ResponseState<T> {
     this.onSuccess {
         return ResponseState.Result(it?.result)
     }.onException { code, message ->
@@ -103,9 +122,9 @@ fun <T> ResponseState<ApiResponse<T>>.getResult() : ResponseState<T> {
     return ResponseState.Exception(0, "")
 }
 
-fun <T,E> ResponseState<ApiResponse<T>>.getResult(
-    trans : (T?) -> ResponseState<E>
-) : ResponseState<E> {
+fun <T, E> ResponseState<ApiResponse<T>>.getResult(
+    trans: (T?) -> ResponseState<E>,
+): ResponseState<E> {
     this.onSuccess {
         return trans(it?.result)
     }.onException { code, message ->

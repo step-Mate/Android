@@ -112,7 +112,7 @@ fun NavGraphBuilder.authNavGraph(
 }
 
 fun NavController.navigateToLogin(navOptions: NavOptions?) {
-    this.navigate(loginRoute, navOptions = navOptions)
+    this.navigate(loginGraph, navOptions = navOptions)
 }
 
 fun NavController.navigateToSignUp() {

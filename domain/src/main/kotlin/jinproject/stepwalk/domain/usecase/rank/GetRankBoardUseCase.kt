@@ -1,20 +1,23 @@
-package jinproject.stepwalk.domain.usecase
+package jinproject.stepwalk.domain.usecase.rank
 
-import jinproject.stepwalk.domain.UserDetailData
-import jinproject.stepwalk.domain.asUserStepRank
-import jinproject.stepwalk.domain.model.RankModel
-import jinproject.stepwalk.domain.model.StepModel
-import jinproject.stepwalk.domain.model.StepRank
 import jinproject.stepwalk.domain.model.StepRankBoard
-import jinproject.stepwalk.domain.model.User
-import jinproject.stepwalk.domain.model.UserStepRank
+import jinproject.stepwalk.domain.repository.RankRepository
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
-import java.time.ZonedDateTime
+import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
-class GetRankBoardUseCase @Inject constructor() {
-    operator fun invoke(page: Int): Flow<StepRankBoard> = flow {
+class GetRankBoardUseCase @Inject constructor(
+    private val rankRepository: RankRepository,
+) {
+    fun getMonthRankBoard(page: Int): Flow<StepRankBoard> = rankRepository.getMonthRankBoard(page).map { stepRankBoard ->
+        StepRankBoard.createRankBoardModel(stepRankBoard.list)
+    }
+
+    fun getFriendRankBoard(): Flow<StepRankBoard> = rankRepository.getFriendRankBoard().map { stepRankBoard ->
+        StepRankBoard.createRankBoardModel(stepRankBoard.list)
+    }
+
+    /*flow {
         //TODO 해당 page 의 RankBoard 정보를 Fetch
 
         val data = UserDetailData.map { it.asUserStepRank() }
@@ -56,5 +59,5 @@ class GetRankBoardUseCase @Inject constructor() {
         }
 
         emit(StepRankBoard.createRankBoardModel(arrayList))
-    }
+    }*/
 }

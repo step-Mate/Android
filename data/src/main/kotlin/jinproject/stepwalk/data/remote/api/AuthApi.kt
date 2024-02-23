@@ -15,7 +15,7 @@ import retrofit2.http.PATCH
 import retrofit2.http.POST
 import retrofit2.http.Query
 
-interface StepMateApi {
+interface AuthApi {
 
     @POST("users/id/validation")
     suspend fun checkDuplicationId(

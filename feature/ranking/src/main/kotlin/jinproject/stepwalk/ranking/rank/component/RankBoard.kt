@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -66,7 +67,7 @@ internal fun RankBoard(
     setDialogState: (DialogState) -> Unit,
     pushRefreshState: PushRefreshState,
     isRefreshing: Boolean,
-    timeScheduler:TimeScheduler = rememberTimeScheduler(),
+    timeScheduler: TimeScheduler = rememberTimeScheduler(),
     navigateToRankingUserDetail: (String, Int) -> Unit,
 ) {
     val isUpperScrollActive by remember {
@@ -104,6 +105,7 @@ internal fun RankBoard(
     ) {
         LazyColumn(
             modifier = Modifier
+                .fillMaxHeight()
                 .align(Alignment.Center),
             contentPadding = PaddingValues(vertical = 4.dp, horizontal = 16.dp),
             state = lazyListState,
@@ -180,12 +182,13 @@ internal fun RankBoard(
             },
         )
 
-        VerticalScrollBar(
-            scrollBarState = scrollBarState,
-            lazyListState = lazyListState,
-            headerItemHeight = top3RankHeight + rankBoardHeightPadding,
-            perItemHeight = (144).dp,
-        )
+        if (isUpperScrollActive)
+            VerticalScrollBar(
+                scrollBarState = scrollBarState,
+                lazyListState = lazyListState,
+                headerItemHeight = top3RankHeight + rankBoardHeightPadding,
+                perItemHeight = (144).dp,
+            )
 
     }
 }
@@ -212,9 +215,10 @@ private fun PreviewRankBoard(
 ) = StepWalkTheme {
     val isRefreshing = false
 
-    Box(modifier = Modifier
-        .fillMaxSize()
-        .background(MaterialTheme.colorScheme.background)
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background)
     ) {
         RankBoard(
             title = "월간 랭킹",

@@ -112,6 +112,12 @@ internal fun RankingScreen(
     val uiState by rankingViewModel.uiState.collectAsStateWithLifecycle(
         initialValue = RankingViewModel.UiState.Loading,
     )
+    val snackBarState by rankingViewModel.snackBarState.collectAsStateWithLifecycle(
+        initialValue = SnackBarMessage.getInitValues()
+    )
+
+    if(snackBarState.headerMessage.isNotBlank())
+        showSnackBar(snackBarState)
 
     RankingScreen(
         uiState = uiState,

@@ -46,7 +46,6 @@ import jinproject.stepwalk.design.theme.StepWalkColor
 import jinproject.stepwalk.design.theme.StepWalkTheme
 import jinproject.stepwalk.domain.model.mission.MissionComponent
 import jinproject.stepwalk.ranking.detail.component.UserDetailHealthChart
-import jinproject.stepwalk.ranking.rank.User
 import jinproject.stepwalk.ranking.rank.component.RankNumber
 import jinproject.stepwalk.ranking.rank.component.UserStepProgress
 

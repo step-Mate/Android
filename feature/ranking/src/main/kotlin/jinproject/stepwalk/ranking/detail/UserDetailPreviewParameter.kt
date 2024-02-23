@@ -5,7 +5,6 @@ import jinproject.stepwalk.domain.model.mission.CalorieMissionLeaf
 import jinproject.stepwalk.domain.model.mission.MissionComposite
 import jinproject.stepwalk.domain.model.mission.StepMission
 import jinproject.stepwalk.domain.model.mission.StepMissionLeaf
-import jinproject.stepwalk.ranking.rank.User
 import jinproject.stepwalk.ranking.rank.state.RankBoardPreviewParameter
 import java.time.ZonedDateTime
 import java.time.temporal.TemporalAdjusters
