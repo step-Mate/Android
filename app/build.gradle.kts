@@ -44,6 +44,7 @@ dependencies {
     implementation(project(":feature:login"))
     implementation(project(":feature:mission"))
     implementation(project(":feature:core"))
+    implementation(project(":feature:profile"))
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
