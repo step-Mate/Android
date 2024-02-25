@@ -18,15 +18,14 @@ class ResultCallAdapterFactory: CallAdapter.Factory() {
         }
         val upperBound = getParameterUpperBound(0, returnType)
 
-        return if (upperBound is ParameterizedType && upperBound.rawType == ResponseState::class.java) {
-            object : CallAdapter<Any, Call<ResponseState<*>>> {
-                override fun responseType(): Type = getParameterUpperBound(0, upperBound)
+        if (upperBound !is ParameterizedType && getRawType(upperBound) != ResponseState::class.java)
+            return null
 
-                override fun adapt(call: Call<Any>): Call<ResponseState<*>> =
-                    ResultCall(call, retrofit) as Call<ResponseState<*>>
-            }
-        } else {
-            null
+        return object : CallAdapter<Type, Call<ResponseState<Type>>> {
+            override fun responseType(): Type = getParameterUpperBound(0, upperBound as ParameterizedType)
+
+            override fun adapt(call: Call<Type>): Call<ResponseState<Type>> =
+                ResultCall(call, retrofit)
         }
     }
 }

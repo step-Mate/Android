@@ -2,12 +2,13 @@ package jinproject.stepwalk.data.repositoryimpl
 
 import jinproject.stepwalk.data.local.datasource.BodyDataSource
 import jinproject.stepwalk.data.local.datasource.CurrentAuthDataSource
-import jinproject.stepwalk.data.remote.api.StepMateApi
+import jinproject.stepwalk.data.remote.api.AuthApi
 import jinproject.stepwalk.data.remote.dto.request.AccountRequest
 import jinproject.stepwalk.data.remote.dto.request.DuplicationIdRequest
 import jinproject.stepwalk.data.remote.dto.request.DuplicationNicknameRequest
 import jinproject.stepwalk.data.remote.mapper.toSignUpRequest
 import jinproject.stepwalk.data.remote.utils.getResult
+import jinproject.stepwalk.domain.model.BodyData
 import jinproject.stepwalk.domain.model.ResponseState
 import jinproject.stepwalk.domain.model.SignUpData
 import jinproject.stepwalk.domain.model.onSuccess
@@ -18,16 +19,16 @@ import kotlinx.coroutines.flow.flow
 import javax.inject.Inject
 
 class AuthRepositoryImpl @Inject constructor(
-    private val stepMateApi: StepMateApi,
+    private val authApi: AuthApi,
     private val currentAuthDataSource: CurrentAuthDataSource,
     private val bodyDataSource: BodyDataSource,
 ) : AuthRepository {
     override suspend fun checkDuplicationId(id: String): ResponseState<Boolean> =
-        stepMateApi.checkDuplicationId(DuplicationIdRequest(id)).getResult()
+        authApi.checkDuplicationId(DuplicationIdRequest(id)).getResult()
 
 
     override suspend fun checkDuplicationNickname(nickname: String): ResponseState<Boolean> =
-        stepMateApi.checkDuplicationNickname(
+        authApi.checkDuplicationNickname(
             DuplicationNicknameRequest(
                 nickname
             )
@@ -38,7 +39,7 @@ class AuthRepositoryImpl @Inject constructor(
         flow {
             emit(ResponseState.Loading)
             val body = bodyDataSource.getBodyData().first()
-            val response = stepMateApi.signUpAccount(
+            val response = authApi.signUpAccount(
                 signUpData.copy(
                     age = body.age,
                     height = body.height,
@@ -57,7 +58,7 @@ class AuthRepositoryImpl @Inject constructor(
     override suspend fun signInAccount(id: String, password: String): Flow<ResponseState<Boolean>> =
         flow {
             emit(ResponseState.Loading)
-            val response = stepMateApi.signInAccount(AccountRequest(id, password))
+            val response = authApi.signInAccount(AccountRequest(id, password))
             response.onSuccess { token ->
                 currentAuthDataSource.setToken(
                     accessToken = token?.result!!.accessToken,
@@ -71,7 +72,7 @@ class AuthRepositoryImpl @Inject constructor(
         id: String,
         password: String
     ): ResponseState<Boolean> =
-        stepMateApi.resetPasswordAccount(AccountRequest(id, password))
+        authApi.resetPasswordAccount(AccountRequest(id, password))
             .getResult()
 
 
@@ -79,7 +80,7 @@ class AuthRepositoryImpl @Inject constructor(
         flow {
             emit(ResponseState.Loading)
             emit(
-                stepMateApi.findAccountId(email, code)
+                authApi.findAccountId(email, code)
                     .getResult { findId -> ResponseState.Result(findId?.userId!!)})
         }
 
@@ -87,11 +88,11 @@ class AuthRepositoryImpl @Inject constructor(
         email: String,
         code: String
     ): ResponseState<Boolean> =
-        stepMateApi.verificationEmailCode(email, code).getResult()
+        authApi.verificationEmailCode(email, code).getResult()
 
 
     override suspend fun requestEmailCode(email: String): ResponseState<Boolean> =
-        stepMateApi.requestEmailCode(email).getResult()
+        authApi.requestEmailCode(email).getResult()
 
 
     override suspend fun verificationUserEmail(
@@ -101,9 +102,16 @@ class AuthRepositoryImpl @Inject constructor(
     ): Flow<ResponseState<Boolean>> =
         flow {
             emit(ResponseState.Loading)
-            emit(stepMateApi.verificationUserEmail(id, email, code).getResult())
+            emit(authApi.verificationUserEmail(id, email, code).getResult())
         }
 
+    override fun getBodyData(): Flow<BodyData> =
+        bodyDataSource.getBodyData()
+
+    override suspend fun setBodyData(bodyData: BodyData) =
+        bodyDataSource.setBodyData(bodyData)
+
     override suspend fun logoutAccount() = currentAuthDataSource.clearAuth()
+    override fun getAccessToken(): Flow<String> = currentAuthDataSource.getAccessToken()
 
 }
