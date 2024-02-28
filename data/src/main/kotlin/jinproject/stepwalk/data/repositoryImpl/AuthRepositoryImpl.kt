@@ -1,4 +1,4 @@
-package jinproject.stepwalk.data.repositoryimpl
+package jinproject.stepwalk.data.repositoryImpl
 
 import jinproject.stepwalk.data.local.datasource.BodyDataSource
 import jinproject.stepwalk.data.local.datasource.CurrentAuthDataSource
@@ -81,7 +81,7 @@ class AuthRepositoryImpl @Inject constructor(
             emit(ResponseState.Loading)
             emit(
                 authApi.findAccountId(email, code)
-                    .getResult { findId -> ResponseState.Result(findId?.userId!!)})
+                    .getResult { findId -> ResponseState.Result(findId?.userId!!) })
         }
 
     override suspend fun verificationEmailCode(

@@ -10,6 +10,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.NavOptions
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.navOptions
+import com.beank.profile.navigation.navigateToProfile
 import jinproject.stepwalk.home.navigation.navigateToHome
 import jinproject.stepwalk.mission.navigation.navigateToMission
 
@@ -56,10 +57,6 @@ fun NavController.popBackStackIfCan() {
     this.previousBackStackEntry?.let {
         this.popBackStack()
     }
-}
-
-fun NavController.navigateToProfile(navOptions: NavOptions?) {
-    this.navigate(BottomNavigationDestination.Profile.route, navOptions = navOptions)
 }
 
 fun NavController.navigateToRanking(navOptions: NavOptions?) {

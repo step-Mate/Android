@@ -19,6 +19,9 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.beank.profile.navigation.navigateToEditUser
+import com.beank.profile.navigation.navigateToTerms
+import com.beank.profile.navigation.profileNavigation
 import jinproject.stepwalk.core.SnackBarMessage
 import jinproject.stepwalk.home.navigation.backStackToHome
 import jinproject.stepwalk.home.navigation.homeGraph
@@ -29,7 +32,6 @@ import jinproject.stepwalk.login.navigation.navigateToFindId
 import jinproject.stepwalk.login.navigation.navigateToFindPassword
 import jinproject.stepwalk.login.navigation.navigateToSignUp
 import jinproject.stepwalk.login.navigation.navigateToSignUpDetail
-import jinproject.stepwalk.login.navigation.loginGraph
 import jinproject.stepwalk.mission.navigation.missionNavGraph
 import jinproject.stepwalk.mission.navigation.navigateToMissionDetail
 
@@ -63,22 +65,12 @@ internal fun NavigationGraph(
             showSnackBar = showSnackBar
         )
 
-
-        composable(route = BottomNavigationDestination.Profile.route) {
-            Column(modifier = Modifier
-                .fillMaxSize()
-                .wrapContentSize()) {
-                Image(
-                    painter = painterResource(id = jinproject.stepwalk.design.R.drawable.ic_setting),
-                    contentDescription = "settingIcon"
-                )
-            }
-        }
-
         composable(route = BottomNavigationDestination.Ranking.route) {
-            Column(modifier = Modifier
-                .fillMaxSize()
-                .wrapContentSize()) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .wrapContentSize()
+            ) {
                 Image(
                     painter = painterResource(id = jinproject.stepwalk.design.R.drawable.ic_rankboard),
                     contentDescription = "settingIcon"
@@ -91,6 +83,12 @@ internal fun NavigationGraph(
             popBackStack = navController::popBackStackIfCan,
         )
 
+        profileNavigation(
+            navigateToEditUser = navController::navigateToEditUser,
+            navigateToTerms = navController::navigateToTerms,
+            popBackStack = navController::popBackStackIfCan,
+            showSnackBar = showSnackBar
+        )
     }
 }
 

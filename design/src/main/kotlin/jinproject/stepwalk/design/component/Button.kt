@@ -9,6 +9,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
@@ -16,14 +17,13 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import jinproject.stepwalk.design.R
@@ -132,23 +132,26 @@ fun DefaultCombinedButton(
 fun DefaultTextButton(
     modifier: Modifier = Modifier,
     text: String,
-    textColor: Color,
+    textColor: Color = MaterialTheme.colorScheme.onSurface,
+    style: TextStyle = MaterialTheme.typography.bodySmall,
+    textPaddingValues: PaddingValues = PaddingValues(horizontal = 12.dp, vertical = 15.dp),
     enabled: Boolean = true,
     onClick: () -> Unit,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
 ) {
-    val avoidDuplicationClickEvent = remember {
-        AvoidDuplicationClickEvent(onClick)
-    }
-    TextButton(
-        modifier = modifier,
-        onClick = avoidDuplicationClickEvent::onClick,
-        enabled = enabled,
-        interactionSource = interactionSource
+    Box(
+        modifier = modifier
+            .clickableAvoidingDuplication(
+                interactionSource = interactionSource,
+                indication = null,
+                enabled = enabled,
+                onClick = onClick
+            )
     ) {
-        Text(
+        DefaultText(
+            modifier = Modifier.padding(textPaddingValues),
             text = text,
-            style = MaterialTheme.typography.bodySmall,
+            style = style,
             color = textColor
         )
     }

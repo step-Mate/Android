@@ -2,7 +2,7 @@ package jinproject.stepwalk.login.screen.signupdetail
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
-import jinproject.stepwalk.login.utils.isValidNickname
+import jinproject.stepwalk.core.isValidNickname
 import dagger.hilt.android.lifecycle.HiltViewModel
 import jinproject.stepwalk.domain.model.SignUpData
 import jinproject.stepwalk.domain.model.onException
@@ -14,8 +14,8 @@ import jinproject.stepwalk.domain.usecase.auth.VerificationEmailCodeUseCase
 import jinproject.stepwalk.login.screen.EmailViewModel
 import jinproject.stepwalk.login.screen.state.Account
 import jinproject.stepwalk.login.screen.state.SignValid
-import jinproject.stepwalk.login.utils.isValidEmail
-import jinproject.stepwalk.login.utils.isValidEmailCode
+import jinproject.stepwalk.core.isValidEmail
+import jinproject.stepwalk.core.isValidEmailCode
 import jinproject.stepwalk.login.utils.onEachState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.launchIn
