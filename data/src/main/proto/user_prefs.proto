@@ -1,0 +1,9 @@
+syntax = "proto3";
+
+option java_package = "jinproject.stepwalk.data";
+
+message UserPreferences {
+  string nickname = 1;
+  int32 level = 2;
+  string designation = 3;
+}

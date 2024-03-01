@@ -8,31 +8,39 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
-import jinproject.stepwalk.data.BodyDataPrefs.BodyDataPreferences
 import jinproject.stepwalk.data.AuthPrefs.CurrentAuthPreferences
+import jinproject.stepwalk.data.BodyDataPrefs.BodyDataPreferences
 import jinproject.stepwalk.data.StepwalkPrefs.StepWalkPreferences
+import jinproject.stepwalk.data.UserPrefs.UserPreferences
 import jinproject.stepwalk.data.local.datastore.BodyDataPreferencesSerialize
 import jinproject.stepwalk.data.local.datastore.CurrentAuthPreferencesSerializer
 import jinproject.stepwalk.data.local.datastore.StepWalkPreferencesSerializer
+import jinproject.stepwalk.data.local.datastore.UserPreferencesSerialize
 import javax.inject.Singleton
 
 private const val StepWalkPreferenceFileName = "stepwalk_prefs.pb"
 private const val AuthPreferenceFileName = "auth_prefs.pb"
 private const val BodyDataPreferenceFileName = "bodyData_prefs.pb"
+private const val UserPreferencesFileName = "user_prefs.pb"
 
 val Context.stepWalkPreferencesStore: DataStore<StepWalkPreferences> by dataStore(
     fileName = StepWalkPreferenceFileName,
     serializer = StepWalkPreferencesSerializer()
 )
 
-val Context.currentAuthPreferencesStore : DataStore<CurrentAuthPreferences> by dataStore(
+val Context.currentAuthPreferencesStore: DataStore<CurrentAuthPreferences> by dataStore(
     fileName = AuthPreferenceFileName,
     serializer = CurrentAuthPreferencesSerializer()
 )
 
-val Context.bodyDataPreferencesStore : DataStore<BodyDataPreferences> by dataStore(
+val Context.bodyDataPreferencesStore: DataStore<BodyDataPreferences> by dataStore(
     fileName = BodyDataPreferenceFileName,
     serializer = BodyDataPreferencesSerialize()
+)
+
+val Context.userPreferencesStore: DataStore<UserPreferences> by dataStore(
+    fileName = UserPreferencesFileName,
+    serializer = UserPreferencesSerialize()
 )
 
 @Module
@@ -47,13 +55,19 @@ object StepWalkPreferenceModule {
 
     @Singleton
     @Provides
-    fun providesCurrentAuthPreference(@ApplicationContext context: Context) : DataStore<CurrentAuthPreferences> {
+    fun providesCurrentAuthPreference(@ApplicationContext context: Context): DataStore<CurrentAuthPreferences> {
         return context.currentAuthPreferencesStore
     }
 
     @Singleton
     @Provides
-    fun providesBodyDataPreference(@ApplicationContext context: Context) : DataStore<BodyDataPreferences> {
+    fun providesBodyDataPreference(@ApplicationContext context: Context): DataStore<BodyDataPreferences> {
         return context.bodyDataPreferencesStore
+    }
+
+    @Singleton
+    @Provides
+    fun providesUserPreference(@ApplicationContext context: Context): DataStore<UserPreferences> {
+        return context.userPreferencesStore
     }
 }

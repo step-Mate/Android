@@ -28,7 +28,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.beank.profile.screen.profile.PasswordValid
-import jinproject.stepwalk.core.MAX_AGE_LENGTH
+import jinproject.stepwalk.core.MAX_PASS_LENGTH
 import jinproject.stepwalk.design.R
 import jinproject.stepwalk.design.component.DefaultOutlinedTextField
 import jinproject.stepwalk.design.component.DescriptionLargeText
@@ -78,7 +78,7 @@ internal fun PasswordDialog(
                         value = password,
                         onNewValue = {
                             val text = it.trim()
-                            if (text.length <= MAX_AGE_LENGTH) {
+                            if (text.length <= MAX_PASS_LENGTH) {
                                 password = text
                                 onNewValue(text)
                             }
@@ -119,7 +119,7 @@ internal fun PasswordField(
             else -> "비밀번호를 입력해주세요."
         },
         value = value,
-        isError = passwordValid != PasswordValid.Blank,
+        isError = passwordValid != PasswordValid.Blank && passwordValid != PasswordValid.Valid,
         keyboardType = KeyboardType.Password,
         leadingIcon = { Icon(imageVector = Icons.Default.Lock, contentDescription = "Lock") },
         trailingIcon = {

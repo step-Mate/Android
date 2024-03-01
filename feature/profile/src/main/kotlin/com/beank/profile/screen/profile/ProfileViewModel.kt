@@ -10,13 +10,12 @@ import jinproject.stepwalk.domain.model.User
 import jinproject.stepwalk.domain.usecase.auth.CheckHasTokenUseCase
 import jinproject.stepwalk.domain.usecase.auth.LogoutUseCases
 import jinproject.stepwalk.domain.usecase.user.GetMyInfoUseCases
+import jinproject.stepwalk.domain.usecase.user.GetUserLocalInfo
 import jinproject.stepwalk.domain.usecase.user.WithdrawAccountUseCases
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharedFlow
-import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
@@ -43,10 +42,11 @@ class ProfileViewModel @Inject constructor(
     private val getMyInfoUseCases: GetMyInfoUseCases,
     private val logoutUseCases: LogoutUseCases,
     checkHasTokenUseCase: CheckHasTokenUseCase,
-    private val withdrawAccountUseCases: WithdrawAccountUseCases
+    private val withdrawAccountUseCases: WithdrawAccountUseCases,
+    getUserLocalInfo: GetUserLocalInfo
 ) : ViewModel() {
-    private val _uiState: MutableSharedFlow<UiState> = MutableSharedFlow(replay = 1)
-    val uiState: SharedFlow<UiState> get() = _uiState.asSharedFlow()
+    private val _uiState: MutableStateFlow<UiState> = MutableStateFlow(UiState.Loading)
+    val uiState: StateFlow<UiState> get() = _uiState.asStateFlow()
 
     private val _user = MutableStateFlow(User.getInitValues())
     val user get() = _user.asStateFlow()
@@ -80,6 +80,13 @@ class ProfileViewModel @Inject constructor(
             }
         ).launchIn(viewModelScope)
 
+        getUserLocalInfo().onEach { user ->
+            if (uiState.value == UiState.Anonymous) {
+                _user.update { User.getInitValues() }
+            } else if (uiState.value == UiState.Login) {
+                _user.update { user }
+            }
+        }.launchIn(viewModelScope)
     }
 
 
@@ -106,13 +113,12 @@ class ProfileViewModel @Inject constructor(
                     },
                     onException = { e ->
                         _passwordValid.update { PasswordValid.NotMatch }
-                        _uiState.emit(UiState.Error(e))
                     }
                 ).launchIn(viewModelScope)
             }
 
             is ProfileEvent.Password -> {
-                if (!event.value.isValidPassword() && event.value.isNotEmpty()) {
+                if (event.value.isValidPassword() && event.value.isNotEmpty()) {
                     _passwordValid.update { PasswordValid.Valid }
                     password = event.value
                 } else {

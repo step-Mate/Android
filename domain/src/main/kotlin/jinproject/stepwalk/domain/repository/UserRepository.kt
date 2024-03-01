@@ -14,7 +14,10 @@ interface UserRepository {
     fun withdrawAccount(password: String): Flow<Boolean>
     fun selectDesignation(designation: String): Flow<Boolean>
     fun getDesignation(): Flow<DesignationState>
+    fun getBodyData(): Flow<BodyData>
     fun setBodyData(bodyData: BodyData): Flow<Boolean>
+    suspend fun setBodyLocalData(bodyData: BodyData)
     fun updateNickname(nickname: String): Flow<Boolean>
     fun getMyInfo(): Flow<User>
+    fun getUserLocalInfo(): Flow<User>
 }

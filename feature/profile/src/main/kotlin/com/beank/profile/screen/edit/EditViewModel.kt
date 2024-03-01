@@ -14,10 +14,10 @@ import jinproject.stepwalk.domain.model.BodyData
 import jinproject.stepwalk.domain.model.onException
 import jinproject.stepwalk.domain.model.onSuccess
 import jinproject.stepwalk.domain.usecase.auth.CheckNicknameUseCase
-import jinproject.stepwalk.domain.usecase.auth.GetBodyDataUseCases
-import jinproject.stepwalk.domain.usecase.auth.SetBodyDataUseCases
+import jinproject.stepwalk.domain.usecase.user.GetBodyDataUseCases
 import jinproject.stepwalk.domain.usecase.user.GetDesignationsUseCases
 import jinproject.stepwalk.domain.usecase.user.SelectDesignationUseCases
+import jinproject.stepwalk.domain.usecase.user.SetBodyLocalUseCases
 import jinproject.stepwalk.domain.usecase.user.SetBodyUseCases
 import jinproject.stepwalk.domain.usecase.user.UpdateNicknameUseCases
 import kotlinx.coroutines.Dispatchers
@@ -56,8 +56,8 @@ class EditViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val checkNicknameUseCase: CheckNicknameUseCase,
     private val getBodyDataUseCases: GetBodyDataUseCases,
-    private val setBodyDataUseCases: SetBodyDataUseCases,//해당 부분 통합??
     private val setBodyUseCases: SetBodyUseCases,
+    private val setBodyLocalUseCases: SetBodyLocalUseCases,
     getDesignationsUseCases: GetDesignationsUseCases,
     private val updateNicknameUseCases: UpdateNicknameUseCases,
     private val selectDesignationUseCases: SelectDesignationUseCases
@@ -189,7 +189,7 @@ class EditViewModel @Inject constructor(
                     }
                 } else {
                     viewModelScope.launch(Dispatchers.IO) {
-                        setBodyDataUseCases(
+                        setBodyLocalUseCases(
                             BodyData(
                                 age.value.toInt(), height.value.toInt(), weight.value.toInt()
                             )
@@ -238,13 +238,6 @@ class EditViewModel @Inject constructor(
                 )
             )
         ) { designationState, bodyState ->
-            viewModelScope.launch(Dispatchers.IO) {
-                setBodyDataUseCases(
-                    BodyData(
-                        age.value.toInt(), height.value.toInt(), weight.value.toInt()
-                    )
-                )
-            }
             designationState && bodyState
         }
 

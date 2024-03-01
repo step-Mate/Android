@@ -52,7 +52,7 @@ internal fun ProfileScreen(
     navigateToTerms: () -> Unit,
     showSnackBar: (SnackBarMessage) -> Unit
 ) {
-    val uiState by profileViewModel.uiState.collectAsStateWithLifecycle(initialValue = ProfileViewModel.UiState.Loading)
+    val uiState by profileViewModel.uiState.collectAsStateWithLifecycle()
 
     LaunchedEffect(key1 = uiState) {
         if (uiState is ProfileViewModel.UiState.Error) {
@@ -111,6 +111,7 @@ private fun ProfileScreen(
     navigateToTerms: () -> Unit,
 ) {
     val userState by user.collectAsStateWithLifecycle()
+    val passwordValidState by passwordValid.collectAsStateWithLifecycle()
     val composition by rememberLottieComposition(LottieCompositionSpec.Asset(userState.character))
     val lottieProgress by animateLottieCompositionAsState(
         composition,
@@ -120,6 +121,11 @@ private fun ProfileScreen(
     var logoutState by remember { mutableStateOf(false) }
     var withdrawalState by remember { mutableStateOf(false) }
     var passwordState by remember { mutableStateOf(false) }
+
+    LaunchedEffect(key1 = passwordValidState){
+        if (passwordValidState == PasswordValid.Success)
+            passwordState = false
+    }
 
     DefaultLayout(
         contentPaddingValues = PaddingValues()
@@ -228,7 +234,6 @@ private fun ProfileScreen(
             isShown = passwordState,
             onPositiveCallback = {
                 onEvent(ProfileEvent.Secession)
-                passwordState = false
             },
             hideDialog = { passwordState = false }
         )
