@@ -1,4 +1,4 @@
-package jinproject.stepwalk.data.repositoryimpl
+package jinproject.stepwalk.data.repositoryImpl
 
 import jinproject.stepwalk.data.local.datasource.BodyDataSource
 import jinproject.stepwalk.data.local.datasource.CurrentAuthDataSource

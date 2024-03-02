@@ -30,7 +30,7 @@ internal fun UserDetailResponse.toUserDetailModel() = UserDetailModel(
         name = name,
         character = "ic_anim_running_1.json",
         level = level,
-        designation = designation ?: "",
+        designation = designation ?: ""
     ),
     stepRank = StepRank(
         rank = RankModel(
