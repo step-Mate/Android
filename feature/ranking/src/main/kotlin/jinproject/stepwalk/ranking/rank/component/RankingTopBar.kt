@@ -18,7 +18,9 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
+import jinproject.stepwalk.design.R
 import jinproject.stepwalk.design.appendFontSizeWithColorText
+import jinproject.stepwalk.design.component.DefaultIconButton
 import jinproject.stepwalk.design.component.DescriptionAnnotatedSmallText
 import jinproject.stepwalk.design.component.DescriptionLargeText
 import jinproject.stepwalk.design.component.DescriptionSmallText
@@ -39,6 +41,7 @@ internal fun RankingTopBar(
     modifier: Modifier = Modifier,
     user: Rank,
     maxStep: Int,
+    navigateToNoti: () -> Unit,
 ) {
     Column(
         modifier = modifier
@@ -47,6 +50,17 @@ internal fun RankingTopBar(
             .windowInsetsPadding(WindowInsets.statusBars)
             .padding(horizontal = 16.dp, vertical = 12.dp),
     ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+        ) {
+            HorizontalWeightSpacer(float = 1f)
+            DefaultIconButton(
+                icon = R.drawable.ic_notification,
+                onClick = navigateToNoti,
+                iconTint = MaterialTheme.colorScheme.onSurface,
+                iconSize = 32.dp
+            )
+        }
         Row(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.Bottom
@@ -95,5 +109,6 @@ private fun PreviewRankingTopBar(
     RankingTopBar(
         user = user.info,
         maxStep = 3000,
+        navigateToNoti = {},
     )
 }

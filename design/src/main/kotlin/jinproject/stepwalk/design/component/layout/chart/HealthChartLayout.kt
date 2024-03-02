@@ -6,6 +6,7 @@ import androidx.compose.ui.layout.Layout
 import jinproject.stepwalk.design.component.layout.asLoose
 import java.time.LocalDateTime
 import java.time.ZoneOffset
+import kotlin.math.ceil
 
 @Composable
 fun HealthChartLayout(
@@ -20,7 +21,8 @@ fun HealthChartLayout(
 ) {
     val bars = @Composable { repeat(itemsCount) { bar(it) } }
 
-    val horizontalItemCount = if (itemsCount >= 16) itemsCount / 2 else itemsCount
+    val horizontalItemCount =
+        if (itemsCount >= 16) (ceil(itemsCount.toFloat() / 2)).toInt() else itemsCount
     val horizontalStep = if (itemsCount == horizontalItemCount) 1 else 2
     val horizontalItemList = (0 until itemsCount step horizontalStep).toList()
     val horizontalItemConversion =
@@ -45,10 +47,11 @@ fun HealthChartLayout(
         val headerPlaceable = headerMeasurables.first().measure(loosedConstraints)
 
         val popUpText = popUpMeasurables.first().parentData as HealthPopUpData
+        val popUpWidth = popUpText.figure.length * 20 + 35
         val popUpPlaceable = popUpMeasurables.first().measure(
             loosedConstraints.copy(
-                minWidth = popUpText.figure.length * 20 + 35,
-                maxWidth = popUpText.figure.length * 20 + 35,
+                minWidth = popUpWidth,
+                maxWidth = popUpWidth,
                 minHeight = 55,
                 maxHeight = 55,
             )
@@ -61,7 +64,8 @@ fun HealthChartLayout(
             )
         )
 
-        val itemWidth = if(horizontalItemCount > 0) (totalWidth - verticalPlacable.width) / horizontalItemCount else 0
+        val itemWidth =
+            if (horizontalItemCount > 0) (totalWidth - verticalPlacable.width) / horizontalItemCount else 0
 
         val horizontalPlacables = horizontalMeasurables.map { measurable ->
             measurable.measure(
@@ -72,11 +76,13 @@ fun HealthChartLayout(
             )
         }
 
-        val barWidth = if (itemsCount == 0 || itemsCount == horizontalItemCount) itemWidth else itemWidth / 2
+        val barWidth =
+            if (itemsCount == 0 || itemsCount == horizontalItemCount) itemWidth else itemWidth / 2
 
         val barMaxData = barMeasurables.maxOfOrNull { (it.parentData as HealthChartData).height }
         val barDatas = barMeasurables.map { (it.parentData as HealthChartData).height.toInt() }
-        val barMaxHeight = totalHeight - (horizontalPlacables.firstOrNull()?.height ?: 0) - headerPlaceable.height
+        val barMaxHeight =
+            totalHeight - (horizontalPlacables.firstOrNull()?.height ?: 0) - headerPlaceable.height
 
         val barPlaceables = barMeasurables.map { barMeasurable ->
             barMeasurable.measure(
@@ -99,7 +105,7 @@ fun HealthChartLayout(
                 headerPlaceable.height
             )
 
-            if(itemsCount != 0) {
+            if (itemsCount != 0) {
                 val eachBarWidth = horizontalPlacables.first().width / horizontalStep
 
                 barPlaceables.forEachIndexed { index, placeable ->
@@ -122,10 +128,17 @@ fun HealthChartLayout(
                         data.stepToSizeByMax(barHeight = barMaxHeight.toFloat(), barMaxData).toInt()
                     } ?: 0
 
-                    popUpPlaceable.place(
-                        verticalPlacable.width + eachBarWidth * (popUpState.index) + eachBarWidth / 2,
-                        totalHeight - horizontalPlacables.first().height - barHeight - popUpPlaceable.height - 20
-                    )
+                    val popUpXPos = if(popUpState.index > itemsCount / 2)
+                        verticalPlacable.width + eachBarWidth * (popUpState.index) - popUpPlaceable.width + eachBarWidth / 2
+                    else
+                        verticalPlacable.width + eachBarWidth * (popUpState.index) + eachBarWidth / 2
+
+                    if(popUpState.enabled) {
+                        popUpPlaceable.place(
+                            popUpXPos,
+                            totalHeight - horizontalPlacables.first().height - barHeight - popUpPlaceable.height - 20
+                        )
+                    }
                 }
             }
         }

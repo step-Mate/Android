@@ -5,18 +5,25 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import jinproject.stepwalk.core.SnackBarMessage
 import jinproject.stepwalk.core.catchDataFlow
 import jinproject.stepwalk.domain.model.mission.MissionComponent
+import jinproject.stepwalk.domain.usecase.user.AddFriendUseCase
 import jinproject.stepwalk.domain.usecase.user.GetUserDetailUseCase
 import jinproject.stepwalk.ranking.rank.Rank
 import jinproject.stepwalk.ranking.rank.RankingViewModel
 import jinproject.stepwalk.ranking.rank.state.asUser
+import kotlinx.coroutines.CoroutineExceptionHandler
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 import java.util.UUID
 import javax.inject.Inject
 
@@ -24,14 +31,30 @@ import javax.inject.Inject
 internal class UserDetailViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val getUserDetailUseCase: GetUserDetailUseCase,
+    private val addFriendUseCase: AddFriendUseCase,
 ) : ViewModel() {
 
     private val _uiState: MutableStateFlow<UiState> = MutableStateFlow(UiState.Loading)
     val uiState: StateFlow<UiState> get() = _uiState.asStateFlow()
 
+    private val userName = savedStateHandle.get<String>("userName")
+    private val maxStep = savedStateHandle.get<Int>("maxStep")
+
+    private val coroutineExceptionHandler = CoroutineExceptionHandler { coroutineContext, t ->
+        viewModelScope.launch {
+            _snackBarState.emit(
+                SnackBarMessage(
+                    headerMessage = "일시적인 장애가 발생했어요.",
+                    contentMessage = t.message.toString()
+                )
+            )
+        }
+    }
+
+    private val _snackBarState: MutableSharedFlow<SnackBarMessage> = MutableSharedFlow(replay = 0)
+    val snackBarState: SharedFlow<SnackBarMessage> get() = _snackBarState.asSharedFlow()
+
     init {
-        val userName = savedStateHandle.get<String>("userName")
-        val maxStep = savedStateHandle.get<Int>("maxStep")
         if (!userName.isNullOrBlank())
             getUserDetailInfo(userName, maxStep)
     }
@@ -57,6 +80,21 @@ internal class UserDetailViewModel @Inject constructor(
                 _uiState.update { UiState.Error(t) }
             }
         ).launchIn(viewModelScope)
+
+    fun addFriend() {
+        userName?.let { name ->
+            viewModelScope.launch(coroutineExceptionHandler) {
+                addFriendUseCase(name)
+
+                _snackBarState.emit(
+                    SnackBarMessage(
+                        headerMessage = "$userName 님에게 친구 신청을 했어요.",
+                        contentMessage = "$userName 님이 수락하실 때 까지 조금만 기다려주세요."
+                    )
+                )
+            }
+        }
+    }
 
     @Stable
     sealed class UiState {

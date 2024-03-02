@@ -30,6 +30,7 @@ import jinproject.stepwalk.login.navigation.navigateToFindPassword
 import jinproject.stepwalk.login.navigation.navigateToLogin
 import jinproject.stepwalk.login.navigation.navigateToSignUp
 import jinproject.stepwalk.login.navigation.navigateToSignUpDetail
+import jinproject.stepwalk.ranking.navigation.navigateToNotification
 import jinproject.stepwalk.ranking.navigation.navigateToRankingUserDetail
 import jinproject.stepwalk.ranking.navigation.rankingNavGraph
 
@@ -67,6 +68,7 @@ internal fun NavigationGraph(
             showSnackBar = showSnackBar,
             navigateToRankingUserDetail = navController::navigateToRankingUserDetail,
             navigateToLogin = navController::navigateToLogin,
+            navigateToNoti = navController::navigateToNotification,
         )
 
         composable(route = BottomNavigationDestination.Profile.route) {

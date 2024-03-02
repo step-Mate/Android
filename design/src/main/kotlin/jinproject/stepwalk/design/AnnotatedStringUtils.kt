@@ -3,6 +3,7 @@ package jinproject.stepwalk.design
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.TextUnit
 
@@ -11,6 +12,16 @@ fun AnnotatedString.Builder.appendColorText(text: String, color: Color) {
         SpanStyle(
             color = color
         )
+    ) {
+        append(text)
+    }
+}
+
+fun AnnotatedString.Builder.appendBoldText(text: String,) {
+    withStyle(
+        SpanStyle(
+            fontWeight = FontWeight.Bold,
+        ),
     ) {
         append(text)
     }

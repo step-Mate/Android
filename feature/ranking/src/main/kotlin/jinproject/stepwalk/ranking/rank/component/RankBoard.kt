@@ -131,7 +131,7 @@ internal fun RankBoard(
                         }
                         .shadow(4.dp, clip = true, shape = RoundedCornerShape(20.dp))
                         .background(MaterialTheme.colorScheme.surface)
-                        .padding(8.dp)
+                        .padding(vertical = 8.dp, horizontal = 16.dp)
                 ) {
                     // 전체 높이 112.dp + 높이 패딩 32.dp
                     Row(

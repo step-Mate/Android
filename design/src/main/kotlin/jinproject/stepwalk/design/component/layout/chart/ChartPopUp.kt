@@ -48,7 +48,7 @@ data class PopUpState(
 }
 
 @Composable
-fun PopUp(
+fun PopUpLtr(
     modifier: Modifier = Modifier,
     popUpState: PopUpState,
     graph: List<Long>,
@@ -116,6 +116,76 @@ fun PopUp(
 }
 
 @Composable
+fun PopUpRtl(
+    modifier: Modifier = Modifier,
+    popUpState: PopUpState,
+    graph: List<Long>,
+    barColor: List<Color>,
+) {
+    val popUpAnim by animateFloatAsState(
+        targetValue = if (popUpState.enabled) 1f else 0f,
+        label = "PopUpAnimateState",
+    )
+    val textMeasurer = rememberTextMeasurer()
+    val textStyle = MaterialTheme.typography.bodySmall
+
+    Spacer(
+        modifier = modifier
+            .drawWithCache {
+                val stroke = Stroke(
+                    width = 2.dp.toPx(),
+                    pathEffect = PathEffect.cornerPathEffect(4.dp.toPx())
+                )
+
+                val brush = Brush.verticalGradient(
+                    colors = barColor
+                )
+                val rect = size.toRect()
+                val path = Path().apply {
+                    moveTo(rect.topLeft.x, rect.topLeft.y)
+                    lineTo(rect.bottomLeft.x, rect.bottomLeft.y)
+
+                    lineTo(rect.bottomRight.x - 20f, rect.bottomRight.y)
+                    lineTo(rect.bottomRight.x,rect.bottomLeft.y + 15f)
+
+                    lineTo(rect.bottomRight.x, rect.bottomRight.y)
+                    lineTo(rect.topRight.x, rect.topRight.y)
+                    lineTo(rect.topLeft.x, rect.topLeft.y)
+                    close()
+                }
+                val fillPath = Path().apply {
+                    addPath(path)
+                    close()
+                }
+
+                val textResult = textMeasurer.measure(
+                    text = if (popUpState.index >= 0) graph[popUpState.index].toString() else "",
+                    style = textStyle
+                )
+
+                onDrawWithContent {
+                    scale(popUpAnim) {
+                        drawPath(path, brush = brush, style = stroke, alpha = popUpAnim)
+                        drawPath(fillPath, brush = brush, style = Fill, alpha = popUpAnim)
+                        drawText(
+                            textResult,
+                            topLeft = Offset(
+                                x = size.center.x - textResult.size.width / 2,
+                                y = size.center.y - textResult.size.height / 2
+                            )
+                        )
+                    }
+                }
+            }
+            .then(
+                HealthPopUpData(
+                    (graph.getOrNull(popUpState.index) ?: "").toString()
+                )
+            )
+    )
+}
+
+@Composable
 fun Modifier.addChartPopUpDismiss(
     popUpState: PopUpState,
     setPopUpState: (PopUpState) -> Unit,
@@ -137,14 +207,14 @@ internal class HealthPopUpData(val figure: String) : ParentDataModifier {
 
 @Composable
 @Preview(showBackground = true)
-private fun PreviewChartPopUp(
+private fun PreviewChartPopUpLtr(
 ) = StepWalkTheme {
     Column(
         modifier = Modifier.size(200.dp),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        PopUp(
+        PopUpLtr(
             modifier = Modifier.size(40.dp),
             popUpState = PopUpState(enabled = true, index = 1),
             graph = run {
@@ -156,6 +226,39 @@ private fun PreviewChartPopUp(
                 }
             }
         },
+            barColor = listOf(
+                StepWalkColor.blue_700.color,
+                StepWalkColor.blue_600.color,
+                StepWalkColor.blue_500.color,
+                StepWalkColor.blue_400.color,
+                StepWalkColor.blue_300.color,
+                StepWalkColor.blue_200.color,
+            )
+        )
+    }
+}
+
+@Composable
+@Preview(showBackground = true)
+private fun PreviewChartPopUpRtl(
+) = StepWalkTheme {
+    Column(
+        modifier = Modifier.size(200.dp),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        PopUpRtl(
+            modifier = Modifier.size(40.dp),
+            popUpState = PopUpState(enabled = true, index = 1),
+            graph = run {
+                mutableListOf<Long>().apply {
+                    repeat(24) { idx ->
+                        add(
+                            1000 + idx.toLong() * 50
+                        )
+                    }
+                }
+            },
             barColor = listOf(
                 StepWalkColor.blue_700.color,
                 StepWalkColor.blue_600.color,

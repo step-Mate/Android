@@ -1,6 +1,6 @@
 package jinproject.stepwalk.data.remote.dto.response.user
 
-import jinproject.stepwalk.domain.model.StepModel
+import jinproject.stepwalk.domain.model.user.StepModel
 import java.text.SimpleDateFormat
 import java.time.ZoneId
 import java.time.ZonedDateTime

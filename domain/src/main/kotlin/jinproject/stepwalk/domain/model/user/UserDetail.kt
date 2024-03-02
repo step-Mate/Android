@@ -1,4 +1,4 @@
-package jinproject.stepwalk.domain.model
+package jinproject.stepwalk.domain.model.user
 
 import jinproject.stepwalk.domain.model.mission.MissionComponent
 import java.time.ZonedDateTime

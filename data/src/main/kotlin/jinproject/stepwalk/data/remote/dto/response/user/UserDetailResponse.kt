@@ -3,18 +3,10 @@ package jinproject.stepwalk.data.remote.dto.response.user
 import com.google.gson.annotations.SerializedName
 import jinproject.stepwalk.data.remote.dto.response.mission.MissionResponse
 import jinproject.stepwalk.data.remote.dto.response.mission.toMissionComponentList
-import jinproject.stepwalk.domain.model.RankModel
-import jinproject.stepwalk.domain.model.StepModel
-import jinproject.stepwalk.domain.model.StepRank
-import jinproject.stepwalk.domain.model.User
-import jinproject.stepwalk.domain.model.UserDetailModel
-import jinproject.stepwalk.domain.model.mission.CalorieMission
-import jinproject.stepwalk.domain.model.mission.StepMission
-import java.text.SimpleDateFormat
-import java.time.ZoneId
-import java.time.ZonedDateTime
-import java.time.temporal.TemporalAdjusters
-import java.util.Locale
+import jinproject.stepwalk.domain.model.user.RankModel
+import jinproject.stepwalk.domain.model.user.StepRank
+import jinproject.stepwalk.domain.model.user.User
+import jinproject.stepwalk.domain.model.user.UserDetailModel
 
 internal data class UserDetailResponse(
     @SerializedName("nickname") val name: String,

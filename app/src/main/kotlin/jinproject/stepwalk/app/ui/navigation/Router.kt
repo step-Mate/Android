@@ -27,6 +27,7 @@ internal class Router(val navController: NavHostController) {
         val navOptions = navOptions {
             popUpTo(navController.graph.findStartDestination().id) {
                 saveState = true
+                inclusive = true
             }
             launchSingleTop = true
             restoreState = true

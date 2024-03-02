@@ -1,11 +1,11 @@
 package jinproject.stepwalk.domain
 
-import jinproject.stepwalk.domain.model.RankModel
-import jinproject.stepwalk.domain.model.StepModel
-import jinproject.stepwalk.domain.model.StepRank
-import jinproject.stepwalk.domain.model.User
-import jinproject.stepwalk.domain.model.UserDetailModel
-import jinproject.stepwalk.domain.model.UserStepRank
+import jinproject.stepwalk.domain.model.user.RankModel
+import jinproject.stepwalk.domain.model.user.StepModel
+import jinproject.stepwalk.domain.model.user.StepRank
+import jinproject.stepwalk.domain.model.user.User
+import jinproject.stepwalk.domain.model.user.UserDetailModel
+import jinproject.stepwalk.domain.model.rank.UserStepRank
 import java.time.ZonedDateTime
 
 val UserDetailData = listOf(

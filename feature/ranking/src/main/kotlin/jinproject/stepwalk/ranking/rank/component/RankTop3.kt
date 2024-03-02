@@ -108,7 +108,7 @@ internal fun RankTop3(
             HorizontalWeightSpacer(float = 1f)
             if (rankBoard.top3.getOrNull(1) != null)
                 Ranker(
-                    modifier = Modifier.height(90.dp),
+                    modifier = Modifier.height(100.dp),
                     rank = rankBoard.top3[1],
                     maxStep = rankBoard.highestStep,
                     navigateToRankingUserDetail = navigateToRankingUserDetail,
@@ -124,7 +124,7 @@ internal fun RankTop3(
             HorizontalWeightSpacer(float = 1f)
             if (rankBoard.top3.getOrNull(2) != null)
                 Ranker(
-                    modifier = Modifier.height(90.dp),
+                    modifier = Modifier.height(100.dp),
                     rank = rankBoard.top3[2],
                     maxStep = rankBoard.highestStep,
                     navigateToRankingUserDetail = navigateToRankingUserDetail,

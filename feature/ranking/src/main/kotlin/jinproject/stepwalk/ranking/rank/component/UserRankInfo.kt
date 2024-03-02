@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
@@ -45,7 +46,7 @@ internal fun ColumnScope.UserCharacterWithStepProgress(
         composition,
         iterations = LottieConstants.IterateForever
     )
-    val progress = rank.step.toFloat() / maxStep
+    val progress = if(rank.step == 0 || maxStep == 0) 0f else rank.step.toFloat() / maxStep
 
     StepLayout(
         modifier = Modifier.fillMaxWidth(),
@@ -95,14 +96,12 @@ internal fun ColumnScope.UserStepProgress(
     rank: Rank,
     maxStep: Int,
 ) {
-    val progress = rank.step.toFloat() / maxStep
+    val progress = if(rank.step == 0 || maxStep == 0) 0f else rank.step.toFloat() / maxStep
 
     StepLayout(
         modifier = Modifier.fillMaxWidth(),
         characterContent = {
-            Column {
-
-            }
+            Spacer(modifier = Modifier)
         },
         progressContent = { p ->
             StepProgress(

@@ -7,7 +7,8 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import jinproject.stepwalk.core.SnackBarMessage
 import jinproject.stepwalk.core.catchDataFlow
-import jinproject.stepwalk.domain.model.UserStepRank
+import jinproject.stepwalk.domain.model.rank.UserStepRank
+import jinproject.stepwalk.domain.model.user.User
 import jinproject.stepwalk.domain.usecase.auth.CheckHasTokenUseCase
 import jinproject.stepwalk.domain.usecase.rank.GetRankBoardUseCase
 import jinproject.stepwalk.domain.usecase.rank.GetUserRankUseCase
@@ -78,11 +79,15 @@ internal class RankingViewModel @Inject constructor(
                 }
         }.catchDataFlow(
             action = { e ->
-                if (e.code == 402)
-                    CANNOT_LOGIN_EXCEPTION
-                else
-                    e
-            }, onException = {e ->
+                when (e.code) {
+                    401, 402 -> CANNOT_LOGIN_EXCEPTION
+                    404 -> {
+                        e
+                    }
+
+                    else -> e
+                }
+            }, onException = { e ->
                 Log.d("test", "catch : ${e.message}")
                 _uiState.emit(UiState.Error(e))
             }
@@ -91,14 +96,14 @@ internal class RankingViewModel @Inject constructor(
 
     fun changeRankTab(tab: RankTab) = _rankTab.update { tab }
 
-    private fun fetchRanking() = getRankBoardUseCase.getMonthRankBoard(0)
-        .zip(getRankBoardUseCase.getFriendRankBoard()) { monthRankBoardModel, friendRankBoardModel ->
+    private fun fetchRanking() = getRankBoardUseCase.getMonthRankBoard(1)
+        .zip(getRankBoardUseCase.getFriendRankBoard(1)) { monthRankBoardModel, friendRankBoardModel ->
 
             val monthRankBoard = monthRankBoardModel.asRankBoard(1)
 
             val list = friendRankBoardModel.list.map {
                 UserStepRank(
-                    user = jinproject.stepwalk.domain.model.User(
+                    user = User(
                         name = it.user.name,
                         character = it.user.character,
                         level = it.user.level,
@@ -130,53 +135,51 @@ internal class RankingViewModel @Inject constructor(
     }
 
     private fun fetchRankBoard(page: Int) {
-        rankTab.flatMapLatest { tab ->
-            when (tab) {
-                RankTab.MONTH -> {
-                    getRankBoardUseCase.getMonthRankBoard(page)
-                        .transform { rankBoardModel ->
-                            if(rankBoardModel.list.isNotEmpty())
-                                emit(rankBoardModel.asRankBoard(page))
-                            else {
-                                _snackBarState.emit(
-                                    SnackBarMessage(
-                                        headerMessage = "월간 랭킹의 끝에 도달했어요.",
-                                        contentMessage = "더 이상 불러올 유저가 없어요."
-                                    )
+        when (rankTab.value) {
+            RankTab.MONTH -> {
+                getRankBoardUseCase.getMonthRankBoard(page)
+                    .transform { rankBoardModel ->
+                        if (rankBoardModel.list.isNotEmpty())
+                            emit(rankBoardModel.asRankBoard(page))
+                        else {
+                            _snackBarState.emit(
+                                SnackBarMessage(
+                                    headerMessage = "월간 랭킹의 끝에 도달했어요.",
+                                    contentMessage = "더 이상 불러올 유저가 없어요."
                                 )
-                            }
-                        }.onEach { rankBoard ->
-                            _rankBoard.update { state ->
-                                state.copy(
-                                    rankList = state.addNextPage(rankBoard.rankList),
-                                    page = page
-                                )
-                            }
+                            )
                         }
-                }
+                    }.onEach { rankBoard ->
+                        _rankBoard.update { state ->
+                            state.copy(
+                                rankList = state.addNextPage(rankBoard.rankList),
+                                page = page
+                            )
+                        }
+                    }
+            }
 
-                RankTab.FRIEND -> {
-                    getRankBoardUseCase.getFriendRankBoard()
-                        .transform { rankBoardModel ->
-                            if(rankBoardModel.list.isNotEmpty())
-                                emit(rankBoardModel.asRankBoard(page))
-                            else {
-                                _snackBarState.emit(
-                                    SnackBarMessage(
-                                        headerMessage = "친구 랭킹의 끝에 도달했어요.",
-                                        contentMessage = "더 이상 불러올 친구가 없어요."
-                                    )
+            RankTab.FRIEND -> {
+                getRankBoardUseCase.getFriendRankBoard(page)
+                    .transform { rankBoardModel ->
+                        if (rankBoardModel.list.isNotEmpty())
+                            emit(rankBoardModel.asRankBoard(page))
+                        else {
+                            _snackBarState.emit(
+                                SnackBarMessage(
+                                    headerMessage = "친구 랭킹의 끝에 도달했어요.",
+                                    contentMessage = "더 이상 불러올 친구가 없어요."
                                 )
-                            }
-                        }.onEach { rankBoardModel ->
-                            _friendRankBoard.update { state ->
-                                state.copy(
-                                    rankList = state.addNextPage(rankBoardModel.rankList),
-                                    page = page
-                                )
-                            }
+                            )
                         }
-                }
+                    }.onEach { rankBoardModel ->
+                        _friendRankBoard.update { state ->
+                            state.copy(
+                                rankList = state.addNextPage(rankBoardModel.rankList),
+                                page = page
+                            )
+                        }
+                    }
             }
         }.catchDataFlow(
             action = { e ->

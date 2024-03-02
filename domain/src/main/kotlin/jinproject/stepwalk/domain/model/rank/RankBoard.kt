@@ -1,4 +1,7 @@
-package jinproject.stepwalk.domain.model
+package jinproject.stepwalk.domain.model.rank
+
+import jinproject.stepwalk.domain.model.user.StepRank
+import jinproject.stepwalk.domain.model.user.User
 
 class StepRankBoard(
     val list: List<UserStepRank>

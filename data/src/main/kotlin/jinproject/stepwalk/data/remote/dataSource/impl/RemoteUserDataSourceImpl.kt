@@ -1,15 +1,41 @@
 package jinproject.stepwalk.data.remote.dataSource.impl
 
+import jinproject.stepwalk.data.di.RetrofitWithTokenModule
 import jinproject.stepwalk.data.remote.api.UserApi
 import jinproject.stepwalk.data.remote.dataSource.RemoteUserDataSource
-import jinproject.stepwalk.data.remote.dto.response.rank.MonthRankBoardResponse
-import jinproject.stepwalk.data.remote.dto.response.user.UserDetailResponse
+import jinproject.stepwalk.data.remote.dto.response.rank.toUserStepRank
+import jinproject.stepwalk.data.remote.dto.response.user.toUserDetailModel
+import jinproject.stepwalk.data.remote.utils.suspendAndCatchStepMateData
+import jinproject.stepwalk.domain.model.rank.UserStepRank
+import jinproject.stepwalk.domain.model.user.UserDetailModel
+import retrofit2.Retrofit
 import javax.inject.Inject
 
 internal class RemoteUserDataSourceImpl @Inject constructor(
     private val userApi: UserApi,
-): RemoteUserDataSource {
-    override suspend fun getMyRank(): MonthRankBoardResponse = userApi.getMyRank()
-    override suspend fun getUserDetail(userName: String): UserDetailResponse = userApi.getUserDetail(userName)
+    @RetrofitWithTokenModule.RetrofitWithInterceptor private val retrofit: Retrofit,
+) : RemoteUserDataSource {
+    override suspend fun getMyRank(): UserStepRank = userApi.getMyRank().toUserStepRank()
+    override suspend fun getUserDetail(userName: String): UserDetailModel =
+        userApi.getUserDetail(userName).toUserDetailModel()
 
+    override suspend fun addUser(userName: String) {
+        suspendAndCatchStepMateData(retrofit) {
+            userApi.addFriend(userName)
+        }
+    }
+
+    override suspend fun processFriendRequest(bool: Boolean, userName: String) {
+        suspendAndCatchStepMateData(retrofit) {
+            if (bool)
+                userApi.approveFriendRequest(userName)
+            else
+                userApi.denyFriendRequest(userName)
+        }
+    }
+
+    override suspend fun getFriendRequest(): List<String> =
+        suspendAndCatchStepMateData(retrofit) {
+            userApi.getFriendRequest()
+        }?.map { data -> data["nickname"] ?: "" } ?: emptyList()
 }

@@ -1,9 +1,12 @@
 package jinproject.stepwalk.data.remote.dataSource
 
-import jinproject.stepwalk.data.remote.dto.response.rank.MonthRankBoardResponse
-import jinproject.stepwalk.data.remote.dto.response.user.UserDetailResponse
+import jinproject.stepwalk.domain.model.rank.UserStepRank
+import jinproject.stepwalk.domain.model.user.UserDetailModel
 
 internal interface RemoteUserDataSource {
-    suspend fun getMyRank(): MonthRankBoardResponse
-    suspend fun getUserDetail(userName: String): UserDetailResponse
+    suspend fun getMyRank(): UserStepRank
+    suspend fun getUserDetail(userName: String): UserDetailModel
+    suspend fun addUser(userName: String)
+    suspend fun processFriendRequest(bool: Boolean, userName: String)
+    suspend fun getFriendRequest(): List<String>
 }

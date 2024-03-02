@@ -1,18 +1,21 @@
 package jinproject.stepwalk.ranking.detail
 
+import android.content.res.Resources
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
@@ -20,9 +23,15 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
+import androidx.core.content.res.ResourcesCompat
+import androidx.core.graphics.drawable.toBitmap
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.airbnb.lottie.compose.LottieAnimation
@@ -31,6 +40,8 @@ import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.animateLottieCompositionAsState
 import com.airbnb.lottie.compose.rememberLottieComposition
 import jinproject.stepwalk.core.SnackBarMessage
+import jinproject.stepwalk.design.component.DefaultButton
+import jinproject.stepwalk.design.component.DefaultTextButton
 import jinproject.stepwalk.design.component.DescriptionLargeText
 import jinproject.stepwalk.design.component.DescriptionSmallText
 import jinproject.stepwalk.design.component.FooterText
@@ -39,7 +50,9 @@ import jinproject.stepwalk.design.component.HorizontalWeightSpacer
 import jinproject.stepwalk.design.component.StepMateProgressIndicatorRotating
 import jinproject.stepwalk.design.component.StepMateTitleTopBar
 import jinproject.stepwalk.design.component.VerticalSpacer
+import jinproject.stepwalk.design.component.clickableAvoidingDuplication
 import jinproject.stepwalk.design.component.layout.DefaultLayout
+import jinproject.stepwalk.design.component.layout.ExceptionScreen
 import jinproject.stepwalk.design.component.layout.chart.PopUpState
 import jinproject.stepwalk.design.component.layout.chart.addChartPopUpDismiss
 import jinproject.stepwalk.design.theme.StepWalkColor
@@ -56,11 +69,19 @@ internal fun UserDetailScreen(
     showSnackBar: (SnackBarMessage) -> Unit,
 ) {
     val uiState by userDetailViewModel.uiState.collectAsStateWithLifecycle()
+    val snackBarMessage by userDetailViewModel.snackBarState.collectAsStateWithLifecycle(
+        initialValue = SnackBarMessage.getInitValues()
+    )
 
+    LaunchedEffect(key1 = snackBarMessage) {
+        if (snackBarMessage.headerMessage.isNotBlank())
+            showSnackBar(snackBarMessage)
+    }
 
     UserDetailScreen(
         uiState = uiState,
         popBackStack = popBackStack,
+        addFriend = userDetailViewModel::addFriend,
     )
 }
 
@@ -68,16 +89,14 @@ internal fun UserDetailScreen(
 private fun UserDetailScreen(
     uiState: UserDetailViewModel.UiState,
     popBackStack: () -> Unit,
+    addFriend: () -> Unit,
 ) {
     when (uiState) {
         is UserDetailViewModel.UiState.Error -> {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .wrapContentSize()
-            ) {
-                DescriptionSmallText(text = uiState.exception.message.toString())
-            }
+            ExceptionScreen(
+                headlineMessage = "일시적인 장애가 발생했어요.",
+                causeMessage = uiState.exception.message.toString(),
+            )
         }
 
         UserDetailViewModel.UiState.Loading -> {
@@ -88,6 +107,7 @@ private fun UserDetailScreen(
             OnSuccessUserDetailScreen(
                 user = uiState.user,
                 popBackStack = popBackStack,
+                addFriend = addFriend,
             )
         }
     }
@@ -96,8 +116,10 @@ private fun UserDetailScreen(
 @Composable
 internal fun OnSuccessUserDetailScreen(
     modifier: Modifier = Modifier,
+    resources: Resources = LocalContext.current.resources,
     user: User,
     popBackStack: () -> Unit,
+    addFriend: () -> Unit,
 ) {
     var popUpState by remember {
         mutableStateOf(PopUpState.getInitValues())
@@ -170,6 +192,20 @@ internal fun OnSuccessUserDetailScreen(
                     text = user.info.name,
                     modifier = Modifier.alignByBaseline()
                 )
+                HorizontalSpacer(width = 4.dp)
+                FooterText(
+                    text = "친구 추가",
+                    modifier = Modifier
+                        .clickableAvoidingDuplication {
+                            addFriend()
+                        }
+                        .border(
+                            1.dp,
+                            MaterialTheme.colorScheme.outline,
+                            RoundedCornerShape(20.dp),
+                        )
+                        .padding(horizontal = 8.dp, vertical = 4.dp),
+                )
                 HorizontalWeightSpacer(float = 1f)
                 RankNumber(
                     rank = user.info,
@@ -233,7 +269,7 @@ internal fun MissionLatest(
                     FooterText(text = "${mission.getMissionAchieved()} / ${mission.getMissionGoal()}")
                 }
             }
-            if(index != missions.lastIndex)
+            if (index != missions.lastIndex)
                 VerticalSpacer(height = 8.dp)
         }
     }
@@ -251,5 +287,6 @@ private fun PreviewUserDetailScreen(
             user
         ),
         popBackStack = {},
+        addFriend = {},
     )
 }

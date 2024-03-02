@@ -1,6 +1,6 @@
 package jinproject.stepwalk.domain.usecase.rank
 
-import jinproject.stepwalk.domain.model.StepRankBoard
+import jinproject.stepwalk.domain.model.rank.StepRankBoard
 import jinproject.stepwalk.domain.repository.RankRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -13,7 +13,7 @@ class GetRankBoardUseCase @Inject constructor(
         StepRankBoard.createRankBoardModel(stepRankBoard.list)
     }
 
-    fun getFriendRankBoard(): Flow<StepRankBoard> = rankRepository.getFriendRankBoard().map { stepRankBoard ->
+    fun getFriendRankBoard(page: Int): Flow<StepRankBoard> = rankRepository.getFriendRankBoard(page).map { stepRankBoard ->
         StepRankBoard.createRankBoardModel(stepRankBoard.list)
     }
 
