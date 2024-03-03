@@ -6,3 +6,7 @@ plugins {
 android {
     namespace = "jinproject.stepwalk.core"
 }
+
+dependencies {
+    implementation(project(":domain"))
+}

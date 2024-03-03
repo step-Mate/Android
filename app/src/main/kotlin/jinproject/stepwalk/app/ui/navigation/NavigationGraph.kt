@@ -27,9 +27,9 @@ import jinproject.stepwalk.home.navigation.navigateToCalendar
 import jinproject.stepwalk.login.navigation.authNavGraph
 import jinproject.stepwalk.login.navigation.navigateToFindId
 import jinproject.stepwalk.login.navigation.navigateToFindPassword
+import jinproject.stepwalk.login.navigation.navigateToLogin
 import jinproject.stepwalk.login.navigation.navigateToSignUp
 import jinproject.stepwalk.login.navigation.navigateToSignUpDetail
-import jinproject.stepwalk.login.navigation.loginGraph
 import jinproject.stepwalk.mission.navigation.missionNavGraph
 import jinproject.stepwalk.mission.navigation.navigateToMissionDetail
 
@@ -65,9 +65,11 @@ internal fun NavigationGraph(
 
 
         composable(route = BottomNavigationDestination.Profile.route) {
-            Column(modifier = Modifier
-                .fillMaxSize()
-                .wrapContentSize()) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .wrapContentSize()
+            ) {
                 Image(
                     painter = painterResource(id = jinproject.stepwalk.design.R.drawable.ic_setting),
                     contentDescription = "settingIcon"
@@ -76,9 +78,11 @@ internal fun NavigationGraph(
         }
 
         composable(route = BottomNavigationDestination.Ranking.route) {
-            Column(modifier = Modifier
-                .fillMaxSize()
-                .wrapContentSize()) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .wrapContentSize()
+            ) {
                 Image(
                     painter = painterResource(id = jinproject.stepwalk.design.R.drawable.ic_rankboard),
                     contentDescription = "settingIcon"
@@ -88,6 +92,7 @@ internal fun NavigationGraph(
 
         missionNavGraph(
             navigateToMissionDetail = navController::navigateToMissionDetail,
+            navigateToLogin = navController::navigateToLogin,
             popBackStack = navController::popBackStackIfCan,
         )
 

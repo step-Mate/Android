@@ -26,7 +26,6 @@ internal object DatabaseModule {
     @Singleton
     fun providesDatabase(@ApplicationContext context: Context): Database {
         return Room.databaseBuilder(context, Database::class.java, "myDatabase")
-            .createFromAsset("stepMate.db")
             .build()
     }
 }

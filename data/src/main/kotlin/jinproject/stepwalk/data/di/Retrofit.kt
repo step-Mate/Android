@@ -9,6 +9,7 @@ import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import jinproject.stepwalk.data.BuildConfig
 import jinproject.stepwalk.data.local.datasource.CurrentAuthDataSource
+import jinproject.stepwalk.data.remote.api.MissionApi
 import jinproject.stepwalk.data.remote.api.RankBoardApi
 import jinproject.stepwalk.data.remote.api.UserApi
 import kotlinx.coroutines.flow.firstOrNull
@@ -92,6 +93,11 @@ internal object RetrofitWithTokenModule {
     @Singleton
     @Provides
     fun provideUserApi(@RetrofitWithInterceptor retrofit: Retrofit): UserApi =
+        retrofit.create()
+
+    @Singleton
+    @Provides
+    fun provideMissionApi(@RetrofitWithInterceptor retrofit: Retrofit) : MissionApi =
         retrofit.create()
 
 }
