@@ -1,24 +1,25 @@
 package jinproject.stepwalk.ranking.rank.state
 
 import jinproject.stepwalk.domain.model.rank.StepRankBoard
-import jinproject.stepwalk.domain.model.user.UserDetailModel
 import jinproject.stepwalk.domain.model.rank.UserStepRank
+import jinproject.stepwalk.domain.model.user.UserDetailModel
 import jinproject.stepwalk.ranking.detail.User
 import jinproject.stepwalk.ranking.rank.Rank
 import jinproject.stepwalk.ranking.rank.RankBoard
+import java.time.ZonedDateTime
 
 internal fun UserDetailModel.asUser(maxStep: Int) = User(
     info = Rank(
         name = user.name,
         character = user.character,
         level = user.level,
-        step = stepRank.getTotalHealthFigure(),
+        step = stepRank.data[ZonedDateTime.now().dayOfMonth - 1].figure,
         designation = user.designation,
         rankNumber = stepRank.rank.rankNumber,
         dailyIncreasedRank = stepRank.rank.dailyIncreasedRank,
     ),
     maxStep = maxStep,
-    steps = stepRank.data.map { it.figure.toLong() },
+    steps = stepRank.data.map { stepModel -> stepModel.figure.toLong() },
     latestMissions = mission,
 )
 

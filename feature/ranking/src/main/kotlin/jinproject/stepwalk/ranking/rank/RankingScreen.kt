@@ -47,9 +47,9 @@ import androidx.compose.ui.window.PopupPositionProvider
 import androidx.compose.ui.window.PopupProperties
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LifecycleStartEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavOptions
-import androidx.navigation.navOptions
 import jinproject.stepwalk.core.SnackBarMessage
 import jinproject.stepwalk.design.component.DefaultButton
 import jinproject.stepwalk.design.component.DescriptionSmallText
@@ -65,7 +65,6 @@ import jinproject.stepwalk.design.component.systembarhiding.SystemBarHidingState
 import jinproject.stepwalk.design.component.systembarhiding.rememberSystemBarHidingState
 import jinproject.stepwalk.design.theme.StepWalkTheme
 import jinproject.stepwalk.ranking.detail.UserDetailPreviewParameter
-import jinproject.stepwalk.ranking.navigation.rankingRoute
 import jinproject.stepwalk.ranking.rank.component.RankBoard
 import jinproject.stepwalk.ranking.rank.component.RankingTopBar
 import jinproject.stepwalk.ranking.rank.state.RankBoardPreviewParameter
@@ -76,9 +75,8 @@ import kotlinx.coroutines.launch
 @Composable
 internal fun RankingScreen(
     rankingViewModel: RankingViewModel = hiltViewModel(),
-    popBackStack: () -> Unit,
     showSnackBar: (SnackBarMessage) -> Unit,
-    navigateToRankingUserDetail: (String, Int) -> Unit,
+    navigateToRankingUserDetail: (String, Int, Boolean) -> Unit,
     navigateToLogin: (NavOptions?) -> Unit,
     navigateToNoti: () -> Unit,
 ) {
@@ -96,6 +94,12 @@ internal fun RankingScreen(
     LaunchedEffect(key1 = snackBarMessage) {
         if (snackBarMessage.headerMessage.isNotBlank())
             showSnackBar(snackBarMessage)
+    }
+
+    LifecycleStartEffect {
+        rankingViewModel::deleteFriendIfDeleted.invoke()
+
+        onStopOrDispose {}
     }
 
     RankingScreen(
@@ -120,7 +124,7 @@ private fun RankingScreen(
     friendRankBoard: RankBoard,
     fetchMoreMonthRankBoard: () -> Unit,
     changeRankTab: (RankingViewModel.RankTab) -> Unit,
-    navigateToRankingUserDetail: (String, Int) -> Unit,
+    navigateToRankingUserDetail: (String, Int, Boolean) -> Unit,
     navigateToLogin: (NavOptions?) -> Unit,
     navigateToNoti: () -> Unit,
 ) {
@@ -189,7 +193,7 @@ internal fun OnSuccessRankingScreen(
     fetchMoreMonthRankBoard: () -> Unit,
     pagerState: PagerState,
     changeRankTab: (RankingViewModel.RankTab) -> Unit,
-    navigateToRankingUserDetail: (String, Int) -> Unit,
+    navigateToRankingUserDetail: (String, Int, Boolean) -> Unit,
     navigateToNoti: () -> Unit,
 ) {
     val systemBarHidingState = rememberSystemBarHidingState(
@@ -302,7 +306,19 @@ internal fun OnSuccessRankingScreen(
                     setDialogState = { dialog -> dialogState = dialog },
                     pushRefreshState = pushRefreshState,
                     isRefreshing = isRefreshing,
-                    navigateToRankingUserDetail = navigateToRankingUserDetail,
+                    navigateToRankingUserDetail = { userName, maxStep ->
+                        val isFriend = when (currentTab) {
+                            RankingViewModel.RankTab.MONTH -> false
+                            RankingViewModel.RankTab.FRIEND -> {
+                                friendRankBoard.rankList.find { friends -> friends.name == userName }
+                                    ?.let {
+                                        true
+                                    } ?: false
+                            }
+                        }
+
+                        navigateToRankingUserDetail(userName, maxStep, isFriend)
+                    },
                 )
             }
         }
@@ -374,7 +390,7 @@ private fun PreviewRankingScreen(
         friendRankBoard = rankBoard,
         fetchMoreMonthRankBoard = {},
         changeRankTab = {},
-        navigateToRankingUserDetail = { _, _ -> },
+        navigateToRankingUserDetail = { _, _, _ -> },
         navigateToLogin = {},
         navigateToNoti = {},
     )

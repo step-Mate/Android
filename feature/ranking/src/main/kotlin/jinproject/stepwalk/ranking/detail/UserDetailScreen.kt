@@ -1,14 +1,12 @@
 package jinproject.stepwalk.ranking.detail
 
-import android.content.res.Resources
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
@@ -23,15 +21,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.drawWithContent
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
-import androidx.core.content.res.ResourcesCompat
-import androidx.core.graphics.drawable.toBitmap
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.airbnb.lottie.compose.LottieAnimation
@@ -40,8 +32,6 @@ import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.animateLottieCompositionAsState
 import com.airbnb.lottie.compose.rememberLottieComposition
 import jinproject.stepwalk.core.SnackBarMessage
-import jinproject.stepwalk.design.component.DefaultButton
-import jinproject.stepwalk.design.component.DefaultTextButton
 import jinproject.stepwalk.design.component.DescriptionLargeText
 import jinproject.stepwalk.design.component.DescriptionSmallText
 import jinproject.stepwalk.design.component.FooterText
@@ -64,6 +54,7 @@ import jinproject.stepwalk.ranking.rank.component.UserStepProgress
 
 @Composable
 internal fun UserDetailScreen(
+    navigateToRanking: () -> Unit,
     userDetailViewModel: UserDetailViewModel = hiltViewModel(),
     popBackStack: () -> Unit,
     showSnackBar: (SnackBarMessage) -> Unit,
@@ -72,6 +63,7 @@ internal fun UserDetailScreen(
     val snackBarMessage by userDetailViewModel.snackBarState.collectAsStateWithLifecycle(
         initialValue = SnackBarMessage.getInitValues()
     )
+    val isFriend by userDetailViewModel.isFriendState.collectAsStateWithLifecycle()
 
     LaunchedEffect(key1 = snackBarMessage) {
         if (snackBarMessage.headerMessage.isNotBlank())
@@ -80,15 +72,21 @@ internal fun UserDetailScreen(
 
     UserDetailScreen(
         uiState = uiState,
+        isFriend = isFriend,
+        originWasFriend = userDetailViewModel::isFriend.get(),
         popBackStack = popBackStack,
-        addFriend = userDetailViewModel::addFriend,
+        navigateToRanking = navigateToRanking,
+        addFriend = userDetailViewModel::manageFriendShip,
     )
 }
 
 @Composable
 private fun UserDetailScreen(
     uiState: UserDetailViewModel.UiState,
+    isFriend: Boolean,
+    originWasFriend: Boolean,
     popBackStack: () -> Unit,
+    navigateToRanking: () -> Unit,
     addFriend: () -> Unit,
 ) {
     when (uiState) {
@@ -106,7 +104,10 @@ private fun UserDetailScreen(
         is UserDetailViewModel.UiState.Success -> {
             OnSuccessUserDetailScreen(
                 user = uiState.user,
+                isFriend = isFriend,
+                originWasFriend = originWasFriend,
                 popBackStack = popBackStack,
+                navigateToRanking = navigateToRanking,
                 addFriend = addFriend,
             )
         }
@@ -116,26 +117,41 @@ private fun UserDetailScreen(
 @Composable
 internal fun OnSuccessUserDetailScreen(
     modifier: Modifier = Modifier,
-    resources: Resources = LocalContext.current.resources,
     user: User,
+    isFriend: Boolean,
+    originWasFriend: Boolean,
     popBackStack: () -> Unit,
+    navigateToRanking: () -> Unit,
     addFriend: () -> Unit,
 ) {
     var popUpState by remember {
         mutableStateOf(PopUpState.getInitValues())
     }
+
+    BackHandler {
+        if (originWasFriend && !isFriend) {
+            navigateToRanking()
+        } else
+            popBackStack()
+    }
+
     DefaultLayout(
         modifier = modifier.addChartPopUpDismiss(
             popUpState = popUpState,
-            setPopUpState = { state ->
-                popUpState = state
+            setPopUpState = { bool ->
+                popUpState = popUpState.copy(enabled = bool)
             }
         ),
         topBar = {
             StepMateTitleTopBar(
                 modifier = Modifier,
                 icon = jinproject.stepwalk.design.R.drawable.ic_arrow_left_small,
-                onClick = popBackStack,
+                onClick = {
+                    if (originWasFriend && !isFriend) {
+                        navigateToRanking()
+                    } else
+                        popBackStack()
+                },
                 text = "개인정보"
             )
         }
@@ -193,8 +209,9 @@ internal fun OnSuccessUserDetailScreen(
                     modifier = Modifier.alignByBaseline()
                 )
                 HorizontalSpacer(width = 4.dp)
+
                 FooterText(
-                    text = "친구 추가",
+                    text = if (!isFriend) "친구 추가" else "친구 삭제",
                     modifier = Modifier
                         .clickableAvoidingDuplication {
                             addFriend()
@@ -286,7 +303,10 @@ private fun PreviewUserDetailScreen(
         uiState = UserDetailViewModel.UiState.Success(
             user
         ),
+        isFriend = false,
+        originWasFriend = false,
         popBackStack = {},
         addFriend = {},
+        navigateToRanking = {},
     )
 }

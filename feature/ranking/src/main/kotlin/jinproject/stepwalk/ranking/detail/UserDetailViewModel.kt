@@ -8,8 +8,8 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import jinproject.stepwalk.core.SnackBarMessage
 import jinproject.stepwalk.core.catchDataFlow
 import jinproject.stepwalk.domain.model.mission.MissionComponent
-import jinproject.stepwalk.domain.usecase.user.AddFriendUseCase
 import jinproject.stepwalk.domain.usecase.user.GetUserDetailUseCase
+import jinproject.stepwalk.domain.usecase.user.ManageFriendUseCase
 import jinproject.stepwalk.ranking.rank.Rank
 import jinproject.stepwalk.ranking.rank.RankingViewModel
 import jinproject.stepwalk.ranking.rank.state.asUser
@@ -31,7 +31,7 @@ import javax.inject.Inject
 internal class UserDetailViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val getUserDetailUseCase: GetUserDetailUseCase,
-    private val addFriendUseCase: AddFriendUseCase,
+    private val manageFriendUseCase: ManageFriendUseCase,
 ) : ViewModel() {
 
     private val _uiState: MutableStateFlow<UiState> = MutableStateFlow(UiState.Loading)
@@ -39,6 +39,10 @@ internal class UserDetailViewModel @Inject constructor(
 
     private val userName = savedStateHandle.get<String>("userName")
     private val maxStep = savedStateHandle.get<Int>("maxStep")
+    val isFriend = savedStateHandle.get<Boolean>("isFriend") ?: false
+
+    private val _isFriendState: MutableStateFlow<Boolean> = MutableStateFlow(isFriend)
+    val isFriendState: StateFlow<Boolean> get() = _isFriendState.asStateFlow()
 
     private val coroutineExceptionHandler = CoroutineExceptionHandler { coroutineContext, t ->
         viewModelScope.launch {
@@ -81,17 +85,34 @@ internal class UserDetailViewModel @Inject constructor(
             }
         ).launchIn(viewModelScope)
 
-    fun addFriend() {
-        userName?.let { name ->
-            viewModelScope.launch(coroutineExceptionHandler) {
-                addFriendUseCase(name)
+    fun manageFriendShip() {
+        if (!isFriendState.value) {
+            userName?.let { name ->
+                viewModelScope.launch(coroutineExceptionHandler) {
+                    manageFriendUseCase.addFriend(name)
 
-                _snackBarState.emit(
-                    SnackBarMessage(
-                        headerMessage = "$userName 님에게 친구 신청을 했어요.",
-                        contentMessage = "$userName 님이 수락하실 때 까지 조금만 기다려주세요."
+                    _snackBarState.emit(
+                        SnackBarMessage(
+                            headerMessage = "$userName 님에게 친구 신청을 했어요.",
+                            contentMessage = "$userName 님이 수락하실 때 까지 조금만 기다려주세요."
+                        )
                     )
-                )
+                }
+            }
+        } else {
+            userName?.let { name ->
+                viewModelScope.launch(coroutineExceptionHandler) {
+                    manageFriendUseCase.deleteFriend(name)
+
+                    _isFriendState.update { false }
+
+                    _snackBarState.emit(
+                        SnackBarMessage(
+                            headerMessage = "$userName 님을 목록에서 삭제했어요.",
+                            contentMessage = "$userName 님에게도 더이상 친구로 표시되지 않아요."
+                        )
+                    )
+                }
             }
         }
     }

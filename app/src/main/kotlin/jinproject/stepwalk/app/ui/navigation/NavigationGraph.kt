@@ -19,6 +19,7 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.navOptions
 import jinproject.stepwalk.core.SnackBarMessage
 import jinproject.stepwalk.home.navigation.backStackToHome
 import jinproject.stepwalk.home.navigation.homeGraph
@@ -31,8 +32,10 @@ import jinproject.stepwalk.login.navigation.navigateToLogin
 import jinproject.stepwalk.login.navigation.navigateToSignUp
 import jinproject.stepwalk.login.navigation.navigateToSignUpDetail
 import jinproject.stepwalk.ranking.navigation.navigateToNotification
+import jinproject.stepwalk.ranking.navigation.navigateToRanking
 import jinproject.stepwalk.ranking.navigation.navigateToRankingUserDetail
 import jinproject.stepwalk.ranking.navigation.rankingNavGraph
+import jinproject.stepwalk.ranking.navigation.rankingRoute
 
 @Composable
 internal fun NavigationGraph(
@@ -64,6 +67,14 @@ internal fun NavigationGraph(
         )
 
         rankingNavGraph(
+            navigateToRanking = {
+                val navOptions = navOptions {
+                    popUpTo(rankingRoute) {
+                        inclusive = true
+                    }
+                }
+                navController.navigateToRanking(navOptions)
+            },
             popBackStack = navController::popBackStackIfCan,
             showSnackBar = showSnackBar,
             navigateToRankingUserDetail = navController::navigateToRankingUserDetail,

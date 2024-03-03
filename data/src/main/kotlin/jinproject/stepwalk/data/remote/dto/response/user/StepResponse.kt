@@ -18,8 +18,8 @@ internal fun StepResponse.toStepModel(): StepModel {
         ZonedDateTime.ofInstant(date.toInstant(), ZoneId.of("Asia/Seoul"))
 
     return StepModel( //TODO 시,분,초 가 할당될 필요가 있으면 해줘야 함
-        startTime = zonedDateTime,
-        endTime = zonedDateTime,
+        startTime = zonedDateTime.withHour(0).withMinute(0).withSecond(0),
+        endTime = zonedDateTime.withHour(23).withMinute(59).withSecond(59),
         figure = step
     )
 }
@@ -28,8 +28,11 @@ internal fun List<StepResponse>.toStepModelList(): List<StepModel> {
     val dayOfMonth = ZonedDateTime.now().with(TemporalAdjusters.lastDayOfMonth()).dayOfMonth
 
     return Array<StepModel>(dayOfMonth) { StepModel(ZonedDateTime.now(), ZonedDateTime.now(), 0) }. apply {
-        this@toStepModelList.forEachIndexed { idx, stepResponse ->
-            set(idx, stepResponse.toStepModel())
+        this@toStepModelList.forEach { stepResponse ->
+            val stepModel = stepResponse.toStepModel()
+            val idx = stepModel.startTime.dayOfMonth - 1
+
+            set(idx, stepModel)
         }
     }.toList()
 }

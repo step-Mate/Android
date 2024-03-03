@@ -18,6 +18,9 @@ internal interface UserApi {
     @POST("users/{nickname}/friends")
     suspend fun addFriend(@Path("nickname") userName: String): Response<Any>
 
+    @POST("users/friends/{nickname}/delete")
+    suspend fun deleteFriend(@Path("nickname") userName: String): Response<Any>
+
     @GET("users/friend-request")
     suspend fun getFriendRequest(): Response<List<Map<String, String>>>
 

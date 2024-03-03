@@ -9,6 +9,7 @@ interface UserRepository {
     fun getMyRank(): Flow<UserStepRank>
     fun getUserDetail(userName: String): Flow<UserDetailModel>
     suspend fun addFriend(userName: String)
+    suspend fun deleteFriend(userName: String)
     suspend fun processFriendRequest(bool: Boolean, userName: String)
     fun getFriendRequest(): Flow<List<String>>
 }

@@ -1,5 +1,6 @@
 package jinproject.stepwalk.ranking.noti
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.PaddingValues
@@ -48,6 +49,7 @@ internal fun RankNotificationScreen(
     rankNotiViewModel: RankNotiViewModel = hiltViewModel(),
     popBackStack: () -> Unit,
     showSnackBar: (SnackBarMessage) -> Unit,
+    navigateToRanking: () -> Unit,
 ) {
     val requestedFriendList by rankNotiViewModel.requestedFriendList.collectAsStateWithLifecycle()
     val snackBarMessage by rankNotiViewModel.snackBarState.collectAsStateWithLifecycle(
@@ -61,8 +63,10 @@ internal fun RankNotificationScreen(
 
     RankNotificationScreen(
         requestedFriendList = requestedFriendList,
+        isNeedToRefresh = rankNotiViewModel::isNeedToRefresh.get(),
         processRequestFriend = rankNotiViewModel::processRequestFriend,
         popBackStack = popBackStack,
+        navigateToRanking = navigateToRanking,
     )
 }
 
@@ -70,8 +74,10 @@ internal fun RankNotificationScreen(
 @Composable
 private fun RankNotificationScreen(
     requestedFriendList: RequestedFriendList,
+    isNeedToRefresh: Boolean,
     processRequestFriend: (Boolean, String) -> Unit,
     popBackStack: () -> Unit,
+    navigateToRanking: () -> Unit,
 ) {
     var dialogState by remember { mutableStateOf(DialogState.getInitValue()) }
 
@@ -82,13 +88,25 @@ private fun RankNotificationScreen(
         },
     )
 
+    BackHandler {
+        if (isNeedToRefresh)
+            navigateToRanking()
+        else
+            popBackStack()
+    }
+
     DefaultLayout(
         modifier = Modifier,
         topBar = {
             StepMateTitleTopBar(
                 modifier = Modifier,
                 icon = R.drawable.ic_arrow_left_small,
-                onClick = popBackStack,
+                onClick = {
+                    if (isNeedToRefresh)
+                        navigateToRanking()
+                    else
+                        popBackStack()
+                },
                 text = "받은 친구 신청"
             )
         },
@@ -166,6 +184,8 @@ private fun PreviewRankNotificationScreen() = StepWalkTheme {
     RankNotificationScreen(
         requestedFriendList = RequestedFriendList(listOf("홍길동", "박민영", "냐옹이")),
         processRequestFriend = { _, _ -> },
+        isNeedToRefresh = false,
         popBackStack = {},
+        navigateToRanking = {},
     )
 }

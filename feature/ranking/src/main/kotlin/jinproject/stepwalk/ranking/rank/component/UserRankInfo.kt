@@ -96,7 +96,7 @@ internal fun ColumnScope.UserStepProgress(
     rank: Rank,
     maxStep: Int,
 ) {
-    val progress = if(rank.step == 0 || maxStep == 0) 0f else rank.step.toFloat() / maxStep
+    val progress = if(rank.step == 0 || maxStep == 0) 0f else (rank.step.toFloat() / maxStep).coerceAtMost(1f)
 
     StepLayout(
         modifier = Modifier.fillMaxWidth(),

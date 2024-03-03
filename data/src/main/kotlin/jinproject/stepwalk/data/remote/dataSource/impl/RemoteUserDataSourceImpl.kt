@@ -19,9 +19,15 @@ internal class RemoteUserDataSourceImpl @Inject constructor(
     override suspend fun getUserDetail(userName: String): UserDetailModel =
         userApi.getUserDetail(userName).toUserDetailModel()
 
-    override suspend fun addUser(userName: String) {
+    override suspend fun addFriend(userName: String) {
         suspendAndCatchStepMateData(retrofit) {
             userApi.addFriend(userName)
+        }
+    }
+
+    override suspend fun deleteFriend(userName: String) {
+        suspendAndCatchStepMateData(retrofit) {
+            userApi.deleteFriend(userName)
         }
     }
 

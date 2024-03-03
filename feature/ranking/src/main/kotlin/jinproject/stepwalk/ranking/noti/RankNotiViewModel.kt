@@ -47,6 +47,9 @@ class RankNotiViewModel @Inject constructor(
         }
     }
 
+    var isNeedToRefresh = false
+        private set
+
     init {
         getFriendRequestList()
     }
@@ -56,12 +59,23 @@ class RankNotiViewModel @Inject constructor(
             processFriendRequestUseCase(bool, userName)
 
             getFriendRequestList()
-            _snackBarState.emit(
-                SnackBarMessage(
-                    headerMessage = "$userName 님의 친구 요청을 수락하셨어요.",
-                    contentMessage = "$userName 님과 친구가 되었어요."
+
+            if(bool) {
+                isNeedToRefresh = true
+
+                _snackBarState.emit(
+                    SnackBarMessage(
+                        headerMessage = "$userName 님의 요청을 수락했어요.",
+                        contentMessage = "$userName 님과 친구가 되었어요."
+                    )
                 )
-            )
+            }
+            else
+                _snackBarState.emit(
+                    SnackBarMessage(
+                        headerMessage = "$userName 님의 요청을 거절했어요.",
+                    )
+                )
         }
     }
 

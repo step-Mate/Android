@@ -14,12 +14,14 @@ import jinproject.stepwalk.ranking.rank.RankingScreen
 
 const val rankingGraph = "rankingGraph"
 const val rankingRoute = "ranking"
-const val rankingUserDetailRoute = "ranking_userDetail"
-private const val rankingUserDetailLink = "$rankingUserDetailRoute?userName={userName}&maxStep={maxStep}"
-private const val rankingNotificationRoute = "ranking_noti"
+private const val rankingUserDetailRoute = "ranking_userDetail"
+private const val rankingUserDetailLink =
+    "$rankingUserDetailRoute?userName={userName}&maxStep={maxStep}&isFriend={isFriend}"
+internal const val rankingNotificationRoute = "ranking_noti"
 
 fun NavGraphBuilder.rankingNavGraph(
-    navigateToRankingUserDetail: (String, Int) -> Unit,
+    navigateToRanking: () -> Unit,
+    navigateToRankingUserDetail: (String, Int, Boolean) -> Unit,
     popBackStack: () -> Unit,
     showSnackBar: (SnackBarMessage) -> Unit,
     navigateToLogin: (NavOptions?) -> Unit,
@@ -29,12 +31,13 @@ fun NavGraphBuilder.rankingNavGraph(
         startDestination = rankingRoute,
         route = rankingGraph
     ) {
-        composable(route = rankingRoute,) {
+        composable(
+            route = rankingRoute,
+        ) {
             RankingScreen(
-                popBackStack = popBackStack,
                 showSnackBar = showSnackBar,
-                navigateToRankingUserDetail = { userName, maxStep ->
-                    navigateToRankingUserDetail(userName, maxStep)
+                navigateToRankingUserDetail = { userName, maxStep, isFriend ->
+                    navigateToRankingUserDetail(userName, maxStep, isFriend)
                 },
                 navigateToLogin = navigateToLogin,
                 navigateToNoti = navigateToNoti,
@@ -50,10 +53,15 @@ fun NavGraphBuilder.rankingNavGraph(
                 navArgument("maxStep") {
                     type = NavType.IntType
                     defaultValue = 0
+                },
+                navArgument("isFriend") {
+                    type = NavType.BoolType
+                    defaultValue = false
                 }
             ),
         ) {
             UserDetailScreen(
+                navigateToRanking = navigateToRanking,
                 popBackStack = popBackStack,
                 showSnackBar = showSnackBar,
             )
@@ -64,12 +72,17 @@ fun NavGraphBuilder.rankingNavGraph(
             RankNotificationScreen(
                 popBackStack = popBackStack,
                 showSnackBar = showSnackBar,
+                navigateToRanking = navigateToRanking,
             )
         }
     }
 }
 
-fun NavController.navigateToRankingUserDetail(userName: String, maxStep: Int) =
-    this.navigate("$rankingUserDetailRoute?userName=$userName&maxStep=$maxStep")
+fun NavController.navigateToRanking(navOptions: NavOptions?) {
+    this.navigate(rankingRoute, navOptions = navOptions)
+}
+
+fun NavController.navigateToRankingUserDetail(userName: String, maxStep: Int, isFriend: Boolean) =
+    this.navigate("$rankingUserDetailRoute?userName=$userName&maxStep=$maxStep&isFriend=$isFriend")
 
 fun NavController.navigateToNotification() = this.navigate(rankingNotificationRoute)

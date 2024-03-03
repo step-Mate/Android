@@ -2,6 +2,7 @@ package jinproject.stepwalk.ranking.rank
 
 import android.util.Log
 import androidx.compose.runtime.Stable
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -35,6 +36,7 @@ import javax.inject.Inject
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
 internal class RankingViewModel @Inject constructor(
+    private val savedStateHandle: SavedStateHandle,
     private val getRankBoardUseCase: GetRankBoardUseCase,
     checkHasTokenUseCase: CheckHasTokenUseCase,
     private val getUserRankUseCase: GetUserRankUseCase,
@@ -60,6 +62,8 @@ internal class RankingViewModel @Inject constructor(
 
     private val _snackBarState: MutableSharedFlow<SnackBarMessage> = MutableSharedFlow(replay = 0)
     val snackBarState: SharedFlow<SnackBarMessage> get() = _snackBarState.asSharedFlow()
+
+    private val deletedFriend get() = savedStateHandle.get<String>("deletedFriendName") ?: ""
 
     init {
         checkHasTokenUseCase().flatMapLatest { token ->
@@ -95,6 +99,19 @@ internal class RankingViewModel @Inject constructor(
     }
 
     fun changeRankTab(tab: RankTab) = _rankTab.update { tab }
+
+    fun deleteFriendIfDeleted() {
+        if (deletedFriend.isNotBlank()) {
+            _friendRankBoard.update { state ->
+                state.copy(
+                    rankList = state.rankList.toMutableList()
+                        .apply { removeIf { rank -> rank.name == deletedFriend } }
+                )
+            }
+
+            savedStateHandle.remove<String>("deletedFriend")
+        }
+    }
 
     private fun fetchRanking() = getRankBoardUseCase.getMonthRankBoard(1)
         .zip(getRankBoardUseCase.getFriendRankBoard(1)) { monthRankBoardModel, friendRankBoardModel ->

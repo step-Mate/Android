@@ -20,7 +20,11 @@ internal class UserRepositoryImpl @Inject constructor(
     }
 
     override suspend fun addFriend(userName: String) {
-        remoteUserDataSource.addUser(userName)
+        remoteUserDataSource.addFriend(userName)
+    }
+
+    override suspend fun deleteFriend(userName: String) {
+        remoteUserDataSource.deleteFriend(userName)
     }
 
     override suspend fun processFriendRequest(bool: Boolean, userName: String) {
