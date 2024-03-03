@@ -85,7 +85,7 @@ internal fun MissionDetailScreen(
             }else
                 ExceptionScreen(
                     headlineMessage = "미션 기능을 이용할 수 없어요.",
-                    causeMessage = (uiState as MissionViewModel.UiState.Error).exception.message.toString(),
+                    causeMessage = (uiState as MissionDetailViewModel.UiState.Error).exception.message.toString(),
                 )
 
         }
