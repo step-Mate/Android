@@ -9,6 +9,8 @@ import jinproject.stepwalk.domain.model.user.User
 import jinproject.stepwalk.domain.model.user.UserDetailModel
 
 internal data class UserDetailResponse(
+    @SerializedName("ranking") val rankNumber: Int,
+    @SerializedName("rankChange") val dailyIncreasedRank: Int,
     @SerializedName("nickname") val name: String,
     val level: Int,
     val totalStep: Int,
@@ -26,8 +28,8 @@ internal fun UserDetailResponse.toUserDetailModel() = UserDetailModel(
     ),
     stepRank = StepRank(
         rank = RankModel(
-            rankNumber = 0,
-            dailyIncreasedRank = 0,
+            rankNumber = rankNumber,
+            dailyIncreasedRank = dailyIncreasedRank,
         ),
         data = dailySteps.toStepModelList(),
     ),

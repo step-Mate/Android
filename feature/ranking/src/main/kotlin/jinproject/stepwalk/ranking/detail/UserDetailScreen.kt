@@ -15,7 +15,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -33,7 +32,6 @@ import com.airbnb.lottie.compose.animateLottieCompositionAsState
 import com.airbnb.lottie.compose.rememberLottieComposition
 import jinproject.stepwalk.core.SnackBarMessage
 import jinproject.stepwalk.design.component.DescriptionLargeText
-import jinproject.stepwalk.design.component.DescriptionSmallText
 import jinproject.stepwalk.design.component.FooterText
 import jinproject.stepwalk.design.component.HorizontalSpacer
 import jinproject.stepwalk.design.component.HorizontalWeightSpacer
@@ -47,7 +45,7 @@ import jinproject.stepwalk.design.component.layout.chart.PopUpState
 import jinproject.stepwalk.design.component.layout.chart.addChartPopUpDismiss
 import jinproject.stepwalk.design.theme.StepWalkColor
 import jinproject.stepwalk.design.theme.StepWalkTheme
-import jinproject.stepwalk.domain.model.mission.MissionComponent
+import jinproject.stepwalk.ranking.detail.component.MissionLatest
 import jinproject.stepwalk.ranking.detail.component.UserDetailHealthChart
 import jinproject.stepwalk.ranking.rank.component.RankNumber
 import jinproject.stepwalk.ranking.rank.component.UserStepProgress
@@ -252,45 +250,6 @@ internal fun OnSuccessUserDetailScreen(
         VerticalSpacer(height = 16.dp)
         MissionLatest(missions = user.latestMissions)
     }
-}
-
-@Composable
-internal fun MissionLatest(
-    missions: List<MissionComponent>,
-) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(20.dp))
-            .padding(10.dp),
-    ) {
-        DescriptionLargeText(
-            text = "진행중인 미션",
-            modifier = Modifier.padding(vertical = 10.dp)
-        )
-        missions.forEachIndexed { index, mission ->
-            key(mission.getMissionDesignation()) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .border(
-                            1.dp,
-                            MaterialTheme.colorScheme.outline,
-                            RoundedCornerShape(10.dp)
-                        )
-                        .padding(8.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    DescriptionSmallText(text = mission.getMissionDesignation())
-                    HorizontalWeightSpacer(float = 1f)
-                    FooterText(text = "${mission.getMissionAchieved()} / ${mission.getMissionGoal()}")
-                }
-            }
-            if (index != missions.lastIndex)
-                VerticalSpacer(height = 8.dp)
-        }
-    }
-
 }
 
 @Composable
