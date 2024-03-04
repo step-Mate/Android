@@ -21,16 +21,17 @@ import androidx.compose.ui.unit.dp
 import jinproject.stepwalk.design.component.DefaultIconButton
 import jinproject.stepwalk.design.component.DescriptionLargeText
 import jinproject.stepwalk.design.component.VerticalSpacer
+import jinproject.stepwalk.design.component.layout.chart.HealthChartLayout
+import jinproject.stepwalk.design.component.layout.chart.PopUpLtr
+import jinproject.stepwalk.design.component.layout.chart.PopUpRtl
+import jinproject.stepwalk.design.component.layout.chart.PopUpState
+import jinproject.stepwalk.design.component.layout.chart.StepBar
+import jinproject.stepwalk.design.component.layout.chart.StepGraphHeader
+import jinproject.stepwalk.design.component.layout.chart.StepGraphTail
 import jinproject.stepwalk.design.theme.StepWalkColor
 import jinproject.stepwalk.design.theme.StepWalkTheme
 import jinproject.stepwalk.home.screen.home.HomeUiState
 import jinproject.stepwalk.home.screen.home.HomeUiStatePreviewParameters
-import jinproject.stepwalk.home.screen.home.component.PopUpState
-import jinproject.stepwalk.home.screen.home.component.tab.chart.HealthChartLayout
-import jinproject.stepwalk.home.screen.home.component.tab.chart.PopUp
-import jinproject.stepwalk.home.screen.home.component.tab.chart.StepBar
-import jinproject.stepwalk.home.screen.home.component.tab.chart.StepGraphHeader
-import jinproject.stepwalk.home.screen.home.component.tab.chart.StepGraphTail
 import jinproject.stepwalk.home.screen.home.component.tab.menu.MenuPager
 import jinproject.stepwalk.home.screen.home.state.Day
 import jinproject.stepwalk.home.screen.home.state.HealthTab
@@ -142,11 +143,18 @@ internal fun ColumnScope.HealthChart(
         },
         header = header,
         popUp = {
-            PopUp(
-                popUpState = popUpState,
-                graph = graph,
-                barColor = barColor
-            )
+            if(popUpState.index > graph.size / 2)
+                PopUpRtl(
+                    popUpState = popUpState,
+                    graph = graph,
+                    barColor = barColor
+                )
+            else
+                PopUpLtr(
+                    popUpState = popUpState,
+                    graph = graph,
+                    barColor = barColor
+                )
         },
         popUpState = popUpState
     )

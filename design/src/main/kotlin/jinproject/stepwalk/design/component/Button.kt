@@ -25,6 +25,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import jinproject.stepwalk.design.R
 import jinproject.stepwalk.design.theme.StepWalkTheme
@@ -36,6 +37,7 @@ fun DefaultIconButton(
     onClick: () -> Unit,
     enabled: Boolean = true,
     iconTint: Color,
+    iconSize: Dp = 48.dp,
     backgroundTint: Color = MaterialTheme.colorScheme.surface,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
 ) {
@@ -46,7 +48,7 @@ fun DefaultIconButton(
 
     DefaultButton(
         modifier = Modifier
-            .size(48.dp)
+            .size(iconSize)
             .then(modifier),
         onClick = onClick,
         enabled = enabled,

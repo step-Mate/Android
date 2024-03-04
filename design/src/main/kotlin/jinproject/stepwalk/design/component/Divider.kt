@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyItemScope
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -33,11 +34,10 @@ fun VerticalDivider(
 }
 
 @Suppress("FunctionName")
-@Composable
 fun LazyListScope.VerticalDividerItem(
     modifier: Modifier = Modifier,
     thickness: Dp = 1.dp,
-    color: Color = MaterialTheme.colorScheme.outlineVariant,
+    color: Color,
 ) {
     item {
         VerticalDivider(
@@ -63,11 +63,10 @@ fun HorizontalDivider(
 }
 
 @Suppress("FunctionName")
-@Composable
 fun LazyListScope.HorizontalDividerItem(
     modifier: Modifier = Modifier,
     thickness: Dp = 1.dp,
-    color: Color = MaterialTheme.colorScheme.outlineVariant,
+    color: Color,
 ) {
     item {
         HorizontalDivider(
@@ -76,6 +75,21 @@ fun LazyListScope.HorizontalDividerItem(
             color = color
         )
     }
+}
+
+@Composable
+fun LazyItemScope.HorizontalDividerItem(
+    modifier: Modifier = Modifier,
+    thickness: Dp = 1.dp,
+    color: Color,
+    isLastItem: Boolean = false,
+) {
+    if (!isLastItem)
+        HorizontalDivider(
+            modifier = modifier,
+            thickness = thickness,
+            color = color
+        )
 }
 
 @Preview(showBackground = true, widthDp = 320, heightDp = 320)

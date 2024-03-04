@@ -15,4 +15,5 @@ interface AuthRepository {
     suspend fun requestEmailCode(email: String) : ResponseState<Boolean>
     suspend fun verificationUserEmail(id: String, email: String, code: String) : Flow<ResponseState<Boolean>>
     suspend fun logoutAccount()
+    fun getAccessToken(): Flow<String>
 }

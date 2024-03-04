@@ -5,12 +5,12 @@ import androidx.compose.runtime.Stable
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination
 import androidx.navigation.NavDestination.Companion.hierarchy
-import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.NavOptions
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.navOptions
 import jinproject.stepwalk.home.navigation.navigateToHome
+import jinproject.stepwalk.ranking.navigation.navigateToRanking
 
 /**
  * Navigation을 담당하는 클래스
@@ -25,17 +25,18 @@ internal class Router(val navController: NavHostController) {
 
     internal fun navigateOnBottomNavigationBar(destination: BottomNavigationDestination) {
         val navOptions = navOptions {
-            popUpTo(navController.graph.findStartDestination().id) {
-                saveState = true
+            navController.currentBackStackEntry?.destination?.route?.let {
+                popUpTo(it) {
+                    inclusive = true
+                }
             }
             launchSingleTop = true
-            restoreState = true
         }
 
         when (destination) {
             BottomNavigationDestination.Home -> navController.navigateToHome(navOptions)
             BottomNavigationDestination.Profile -> navController.navigateToProfile(navOptions)
-            BottomNavigationDestination.Ranking -> navController.navigateToRanking(navOptions)
+            BottomNavigationDestination.Ranking -> navController.navigateToRanking(navOptions = navOptions)
             BottomNavigationDestination.Mission -> navController.navigateToMission(navOptions)
         }
     }
@@ -59,10 +60,6 @@ fun NavController.popBackStackIfCan() {
 
 fun NavController.navigateToProfile(navOptions: NavOptions?) {
     this.navigate(BottomNavigationDestination.Profile.route, navOptions = navOptions)
-}
-
-fun NavController.navigateToRanking(navOptions: NavOptions?) {
-    this.navigate(BottomNavigationDestination.Ranking.route, navOptions = navOptions)
 }
 
 fun NavController.navigateToMission(navOptions: NavOptions?) {
