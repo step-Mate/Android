@@ -282,7 +282,7 @@ private fun EditPreview(
         age = MutableStateFlow(""),
         height = MutableStateFlow(""),
         weight = MutableStateFlow(""),
-        loginState = true,
+        loginState = false,
         onEvent = {}
     ) {
 

@@ -10,6 +10,7 @@ import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
@@ -138,6 +139,7 @@ fun DefaultTextButton(
     enabled: Boolean = true,
     onClick: () -> Unit,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    content: @Composable BoxScope.() -> Unit = {}
 ) {
     Box(
         modifier = modifier
@@ -154,6 +156,7 @@ fun DefaultTextButton(
             style = style,
             color = textColor
         )
+        content()
     }
 }
 

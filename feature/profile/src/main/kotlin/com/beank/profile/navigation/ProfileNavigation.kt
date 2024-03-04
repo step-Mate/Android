@@ -23,6 +23,7 @@ private const val termsRoute = "terms"
 fun NavGraphBuilder.profileNavigation(
     navigateToEditUser: (String, String, Boolean) -> Unit,
     navigateToTerms: () -> Unit,
+    navigateToLogin: (NavOptions?) -> Unit,
     popBackStack: () -> Unit,
     showSnackBar: (SnackBarMessage) -> Unit
 ) {
@@ -36,6 +37,7 @@ fun NavGraphBuilder.profileNavigation(
             ProfileScreen(
                 navigateToEditUser = navigateToEditUser,
                 navigateToTerms = navigateToTerms,
+                navigateToLogin = navigateToLogin,
                 showSnackBar = showSnackBar
             )
         }

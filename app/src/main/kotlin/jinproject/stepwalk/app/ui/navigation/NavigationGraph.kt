@@ -30,6 +30,7 @@ import jinproject.stepwalk.home.navigation.navigateToCalendar
 import jinproject.stepwalk.login.navigation.authNavGraph
 import jinproject.stepwalk.login.navigation.navigateToFindId
 import jinproject.stepwalk.login.navigation.navigateToFindPassword
+import jinproject.stepwalk.login.navigation.navigateToLogin
 import jinproject.stepwalk.login.navigation.navigateToSignUp
 import jinproject.stepwalk.login.navigation.navigateToSignUpDetail
 import jinproject.stepwalk.mission.navigation.missionNavGraph
@@ -86,6 +87,7 @@ internal fun NavigationGraph(
         profileNavigation(
             navigateToEditUser = navController::navigateToEditUser,
             navigateToTerms = navController::navigateToTerms,
+            navigateToLogin = navController::navigateToLogin,
             popBackStack = navController::popBackStackIfCan,
             showSnackBar = showSnackBar
         )

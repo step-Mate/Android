@@ -6,9 +6,11 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import jinproject.stepwalk.core.catchDataFlow
 import jinproject.stepwalk.core.isValidPassword
+import jinproject.stepwalk.domain.model.BodyData
 import jinproject.stepwalk.domain.model.User
 import jinproject.stepwalk.domain.usecase.auth.CheckHasTokenUseCase
 import jinproject.stepwalk.domain.usecase.auth.LogoutUseCases
+import jinproject.stepwalk.domain.usecase.user.GetBodyDataUseCases
 import jinproject.stepwalk.domain.usecase.user.GetMyInfoUseCases
 import jinproject.stepwalk.domain.usecase.user.GetUserLocalInfo
 import jinproject.stepwalk.domain.usecase.user.WithdrawAccountUseCases
@@ -43,13 +45,17 @@ class ProfileViewModel @Inject constructor(
     private val logoutUseCases: LogoutUseCases,
     checkHasTokenUseCase: CheckHasTokenUseCase,
     private val withdrawAccountUseCases: WithdrawAccountUseCases,
-    getUserLocalInfo: GetUserLocalInfo
+    getUserLocalInfo: GetUserLocalInfo,
+    private val getBodyDataUseCases: GetBodyDataUseCases
 ) : ViewModel() {
     private val _uiState: MutableStateFlow<UiState> = MutableStateFlow(UiState.Loading)
     val uiState: StateFlow<UiState> get() = _uiState.asStateFlow()
 
     private val _user = MutableStateFlow(User.getInitValues())
     val user get() = _user.asStateFlow()
+
+    private val _bodyData = MutableStateFlow(BodyData())
+    val bodyData get() = _bodyData.asStateFlow()
 
     private val _passwordValid = MutableStateFlow(PasswordValid.Blank)
     val passwordValid get() = _passwordValid.asStateFlow()
@@ -87,6 +93,10 @@ class ProfileViewModel @Inject constructor(
                 _user.update { user }
             }
         }.launchIn(viewModelScope)
+
+        viewModelScope.launch(Dispatchers.IO) {
+            _bodyData.update { getBodyDataUseCases() }
+        }
     }
 
 
