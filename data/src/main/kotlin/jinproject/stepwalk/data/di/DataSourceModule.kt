@@ -9,9 +9,9 @@ import jinproject.stepwalk.data.local.datasource.CurrentAuthDataSource
 import jinproject.stepwalk.data.local.datasource.UserDataSource
 import jinproject.stepwalk.data.local.datasource.impl.BodyDataSourceImpl
 import jinproject.stepwalk.data.local.datasource.impl.CurrentAuthDataSourceImpl
-import jinproject.stepwalk.data.local.datasource.impl.UserDataSourceImpl
 import jinproject.stepwalk.data.remote.dataSource.RemoteUserDataSource
 import jinproject.stepwalk.data.remote.dataSource.impl.RemoteUserDataSourceImpl
+import jinproject.stepwalk.data.local.datasource.impl.UserDataSourceImpl
 import javax.inject.Singleton
 
 @Module

@@ -22,6 +22,7 @@ import androidx.navigation.compose.composable
 import com.beank.profile.navigation.navigateToEditUser
 import com.beank.profile.navigation.navigateToTerms
 import com.beank.profile.navigation.profileNavigation
+import androidx.navigation.navOptions
 import jinproject.stepwalk.core.SnackBarMessage
 import jinproject.stepwalk.home.navigation.backStackToHome
 import jinproject.stepwalk.home.navigation.homeGraph
@@ -36,6 +37,11 @@ import jinproject.stepwalk.login.navigation.navigateToSignUpDetail
 import jinproject.stepwalk.mission.navigation.missionNavGraph
 import jinproject.stepwalk.mission.navigation.navigateToMissionDetail
 
+import jinproject.stepwalk.ranking.navigation.navigateToNotification
+import jinproject.stepwalk.ranking.navigation.navigateToRanking
+import jinproject.stepwalk.ranking.navigation.navigateToRankingUserDetail
+import jinproject.stepwalk.ranking.navigation.rankingNavGraph
+import jinproject.stepwalk.ranking.navigation.rankingRoute
 
 @Composable
 internal fun NavigationGraph(
@@ -66,18 +72,21 @@ internal fun NavigationGraph(
             showSnackBar = showSnackBar
         )
 
-        composable(route = BottomNavigationDestination.Ranking.route) {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .wrapContentSize()
-            ) {
-                Image(
-                    painter = painterResource(id = jinproject.stepwalk.design.R.drawable.ic_rankboard),
-                    contentDescription = "settingIcon"
-                )
-            }
-        }
+        rankingNavGraph(
+            navigateToRanking = {
+                val navOptions = navOptions {
+                    popUpTo(rankingRoute) {
+                        inclusive = true
+                    }
+                }
+                navController.navigateToRanking(navOptions)
+            },
+            popBackStack = navController::popBackStackIfCan,
+            showSnackBar = showSnackBar,
+            navigateToRankingUserDetail = navController::navigateToRankingUserDetail,
+            navigateToLogin = navController::navigateToLogin,
+            navigateToNoti = navController::navigateToNotification,
+        )
 
         missionNavGraph(
             navigateToMissionDetail = navController::navigateToMissionDetail,

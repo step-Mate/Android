@@ -1,6 +1,5 @@
 package jinproject.stepwalk.data.di
 
-import android.util.Log
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import dagger.Module
@@ -12,7 +11,6 @@ import jinproject.stepwalk.data.local.datasource.CurrentAuthDataSource
 import jinproject.stepwalk.data.remote.api.RankBoardApi
 import jinproject.stepwalk.data.remote.api.UserApi
 import kotlinx.coroutines.flow.firstOrNull
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.runBlocking
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
@@ -100,14 +98,13 @@ class HeaderInterceptor @Inject constructor(private val authDataSource: CurrentA
     Interceptor {
     @Throws(IOException::class)
     override fun intercept(chain: Interceptor.Chain): Response {
-        val token = runBlocking {
-            authDataSource.getAccessToken().onEach { t ->
-                Log.d("test", "token: $t")
-            }.firstOrNull() ?: throw IllegalArgumentException("엑세스 토큰이 없습니다.")
+        val accessToken = runBlocking {
+            authDataSource.getAccessToken().firstOrNull()
+                ?: throw IllegalArgumentException("엑세스 토큰이 없습니다.")
         }
 
         val newRequest = chain.request().newBuilder()
-            .addHeader("Authorization", token)
+            .addHeader("Authorization", accessToken)
             .build()
 
         val response = chain.proceed(newRequest)
@@ -115,7 +112,6 @@ class HeaderInterceptor @Inject constructor(private val authDataSource: CurrentA
         if (!response.isSuccessful && response.code == 402) { // AccessToken 의 만료인 경우 402
 
             val refreshToken = runBlocking {
-                Log.d("test", "accessToken was invalid")
                 authDataSource.getRefreshToken().firstOrNull()
                     ?: throw IllegalArgumentException("리프레시 토큰이 없습니다.")
             }
@@ -125,24 +121,26 @@ class HeaderInterceptor @Inject constructor(private val authDataSource: CurrentA
                 .addHeader("Authorization", refreshToken)
                 .build()
 
-            val reissueResponse = OkHttpClient().newCall(reissueRequest).execute()
+            val reissueResponse = OkHttpClient.Builder()
+                .addInterceptor(HttpLoggingInterceptor().apply {
+                    level = HttpLoggingInterceptor.Level.BODY
+                })
+                .build().newCall(reissueRequest).execute()
 
-            Log.d("test", "refreshToken: $refreshToken has been requested")
             if (reissueResponse.isSuccessful) {
                 val gson = Gson()
                 val refreshResponseJson =
                     gson.fromJson(reissueResponse.body?.string(), Map::class.java)
                 val result = refreshResponseJson["result"] as Map<*, *>
-                val accessToken = result["accessToken"] as String
+                val newAccessToken = result["accessToken"] as String
 
-                Log.d("test", "accessToken: $accessToken has been published")
                 runBlocking {
-                    authDataSource.setAccessToken(accessToken)
+                    authDataSource.setAccessToken(newAccessToken)
                 }
 
                 val request = newRequest.newBuilder()
                     .removeHeader("Authorization")
-                    .addHeader("Authorization", accessToken)
+                    .addHeader("Authorization", newAccessToken)
                     .build()
 
                 response.close()

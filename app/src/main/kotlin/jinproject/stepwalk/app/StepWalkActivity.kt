@@ -83,16 +83,6 @@ class StepWalkActivity : ComponentActivity() {
 
         val snackBarHostState = remember { SnackbarHostState() }
 
-        val showSnackBar = { snackBarMessage: SnackBarMessage ->
-            coroutineScope.launch {
-                snackBarHostState.showSnackbar(
-                    message = snackBarMessage.headerMessage,
-                    actionLabel = snackBarMessage.contentMessage,
-                    duration = SnackbarDuration.Indefinite
-                )
-            }
-        }
-
         Surface(
             modifier = Modifier.fillMaxSize(),
             color = Color.Transparent
@@ -121,7 +111,13 @@ class StepWalkActivity : ComponentActivity() {
                         .fillMaxSize()
                         .padding(bottom = paddingValues.calculateBottomPadding()),
                     showSnackBar = { snackBarMessage ->
-                        showSnackBar(snackBarMessage)
+                        coroutineScope.launch {
+                            snackBarHostState.showSnackbar(
+                                message = snackBarMessage.headerMessage,
+                                actionLabel = snackBarMessage.contentMessage,
+                                duration = SnackbarDuration.Indefinite
+                            )
+                        }
                     }
                 )
             }

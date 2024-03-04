@@ -1,6 +1,5 @@
 package jinproject.stepwalk.core
 
-
 import jinproject.stepwalk.domain.model.exception.StepMateHttpException
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch

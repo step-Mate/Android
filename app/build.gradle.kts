@@ -39,11 +39,12 @@ dependencies {
 
     implementation(project(":design"))
     implementation(project(":domain"))
-    implementation(project(":feature:home"))
     implementation(project(":data"))
+    implementation(project(":feature:home"))
     implementation(project(":feature:login"))
     implementation(project(":feature:mission"))
     implementation(project(":feature:core"))
+    implementation(project(":feature:ranking"))
     implementation(project(":feature:profile"))
 
     implementation(libs.androidx.core.ktx)
@@ -60,4 +61,5 @@ dependencies {
     implementation(libs.bundles.workManager)
     ksp(libs.androidx.hilt.compiler)
 
+    debugImplementation("com.squareup.leakcanary:leakcanary-android:3.0-alpha-1")
 }

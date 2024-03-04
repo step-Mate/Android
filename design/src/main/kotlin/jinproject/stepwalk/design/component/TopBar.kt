@@ -33,7 +33,7 @@ fun StepMateTopBar(
     modifier: Modifier = Modifier,
     @DrawableRes icon: Int,
     onClick: () -> Unit,
-    content: @Composable RowScope.() -> Unit,
+    content: @Composable RowScope.() -> Unit = {},
 ) {
     StepMateDefaultTopBar(
         modifier = modifier

@@ -8,7 +8,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.style.TextOverflow.Companion.Ellipsis
 import androidx.compose.ui.tooling.preview.Preview
@@ -103,6 +105,7 @@ fun FooterText(
     modifier: Modifier = Modifier,
     text: String,
     color: Color = MaterialTheme.colorScheme.onSurface,
+    textDecoration: TextDecoration = TextDecoration.None,
     textAlign: TextAlign = TextAlign.Start,
 ) {
     DefaultText(
@@ -110,6 +113,7 @@ fun FooterText(
         text = text,
         style = MaterialTheme.typography.labelSmall,
         textAlign = textAlign,
+        textDecoration = textDecoration,
         overflow = Ellipsis,
         color = color,
         maxLines = Int.MAX_VALUE,
@@ -123,6 +127,7 @@ fun DefaultText(
     style: TextStyle,
     color: Color = MaterialTheme.colorScheme.onSurface,
     textAlign: TextAlign = TextAlign.Start,
+    textDecoration: TextDecoration = TextDecoration.None,
     overflow: TextOverflow = TextOverflow.Clip,
     maxLines: Int = 1,
     onTextLayout: (TextLayoutResult) -> Unit = {},
@@ -133,6 +138,7 @@ fun DefaultText(
         style = style,
         color = color,
         textAlign = textAlign,
+        textDecoration = textDecoration,
         overflow = overflow,
         maxLines = maxLines,
         onTextLayout = onTextLayout,

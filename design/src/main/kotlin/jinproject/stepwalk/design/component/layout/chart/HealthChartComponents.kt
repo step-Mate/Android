@@ -1,4 +1,4 @@
-package jinproject.stepwalk.home.screen.home.component.tab.chart
+package jinproject.stepwalk.design.component.layout.chart
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -14,7 +14,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -27,18 +26,14 @@ import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.layout.ParentDataModifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import jinproject.stepwalk.design.component.DescriptionSmallText
 import jinproject.stepwalk.design.theme.StepWalkColor
 import jinproject.stepwalk.design.theme.StepWalkTheme
-import jinproject.stepwalk.home.screen.home.HomeUiState
-import jinproject.stepwalk.home.screen.home.HomeUiStatePreviewParameters
-import jinproject.stepwalk.home.screen.home.component.PopUpState
 
 @Composable
-internal fun StepBar(
+fun StepBar(
     index: Int,
     graph: List<Long>,
     modifier: Modifier = Modifier,
@@ -103,7 +98,7 @@ internal class HealthChartData(
 }
 
 @Composable
-internal fun StepGraphTail(
+fun StepGraphTail(
     item: String,
     textAlign: TextAlign,
 ) {
@@ -117,7 +112,7 @@ internal fun StepGraphTail(
 }
 
 @Composable
-internal fun StepGraphHeader(
+fun StepGraphHeader(
     max: String,
     avg: String,
 ) {
@@ -139,11 +134,16 @@ internal fun StepGraphHeader(
 
 @Composable
 @Preview(widthDp = 320, heightDp = 300)
-private fun PreviewStepBar(
-    @PreviewParameter(HomeUiStatePreviewParameters::class, limit = 1)
-    homeUiState: HomeUiState,
-) = StepWalkTheme {
-    val graph = homeUiState.step.graph
+private fun PreviewStepBar() = StepWalkTheme {
+    val graph = run {
+        mutableListOf<Long>().apply {
+            repeat(24) { idx ->
+                add(
+                    1000 + idx.toLong() * 50
+                )
+            }
+        }
+    }
     val itemsCount = graph.size
     Row(
         modifier = Modifier

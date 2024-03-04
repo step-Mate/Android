@@ -56,9 +56,10 @@ fun StepMateDialog(
             properties = properties
         ) {
             Surface(
-                shape = RoundedCornerShape(20.dp),
+                shape = RoundedCornerShape(10.dp),
                 color = MaterialTheme.colorScheme.surface,
-                contentColor = MaterialTheme.colorScheme.onSurface
+                contentColor = MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier,
             ) {
                 StepMateDialogContent(
                     dialogState = dialogState,
@@ -76,9 +77,10 @@ private fun StepMateDialogContent(
     onNegativeCallback: () -> Unit = {},
 ) {
     Column(
-        modifier = Modifier.padding(top = 8.dp),
+        modifier = Modifier,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
+        VerticalSpacer(height = 12.dp)
         DescriptionLargeText(text = dialogState.header)
         VerticalSpacer(height = 12.dp)
         if (dialogState.content.isNotBlank())
@@ -86,7 +88,7 @@ private fun StepMateDialogContent(
                 text = dialogState.content,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
-        VerticalSpacer(height = 8.dp)
+        VerticalSpacer(height = 12.dp)
         HorizontalDivider()
         Row(
             modifier = Modifier.height(44.dp),

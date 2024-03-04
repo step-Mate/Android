@@ -1,6 +1,6 @@
 package jinproject.stepwalk.domain.usecase.rank
 
-import jinproject.stepwalk.domain.model.UserStepRank
+import jinproject.stepwalk.domain.model.rank.UserStepRank
 import jinproject.stepwalk.domain.repository.UserRepository
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
