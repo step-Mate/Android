@@ -1,5 +1,6 @@
 package jinproject.stepwalk.design.component.layout.chart
 
+import android.annotation.SuppressLint
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -11,6 +12,7 @@ import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.composed
 import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.center
@@ -146,7 +148,7 @@ fun PopUpRtl(
                     lineTo(rect.bottomLeft.x, rect.bottomLeft.y)
 
                     lineTo(rect.bottomRight.x - 20f, rect.bottomRight.y)
-                    lineTo(rect.bottomRight.x,rect.bottomLeft.y + 15f)
+                    lineTo(rect.bottomRight.x, rect.bottomLeft.y + 15f)
 
                     lineTo(rect.bottomRight.x, rect.bottomRight.y)
                     lineTo(rect.topRight.x, rect.topRight.y)
@@ -185,16 +187,18 @@ fun PopUpRtl(
     )
 }
 
-@Composable
+@SuppressLint("UnnecessaryComposedModifier")
 fun Modifier.addChartPopUpDismiss(
     popUpState: PopUpState,
-    setPopUpState: (PopUpState) -> Unit,
+    setPopUpState: (Boolean) -> Unit,
 ) =
-    this.pointerInput(popUpState.enabled) {
-        awaitPointerEventScope {
-            val event = awaitPointerEvent(PointerEventPass.Initial)
-            if (event.type == PointerEventType.Press)
-                setPopUpState(popUpState.copy(enabled = false))
+    composed {
+        this.pointerInput(popUpState.enabled) {
+            awaitPointerEventScope {
+                val event = awaitPointerEvent(PointerEventPass.Initial)
+                if (event.type == PointerEventType.Press)
+                    setPopUpState(false)
+            }
         }
     }
 
@@ -218,14 +222,14 @@ private fun PreviewChartPopUpLtr(
             modifier = Modifier.size(40.dp),
             popUpState = PopUpState(enabled = true, index = 1),
             graph = run {
-            mutableListOf<Long>().apply {
-                repeat(24) { idx ->
-                    add(
-                        1000 + idx.toLong() * 50
-                    )
+                mutableListOf<Long>().apply {
+                    repeat(24) { idx ->
+                        add(
+                            1000 + idx.toLong() * 50
+                        )
+                    }
                 }
-            }
-        },
+            },
             barColor = listOf(
                 StepWalkColor.blue_700.color,
                 StepWalkColor.blue_600.color,
