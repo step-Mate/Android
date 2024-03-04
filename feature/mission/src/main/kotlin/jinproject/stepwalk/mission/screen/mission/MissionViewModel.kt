@@ -9,7 +9,7 @@ import jinproject.stepwalk.domain.model.mission.MissionList
 import jinproject.stepwalk.domain.usecase.auth.CheckHasTokenUseCase
 import jinproject.stepwalk.domain.usecase.mission.GetAllMissionList
 import jinproject.stepwalk.domain.usecase.mission.UpdateMissionList
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -20,10 +20,10 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.launch
 import java.util.UUID
 import javax.inject.Inject
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
 internal class MissionViewModel @Inject constructor(
     getAllMissionList: GetAllMissionList,
@@ -37,11 +37,9 @@ internal class MissionViewModel @Inject constructor(
     val missionList get() = _missionList.asStateFlow()
 
     init {
-        viewModelScope.launch(Dispatchers.IO) {
-            updateMissionList()
-        }
         checkHasTokenUseCase().flatMapLatest { token ->
             if (token) {
+                updateMissionList()
                 getAllMissionList().onEach { missions ->
                     _missionList.update { missions }
                     _uiState.emit(UiState.Success)
