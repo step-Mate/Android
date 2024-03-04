@@ -158,6 +158,7 @@ private fun ProfileScreen(
                     color = MaterialTheme.colorScheme.primaryContainer
                 )
             }
+
             LottieAnimation(
                 composition = composition,
                 progress = { lottieProgress },
@@ -197,47 +198,47 @@ private fun ProfileScreen(
                 }
             )
         }
-        StepMateDialog(
-            dialogState = DialogState(
-                header = "로그아웃 하시겠습니까?",
-                positiveMessage = "로그아웃",
-                negativeMessage = "취소",
-                onPositiveCallback = {
-                    onEvent(ProfileEvent.Logout)
-                    logoutState = false
-                },
-                onNegativeCallback = { logoutState = false },
-                isShown = logoutState
-            ),
-            hideDialog = { logoutState = false }
-        )
-        StepMateDialog(
-            dialogState = DialogState(
-                header = "회원탈퇴 하시겠습니까?",
-                content = "탈퇴 후 계정 복구는 불가합니다.",
-                positiveMessage = "회원탈퇴",
-                negativeMessage = "취소",
-                onPositiveCallback = {
-                    passwordState = true
-                    withdrawalState = false
-                },
-                onNegativeCallback = { withdrawalState = false },
-                isShown = withdrawalState
-            ),
-            hideDialog = { withdrawalState = false }
-        )
-        PasswordDialog(
-            passwordValid = passwordValid,
-            onNewValue = { password ->
-                onEvent(ProfileEvent.Password(password))
-            },
-            isShown = passwordState,
-            onPositiveCallback = {
-                onEvent(ProfileEvent.Secession)
-            },
-            hideDialog = { passwordState = false }
-        )
     }
+    StepMateDialog(
+        dialogState = DialogState(
+            header = "로그아웃 하시겠습니까?",
+            positiveMessage = "로그아웃",
+            negativeMessage = "취소",
+            onPositiveCallback = {
+                onEvent(ProfileEvent.Logout)
+                logoutState = false
+            },
+            onNegativeCallback = { logoutState = false },
+            isShown = logoutState
+        ),
+        hideDialog = { logoutState = false }
+    )
+    StepMateDialog(
+        dialogState = DialogState(
+            header = "회원탈퇴 하시겠습니까?",
+            content = "탈퇴 후 계정 복구는 불가합니다.",
+            positiveMessage = "회원탈퇴",
+            negativeMessage = "취소",
+            onPositiveCallback = {
+                passwordState = true
+                withdrawalState = false
+            },
+            onNegativeCallback = { withdrawalState = false },
+            isShown = withdrawalState
+        ),
+        hideDialog = { withdrawalState = false }
+    )
+    PasswordDialog(
+        passwordValid = passwordValid,
+        onNewValue = { password ->
+            onEvent(ProfileEvent.Password(password))
+        },
+        isShown = passwordState,
+        onPositiveCallback = {
+            onEvent(ProfileEvent.Secession)
+        },
+        hideDialog = { passwordState = false }
+    )
 }
 
 @Preview
