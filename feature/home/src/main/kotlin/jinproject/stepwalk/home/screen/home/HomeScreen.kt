@@ -176,7 +176,8 @@ private fun HomeScreen(
         modifier = Modifier
             .addChartPopUpDismiss(
                 popUpState = chartPopUp,
-                setPopUpState = { state -> chartPopUp = state }
+                setPopUpState = { bool ->
+                    chartPopUp = chartPopUp.copy(enabled = bool) }
             ),
         systemBarHidingState = systemBarHidingState,
         topBar = { modifier ->

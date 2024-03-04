@@ -5,8 +5,8 @@ import jinproject.stepwalk.domain.model.rank.UserStepRank
 import jinproject.stepwalk.domain.model.BodyData
 import jinproject.stepwalk.domain.model.DesignationState
 import jinproject.stepwalk.domain.model.User
-import jinproject.stepwalk.domain.model.UserDetailModel
-import jinproject.stepwalk.domain.model.UserStepRank
+
+
 import kotlinx.coroutines.flow.Flow
 
 interface UserRepository {

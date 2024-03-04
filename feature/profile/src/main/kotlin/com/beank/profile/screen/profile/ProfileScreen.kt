@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
@@ -39,7 +40,7 @@ import com.beank.profile.screen.profile.component.PasswordDialog
 import com.beank.profile.screen.profile.component.ProfileButton
 import com.beank.profile.screen.profile.component.ProfileEnterButton
 import jinproject.stepwalk.core.SnackBarMessage
-import jinproject.stepwalk.design.component.DefaultLayout
+import jinproject.stepwalk.design.component.layout.DefaultLayout
 import jinproject.stepwalk.design.component.DescriptionLargeText
 import jinproject.stepwalk.design.component.DialogState
 import jinproject.stepwalk.design.component.HeadlineText
@@ -163,14 +164,15 @@ private fun ProfileScreen(
             ) {
                 DescriptionLargeText(
                     modifier = Modifier.padding(start = 30.dp, top = 50.dp),
-                    text = userState.designation,
+                    text = "${userState.designation} ${userState.name} 님",
                     color = MaterialTheme.colorScheme.onSurface
                 )
-                DescriptionLargeText(
-                    modifier = Modifier.padding(start = 30.dp, top = 5.dp),
-                    text = userState.name,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+
+
+                }
                 DescriptionLargeText(
                     modifier = Modifier.padding(start = 30.dp, top = 5.dp, bottom = 20.dp),
                     text = "${bodyDataState.age}/${bodyDataState.height}/${bodyDataState.weight}",

@@ -38,12 +38,12 @@ import jinproject.stepwalk.core.MAX_NICKNAME_LENGTH
 import jinproject.stepwalk.core.SnackBarMessage
 import jinproject.stepwalk.design.R
 import jinproject.stepwalk.design.component.DefaultButton
-import jinproject.stepwalk.design.component.DefaultLayout
 import jinproject.stepwalk.design.component.DefaultOutlinedTextField
 import jinproject.stepwalk.design.component.DescriptionLargeText
 import jinproject.stepwalk.design.component.DescriptionSmallText
 import jinproject.stepwalk.design.component.HeadlineText
 import jinproject.stepwalk.design.component.StepMateBoxDefaultTopBar
+import jinproject.stepwalk.design.component.layout.DefaultLayout
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
