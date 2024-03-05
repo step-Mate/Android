@@ -20,10 +20,10 @@ import com.beank.profile.navigation.navigateToTerms
 import com.beank.profile.navigation.profileNavigation
 import com.beank.profile.navigation.profileRoute
 import jinproject.stepwalk.core.SnackBarMessage
-import jinproject.stepwalk.home.navigation.backStackToHome
 import jinproject.stepwalk.home.navigation.homeGraph
 import jinproject.stepwalk.home.navigation.homeNavGraph
 import jinproject.stepwalk.home.navigation.navigateToCalendar
+import jinproject.stepwalk.home.navigation.navigateToHome
 import jinproject.stepwalk.login.navigation.authNavGraph
 import jinproject.stepwalk.login.navigation.navigateToFindId
 import jinproject.stepwalk.login.navigation.navigateToFindPassword
@@ -63,7 +63,14 @@ internal fun NavigationGraph(
             navigateToFindId = navController::navigateToFindId,
             navigateToFindPassword = navController::navigateToFindPassword,
             popBackStack = navController::popBackStackIfCan,
-            backStackToHome = navController::backStackToHome,
+            backStackToHome = {
+                val navOptions = navOptions {
+                    popUpTo(navController.graph.id){
+                        inclusive = true
+                    }
+                }
+                navController.navigateToHome(navOptions)
+            },
             showSnackBar = showSnackBar
         )
 
