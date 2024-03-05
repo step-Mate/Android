@@ -21,6 +21,7 @@ private const val editLink = "$editRoute/{nickname}/{anonymous}/{designation}"
 private const val termsRoute = "terms"
 
 fun NavGraphBuilder.profileNavigation(
+    navigateToProfile: () -> Unit,
     navigateToEditUser: (String, String, Boolean) -> Unit,
     navigateToTerms: () -> Unit,
     navigateToLogin: (NavOptions?) -> Unit,
@@ -61,6 +62,7 @@ fun NavGraphBuilder.profileNavigation(
             )
         ) {
             EditScreen(
+                navigateToProfile = navigateToProfile,
                 popBackStack = popBackStack,
                 showSnackBar = showSnackBar
             )

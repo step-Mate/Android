@@ -1,18 +1,15 @@
 package jinproject.stepwalk.data.repositoryImpl
 
 import jinproject.stepwalk.data.local.datasource.BodyDataSource
-import jinproject.stepwalk.data.local.datasource.UserDataSource
 import jinproject.stepwalk.data.remote.dataSource.RemoteUserDataSource
 import jinproject.stepwalk.data.remote.dto.request.DesignationRequest
 import jinproject.stepwalk.data.remote.dto.request.WithdrawRequest
 import jinproject.stepwalk.data.remote.dto.request.toBodyRequest
-import jinproject.stepwalk.data.remote.dto.response.user.toDesignationModel
-import jinproject.stepwalk.data.remote.dto.response.user.toUserModel
 import jinproject.stepwalk.data.remote.utils.stepMateDataFlow
 import jinproject.stepwalk.domain.model.BodyData
 import jinproject.stepwalk.domain.model.DesignationState
-import jinproject.stepwalk.domain.model.User
 import jinproject.stepwalk.domain.model.rank.UserStepRank
+import jinproject.stepwalk.domain.model.user.User
 import jinproject.stepwalk.domain.model.user.UserDetailModel
 import jinproject.stepwalk.domain.repository.UserRepository
 import kotlinx.coroutines.flow.Flow
@@ -20,7 +17,6 @@ import javax.inject.Inject
 
 internal class UserRepositoryImpl @Inject constructor(
     private val remoteUserDataSource: RemoteUserDataSource,
-    private val userDataSource: UserDataSource,
     private val bodyDataSource: BodyDataSource
 ) : UserRepository {
     override fun getMyRank(): Flow<UserStepRank> = stepMateDataFlow {
@@ -47,49 +43,35 @@ internal class UserRepositoryImpl @Inject constructor(
         remoteUserDataSource.getFriendRequest()
     }
 
-    override fun withdrawAccount(password: String): Flow<Boolean> = stepMateDataFlow {
+    override fun withdrawAccount(password: String) : Flow<Boolean> = stepMateDataFlow{
         val response = remoteUserDataSource.withdrawAccount(WithdrawRequest(password))
         response.code == 200
     }
 
-    override fun selectDesignation(designation: String): Flow<Boolean> = stepMateDataFlow {
-        val response = remoteUserDataSource.selectDesignation(DesignationRequest(designation))
-        if (response.code == 200)
-            userDataSource.setDesignation(designation)
-        response.code == 200
+    override suspend fun selectDesignation(designation: String) {
+        remoteUserDataSource.selectDesignation(DesignationRequest(designation))
     }
 
     override fun getDesignation(): Flow<DesignationState> = stepMateDataFlow {
-        val response = remoteUserDataSource.getDesignations()
-        response.toDesignationModel()
+        remoteUserDataSource.getDesignations()
     }
 
     override fun getBodyData(): Flow<BodyData> =
         bodyDataSource.getBodyData()
 
-    override fun setBodyData(bodyData: BodyData): Flow<Boolean> = stepMateDataFlow {
-        val response = remoteUserDataSource.setBodyData(bodyData.toBodyRequest())
-        if (response.code == 200)
-            bodyDataSource.setBodyData(bodyData)
-        response.code == 200
+    override suspend fun setBodyData(bodyData: BodyData) {
+        remoteUserDataSource.setBodyData(bodyData.toBodyRequest())
+        bodyDataSource.setBodyData(bodyData)
     }
 
     override suspend fun setBodyLocalData(bodyData: BodyData) =
         bodyDataSource.setBodyData(bodyData)
 
-    override fun updateNickname(nickname: String): Flow<Boolean> = stepMateDataFlow {
-        val response = remoteUserDataSource.updateNickname(nickname)
-        if (response.code == 200)
-            userDataSource.setNickname(nickname)
-        response.code == 200
+    override suspend fun updateNickname(nickname: String) {
+        remoteUserDataSource.updateNickname(nickname)
     }
 
     override fun getMyInfo(): Flow<User> = stepMateDataFlow {
-        val response = remoteUserDataSource.getMyInfo()
-        userDataSource.setUserData(response.toUserModel())
-        response.toUserModel()
+        remoteUserDataSource.getMyInfo()
     }
-
-    override fun getUserLocalInfo(): Flow<User> =
-        userDataSource.getUserData()
 }

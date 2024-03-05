@@ -11,17 +11,14 @@ import dagger.hilt.components.SingletonComponent
 import jinproject.stepwalk.data.AuthPrefs.CurrentAuthPreferences
 import jinproject.stepwalk.data.BodyDataPrefs.BodyDataPreferences
 import jinproject.stepwalk.data.StepwalkPrefs.StepWalkPreferences
-import jinproject.stepwalk.data.UserPrefs.UserPreferences
 import jinproject.stepwalk.data.local.datastore.BodyDataPreferencesSerialize
 import jinproject.stepwalk.data.local.datastore.CurrentAuthPreferencesSerializer
 import jinproject.stepwalk.data.local.datastore.StepWalkPreferencesSerializer
-import jinproject.stepwalk.data.local.datastore.UserPreferencesSerialize
 import javax.inject.Singleton
 
 private const val StepWalkPreferenceFileName = "stepwalk_prefs.pb"
 private const val AuthPreferenceFileName = "auth_prefs.pb"
 private const val BodyDataPreferenceFileName = "bodyData_prefs.pb"
-private const val UserPreferencesFileName = "user_prefs.pb"
 
 val Context.stepWalkPreferencesStore: DataStore<StepWalkPreferences> by dataStore(
     fileName = StepWalkPreferenceFileName,
@@ -36,11 +33,6 @@ val Context.currentAuthPreferencesStore: DataStore<CurrentAuthPreferences> by da
 val Context.bodyDataPreferencesStore: DataStore<BodyDataPreferences> by dataStore(
     fileName = BodyDataPreferenceFileName,
     serializer = BodyDataPreferencesSerialize()
-)
-
-val Context.userPreferencesStore: DataStore<UserPreferences> by dataStore(
-    fileName = UserPreferencesFileName,
-    serializer = UserPreferencesSerialize()
 )
 
 @Module
@@ -65,9 +57,4 @@ object StepWalkPreferenceModule {
         return context.bodyDataPreferencesStore
     }
 
-    @Singleton
-    @Provides
-    fun providesUserPreference(@ApplicationContext context: Context): DataStore<UserPreferences> {
-        return context.userPreferencesStore
-    }
 }

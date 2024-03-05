@@ -5,6 +5,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import jinproject.stepwalk.core.SnackBarMessage
 import jinproject.stepwalk.core.catchDataFlow
 import jinproject.stepwalk.core.isValidAge
 import jinproject.stepwalk.core.isValidHeight
@@ -20,6 +21,7 @@ import jinproject.stepwalk.domain.usecase.user.SelectDesignationUseCases
 import jinproject.stepwalk.domain.usecase.user.SetBodyLocalUseCases
 import jinproject.stepwalk.domain.usecase.user.SetBodyUseCases
 import jinproject.stepwalk.domain.usecase.user.UpdateNicknameUseCases
+import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -30,10 +32,10 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.flow.zip
 import kotlinx.coroutines.launch
 import java.util.UUID
 import javax.inject.Inject
@@ -62,8 +64,9 @@ class EditViewModel @Inject constructor(
     private val updateNicknameUseCases: UpdateNicknameUseCases,
     private val selectDesignationUseCases: SelectDesignationUseCases
 ) : ViewModel() {
-    private val originalNickname: String
-    val anonymousState: Boolean
+
+    private val originalNickname: String = savedStateHandle.get<String>("nickname") ?: ""
+    val anonymousState: Boolean = savedStateHandle.get<Boolean>("anonymous") ?: true
 
     private val _saveState = MutableStateFlow(false)
     val saveState get() = _saveState.asStateFlow()
@@ -101,21 +104,34 @@ class EditViewModel @Inject constructor(
     private val _weight = MutableStateFlow("")
     val weight get() = _weight.asStateFlow()
 
+    private val _snackBarState: MutableSharedFlow<SnackBarMessage> = MutableSharedFlow(replay = 0)
+    val snackBarState: SharedFlow<SnackBarMessage> get() = _snackBarState.asSharedFlow()
+
+    private val coroutineExceptionHandler = CoroutineExceptionHandler { _, t ->
+        viewModelScope.launch {
+            _snackBarState.emit(
+                SnackBarMessage(
+                    headerMessage = "일시적인 장애가 발생했어요.",
+                    contentMessage = t.message.toString()
+                )
+            )
+        }
+    }
+
     init {
-        originalNickname = savedStateHandle.get<String>("nickname") ?: ""
         _nickname.value = originalNickname
-        anonymousState = savedStateHandle.get<Boolean>("anonymous") ?: true
         val tempDesignation = savedStateHandle.get<String>("designation") ?: ""
         _designation.value = if (tempDesignation == "-1") "" else tempDesignation
+
         viewModelScope.launch(Dispatchers.IO) {
-            val response = getBodyDataUseCases()
+            val response = getBodyDataUseCases().first()
             _age.update { response.age.toString() }
             _height.update { response.height.toString() }
             _weight.update { response.weight.toString() }
             if (!anonymousState)
                 checkNicknameValid()
         }
-        if (!anonymousState) {
+        if (!anonymousState) {//로그인 상태일시
             getDesignationsUseCases().onEach { designationState ->
                 _designationList.update { designationState.list }
                 _uiState.emit(UiState.Success)
@@ -157,35 +173,21 @@ class EditViewModel @Inject constructor(
         return result
     }
 
+
     fun onEvent(event: EditUserEvent) {
         when (event) {
             EditUserEvent.Save -> {
                 if (!anonymousState) {
-                    if (originalNickname != nickname.value) {
-                        updateNicknameUseCases(nickname.value).zip(fetchUserInfo()) { nicknameState, state ->
-                            if (nicknameState && state) {
-                                _saveState.update { true }
-                            }
-                        }.catchDataFlow(
-                            action = { e ->
-                                e
-                            },
-                            onException = { e ->
-                                _saveState.update { false }
-                            }
-                        ).launchIn(viewModelScope)
-                    } else {
-                        fetchUserInfo().onEach { state ->
-                            if (state)
-                                _saveState.update { true }
-                        }.catchDataFlow(
-                            action = { e ->
-                                e
-                            },
-                            onException = { e ->
-                                _saveState.update { false }
-                            }
-                        ).launchIn(viewModelScope)
+                    viewModelScope.launch(coroutineExceptionHandler + Dispatchers.IO) {
+                        if (originalNickname != nickname.value)
+                            updateNicknameUseCases(nickname.value)
+                        selectDesignationUseCases(designation.value)
+                        setBodyUseCases(
+                            BodyData(
+                                age.value.toInt(), height.value.toInt(), weight.value.toInt()
+                            )
+                        )
+                        _saveState.update { true }
                     }
                 } else {
                     viewModelScope.launch(Dispatchers.IO) {
@@ -229,17 +231,6 @@ class EditViewModel @Inject constructor(
             }
         }
     }
-
-    private fun fetchUserInfo() = selectDesignationUseCases(designation.value)
-        .zip(
-            setBodyUseCases(
-                BodyData(
-                    age.value.toInt(), height.value.toInt(), weight.value.toInt()
-                )
-            )
-        ) { designationState, bodyState ->
-            designationState && bodyState
-        }
 
     @Stable
     sealed class UiState {

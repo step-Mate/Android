@@ -6,12 +6,10 @@ import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import jinproject.stepwalk.data.local.datasource.BodyDataSource
 import jinproject.stepwalk.data.local.datasource.CurrentAuthDataSource
-import jinproject.stepwalk.data.local.datasource.UserDataSource
 import jinproject.stepwalk.data.local.datasource.impl.BodyDataSourceImpl
 import jinproject.stepwalk.data.local.datasource.impl.CurrentAuthDataSourceImpl
 import jinproject.stepwalk.data.remote.dataSource.RemoteUserDataSource
 import jinproject.stepwalk.data.remote.dataSource.impl.RemoteUserDataSourceImpl
-import jinproject.stepwalk.data.local.datasource.impl.UserDataSourceImpl
 import javax.inject.Singleton
 
 @Module
@@ -30,7 +28,4 @@ internal abstract class DataSourceModule {
     @Binds
     abstract fun bindsRemoteUserDataSource(userDataSourceImpl: RemoteUserDataSourceImpl): RemoteUserDataSource
 
-    @Singleton
-    @Binds
-    abstract fun bindsUserDataSource(userDataSourceImpl: UserDataSourceImpl) : UserDataSource
 }

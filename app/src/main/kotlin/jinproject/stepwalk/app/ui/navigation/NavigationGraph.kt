@@ -1,10 +1,6 @@
 package jinproject.stepwalk.app.ui.navigation
 
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.RowScope
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
@@ -14,15 +10,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
+import androidx.navigation.navOptions
 import com.beank.profile.navigation.navigateToEditUser
+import com.beank.profile.navigation.navigateToProfile
 import com.beank.profile.navigation.navigateToTerms
 import com.beank.profile.navigation.profileNavigation
-import androidx.navigation.navOptions
+import com.beank.profile.navigation.profileRoute
 import jinproject.stepwalk.core.SnackBarMessage
 import jinproject.stepwalk.home.navigation.backStackToHome
 import jinproject.stepwalk.home.navigation.homeGraph
@@ -36,7 +32,6 @@ import jinproject.stepwalk.login.navigation.navigateToSignUp
 import jinproject.stepwalk.login.navigation.navigateToSignUpDetail
 import jinproject.stepwalk.mission.navigation.missionNavGraph
 import jinproject.stepwalk.mission.navigation.navigateToMissionDetail
-
 import jinproject.stepwalk.ranking.navigation.navigateToNotification
 import jinproject.stepwalk.ranking.navigation.navigateToRanking
 import jinproject.stepwalk.ranking.navigation.navigateToRankingUserDetail
@@ -94,6 +89,14 @@ internal fun NavigationGraph(
         )
 
         profileNavigation(
+            navigateToProfile = {
+                val navOptions = navOptions {
+                    popUpTo(profileRoute) {
+                        inclusive = true
+                    }
+                }
+                navController.navigateToProfile(navOptions)
+            },
             navigateToEditUser = navController::navigateToEditUser,
             navigateToTerms = navController::navigateToTerms,
             navigateToLogin = navController::navigateToLogin,

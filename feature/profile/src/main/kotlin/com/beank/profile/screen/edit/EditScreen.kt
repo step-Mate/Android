@@ -50,14 +50,22 @@ import kotlinx.coroutines.flow.StateFlow
 @Composable
 internal fun EditScreen(
     editViewModel: EditViewModel = hiltViewModel(),
+    navigateToProfile: () -> Unit,
     popBackStack: () -> Unit,
     showSnackBar: (SnackBarMessage) -> Unit
 ) {
     val state by editViewModel.saveState.collectAsStateWithLifecycle()
     val uiState by editViewModel.uiState.collectAsStateWithLifecycle(initialValue = EditViewModel.UiState.Loading)
+    val snackBarMessage by editViewModel.snackBarState.collectAsStateWithLifecycle(
+        initialValue = SnackBarMessage.getInitValues()
+    )
+    LaunchedEffect(key1 = snackBarMessage) {
+        if (snackBarMessage.headerMessage.isNotBlank())
+            showSnackBar(snackBarMessage)
+    }
     LaunchedEffect(key1 = state) {
         if (state)
-            popBackStack()
+            navigateToProfile()
     }
     LaunchedEffect(key1 = uiState) {
         if (uiState is EditViewModel.UiState.Error)
@@ -268,8 +276,7 @@ private fun EditScreen(
 
 @Preview
 @Composable
-private fun EditPreview(
-
+private fun PreviewEditLogin(
 ) {
     EditScreen(
         nickname = MutableStateFlow(""),
@@ -285,6 +292,26 @@ private fun EditPreview(
         loginState = false,
         onEvent = {}
     ) {
+    }
+}
 
+@Preview
+@Composable
+private fun PreviewEditAnonymous(
+) {
+    EditScreen(
+        nickname = MutableStateFlow(""),
+        designation = MutableStateFlow("test21312"),
+        designationList = MutableStateFlow(listOf("test", "test12", "testset")),
+        nicknameValid = MutableStateFlow(Valid.Success),
+        ageValid = MutableStateFlow(false),
+        heightValid = MutableStateFlow(false),
+        weightValid = MutableStateFlow(false),
+        age = MutableStateFlow(""),
+        height = MutableStateFlow(""),
+        weight = MutableStateFlow(""),
+        loginState = true,
+        onEvent = {}
+    ) {
     }
 }

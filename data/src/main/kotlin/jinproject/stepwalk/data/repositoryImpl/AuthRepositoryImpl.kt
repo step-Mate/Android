@@ -2,7 +2,6 @@ package jinproject.stepwalk.data.repositoryImpl
 
 import jinproject.stepwalk.data.local.datasource.BodyDataSource
 import jinproject.stepwalk.data.local.datasource.CurrentAuthDataSource
-import jinproject.stepwalk.data.local.datasource.UserDataSource
 import jinproject.stepwalk.data.remote.api.AuthApi
 import jinproject.stepwalk.data.remote.dto.request.AccountRequest
 import jinproject.stepwalk.data.remote.dto.request.DuplicationIdRequest
@@ -21,7 +20,6 @@ import javax.inject.Inject
 class AuthRepositoryImpl @Inject constructor(
     private val authApi: AuthApi,
     private val currentAuthDataSource: CurrentAuthDataSource,
-    private val userDataSource: UserDataSource,
     private val bodyDataSource: BodyDataSource,
 ) : AuthRepository {
     override suspend fun checkDuplicationId(id: String): ResponseState<Boolean> =
@@ -108,7 +106,6 @@ class AuthRepositoryImpl @Inject constructor(
 
     override suspend fun logoutAccount() {
         currentAuthDataSource.clearAuth()
-        userDataSource.clearUser()
     }
 
     override fun getAccessToken(): Flow<String> = currentAuthDataSource.getAccessToken()

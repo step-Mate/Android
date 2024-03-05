@@ -7,12 +7,11 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import jinproject.stepwalk.core.catchDataFlow
 import jinproject.stepwalk.core.isValidPassword
 import jinproject.stepwalk.domain.model.BodyData
-import jinproject.stepwalk.domain.model.User
+import jinproject.stepwalk.domain.model.user.User
 import jinproject.stepwalk.domain.usecase.auth.CheckHasTokenUseCase
 import jinproject.stepwalk.domain.usecase.auth.LogoutUseCases
 import jinproject.stepwalk.domain.usecase.user.GetBodyDataUseCases
 import jinproject.stepwalk.domain.usecase.user.GetMyInfoUseCases
-import jinproject.stepwalk.domain.usecase.user.GetUserLocalInfo
 import jinproject.stepwalk.domain.usecase.user.WithdrawAccountUseCases
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -32,6 +31,8 @@ sealed interface ProfileEvent {
     data object Logout : ProfileEvent
     data object Secession : ProfileEvent
     data class Password(val value: String) : ProfileEvent
+    data class MoveToEdit(val navigate: (String, String, Boolean) -> Unit, val anonymous: Boolean) :
+        ProfileEvent
 }
 
 enum class PasswordValid {
@@ -45,8 +46,7 @@ class ProfileViewModel @Inject constructor(
     private val logoutUseCases: LogoutUseCases,
     checkHasTokenUseCase: CheckHasTokenUseCase,
     private val withdrawAccountUseCases: WithdrawAccountUseCases,
-    getUserLocalInfo: GetUserLocalInfo,
-    private val getBodyDataUseCases: GetBodyDataUseCases
+    getBodyDataUseCases: GetBodyDataUseCases
 ) : ViewModel() {
     private val _uiState: MutableStateFlow<UiState> = MutableStateFlow(UiState.Loading)
     val uiState: StateFlow<UiState> get() = _uiState.asStateFlow()
@@ -60,6 +60,7 @@ class ProfileViewModel @Inject constructor(
     private val _passwordValid = MutableStateFlow(PasswordValid.Blank)
     val passwordValid get() = _passwordValid.asStateFlow()
     private var password = ""
+
 
     init {
         checkHasTokenUseCase().flatMapLatest { token ->
@@ -86,16 +87,8 @@ class ProfileViewModel @Inject constructor(
             }
         ).launchIn(viewModelScope)
 
-        getUserLocalInfo().onEach { user ->
-            if (uiState.value == UiState.Anonymous) {
-                _user.update { User.getInitValues() }
-            } else if (uiState.value == UiState.Login) {
-                _user.update { user }
-            }
-        }.launchIn(viewModelScope)
-
-        viewModelScope.launch(Dispatchers.IO) {
-            _bodyData.update { getBodyDataUseCases() }
+        getBodyDataUseCases().onEach { bodyData ->
+            _bodyData.update { bodyData }
         }
     }
 
@@ -133,6 +126,12 @@ class ProfileViewModel @Inject constructor(
                     password = event.value
                 } else {
                     _passwordValid.update { PasswordValid.NotValid }
+                }
+            }
+
+            is ProfileEvent.MoveToEdit -> {
+                viewModelScope.launch {
+                    event.navigate(user.value.name, user.value.designation, event.anonymous)
                 }
             }
         }

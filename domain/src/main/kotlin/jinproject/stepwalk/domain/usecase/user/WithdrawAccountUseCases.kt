@@ -7,5 +7,5 @@ import javax.inject.Inject
 class WithdrawAccountUseCases @Inject constructor(
     private val userRepository: UserRepository
 ) {
-    operator fun invoke(password: String): Flow<Boolean> = userRepository.withdrawAccount(password)
+    operator fun invoke(password: String) : Flow<Boolean> = userRepository.withdrawAccount(password)
 }
