@@ -1,20 +1,17 @@
 package jinproject.stepwalk.data.repositoryImpl
 
 import jinproject.stepwalk.data.remote.dataSource.RemoteUserDataSource
-import jinproject.stepwalk.data.remote.utils.stepMateDataFlow
-import jinproject.stepwalk.domain.model.rank.UserStepRank
-import jinproject.stepwalk.domain.model.user.UserDetailModel
 import jinproject.stepwalk.data.remote.dto.request.DesignationRequest
 import jinproject.stepwalk.data.remote.dto.request.WithdrawRequest
 import jinproject.stepwalk.data.remote.dto.request.toBodyRequest
-import jinproject.stepwalk.data.remote.dto.response.rank.toUserStepRank
 import jinproject.stepwalk.data.remote.dto.response.user.toDesignationModel
-import jinproject.stepwalk.data.remote.dto.response.user.toUserDetailModel
 import jinproject.stepwalk.data.remote.dto.response.user.toUserModel
 import jinproject.stepwalk.data.remote.utils.stepMateDataFlow
 import jinproject.stepwalk.domain.model.BodyData
 import jinproject.stepwalk.domain.model.DesignationState
 import jinproject.stepwalk.domain.model.User
+import jinproject.stepwalk.domain.model.rank.UserStepRank
+import jinproject.stepwalk.domain.model.user.UserDetailModel
 import jinproject.stepwalk.domain.repository.UserRepository
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
@@ -44,8 +41,6 @@ internal class UserRepositoryImpl @Inject constructor(
 
     override fun getFriendRequest(): Flow<List<String>> = stepMateDataFlow {
         remoteUserDataSource.getFriendRequest()
-        val response = remoteUserDataSource.getMyRank()
-        response.toUserStepRank()
     }
 
     override fun withdrawAccount(password: String): Flow<Boolean> = stepMateDataFlow {

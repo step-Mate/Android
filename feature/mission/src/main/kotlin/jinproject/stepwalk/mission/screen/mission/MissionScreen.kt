@@ -20,10 +20,10 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavOptions
 import jinproject.stepwalk.design.component.DefaultButton
-import jinproject.stepwalk.design.component.DefaultLayout
 import jinproject.stepwalk.design.component.DescriptionSmallText
 import jinproject.stepwalk.design.component.StepMateProgressIndicatorRotating
 import jinproject.stepwalk.design.component.VerticalSpacer
+import jinproject.stepwalk.design.component.layout.DefaultLayout
 import jinproject.stepwalk.design.component.layout.ExceptionScreen
 import jinproject.stepwalk.design.theme.StepWalkTheme
 import jinproject.stepwalk.domain.model.mission.MissionList

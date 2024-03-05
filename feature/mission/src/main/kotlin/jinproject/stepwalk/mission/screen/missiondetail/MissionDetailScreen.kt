@@ -33,7 +33,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavOptions
 import jinproject.stepwalk.design.R
 import jinproject.stepwalk.design.component.DefaultButton
-import jinproject.stepwalk.design.component.DefaultLayout
+import jinproject.stepwalk.design.component.layout.DefaultLayout
 import jinproject.stepwalk.design.component.DescriptionSmallText
 import jinproject.stepwalk.design.component.HeadlineText
 import jinproject.stepwalk.design.component.StepMateBoxDefaultTopBar
