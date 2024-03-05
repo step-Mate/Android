@@ -7,6 +7,8 @@ dependencies {
     implementation(libs.gradle.kotlin)
     implementation(libs.gradle.hilt)
     implementation(libs.gradle.google.devtools.ksp)
+    implementation(libs.gradle.google.gms.google.services)
+    implementation(libs.gradle.google.firebase.crashlytics)
 }
 
 gradlePlugin {
@@ -34,6 +36,10 @@ gradlePlugin {
         register("androidParcelize") {
             id = "stepMate.android.parcelize"
             implementationClass = "gradle.plugin.AndroidParcelizePlugin"
+        }
+        register("androidGmsService") {
+            id = "stepMate.android.gms-services"
+            implementationClass = "gradle.plugin.AndroidGmsServicePlugin"
         }
     }
 }

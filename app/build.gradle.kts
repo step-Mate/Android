@@ -2,6 +2,7 @@ plugins {
     id("stepMate.android.application")
     id("stepMate.android.compose")
     id("stepMate.android.parcelize")
+    id("stepMate.android.gms-services")
 }
 
 android {
@@ -44,6 +45,7 @@ dependencies {
     implementation(project(":feature:login"))
     implementation(project(":feature:mission"))
     implementation(project(":feature:core"))
+    implementation(project(":feature:ranking"))
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
@@ -59,4 +61,5 @@ dependencies {
     implementation(libs.bundles.workManager)
     ksp(libs.androidx.hilt.compiler)
 
+    debugImplementation("com.squareup.leakcanary:leakcanary-android:3.0-alpha-1")
 }

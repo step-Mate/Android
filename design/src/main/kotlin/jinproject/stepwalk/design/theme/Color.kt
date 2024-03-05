@@ -220,7 +220,7 @@ value class StepWalkColor private constructor(val color: Color) {
         val light_onSecondaryContainer = blueGrey_700
         val light_error = red_800
         val light_onError = white
-        val light_background = grey_50
+        val light_background = grey_100
         val light_onBackground = lightBlack
         val light_surface = white
         val light_surfaceVariant = grey_200

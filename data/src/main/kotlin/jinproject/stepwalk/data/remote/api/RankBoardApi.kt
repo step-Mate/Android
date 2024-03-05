@@ -11,5 +11,5 @@ interface RankBoardApi {
     suspend fun getMonthRankBoard(@Query("page") page: Int): List<MonthRankBoardResponse>
 
     @GET("rank-board/friends")
-    suspend fun getFriendRankBoard(): List<FriendRankBoardResponse>
+    suspend fun getFriendRankBoard(@Query("page") page: Int): List<FriendRankBoardResponse>
 }

@@ -1,6 +1,9 @@
 package jinproject.stepwalk.data.repositoryImpl
 
 import jinproject.stepwalk.data.remote.dataSource.RemoteUserDataSource
+import jinproject.stepwalk.data.remote.utils.stepMateDataFlow
+import jinproject.stepwalk.domain.model.rank.UserStepRank
+import jinproject.stepwalk.domain.model.user.UserDetailModel
 import jinproject.stepwalk.data.remote.dto.request.DesignationRequest
 import jinproject.stepwalk.data.remote.dto.request.WithdrawRequest
 import jinproject.stepwalk.data.remote.dto.request.toBodyRequest
@@ -12,8 +15,6 @@ import jinproject.stepwalk.data.remote.utils.stepMateDataFlow
 import jinproject.stepwalk.domain.model.BodyData
 import jinproject.stepwalk.domain.model.DesignationState
 import jinproject.stepwalk.domain.model.User
-import jinproject.stepwalk.domain.model.UserDetailModel
-import jinproject.stepwalk.domain.model.UserStepRank
 import jinproject.stepwalk.domain.repository.UserRepository
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
@@ -22,13 +23,29 @@ internal class UserRepositoryImpl @Inject constructor(
     private val remoteUserDataSource: RemoteUserDataSource,
 ) : UserRepository {
     override fun getMyRank(): Flow<UserStepRank> = stepMateDataFlow {
-        val response = remoteUserDataSource.getMyRank()
-        response.toUserStepRank()
+        remoteUserDataSource.getMyRank()
     }
 
     override fun getUserDetail(userName: String): Flow<UserDetailModel> = stepMateDataFlow {
-        val response = remoteUserDataSource.getUserDetail(userName)
-        response.toUserDetailModel()
+        remoteUserDataSource.getUserDetail(userName)
+    }
+
+    override suspend fun addFriend(userName: String) {
+        remoteUserDataSource.addFriend(userName)
+    }
+
+    override suspend fun deleteFriend(userName: String) {
+        remoteUserDataSource.deleteFriend(userName)
+    }
+
+    override suspend fun processFriendRequest(bool: Boolean, userName: String) {
+        remoteUserDataSource.processFriendRequest(bool, userName)
+    }
+
+    override fun getFriendRequest(): Flow<List<String>> = stepMateDataFlow {
+        remoteUserDataSource.getFriendRequest()
+        val response = remoteUserDataSource.getMyRank()
+        response.toUserStepRank()
     }
 
     override fun withdrawAccount(password: String): Flow<Boolean> = stepMateDataFlow {

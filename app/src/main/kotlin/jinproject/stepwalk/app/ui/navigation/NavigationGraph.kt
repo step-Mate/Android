@@ -19,6 +19,7 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.navOptions
 import jinproject.stepwalk.core.SnackBarMessage
 import jinproject.stepwalk.home.navigation.backStackToHome
 import jinproject.stepwalk.home.navigation.homeGraph
@@ -33,6 +34,11 @@ import jinproject.stepwalk.login.navigation.navigateToSignUpDetail
 import jinproject.stepwalk.mission.navigation.missionNavGraph
 import jinproject.stepwalk.mission.navigation.navigateToMissionDetail
 
+import jinproject.stepwalk.ranking.navigation.navigateToNotification
+import jinproject.stepwalk.ranking.navigation.navigateToRanking
+import jinproject.stepwalk.ranking.navigation.navigateToRankingUserDetail
+import jinproject.stepwalk.ranking.navigation.rankingNavGraph
+import jinproject.stepwalk.ranking.navigation.rankingRoute
 
 @Composable
 internal fun NavigationGraph(
@@ -63,28 +69,28 @@ internal fun NavigationGraph(
             showSnackBar = showSnackBar
         )
 
+        rankingNavGraph(
+            navigateToRanking = {
+                val navOptions = navOptions {
+                    popUpTo(rankingRoute) {
+                        inclusive = true
+                    }
+                }
+                navController.navigateToRanking(navOptions)
+            },
+            popBackStack = navController::popBackStackIfCan,
+            showSnackBar = showSnackBar,
+            navigateToRankingUserDetail = navController::navigateToRankingUserDetail,
+            navigateToLogin = navController::navigateToLogin,
+            navigateToNoti = navController::navigateToNotification,
+        )
 
         composable(route = BottomNavigationDestination.Profile.route) {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .wrapContentSize()
-            ) {
+            Column(modifier = Modifier
+                .fillMaxSize()
+                .wrapContentSize()) {
                 Image(
                     painter = painterResource(id = jinproject.stepwalk.design.R.drawable.ic_setting),
-                    contentDescription = "settingIcon"
-                )
-            }
-        }
-
-        composable(route = BottomNavigationDestination.Ranking.route) {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .wrapContentSize()
-            ) {
-                Image(
-                    painter = painterResource(id = jinproject.stepwalk.design.R.drawable.ic_rankboard),
                     contentDescription = "settingIcon"
                 )
             }

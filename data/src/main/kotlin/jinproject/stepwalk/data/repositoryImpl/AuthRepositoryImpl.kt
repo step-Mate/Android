@@ -70,7 +70,7 @@ class AuthRepositoryImpl @Inject constructor(
 
     override suspend fun resetPasswordAccount(
         id: String,
-        password: String
+        password: String,
     ): ResponseState<Boolean> =
         authApi.resetPasswordAccount(AccountRequest(id, password))
             .getResult()
@@ -81,12 +81,12 @@ class AuthRepositoryImpl @Inject constructor(
             emit(ResponseState.Loading)
             emit(
                 authApi.findAccountId(email, code)
-                    .getResult { findId -> ResponseState.Result(findId?.userId!!)})
+                    .getResult { findId -> ResponseState.Result(findId?.userId!!) })
         }
 
     override suspend fun verificationEmailCode(
         email: String,
-        code: String
+        code: String,
     ): ResponseState<Boolean> =
         authApi.verificationEmailCode(email, code).getResult()
 
@@ -98,7 +98,7 @@ class AuthRepositoryImpl @Inject constructor(
     override suspend fun verificationUserEmail(
         id: String,
         email: String,
-        code: String
+        code: String,
     ): Flow<ResponseState<Boolean>> =
         flow {
             emit(ResponseState.Loading)
@@ -113,5 +113,4 @@ class AuthRepositoryImpl @Inject constructor(
 
     override suspend fun logoutAccount() = currentAuthDataSource.clearAuth()
     override fun getAccessToken(): Flow<String> = currentAuthDataSource.getAccessToken()
-
 }

@@ -2,12 +2,12 @@ package jinproject.stepwalk.data.remote.dto.response.mission
 
 import com.google.gson.annotations.SerializedName
 import jinproject.stepwalk.domain.model.mission.CalorieMission
+import jinproject.stepwalk.domain.model.mission.StepMission
 import jinproject.stepwalk.domain.model.mission.CalorieMissionLeaf
 import jinproject.stepwalk.domain.model.mission.MissionCommon
 import jinproject.stepwalk.domain.model.mission.MissionComposite
 import jinproject.stepwalk.domain.model.mission.MissionFigure
 import jinproject.stepwalk.domain.model.mission.MissionList
-import jinproject.stepwalk.domain.model.mission.StepMission
 import jinproject.stepwalk.domain.model.mission.StepMissionLeaf
 
 internal data class MissionResponse(
