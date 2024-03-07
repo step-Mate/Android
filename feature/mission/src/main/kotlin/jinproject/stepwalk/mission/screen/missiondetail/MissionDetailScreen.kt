@@ -30,15 +30,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.navigation.NavOptions
 import jinproject.stepwalk.design.R
-import jinproject.stepwalk.design.component.DefaultButton
-import jinproject.stepwalk.design.component.layout.DefaultLayout
-import jinproject.stepwalk.design.component.DescriptionSmallText
 import jinproject.stepwalk.design.component.HeadlineText
 import jinproject.stepwalk.design.component.StepMateBoxDefaultTopBar
 import jinproject.stepwalk.design.component.StepMateProgressIndicatorRotating
-import jinproject.stepwalk.design.component.VerticalSpacer
+import jinproject.stepwalk.design.component.layout.DefaultLayout
 import jinproject.stepwalk.design.component.layout.ExceptionScreen
 import jinproject.stepwalk.design.theme.StepWalkTheme
 import jinproject.stepwalk.domain.model.mission.MissionCommon
@@ -48,7 +44,6 @@ import jinproject.stepwalk.domain.model.mission.MissionList
 import jinproject.stepwalk.domain.model.mission.StepMission
 import jinproject.stepwalk.mission.screen.component.MissionBadge
 import jinproject.stepwalk.mission.screen.component.MissionMedal
-import jinproject.stepwalk.mission.screen.mission.MissionViewModel
 import jinproject.stepwalk.mission.screen.missiondetail.component.MissionCommonView
 import jinproject.stepwalk.mission.screen.missiondetail.component.MissionCompositeView
 import jinproject.stepwalk.mission.util.getIcon
@@ -58,36 +53,16 @@ import kotlinx.coroutines.flow.StateFlow
 @Composable
 internal fun MissionDetailScreen(
     missionDetailViewModel: MissionDetailViewModel = hiltViewModel(),
-    navigateToLogin : (NavOptions?) -> Unit,
     popBackStack: () -> Unit
 ) {
     val uiState by missionDetailViewModel.uiState.collectAsStateWithLifecycle(initialValue = MissionDetailViewModel.UiState.Loading)
 
-    when(uiState){
-        is MissionDetailViewModel.UiState.Error ->{
-            val exception = (uiState as MissionDetailViewModel.UiState.Error).exception
-            if (exception == MissionViewModel.CANNOT_LOGIN_EXCEPTION && exception.message == MissionViewModel.CANNOT_LOGIN_EXCEPTION.message) {
-                ExceptionScreen(
-                    headlineMessage = "로그인을 하실 수 없어요.",
-                    causeMessage = "로그인을 하셔야 미션 기능을 이용하실 수 있어요.",
-                    content = {
-                        VerticalSpacer(height = 20.dp)
-                        DefaultButton(onClick = {
-                            navigateToLogin(null)
-                        }) {
-                            DescriptionSmallText(
-                                text = "로그인 하러 가기",
-                                color = MaterialTheme.colorScheme.onPrimary
-                            )
-                        }
-                    }
-                )
-            }else
-                ExceptionScreen(
-                    headlineMessage = "미션 기능을 이용할 수 없어요.",
-                    causeMessage = (uiState as MissionDetailViewModel.UiState.Error).exception.message.toString(),
-                )
-
+    when (uiState) {
+        is MissionDetailViewModel.UiState.Error -> {
+            ExceptionScreen(
+                headlineMessage = "미션 기능을 이용할 수 없어요.",
+                causeMessage = (uiState as MissionDetailViewModel.UiState.Error).exception.message.toString(),
+            )
         }
 
         MissionDetailViewModel.UiState.Loading -> {
@@ -115,8 +90,9 @@ private fun MissionDetailScreen(
 
     LaunchedEffect(key1 = missionList) {
         selectMission =
-            missionList.list.find { it.getMissionAchieved() > 0 && it.getMissionAchieved() < it.getMissionGoal() }
-                ?: missionList.list.last()
+            if (missionList.list.first().getMissionAchieved() == 0) missionList.list.first() else
+                missionList.list.find { it.getMissionAchieved() > 0 && it.getMissionAchieved() < it.getMissionGoal() }
+                    ?: missionList.list.last()
     }
 
     DefaultLayout(
@@ -164,28 +140,15 @@ private fun MissionDetailScreen(
                     .padding(top = 10.dp, start = 10.dp, end = 10.dp),
                 verticalArrangement = Arrangement.spacedBy(if (missionList.list.first() is MissionComposite) 10.dp else 0.dp),
             ) {
-                if (missionList.list.first() is MissionComposite) {
-                    if (missionList.list.size == 1) {//시간 미션(주간,월간)
-                        items(
-                            items = (missionList.list.first() as MissionComposite).missions,
-                            key = { it.hashCode() }) { mission ->
-                            MissionBadge(
-                                modifier = Modifier.size(120.dp),
-                                icon = mission.getIcon(),
-                                mission = mission,
-                                color = MaterialTheme.colorScheme.primary
-                            )
-                        }
-                    } else {//통합 미션
-                        items(items = missionList.list, key = { it.designation }) { mission ->
-                            MissionBadge(
-                                modifier = Modifier.size(120.dp),
-                                icon = mission.getIcon(),
-                                mission = mission,
-                                color = MaterialTheme.colorScheme.primary,
-                                onClick = { thisMission -> selectMission = thisMission }
-                            )
-                        }
+                if (missionList.list.first() is MissionComposite) { //통합 미션
+                    items(items = missionList.list, key = { it.designation }) { mission ->
+                        MissionBadge(
+                            modifier = Modifier.size(120.dp),
+                            icon = mission.getIcon(),
+                            mission = mission,
+                            color = MaterialTheme.colorScheme.primary,
+                            onClick = { thisMission -> selectMission = thisMission }
+                        )
                     }
                 } else {//목표미션
                     items(items = missionList.list, key = { it.designation }) { mission ->

@@ -62,7 +62,6 @@ internal class MissionViewModel @Inject constructor(
         ).launchIn(viewModelScope)
     }
 
-
     @Stable
     sealed class UiState {
         data object Loading : UiState()

@@ -48,7 +48,6 @@ fun NavGraphBuilder.missionNavGraph(
             )
         ){
             MissionDetailScreen(
-                navigateToLogin = navigateToLogin,
                 popBackStack = popBackStack
             )
         }

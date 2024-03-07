@@ -8,7 +8,7 @@ import androidx.room.Transaction
 import jinproject.stepwalk.data.local.database.entity.Mission
 import jinproject.stepwalk.data.local.database.entity.MissionLeaf
 import jinproject.stepwalk.data.local.database.entity.MissionList
-import jinproject.stepwalk.data.local.database.entity.MissionType
+import jinproject.stepwalk.domain.model.mission.MissionType
 import kotlinx.coroutines.flow.Flow
 
 @Dao

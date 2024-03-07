@@ -58,10 +58,11 @@ internal fun List<MissionsResponse>.toMissionList() : List<MissionList> {
             missionResponse.detail.forEach { detail ->
                 when(detail.missionType){
                     "STEP" -> {
-                        (missionList.getOrDefault(
+                        val missions = missionList.getOrDefault(
                             missionResponse.title,
-                            emptyArray<MissionCommon>()
-                        ) as ArrayList<MissionCommon>).add(
+                            arrayListOf()
+                        )
+                        missions.add(
                             StepMission(
                                 designation = missionResponse.designation,
                                 intro = missionResponse.contents,
@@ -69,12 +70,14 @@ internal fun List<MissionsResponse>.toMissionList() : List<MissionList> {
                                 goal = detail.goal
                             )
                         )
+                        missionList[missionResponse.title] = missions
                     }
                     "CALORIE" -> {
-                        (missionList.getOrDefault(
+                        val missions = missionList.getOrDefault(
                             missionResponse.title,
-                            emptyArray<MissionCommon>()
-                        ) as ArrayList<MissionCommon>).add(
+                            arrayListOf()
+                        )
+                        missions.add(
                             CalorieMission(
                                 designation = missionResponse.designation,
                                 intro = missionResponse.contents,
@@ -82,6 +85,7 @@ internal fun List<MissionsResponse>.toMissionList() : List<MissionList> {
                                 goal = detail.goal,
                             )
                         )
+                        missionList[missionResponse.title] = missions
                     }
                     else -> throw IllegalArgumentException("알 수 없는 미션 타입: [${detail.missionType}] 입니다.")
                 }
@@ -109,16 +113,18 @@ internal fun List<MissionsResponse>.toMissionList() : List<MissionList> {
                     else -> throw IllegalArgumentException("알 수 없는 미션 타입: [${detail.missionType}] 입니다.")
                 }
             }
-            (missionList.getOrDefault(
+            val missions = missionList.getOrDefault(
                 missionResponse.title,
-                emptyArray<MissionCommon>()
-            ) as ArrayList<MissionCommon>).add(
+                arrayListOf()
+            )
+            missions.add(
                 MissionComposite(
                     designation = missionResponse.designation,
                     intro = missionResponse.contents,
                     missions = leafList
                 )
             )
+            missionList[missionResponse.title] = missions
         }
     }
     return missionList.map {

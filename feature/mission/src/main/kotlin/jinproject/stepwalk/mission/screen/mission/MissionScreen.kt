@@ -35,11 +35,10 @@ import kotlinx.coroutines.flow.StateFlow
 @Composable
 internal fun MissionScreen(
     missionViewModel: MissionViewModel = hiltViewModel(),
-    navigateToMissionDetail : (String) -> Unit,
-    navigateToLogin : (NavOptions?) -> Unit
+    navigateToMissionDetail: (String) -> Unit,
+    navigateToLogin: (NavOptions?) -> Unit
 ) {
     val uiState by missionViewModel.uiState.collectAsStateWithLifecycle(initialValue = MissionViewModel.UiState.Loading)
-
 
     when (uiState) {
         is MissionViewModel.UiState.Error -> {
@@ -82,9 +81,9 @@ internal fun MissionScreen(
 
 @Composable
 private fun MissionScreen(
-    missionList : StateFlow<List<MissionList>>,
-    navigateToMissionDetail : (String) -> Unit
-){
+    missionList: StateFlow<List<MissionList>>,
+    navigateToMissionDetail: (String) -> Unit
+) {
     val missionListState by missionList.collectAsStateWithLifecycle()
 
     DefaultLayout(
@@ -97,10 +96,10 @@ private fun MissionScreen(
             state = rememberLazyListState(),
             verticalArrangement = Arrangement.spacedBy(20.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
-        ){
+        ) {
             item {
             }
-            items(items = missionListState, key = {it.title}){ missionList ->
+            items(items = missionListState, key = { it.title }) { missionList ->
                 MissionItem(
                     missionList = missionList,
                     onClick = {
@@ -120,6 +119,6 @@ private fun PreviewMissionScreen(
 ) = StepWalkTheme {
     MissionScreen(
         missionList = MutableStateFlow(listOf()),
-        navigateToMissionDetail = {_ ->}
+        navigateToMissionDetail = { _ -> }
     )
 }

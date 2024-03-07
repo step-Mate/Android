@@ -57,27 +57,14 @@ internal fun MissionItem(
             horizontalArrangement = Arrangement.spacedBy(if (missionList.list.first() is MissionComposite) 10.dp else 0.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            if (missionList.list.first() is MissionComposite) {
-                if (missionList.list.size == 1) {//시간 미션(주간,월간)
-                    items(
-                        items = (missionList.list.first() as MissionComposite).missions,
-                        key = { it.hashCode() }) { mission ->
-                        MissionBadge(
-                            modifier = Modifier.size(100.dp),
-                            icon = mission.getIcon(),
-                            mission = mission,
-                            color = MaterialTheme.colorScheme.primary,
-                        )
-                    }
-                } else {//통합 미션
-                    items(items = missionList.list, key = { it.designation }) { mission ->
-                        MissionBadge(
-                            modifier = Modifier.size(100.dp),
-                            icon = mission.getIcon(),
-                            mission = mission,
-                            color = MaterialTheme.colorScheme.primary,
-                        )
-                    }
+            if (missionList.list.first() is MissionComposite) {//통합미션
+                items(items = missionList.list, key = { it.designation }) { mission ->
+                    MissionBadge(
+                        modifier = Modifier.size(100.dp),
+                        icon = mission.getIcon(),
+                        mission = mission,
+                        color = MaterialTheme.colorScheme.primary,
+                    )
                 }
             } else {//목표미션
                 items(items = missionList.list, key = { it.designation }) { mission ->

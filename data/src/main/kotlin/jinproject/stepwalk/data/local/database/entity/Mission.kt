@@ -5,7 +5,7 @@ import androidx.room.PrimaryKey
 
 @Entity
 data class Mission(
-    val title: String,
     @PrimaryKey val designation: String,
+    val title: String,
     val intro: String
 )
