@@ -190,7 +190,7 @@ private fun ProfileScreen(
     StepMateDialog(
         dialogState = DialogState(
             header = "회원탈퇴 하시겠습니까?",
-            content = "탈퇴 후 계정 복구는 불가합니다.",
+            content = "회원탈퇴를 할 경우 저장된 모든 개인정보와 데이터(걸음수, 레벨, 캐릭터 등)가 제거될수 있어요. 그래도 진행하시겠어요?",
             positiveMessage = "회원탈퇴",
             negativeMessage = "취소",
             onPositiveCallback = {
