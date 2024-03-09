@@ -9,17 +9,21 @@ import jinproject.stepwalk.domain.model.mission.MissionList
 import jinproject.stepwalk.domain.usecase.auth.CheckHasTokenUseCase
 import jinproject.stepwalk.domain.usecase.mission.GetAllMissionListUseCases
 import jinproject.stepwalk.domain.usecase.mission.UpdateMissionListUseCases
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
 import java.util.UUID
 import javax.inject.Inject
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
 internal class MissionViewModel @Inject constructor(
     getAllMissionListUseCases: GetAllMissionListUseCases,
@@ -33,15 +37,17 @@ internal class MissionViewModel @Inject constructor(
     val missionList get() = _missionList.asStateFlow()
 
     init {
-        checkHasTokenUseCase().onEach { token ->
+        checkHasTokenUseCase().flatMapLatest { token ->
             if (token) {
+                updateMissionListUseCases()
                 getAllMissionListUseCases().onEach { missions ->
                     _missionList.update { missions }
                     _uiState.emit(UiState.Success)
                 }
-                updateMissionListUseCases()
             } else {
-                _uiState.emit(UiState.Error(CANNOT_LOGIN_EXCEPTION))
+                flow {
+                    _uiState.emit(UiState.Error(CANNOT_LOGIN_EXCEPTION))
+                }
             }
         }.catchDataFlow(
             action = { e ->
