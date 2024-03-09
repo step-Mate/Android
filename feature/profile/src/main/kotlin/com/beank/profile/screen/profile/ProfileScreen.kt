@@ -127,7 +127,6 @@ private fun ProfileScreen(
             user = user,
             bodyData = bodyData
         )
-
         Column(
             modifier = Modifier
                 .padding(top = 50.dp, start = 12.dp, end = 12.dp)

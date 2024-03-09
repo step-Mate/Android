@@ -1,7 +1,6 @@
 package com.beank.profile.screen.profile.component
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -31,8 +30,9 @@ import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.animateLottieCompositionAsState
 import com.airbnb.lottie.compose.rememberLottieComposition
-import jinproject.stepwalk.design.component.DescriptionLargeText
 import jinproject.stepwalk.design.component.DescriptionSmallText
+import jinproject.stepwalk.design.component.FooterText
+import jinproject.stepwalk.design.component.HorizontalSpacer
 import jinproject.stepwalk.domain.model.BodyData
 import jinproject.stepwalk.domain.model.user.User
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -70,39 +70,39 @@ internal fun ProfileDetail(
                 .align(Alignment.CenterStart)
                 .fillMaxWidth()
         ) {
-            DescriptionLargeText(
+            Row(
                 modifier = Modifier.padding(start = 30.dp, top = 50.dp),
-                text = "${userState.designation.ifEmpty { "뉴비" }}  ${userState.name} 님",
-                color = MaterialTheme.colorScheme.onSurface
-            )
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                FooterText(
+                    text = userState.designation.ifEmpty { "뉴비" },
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                HorizontalSpacer(width = 10.dp)
+                DescriptionSmallText(
+                    text = "${userState.name} 님",
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+            }
+
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.padding(start = 30.dp, top = 10.dp, bottom = 20.dp)
             ) {
-                Column(
-                    modifier = Modifier.padding(end = 10.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
-                ) {
-                    DescriptionLargeText(text = "${bodyDataState.age}")
-                    DescriptionSmallText(text = "나이")
-                }
-                Column(
-                    modifier = Modifier.padding(end = 10.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
-                ) {
-                    DescriptionLargeText(text = "${bodyDataState.height}")
-                    DescriptionSmallText(text = "키")
-                }
-                Column(
-                    modifier = Modifier.padding(end = 10.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
-                ) {
-                    DescriptionLargeText(text = "${bodyDataState.weight}")
-                    DescriptionSmallText(text = "몸무게")
-                }
+                DescriptionSmallText(
+                    text = "${bodyDataState.age} 세",
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                HorizontalSpacer(width = 10.dp)
+                DescriptionSmallText(
+                    text = "${bodyDataState.height} cm",
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                HorizontalSpacer(width = 10.dp)
+                DescriptionSmallText(
+                    text = "${bodyDataState.weight} kg",
+                    color = MaterialTheme.colorScheme.onSurface
+                )
             }
         }
         LottieAnimation(

@@ -89,7 +89,7 @@ class ProfileViewModel @Inject constructor(
 
         getBodyDataUseCases().onEach { bodyData ->
             _bodyData.update { bodyData }
-        }
+        }.launchIn(viewModelScope)
     }
 
 
