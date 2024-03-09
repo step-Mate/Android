@@ -9,10 +9,10 @@ import jinproject.stepwalk.domain.model.mission.StepMission
 import jinproject.stepwalk.domain.model.mission.StepMissionLeaf
 
 fun MissionFigure.getIcon() = when(this){
-    is StepMissionLeaf, is StepMission -> R.drawable.ic_fire
-    is CalorieMissionLeaf, is CalorieMission -> R.drawable.ic_heart_solid
-    is MissionComposite -> R.drawable.ic_time
-    else -> R.drawable.ic_fire
+    is StepMissionLeaf, is StepMission -> R.drawable.ic_shoes
+    is CalorieMissionLeaf, is CalorieMission -> R.drawable.ic_calorie
+    is MissionComposite -> R.drawable.ic_mission_composite
+    else -> R.drawable.ic_mission_composite
 }
 
 fun MissionFigure.getString() = when(this){

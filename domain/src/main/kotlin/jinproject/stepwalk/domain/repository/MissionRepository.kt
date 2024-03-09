@@ -14,5 +14,5 @@ interface MissionRepository {
     suspend fun selectDesignation(designation: String)
     fun getDesignation(): Flow<DesignationState>
     fun getMissionAchieved(missionType: MissionType) : Flow<Int>
-    suspend fun checkUpdateMission()
+    suspend fun checkUpdateMission() : List<String>
 }

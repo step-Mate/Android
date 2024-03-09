@@ -6,5 +6,5 @@ import javax.inject.Inject
 class CheckUpdateMissionUseCases @Inject constructor(
     private val missionRepository: MissionRepository
 ){
-    suspend operator fun invoke() = missionRepository.checkUpdateMission()
+    suspend operator fun invoke() : List<String> = missionRepository.checkUpdateMission()
 }

@@ -134,9 +134,16 @@ class MissionRepositoryImpl @Inject constructor(
                     )
                 }
             }
-            checkUpdateMission(missionLocal.getAllMissionList().first().toMissionDataList().sortedBy { it.title })
+            checkUpdateMission(missionLocal.getAllMissionList().first().toMissionDataList().sortedBy { it.title }).forEach {designation ->
+                if (designation != "뉴비")
+                    completeMission(designation)
+            }
+
         }else{
-            checkUpdateMission(originalList.await())
+            checkUpdateMission(originalList.await()).forEach { designation ->
+                if (designation != "뉴비")
+                    completeMission(designation)
+            }
         }
     }
 
@@ -163,11 +170,11 @@ class MissionRepositoryImpl @Inject constructor(
     override fun getMissionAchieved(missionType: MissionType): Flow<Int> =
         missionLocal.getMissionAchieved(missionType)
 
-    override suspend fun checkUpdateMission() {
-        checkUpdateMission(missionLocal.getAllMissionList().first().toMissionDataList().sortedBy { it.title })
-    }
+    override suspend fun checkUpdateMission() : List<String> =
+        checkUpdateMission(missionLocal.getAllMissionList().first().toMissionDataList().sortedBy { it.title }).filter { it != "뉴비" }
 
-    private suspend fun checkUpdateMission(missionList: List<MissionList>) =
+
+    private suspend fun checkUpdateMission(missionList: List<MissionList>) : List<String> =
         withContext(Dispatchers.IO) {
             val designationList = getDesignation().first().list.sorted()
             val localDesignationList = async { missionList.map {missions ->
@@ -176,8 +183,6 @@ class MissionRepositoryImpl @Inject constructor(
                 }.map { it.designation }
             }.flatten().sorted()}
 
-            localDesignationList.await().subtract(designationList.toSet()).forEach { designation ->
-                completeMission(designation)
-            }
+            localDesignationList.await().subtract(designationList.toSet()).toList()
         }
 }
