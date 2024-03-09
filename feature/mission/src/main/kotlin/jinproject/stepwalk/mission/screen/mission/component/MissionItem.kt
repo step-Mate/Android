@@ -13,6 +13,11 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
@@ -31,6 +36,12 @@ internal fun MissionItem(
     missionList: MissionList,
     onClick: () -> Unit
 ) {
+    var designation by remember { mutableStateOf("") }
+    LaunchedEffect(key1 = missionList) {
+        designation =
+            missionList.list.find { it.getMissionAchieved() < it.getMissionGoal() }?.designation
+                ?: ""
+    }
     Column(
         modifier = modifier
             .shadow(elevation = 6.dp, RoundedCornerShape(8.dp))
@@ -63,6 +74,7 @@ internal fun MissionItem(
                         modifier = Modifier.size(100.dp),
                         icon = mission.getIcon(),
                         mission = mission,
+                        animate = mission.designation == designation,
                         color = MaterialTheme.colorScheme.primary,
                     )
                 }
@@ -72,6 +84,7 @@ internal fun MissionItem(
                         modifier = Modifier.size(110.dp),
                         icon = mission.getIcon(),
                         mission = mission,
+                        animate = mission.designation == designation,
                         color = MaterialTheme.colorScheme.primary,
                     )
                 }

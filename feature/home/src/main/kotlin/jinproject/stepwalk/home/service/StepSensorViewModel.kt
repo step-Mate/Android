@@ -11,6 +11,7 @@ import jinproject.stepwalk.domain.model.StepData
 import jinproject.stepwalk.domain.usecase.GetStepUseCase
 import jinproject.stepwalk.domain.usecase.SetStepUseCase
 import jinproject.stepwalk.home.HealthConnector
+import jinproject.stepwalk.home.worker.MissionUpdateWorker
 import jinproject.stepwalk.home.worker.StepInsertWorker
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -110,6 +111,16 @@ internal class StepSensorViewModel @Inject constructor(
         endTime = ZonedDateTime.now()
 
         return OneTimeWorkRequestBuilder<StepInsertWorker>()
+            .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
+            .setInputData(inputData)
+            .build()
+    }
+
+    fun getMissionUpdateWorker() : OneTimeWorkRequest {
+        val inputData = Data.Builder()
+            .putLong(KEY_DISTANCE, steps.value.current - steps.value.last)
+            .build()
+        return OneTimeWorkRequestBuilder<MissionUpdateWorker>()
             .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
             .setInputData(inputData)
             .build()

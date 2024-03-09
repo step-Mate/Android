@@ -7,28 +7,24 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import jinproject.stepwalk.core.catchDataFlow
 import jinproject.stepwalk.domain.model.mission.MissionList
 import jinproject.stepwalk.domain.usecase.auth.CheckHasTokenUseCase
-import jinproject.stepwalk.domain.usecase.mission.GetAllMissionList
-import jinproject.stepwalk.domain.usecase.mission.UpdateMissionList
-import kotlinx.coroutines.ExperimentalCoroutinesApi
+import jinproject.stepwalk.domain.usecase.mission.GetAllMissionListUseCases
+import jinproject.stepwalk.domain.usecase.mission.UpdateMissionListUseCases
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
 import java.util.UUID
 import javax.inject.Inject
 
-@OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
 internal class MissionViewModel @Inject constructor(
-    getAllMissionList: GetAllMissionList,
+    getAllMissionListUseCases: GetAllMissionListUseCases,
     checkHasTokenUseCase: CheckHasTokenUseCase,
-    private val updateMissionList: UpdateMissionList,
+    private val updateMissionListUseCases: UpdateMissionListUseCases,
 ) : ViewModel() {
     private val _uiState: MutableSharedFlow<UiState> = MutableSharedFlow(replay = 1)
     val uiState: SharedFlow<UiState> get() = _uiState.asSharedFlow()
@@ -37,17 +33,15 @@ internal class MissionViewModel @Inject constructor(
     val missionList get() = _missionList.asStateFlow()
 
     init {
-        checkHasTokenUseCase().flatMapLatest { token ->
+        checkHasTokenUseCase().onEach { token ->
             if (token) {
-                updateMissionList()
-                getAllMissionList().onEach { missions ->
+                getAllMissionListUseCases().onEach { missions ->
                     _missionList.update { missions }
                     _uiState.emit(UiState.Success)
                 }
+                updateMissionListUseCases()
             } else {
-                flow {
-                    _uiState.emit(UiState.Error(CANNOT_LOGIN_EXCEPTION))
-                }
+                _uiState.emit(UiState.Error(CANNOT_LOGIN_EXCEPTION))
             }
         }.catchDataFlow(
             action = { e ->

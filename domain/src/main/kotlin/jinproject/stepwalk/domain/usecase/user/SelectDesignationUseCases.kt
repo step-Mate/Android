@@ -1,12 +1,11 @@
 package jinproject.stepwalk.domain.usecase.user
 
-import jinproject.stepwalk.domain.repository.UserRepository
-import kotlinx.coroutines.flow.Flow
+import jinproject.stepwalk.domain.repository.MissionRepository
 import javax.inject.Inject
 
 class SelectDesignationUseCases @Inject constructor(
-    private val userRepository: UserRepository
+    private val missionRepository: MissionRepository
 ) {
-    operator fun invoke(designation: String): Flow<Boolean> =
-        userRepository.selectDesignation(designation)
+    suspend operator fun invoke(designation: String) =
+        missionRepository.selectDesignation(designation)
 }

@@ -6,8 +6,12 @@ import jinproject.stepwalk.data.local.database.entity.Mission
 import jinproject.stepwalk.data.local.database.entity.MissionLeaf
 import jinproject.stepwalk.data.local.database.entity.toMissionDataList
 import jinproject.stepwalk.data.remote.api.MissionApi
+import jinproject.stepwalk.data.remote.dto.request.DesignationRequest
 import jinproject.stepwalk.data.remote.dto.response.mission.toMissionList
+import jinproject.stepwalk.data.remote.dto.response.user.toDesignationModel
+import jinproject.stepwalk.data.remote.utils.stepMateDataFlow
 import jinproject.stepwalk.data.remote.utils.suspendAndCatchStepMateData
+import jinproject.stepwalk.domain.model.DesignationState
 import jinproject.stepwalk.domain.model.mission.CalorieMission
 import jinproject.stepwalk.domain.model.mission.CalorieMissionLeaf
 import jinproject.stepwalk.domain.model.mission.MissionCommon
@@ -98,10 +102,12 @@ class MissionRepositoryImpl @Inject constructor(
             MissionList(title, missionList)
         }
 
-    override suspend fun updateMissionList() = withContext(Dispatchers.IO){
+    override suspend fun updateMissionList() = withContext(Dispatchers.IO) {
         val list = missionApi.getMissionList()
         val apiList = list.toMissionList().sortedBy { it.title }
-        val originalList = async {  missionLocal.getAllMissionList().first().toMissionDataList().sortedBy { it.title }}
+        val originalList = async {
+            missionLocal.getAllMissionList().first().toMissionDataList().sortedBy { it.title }
+        }
         if (originalList.await().isEmpty() || apiList != originalList) {
             list.forEach { missionResponse ->
                 missionLocal.addMission(
@@ -128,6 +134,9 @@ class MissionRepositoryImpl @Inject constructor(
                     )
                 }
             }
+            checkUpdateMission(missionLocal.getAllMissionList().first().toMissionDataList().sortedBy { it.title })
+        }else{
+            checkUpdateMission(originalList.await())
         }
     }
 
@@ -141,5 +150,34 @@ class MissionRepositoryImpl @Inject constructor(
         }
     }
 
+    override suspend fun selectDesignation(designation: String) {
+        suspendAndCatchStepMateData(retrofit) {
+            missionApi.selectDesignation(DesignationRequest(designation))
+        }
+    }
 
+    override fun getDesignation(): Flow<DesignationState> = stepMateDataFlow {
+        missionApi.getDesignations().toDesignationModel()
+    }
+
+    override fun getMissionAchieved(missionType: MissionType): Flow<Int> =
+        missionLocal.getMissionAchieved(missionType)
+
+    override suspend fun checkUpdateMission() {
+        checkUpdateMission(missionLocal.getAllMissionList().first().toMissionDataList().sortedBy { it.title })
+    }
+
+    private suspend fun checkUpdateMission(missionList: List<MissionList>) =
+        withContext(Dispatchers.IO) {
+            val designationList = getDesignation().first().list.sorted()
+            val localDesignationList = async { missionList.map {missions ->
+                missions.list.filter {
+                    it.getMissionAchieved() >= it.getMissionGoal()
+                }.map { it.designation }
+            }.flatten().sorted()}
+
+            localDesignationList.await().subtract(designationList.toSet()).forEach { designation ->
+                completeMission(designation)
+            }
+        }
 }

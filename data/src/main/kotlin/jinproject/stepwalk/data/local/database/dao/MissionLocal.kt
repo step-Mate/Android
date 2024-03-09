@@ -28,7 +28,10 @@ interface MissionLocal {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun addMissionLeaf(missionLeaf: MissionLeaf)
 
-    @Query("UPDATE missionleaf SET achieved = :achieved WHERE achieved < goal and achieved != 0 and type = :type")
+    @Query("UPDATE missionleaf SET achieved = :achieved WHERE achieved <= goal and type = :type")
     suspend fun updateMissionAchieved(type: MissionType, achieved : Int)
+
+    @Query("SELECT MAX(achieved) FROM missionleaf WHERE type = :type")
+    fun getMissionAchieved(type: MissionType) : Flow<Int>
 
 }

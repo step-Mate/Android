@@ -8,7 +8,8 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import jinproject.stepwalk.core.catchDataFlow
 import jinproject.stepwalk.domain.model.mission.MissionList
 import jinproject.stepwalk.domain.usecase.auth.CheckHasTokenUseCase
-import jinproject.stepwalk.domain.usecase.mission.GetMissionList
+import jinproject.stepwalk.domain.usecase.mission.GetMissionListUseCases
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -25,7 +26,7 @@ import javax.inject.Inject
 @HiltViewModel
 internal class MissionDetailViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
-    private val getMissionList: GetMissionList,
+    private val getMissionListUseCases: GetMissionListUseCases,
     private val checkHasTokenUseCase: CheckHasTokenUseCase,
 ) : ViewModel() {
     private val _uiState: MutableSharedFlow<UiState> = MutableSharedFlow(replay = 1)
@@ -45,10 +46,11 @@ internal class MissionDetailViewModel @Inject constructor(
         fetchMission(title)
     }
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     private fun fetchMission(title: String) =
         checkHasTokenUseCase().flatMapLatest { token ->
             if (token) {
-                getMissionList(title).onEach { mission ->
+                getMissionListUseCases(title).onEach { mission ->
                     _missionList.update { mission }
                     _uiState.emit(UiState.Success)
                 }

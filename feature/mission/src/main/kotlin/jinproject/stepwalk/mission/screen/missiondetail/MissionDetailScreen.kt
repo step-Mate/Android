@@ -3,10 +3,8 @@ package jinproject.stepwalk.mission.screen.missiondetail
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
@@ -16,7 +14,10 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.BottomSheetScaffold
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.rememberBottomSheetScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -25,7 +26,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -34,7 +34,6 @@ import jinproject.stepwalk.design.R
 import jinproject.stepwalk.design.component.HeadlineText
 import jinproject.stepwalk.design.component.StepMateBoxDefaultTopBar
 import jinproject.stepwalk.design.component.StepMateProgressIndicatorRotating
-import jinproject.stepwalk.design.component.layout.DefaultLayout
 import jinproject.stepwalk.design.component.layout.ExceptionScreen
 import jinproject.stepwalk.design.theme.StepWalkTheme
 import jinproject.stepwalk.domain.model.mission.MissionCommon
@@ -79,6 +78,7 @@ internal fun MissionDetailScreen(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun MissionDetailScreen(
     title: String,
@@ -87,51 +87,21 @@ private fun MissionDetailScreen(
 ) {
     val missionList by detailList.collectAsStateWithLifecycle()
     var selectMission by remember { mutableStateOf<MissionFigure>(missionList.list.first()) }
+    val scaffoldState = rememberBottomSheetScaffoldState()
+    var designation by remember { mutableStateOf("") }
 
     LaunchedEffect(key1 = missionList) {
         selectMission =
             if (missionList.list.first().getMissionAchieved() == 0) missionList.list.first() else
                 missionList.list.find { it.getMissionAchieved() > 0 && it.getMissionAchieved() < it.getMissionGoal() }
                     ?: missionList.list.last()
+        designation =
+            missionList.list.find { it.getMissionAchieved() < it.getMissionGoal() }?.designation
+                ?: ""
     }
-
-    DefaultLayout(
-        contentPaddingValues = PaddingValues(),
-        topBar = {
-            StepMateBoxDefaultTopBar(
-                modifier = Modifier
-                    .background(MaterialTheme.colorScheme.surface)
-                    .windowInsetsPadding(WindowInsets.statusBars),
-                icon = R.drawable.ic_arrow_left_small,
-                onClick = popBackStack
-            ) {
-                HeadlineText(text = title, modifier = Modifier.align(Alignment.Center))
-            }
-        }
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .weight(0.65f),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            if (selectMission is MissionComposite) {
-                MissionCompositeView(selectMission = selectMission as MissionComposite)
-            } else {
-                MissionCommonView(selectMission = selectMission as MissionCommon)
-            }
-        }
-
-        Column(
-            modifier = Modifier
-                .weight(0.35f)
-                .shadow(
-                    elevation = 12.dp,
-                    shape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp)
-                )
-                .background(MaterialTheme.colorScheme.surface)
-                .fillMaxWidth()
-        ) {
+    BottomSheetScaffold(
+        scaffoldState = scaffoldState,
+        sheetContent = {
             LazyVerticalGrid(
                 columns = GridCells.Fixed(3),
                 state = rememberLazyGridState(),
@@ -146,6 +116,7 @@ private fun MissionDetailScreen(
                             modifier = Modifier.size(120.dp),
                             icon = mission.getIcon(),
                             mission = mission,
+                            animate = mission.designation == designation,
                             color = MaterialTheme.colorScheme.primary,
                             onClick = { thisMission -> selectMission = thisMission }
                         )
@@ -156,15 +127,49 @@ private fun MissionDetailScreen(
                             modifier = Modifier.size(120.dp),
                             icon = mission.getIcon(),
                             mission = mission,
+                            animate = mission.designation == designation,
                             color = MaterialTheme.colorScheme.primary,
                             onClick = { thisMission -> selectMission = thisMission }
                         )
                     }
                 }
             }
+        },
+        topBar = {
+            StepMateBoxDefaultTopBar(
+                modifier = Modifier
+                    .background(MaterialTheme.colorScheme.surface)
+                    .windowInsetsPadding(WindowInsets.statusBars),
+                icon = R.drawable.ic_arrow_left_small,
+                onClick = popBackStack
+            ) {
+                HeadlineText(text = title, modifier = Modifier.align(Alignment.Center))
+            }
+        },
+        sheetPeekHeight = 200.dp,
+        sheetShape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp),
+        sheetShadowElevation = 12.dp,
+        sheetContentColor = MaterialTheme.colorScheme.surface
+    ) {
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            if (selectMission is MissionComposite) {
+                MissionCompositeView(
+                    selectMission = selectMission as MissionComposite,
+                    designation = designation
+                )
+            } else {
+                MissionCommonView(
+                    selectMission = selectMission as MissionCommon,
+                    designation = designation
+                )
+            }
         }
     }
 }
+
 
 @Composable
 @Preview

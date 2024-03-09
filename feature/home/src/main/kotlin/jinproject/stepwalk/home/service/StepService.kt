@@ -131,11 +131,11 @@ internal class StepService : LifecycleService() {
     private fun setWorker(worker: OneTimeWorkRequest) {
         WorkManager
             .getInstance(this)
-            .enqueueUniqueWork(
+            .beginUniqueWork(
                 "insertStepWork",
                 ExistingWorkPolicy.REPLACE,
                 worker
-            )
+            ).then(stepSensorViewModel.getMissionUpdateWorker()).enqueue()
     }
 
     override fun onDestroy() {

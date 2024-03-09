@@ -6,10 +6,12 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
-class GetMissionList @Inject constructor(
+class GetAllMissionListUseCases @Inject constructor(
     private val missionRepository: MissionRepository
 ) {
-    operator fun invoke(title: String): Flow<MissionList> = missionRepository.getMissionList(title).map {mission ->
-        MissionList(mission.title,mission.list.sortedBy { it.getMissionGoal() })
+    operator fun invoke(): Flow<List<MissionList>> = missionRepository.getAllMissionList().map {list ->
+        list.map { mission ->
+            MissionList(mission.title,mission.list.sortedBy { it.getMissionGoal() })
+        }
     }
 }
