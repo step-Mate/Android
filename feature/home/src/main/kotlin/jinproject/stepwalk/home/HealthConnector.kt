@@ -5,7 +5,6 @@ import android.content.Intent
 import android.net.Uri
 import android.util.Log
 import androidx.activity.result.contract.ActivityResultContract
-import androidx.compose.runtime.Stable
 import androidx.health.connect.client.HealthConnectClient
 import androidx.health.connect.client.PermissionController
 import androidx.health.connect.client.aggregate.AggregateMetric
@@ -47,7 +46,6 @@ object HealthConnectorModule {
         HealthConnector(context)
 }
 
-@Stable
 class HealthConnector @Inject constructor(
     @ApplicationContext private val context: Context,
 ) {
@@ -79,7 +77,7 @@ class HealthConnector @Inject constructor(
             requireInstallHealthApk()
     }
 
-    private fun requireInstallHealthApk() {
+    fun requireInstallHealthApk() {
         val providerPackageName = "com.google.android.apps.healthdata"
         val uriString =
             "market://details?id=$providerPackageName&url=healthconnect%3A%2F%2Fonboarding"

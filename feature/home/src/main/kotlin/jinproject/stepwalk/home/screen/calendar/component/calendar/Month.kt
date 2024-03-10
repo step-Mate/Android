@@ -13,7 +13,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
 import jinproject.stepwalk.design.component.DefaultButton
 import jinproject.stepwalk.design.component.DescriptionLargeText
@@ -35,8 +34,8 @@ internal fun Month(
         maxItemsInEachRow = 3,
         horizontalArrangement = Arrangement.SpaceAround,
     ) {
-        calendarData.range.filter {
-            it.time.year == calendarData.selectedTime.year
+        calendarData.range.filter { zonedTime ->
+            zonedTime.time.year == calendarData.selectedTime.year
         }.forEach { zonedTime ->
             val month = zonedTime.time.monthValue
             val backgroundColor =

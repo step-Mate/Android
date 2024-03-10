@@ -24,7 +24,7 @@ internal class Router(val navController: NavHostController) {
         @Composable get() = navController
             .currentBackStackEntryAsState().value?.destination
 
-    internal fun navigateOnBottomNavigationBar(destination: BottomNavigationDestination) {
+    internal fun navigateTopLevelDestination(destination: NavigationDestination) {
         val navOptions = navOptions {
             navController.currentBackStackEntry?.destination?.route?.let {
                 popUpTo(it) {
@@ -35,20 +35,20 @@ internal class Router(val navController: NavHostController) {
         }
 
         when (destination) {
-            BottomNavigationDestination.Home -> navController.navigateToHome(navOptions)
-            BottomNavigationDestination.Profile -> navController.navigateToProfile(navOptions)
-            BottomNavigationDestination.Ranking -> navController.navigateToRanking(navOptions = navOptions)
-            BottomNavigationDestination.Mission -> navController.navigateToMission(navOptions)
+            NavigationDestination.Home -> navController.navigateToHome(navOptions)
+            NavigationDestination.Profile -> navController.navigateToProfile(navOptions)
+            NavigationDestination.Ranking -> navController.navigateToRanking(navOptions = navOptions)
+            NavigationDestination.Mission -> navController.navigateToMission(navOptions)
         }
     }
 
 }
 
-fun NavDestination?.showBottomBarOrHide(): Boolean =
-    (this?.route ?: false) in BottomNavigationDestination.entries
+fun NavDestination?.isShownBar(): Boolean =
+    (this?.route ?: false) in NavigationDestination.entries
         .map { it.route }
 
-fun NavDestination?.isDestinationInHierarchy(destination: BottomNavigationDestination) =
+fun NavDestination?.isDestinationInHierarchy(destination: NavigationDestination) =
     this?.hierarchy?.any {
         it.route?.contains(destination.route, true) ?: false
     } ?: false

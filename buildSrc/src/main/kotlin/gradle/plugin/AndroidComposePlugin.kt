@@ -31,6 +31,7 @@ internal class AndroidComposePlugin : Plugin<Project> {
             "debugImplementation"(libs.findLibrary("androidx.compose.ui.tooling").get())
 
             "implementation"(libs.findLibrary("androidx.navigation.compose").get())
+            "implementation"(libs.findBundle("composeAdaptive").get())
         }
     }
 }

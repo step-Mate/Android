@@ -4,7 +4,6 @@ data class StepData(
     val current: Long,
     val last: Long,
     val yesterday: Long,
-    val isReboot: Boolean,
     val stepAfterReboot: Long,
 ) {
     /**
@@ -14,34 +13,26 @@ data class StepData(
      */
     fun getTodayStep(
         stepBySensor: Long,
+        isReboot: Boolean
     ): StepData =
-        when(isRebootDevice(stepBySensor)) {
+        when (isRebootDevice(stepBySensor)) {
             true -> {
                 copy(
                     yesterday = 0L,
-                    isReboot = true,
-                    stepAfterReboot = current
                 )
             }
+
             false -> {
-                var yesterdayStep = yesterday
+                val today = stepBySensor - yesterday + stepAfterReboot
 
-                if(isNewInstall()) {
-                    yesterdayStep = stepBySensor
-                }
-
-                val today = if(isReboot) stepAfterReboot + stepBySensor - yesterdayStep else stepBySensor - yesterdayStep
-
-                copy(
-                    current = today,
-                    yesterday = yesterdayStep
-                )
+                if (isReboot)
+                    copy(
+                        yesterday = stepBySensor,
+                    )
+                else
+                    copy(current = today)
             }
         }
-
-    fun isNewInstall(): Boolean {
-        return current == 0L && yesterday == 0L && !isReboot && stepAfterReboot == 0L
-    }
 
     /**
      * 휴대폰 재부팅이 되었는지 확인하는 함수
@@ -57,7 +48,6 @@ data class StepData(
             current = 0L,
             last = 0L,
             yesterday = 0L,
-            isReboot = false,
             stepAfterReboot = 0L
         )
     }

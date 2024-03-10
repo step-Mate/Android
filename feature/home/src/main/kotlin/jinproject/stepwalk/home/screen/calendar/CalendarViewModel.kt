@@ -54,39 +54,58 @@ internal class CalendarViewModel @Inject constructor(
             period = Month.toPeriod()
         )
 
-        val startTime = steps?.first { it.distance != 0L }?.startTime ?: today
+        val startTime = steps?.firstOrNull { it.distance != 0L }?.startTime ?: today
         val endTime = ZonedTime(today)
 
         val timeRange = ZonedTimeRange(ZonedTime(startTime), endTime)
 
         _calendarData.update { calendarData.value.copy(range = timeRange) }
+
+        setHealthData(
+            steps = steps,
+        )
     }
 
-    fun setCalendarData(data: CalendarData) = _calendarData.update { data }
+    fun setCalendarData(data: CalendarData) {
+        viewModelScope.launch {
+            _calendarData.update { data }
 
-    suspend fun setPeriodSteps() {
-        val startTime = calendarData.value.type
-            .getStartTime(calendarData.value.selectedTime)
+            when (data.type) {
+                Day -> {
+                    setDaySteps(data)
+                }
+
+                else -> {
+                    setPeriodSteps(data)
+                }
+            }
+        }
+    }
+
+    suspend fun setPeriodSteps(calendarData: CalendarData) {
+        val startTime = calendarData.type
+            .getStartTime(calendarData.selectedTime)
             .toLocalDateTime()
 
-        val endTime = if (ZonedDateTime.now().year == calendarData.value.selectedTime.year)
-            ZonedDateTime.now()
-        else
-            when (calendarData.value.type) {
-                Year -> calendarData.value.selectedTime
-                    .withMonth(12)
-                    .withDayOfMonth(31)
+        val endTime =
+            if (ZonedDateTime.now().year == calendarData.selectedTime.year && ZonedDateTime.now().monthValue == calendarData.selectedTime.dayOfMonth)
+                ZonedDateTime.now()
+            else
+                when (calendarData.type) {
+                    Year -> calendarData.selectedTime
+                        .withMonth(12)
+                        .withDayOfMonth(31)
 
-                Month -> calendarData.value.selectedTime
-                    .with(TemporalAdjusters.lastDayOfMonth())
+                    Month -> calendarData.selectedTime
+                        .with(TemporalAdjusters.lastDayOfMonth())
 
-                else -> throw IllegalArgumentException("년 또는 달 간의 데이터만 출력할 수 있음")
-            }
+                    else -> throw IllegalArgumentException("년 또는 달 간의 데이터만 출력할 수 있음")
+                }
 
         val steps = healthConnector.readStepsByPeriods(
             startTime = startTime,
             endTime = endTime.toLocalDateTime(),
-            period = calendarData.value.type.toPeriod()
+            period = calendarData.type.toPeriod()
         )
 
         setHealthData(
@@ -94,8 +113,8 @@ internal class CalendarViewModel @Inject constructor(
         )
     }
 
-    suspend fun setDaySteps() {
-        val startTime = calendarData.value.selectedTime
+    suspend fun setDaySteps(calendarData: CalendarData) {
+        val startTime = calendarData.selectedTime
             .truncatedTo(ChronoUnit.DAYS)
         val endTime = startTime
             .withHour(23)

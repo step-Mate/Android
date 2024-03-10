@@ -51,19 +51,22 @@ internal fun ColumnScope.HealthTabLayout(
 
     VerticalSpacer(height = 40.dp)
 
+
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
+            .padding(8.dp)
             .background(MaterialTheme.colorScheme.surfaceVariant, RoundedCornerShape(20.dp))
-            .padding(10.dp)
+            .padding(8.dp)
     ) {
         HealthChart(
             graph = healthTab.graph,
             modifier = Modifier
                 .fillMaxWidth()
-                .height(300.dp)
+                .height(250.dp)
                 .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(20.dp))
-                .padding(10.dp),
+                .padding(8.dp),
             header = {
                 Box(
                     modifier = Modifier
@@ -143,7 +146,7 @@ internal fun ColumnScope.HealthChart(
         },
         header = header,
         popUp = {
-            if(popUpState.index > graph.size / 2)
+            if (popUpState.index > graph.size / 2)
                 PopUpRtl(
                     popUpState = popUpState,
                     graph = graph,

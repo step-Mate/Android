@@ -33,6 +33,7 @@ fun rememberTimeScheduler(
 
 class TimeScheduler(
     private val scope: CoroutineScope,
+    private val callBack: suspend () -> Unit = {},
 ) {
     private var scheduledTime by mutableLongStateOf(0L)
 
@@ -47,10 +48,11 @@ class TimeScheduler(
             delay(1000L)
             scheduledTime -= 1000L
         }
+        callBack()
     }
 
-    fun setTime() {
-        scheduledTime = STANDARD_MILLIS
+    fun setTime(minimumExecutingTime: Long = STANDARD_MILLIS) {
+        scheduledTime = minimumExecutingTime
 
         if (job == null) {
             job = execute()

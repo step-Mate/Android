@@ -15,7 +15,7 @@ import jinproject.stepwalk.domain.usecase.mission.CheckUpdateMissionUseCases
 import jinproject.stepwalk.domain.usecase.mission.GetMissionAchievedUseCases
 import jinproject.stepwalk.domain.usecase.mission.UpdateMissionUseCases
 import jinproject.stepwalk.home.service.StepSensorViewModel
-import jinproject.stepwalk.home.utils.StepWalkChannelId
+import jinproject.stepwalk.home.utils.StepMateChannelId
 import jinproject.stepwalk.home.utils.createChannel
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Dispatchers
@@ -43,7 +43,7 @@ internal class MissionUpdateWorker @AssistedInject constructor(
 
     private fun setNotification(designation: String) {
         val notification =
-            NotificationCompat.Builder(applicationContext, StepWalkChannelId)
+            NotificationCompat.Builder(applicationContext, StepMateChannelId)
                 .setSmallIcon(jinproject.stepwalk.design.R.drawable.ic_person_walking)
                 .setStyle(NotificationCompat.DecoratedCustomViewStyle())
                 .setContentTitle("미션 달성")

@@ -38,6 +38,7 @@ internal class AndroidFeaturePlugin : Plugin<Project> {
 
             "implementation"(libs.findLibrary("androidx.hilt.navigation.compose").get())
             "implementation"(libs.findBundle("lifecycle").get())
+            "implementation"(libs.findBundle("windowManager").get())
 
             "testImplementation"(libs.findBundle("testing").get())
             "testImplementation"(libs.findBundle("kotest").get())

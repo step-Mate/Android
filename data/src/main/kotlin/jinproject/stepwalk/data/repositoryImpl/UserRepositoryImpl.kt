@@ -41,6 +41,14 @@ internal class UserRepositoryImpl @Inject constructor(
         remoteUserDataSource.getFriendRequest()
     }
 
+    override suspend fun addStep(step: Int) {
+        remoteUserDataSource.addStep(step = step)
+    }
+
+    override suspend fun queryDailyStep(step: Int) {
+        remoteUserDataSource.queryDailyStep(step)
+    }
+
     override fun withdrawAccount(password: String): Flow<Boolean> = stepMateDataFlow {
         val response = remoteUserDataSource.withdrawAccount(WithdrawRequest(password))
         response.code == 200

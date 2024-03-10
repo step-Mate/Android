@@ -4,7 +4,6 @@ import androidx.compose.runtime.Stable
 import jinproject.stepwalk.design.component.layout.chart.sortDayOfWeek
 import jinproject.stepwalk.home.utils.onKorea
 import java.time.Instant
-import java.time.LocalDateTime
 import java.time.Period
 import java.time.ZonedDateTime
 import java.time.temporal.ChronoField
@@ -12,7 +11,7 @@ import java.time.temporal.ChronoUnit
 import java.time.temporal.TemporalAdjusters
 
 @Stable
-internal sealed interface Time {
+sealed interface Time {
     fun toNumberOfDays(): Int
     fun getSeparateUnit(zonedDateTime: ZonedDateTime): Int
     fun display(): String
@@ -24,7 +23,7 @@ internal sealed interface Time {
 }
 
 @Stable
-internal data object Day : Time {
+data object Day : Time {
     override fun toNumberOfDays(): Int = 24
     override fun getSeparateUnit(zonedDateTime: ZonedDateTime): Int = zonedDateTime.hour
     override fun display(): String = "오늘"
@@ -32,7 +31,7 @@ internal data object Day : Time {
 }
 
 @Stable
-internal data object Week : Time {
+data object Week : Time {
     override fun toNumberOfDays(): Int = 7
     override fun getSeparateUnit(zonedDateTime: ZonedDateTime): Int = zonedDateTime.dayOfWeek.value
     override fun display(): String = "이번주"
@@ -40,7 +39,7 @@ internal data object Week : Time {
 }
 
 @Stable
-internal data object Month : Time {
+data object Month : Time {
     override fun toNumberOfDays(): Int = Instant
         .now()
         .onKorea()
@@ -53,15 +52,19 @@ internal data object Month : Time {
 }
 
 @Stable
-internal data object Year : Time {
+data object Year : Time {
     override fun toNumberOfDays(): Int = 12
     override fun getSeparateUnit(zonedDateTime: ZonedDateTime): Int = zonedDateTime.monthValue
     override fun display(): String = "올해"
     override fun toPeriod(): Period = Period.ofMonths(1)
 }
 
-internal fun <T : HealthCare> Time.getGraph(list: List<T>): List<Long> {
-    val dayCount = this.toNumberOfDays()
+fun <T : HealthCare> Time.getGraph(list: List<T>): List<Long> {
+    val dayCount = if (this == Month && list.isNotEmpty())
+        list.first().startTime.with(TemporalAdjusters.lastDayOfMonth()).dayOfMonth
+    else
+        this.toNumberOfDays()
+
     val items = HealthTab.getDefaultGraphItems(dayCount)
 
     list.forEach { item ->
