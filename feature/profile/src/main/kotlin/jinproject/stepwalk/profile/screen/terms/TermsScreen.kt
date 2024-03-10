@@ -1,5 +1,6 @@
 package jinproject.stepwalk.profile.screen.terms
 
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.WindowInsets
@@ -10,10 +11,10 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import jinproject.stepwalk.profile.screen.terms.component.TermsWebView
 import jinproject.stepwalk.design.R
 import jinproject.stepwalk.design.component.HeadlineText
 import jinproject.stepwalk.design.component.StepMateBoxDefaultTopBar
+import jinproject.stepwalk.design.component.WebView
 
 @Composable
 internal fun TermsScreen(
@@ -33,6 +34,6 @@ internal fun TermsScreen(
         ) {
             HeadlineText(text = "이용 약관", modifier = Modifier.align(Alignment.Center))
         }
-        TermsWebView(url = "https://sites.google.com/view/stepmate-personal-info-policy/%ED%99%88")
+        WebView(url = "https://sites.google.com/view/stepmate-personal-info-policy/%ED%99%88")
     }
 }

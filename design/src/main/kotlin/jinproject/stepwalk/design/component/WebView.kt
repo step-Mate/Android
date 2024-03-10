@@ -1,4 +1,4 @@
-package jinproject.stepwalk.profile.screen.terms.component
+package jinproject.stepwalk.design.component
 
 import android.webkit.WebView
 import android.webkit.WebViewClient
@@ -6,7 +6,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.viewinterop.AndroidView
 
 @Composable
-internal fun TermsWebView(
+fun WebView(
     url: String,
     webViewClient: WebViewClient = WebViewClient()
 ) {

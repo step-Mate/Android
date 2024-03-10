@@ -119,7 +119,7 @@ internal fun PasswordField(
             else -> "비밀번호를 입력해주세요."
         },
         value = value,
-        isError = passwordValid != PasswordValid.Blank && passwordValid != PasswordValid.Valid,
+        isError = passwordValid == PasswordValid.NotValid || passwordValid == PasswordValid.NotMatch ,
         keyboardType = KeyboardType.Password,
         leadingIcon = { Icon(imageVector = Icons.Default.Lock, contentDescription = "Lock") },
         trailingIcon = {
