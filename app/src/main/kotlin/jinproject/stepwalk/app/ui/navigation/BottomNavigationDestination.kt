@@ -1,13 +1,12 @@
 package jinproject.stepwalk.app.ui.navigation
 
 import androidx.annotation.DrawableRes
+import com.beank.profile.navigation.profileRoute
 import jinproject.stepwalk.design.R
 import jinproject.stepwalk.home.navigation.homeGraph
 import jinproject.stepwalk.home.navigation.homeRoute
 import jinproject.stepwalk.ranking.navigation.rankingRoute
 import jinproject.stepwalk.mission.navigation.missionRoute
-
-const val settingRoute = "setting"
 
 enum class BottomNavigationDestination(
     val title: String,
@@ -35,7 +34,7 @@ enum class BottomNavigationDestination(
     ),
     Profile(
         title = "프로필",
-        route = settingRoute,
+        route = profileRoute,
         icon = R.drawable.ic_setting,
         iconClicked = R.drawable.ic_setting_clicked
     ),

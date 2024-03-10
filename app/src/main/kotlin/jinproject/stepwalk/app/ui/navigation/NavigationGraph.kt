@@ -1,10 +1,6 @@
 package jinproject.stepwalk.app.ui.navigation
 
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.RowScope
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
@@ -14,17 +10,20 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
 import androidx.navigation.navOptions
+import com.beank.profile.navigation.navigateToEditUser
+import com.beank.profile.navigation.navigateToProfile
+import com.beank.profile.navigation.navigateToTerms
+import com.beank.profile.navigation.profileNavigation
+import com.beank.profile.navigation.profileRoute
 import jinproject.stepwalk.core.SnackBarMessage
-import jinproject.stepwalk.home.navigation.backStackToHome
 import jinproject.stepwalk.home.navigation.homeGraph
 import jinproject.stepwalk.home.navigation.homeNavGraph
 import jinproject.stepwalk.home.navigation.navigateToCalendar
+import jinproject.stepwalk.home.navigation.navigateToHome
 import jinproject.stepwalk.login.navigation.authNavGraph
 import jinproject.stepwalk.login.navigation.navigateToFindId
 import jinproject.stepwalk.login.navigation.navigateToFindPassword
@@ -64,7 +63,14 @@ internal fun NavigationGraph(
             navigateToFindId = navController::navigateToFindId,
             navigateToFindPassword = navController::navigateToFindPassword,
             popBackStack = navController::popBackStackIfCan,
-            backStackToHome = navController::backStackToHome,
+            backStackToHome = {
+                val navOptions = navOptions {
+                    popUpTo(navController.graph.id){
+                        inclusive = true
+                    }
+                }
+                navController.navigateToHome(navOptions)
+            },
             showSnackBar = showSnackBar
         )
 
@@ -84,23 +90,27 @@ internal fun NavigationGraph(
             navigateToNoti = navController::navigateToNotification,
         )
 
-        composable(route = BottomNavigationDestination.Profile.route) {
-            Column(modifier = Modifier
-                .fillMaxSize()
-                .wrapContentSize()) {
-                Image(
-                    painter = painterResource(id = jinproject.stepwalk.design.R.drawable.ic_setting),
-                    contentDescription = "settingIcon"
-                )
-            }
-        }
-
         missionNavGraph(
             navigateToMissionDetail = navController::navigateToMissionDetail,
             navigateToLogin = navController::navigateToLogin,
             popBackStack = navController::popBackStackIfCan,
         )
 
+        profileNavigation(
+            navigateToProfile = {
+                val navOptions = navOptions {
+                    popUpTo(profileRoute) {
+                        inclusive = true
+                    }
+                }
+                navController.navigateToProfile(navOptions)
+            },
+            navigateToEditUser = navController::navigateToEditUser,
+            navigateToTerms = navController::navigateToTerms,
+            navigateToLogin = navController::navigateToLogin,
+            popBackStack = navController::popBackStackIfCan,
+            showSnackBar = showSnackBar
+        )
     }
 }
 

@@ -18,21 +18,21 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import jinproject.stepwalk.core.SnackBarMessage
+import jinproject.stepwalk.design.component.DefaultOutlinedTextField
 import jinproject.stepwalk.design.component.DescriptionLargeText
 import jinproject.stepwalk.design.component.HeadlineText
 import jinproject.stepwalk.design.component.VerticalSpacer
 import jinproject.stepwalk.design.theme.StepWalkColor
 import jinproject.stepwalk.design.theme.StepWalkTheme
 import jinproject.stepwalk.login.screen.component.EnableButton
-import jinproject.stepwalk.login.screen.component.InformationField
 import jinproject.stepwalk.login.screen.component.LoginLayout
 import jinproject.stepwalk.login.screen.component.PasswordDetail
 import jinproject.stepwalk.login.screen.state.Account
 import jinproject.stepwalk.login.screen.state.SignValid
 import jinproject.stepwalk.login.screen.state.isError
 import jinproject.stepwalk.login.screen.state.isSuccess
-import jinproject.stepwalk.login.utils.MAX_ID_LENGTH
-import jinproject.stepwalk.login.utils.MAX_PASS_LENGTH
+import jinproject.stepwalk.core.MAX_ID_LENGTH
+import jinproject.stepwalk.core.MAX_PASS_LENGTH
 
 @Composable
 internal fun SignUpScreen(
@@ -89,7 +89,7 @@ private fun SignUpScreen(
             )
             VerticalSpacer(height = 30.dp)
 
-            InformationField(
+            DefaultOutlinedTextField(
                 informationText = "아이디",
                 errorMessage = when (idValue.valid) {
                     SignValid.notValid -> "잘못된 아이디 양식이에요. 영어,숫자,_만 입력가능하고 4~12글자까지 입력가능해요."

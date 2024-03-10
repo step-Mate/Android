@@ -6,9 +6,9 @@ import androidx.navigation.NavController
 import androidx.navigation.NavDestination
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavHostController
-import androidx.navigation.NavOptions
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.navOptions
+import com.beank.profile.navigation.navigateToProfile
 import jinproject.stepwalk.home.navigation.navigateToHome
 import jinproject.stepwalk.ranking.navigation.navigateToRanking
 import jinproject.stepwalk.mission.navigation.navigateToMission
@@ -32,7 +32,6 @@ internal class Router(val navController: NavHostController) {
                 }
             }
             launchSingleTop = true
-            restoreState = true
         }
 
         when (destination) {
@@ -58,8 +57,4 @@ fun NavController.popBackStackIfCan() {
     this.previousBackStackEntry?.let {
         this.popBackStack()
     }
-}
-
-fun NavController.navigateToProfile(navOptions: NavOptions?) {
-    this.navigate(BottomNavigationDestination.Profile.route, navOptions = navOptions)
 }

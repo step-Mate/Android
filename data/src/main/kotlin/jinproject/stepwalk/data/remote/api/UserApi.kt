@@ -41,10 +41,10 @@ internal interface UserApi {
     suspend fun withdrawAccount(@Body withdrawRequest: WithdrawRequest): ApiResponse<Nothing>
 
     @PATCH("users/body-info")
-    suspend fun setBodyData(@Body bodyRequest: BodyRequest): ApiResponse<Nothing>
+    suspend fun setBodyData(@Body bodyRequest: BodyRequest): Response<Any>
 
     @PATCH("users/nickname")
-    suspend fun updateNickname(@Query("nickname") nickname: String): ApiResponse<Nothing>
+    suspend fun updateNickname(@Query("nickname") nickname: String): Response<Any>
 
     @GET("users/my-info")
     suspend fun getMyInfo(): UserInfoResponse

@@ -1,13 +1,13 @@
 package jinproject.stepwalk.data.repositoryImpl
 
+import jinproject.stepwalk.data.local.datasource.BodyDataSource
 import jinproject.stepwalk.data.remote.dataSource.RemoteUserDataSource
 import jinproject.stepwalk.data.remote.dto.request.WithdrawRequest
 import jinproject.stepwalk.data.remote.dto.request.toBodyRequest
-import jinproject.stepwalk.data.remote.dto.response.user.toUserModel
 import jinproject.stepwalk.data.remote.utils.stepMateDataFlow
 import jinproject.stepwalk.domain.model.BodyData
-import jinproject.stepwalk.domain.model.User
 import jinproject.stepwalk.domain.model.rank.UserStepRank
+import jinproject.stepwalk.domain.model.user.User
 import jinproject.stepwalk.domain.model.user.UserDetailModel
 import jinproject.stepwalk.domain.repository.UserRepository
 import kotlinx.coroutines.flow.Flow
@@ -15,6 +15,7 @@ import javax.inject.Inject
 
 internal class UserRepositoryImpl @Inject constructor(
     private val remoteUserDataSource: RemoteUserDataSource,
+    private val bodyDataSource: BodyDataSource
 ) : UserRepository {
     override fun getMyRank(): Flow<UserStepRank> = stepMateDataFlow {
         remoteUserDataSource.getMyRank()
@@ -40,23 +41,27 @@ internal class UserRepositoryImpl @Inject constructor(
         remoteUserDataSource.getFriendRequest()
     }
 
-    override fun withdrawAccount(password: String): Flow<Boolean> = stepMateDataFlow {
+    override fun withdrawAccount(password: String) : Flow<Boolean> = stepMateDataFlow{
         val response = remoteUserDataSource.withdrawAccount(WithdrawRequest(password))
         response.code == 200
     }
 
-    override fun setBodyData(bodyData: BodyData): Flow<Boolean> = stepMateDataFlow {
-        val response = remoteUserDataSource.setBodyData(bodyData.toBodyRequest())
-        response.code == 200
+    override fun getBodyData(): Flow<BodyData> =
+        bodyDataSource.getBodyData()
+
+    override suspend fun setBodyData(bodyData: BodyData) {
+        remoteUserDataSource.setBodyData(bodyData.toBodyRequest())
+        bodyDataSource.setBodyData(bodyData)
     }
 
-    override fun updateNickname(nickname: String): Flow<Boolean> = stepMateDataFlow {
-        val response = remoteUserDataSource.updateNickname(nickname)
-        response.code == 200
+    override suspend fun setBodyLocalData(bodyData: BodyData) =
+        bodyDataSource.setBodyData(bodyData)
+
+    override suspend fun updateNickname(nickname: String) {
+        remoteUserDataSource.updateNickname(nickname)
     }
 
     override fun getMyInfo(): Flow<User> = stepMateDataFlow {
-        val response = remoteUserDataSource.getMyInfo()
-        response.toUserModel()
+        remoteUserDataSource.getMyInfo()
     }
 }

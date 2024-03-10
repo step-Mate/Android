@@ -23,10 +23,10 @@ import jinproject.stepwalk.login.screen.component.LoginLayout
 import jinproject.stepwalk.login.screen.component.PasswordDetail
 import jinproject.stepwalk.login.screen.state.Account
 import jinproject.stepwalk.login.screen.state.isSuccess
-import jinproject.stepwalk.login.utils.MAX_EMAIL_CODE_LENGTH
-import jinproject.stepwalk.login.utils.MAX_EMAIL_LENGTH
-import jinproject.stepwalk.login.utils.MAX_ID_LENGTH
-import jinproject.stepwalk.login.utils.MAX_PASS_LENGTH
+import jinproject.stepwalk.core.MAX_EMAIL_CODE_LENGTH
+import jinproject.stepwalk.core.MAX_EMAIL_LENGTH
+import jinproject.stepwalk.core.MAX_ID_LENGTH
+import jinproject.stepwalk.core.MAX_PASS_LENGTH
 
 @Composable
 internal fun FindPasswordScreen(
