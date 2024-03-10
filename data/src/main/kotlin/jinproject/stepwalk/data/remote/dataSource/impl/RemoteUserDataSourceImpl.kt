@@ -44,4 +44,16 @@ internal class RemoteUserDataSourceImpl @Inject constructor(
         suspendAndCatchStepMateData(retrofit) {
             userApi.getFriendRequest()
         }?.map { data -> data["nickname"] ?: "" } ?: emptyList()
+
+    override suspend fun addStep(step: Int) {
+        suspendAndCatchStepMateData(retrofit) {
+            userApi.saveUserStep(step = step)
+        }
+    }
+
+    override suspend fun queryDailyStep(step: Int) {
+        suspendAndCatchStepMateData(retrofit) {
+            userApi.saveUserDailyStep(step = step)
+        }
+    }
 }

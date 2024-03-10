@@ -10,16 +10,19 @@ import androidx.navigation.navigation
 import jinproject.stepwalk.core.SnackBarMessage
 import jinproject.stepwalk.home.screen.calendar.CalendarScreen
 import jinproject.stepwalk.home.screen.home.HomeScreen
+import jinproject.stepwalk.home.screen.homeSetting.HomeSettingScreen
 
 const val homeGraph = "homeGraph"
 const val homeRoute = "home"
 private const val calendarRoute = "calendar"
 private const val calendarLink = "$calendarRoute/{start}"
+private const val homeSettingRoute = "homeSetting"
 
 fun NavGraphBuilder.homeNavGraph(
     navigateToCalendar: (Long) -> Unit,
     popBackStack: () -> Unit,
     showSnackBar: (SnackBarMessage) -> Unit,
+    navigateToHomeSetting: () -> Unit,
 ) {
     navigation(
         route = homeGraph,
@@ -41,6 +44,14 @@ fun NavGraphBuilder.homeNavGraph(
                 showSnackBar = showSnackBar,
             )
         }
+        composable(
+            route = homeSettingRoute,
+        ) {
+            HomeSettingScreen(
+                popBackStack = popBackStack,
+                showSnackBar = showSnackBar,
+            )
+        }
     }
 }
 
@@ -53,5 +64,9 @@ fun NavController.navigateToCalendar(time: Long) {
 }
 
 fun NavController.backStackToHome() {
-    this.popBackStack(homeRoute,inclusive = false)
+    this.popBackStack(homeRoute, inclusive = false)
+}
+
+fun NavController.navigateToHomeSetting() {
+    this.navigate(homeSettingRoute)
 }

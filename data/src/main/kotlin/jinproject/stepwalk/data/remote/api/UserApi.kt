@@ -6,6 +6,7 @@ import retrofit2.Response
 import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.Path
+import retrofit2.http.Query
 
 internal interface UserApi {
 
@@ -29,4 +30,10 @@ internal interface UserApi {
 
     @POST("users/friend-request/{nickname}/denied")
     suspend fun denyFriendRequest(@Path("nickname") userName: String): Response<Any>
+
+    @POST("users/save-step")
+    suspend fun saveUserStep(@Query("steps") step: Int): Response<Any>
+
+    @POST("users/save-step/midnight")
+    suspend fun saveUserDailyStep(@Query("steps") step: Int): Response<Any>
 }

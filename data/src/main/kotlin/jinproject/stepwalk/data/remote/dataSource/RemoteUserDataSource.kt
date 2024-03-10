@@ -10,4 +10,6 @@ internal interface RemoteUserDataSource {
     suspend fun deleteFriend(userName: String)
     suspend fun processFriendRequest(bool: Boolean, userName: String)
     suspend fun getFriendRequest(): List<String>
+    suspend fun addStep(step: Int)
+    suspend fun queryDailyStep(step: Int)
 }
