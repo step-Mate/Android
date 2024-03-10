@@ -9,21 +9,16 @@ import android.content.Intent
 import android.content.pm.ServiceInfo
 import android.os.Build
 import android.widget.RemoteViews
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.core.app.NotificationCompat
-import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleService
 import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
-import androidx.work.ExistingWorkPolicy
-import androidx.work.OneTimeWorkRequest
-import androidx.work.WorkManager
 import dagger.hilt.android.AndroidEntryPoint
 import jinproject.stepwalk.home.R
-import jinproject.stepwalk.home.receiver.AlarmReceiver
-import jinproject.stepwalk.home.utils.StepWalkChannelId
+import jinproject.stepwalk.home.utils.StepMateChannelId
 import jinproject.stepwalk.home.utils.createChannel
-import jinproject.stepwalk.home.utils.setRepeating
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.collectLatest
@@ -49,11 +44,9 @@ internal class StepService : LifecycleService() {
         StepSensorManager(
             context = this,
             onSensorChanged = { event ->
-                val stepBySensor = event?.values?.first()?.toLong() ?: 0L
                 lifecycleScope.launch(serviceDispatcher) {
-                    stepSensorViewModel.onSensorChanged(stepBySensor)?.let { worker ->
-                        setWorker(worker)
-                    }
+                    val stepBySensor = event?.values?.first()?.toLong() ?: 0L
+                    stepSensorViewModel.onSensorChanged(stepBySensor)
                 }
             }
         )
@@ -69,16 +62,14 @@ internal class StepService : LifecycleService() {
         setNotification()
 
         lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
-                stepSensorViewModel.steps.collectLatest { stepData ->
-                    stepNotiLayout?.setTextViewText(R.id.tv_stepHeader, stepData.current.toString())
-                    notificationManager.notify(NOTIFICATION_ID, notification)
-                }
+            stepSensorViewModel.step.collectLatest { stepData ->
+                stepNotiLayout?.setTextViewText(R.id.tv_stepHeader, stepData.current.toString())
+                notificationManager.notify(NOTIFICATION_ID, notification)
             }
         }
 
         registerSensor()
-        alarmUpdatingLastStep()
+        alarmUpdatingDayStep()
     }
 
     private fun registerSensor() {
@@ -89,7 +80,7 @@ internal class StepService : LifecycleService() {
         stepSensorManager.unRegisterSensor()
     }
 
-    private fun alarmUpdatingLastStep() {
+    private fun alarmUpdatingDayStep() {
         val time = Calendar.getInstance().apply {
             add(Calendar.DAY_OF_MONTH, 1)
             set(Calendar.HOUR_OF_DAY, 0)
@@ -97,14 +88,20 @@ internal class StepService : LifecycleService() {
             set(Calendar.SECOND, 0)
         }
 
-        alarmManager.setRepeating(
-            context = this,
-            notifyIntent = {
-                Intent(this, AlarmReceiver::class.java)
+        val notifyPendingIntent = PendingIntent.getForegroundService(
+            this,
+            700,
+            Intent(this, StepService::class.java).apply {
+                putExtra("alarm", true)
             },
-            type = AlarmManager.RTC_WAKEUP,
-            time = time.timeInMillis,
-            interval = AlarmManager.INTERVAL_DAY
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+
+        alarmManager.setRepeating(
+            AlarmManager.RTC_WAKEUP,
+            time.timeInMillis,
+            AlarmManager.INTERVAL_DAY,
+            notifyPendingIntent
         )
     }
 
@@ -119,13 +116,11 @@ internal class StepService : LifecycleService() {
             }
 
             alarmFlag -> {
-                setWorker(
-                    stepSensorViewModel.getStepInsertWorkerUpdatingOnNewDay()
-                )
+                stepSensorViewModel.getStepInsertWorkerUpdatingOnNewDay()
             }
         }
 
-        return START_REDELIVER_INTENT
+        return START_STICKY
     }
 
     private fun setWorker(worker: OneTimeWorkRequest) {
@@ -158,18 +153,27 @@ internal class StepService : LifecycleService() {
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
+        val contentPendingIntent = PendingIntent.getActivity(
+            this,
+            NOTIFICATION_ID,
+            Intent(this, Class.forName("jinproject.stepwalk.app.StepMateActivity")),
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+
         stepNotiLayout = RemoteViews(packageName, R.layout.step_notification).apply {
-            setTextViewText(R.id.tv_stepHeader, stepSensorViewModel.steps.value.current.toString())
+            setTextViewText(R.id.tv_stepHeader, stepSensorViewModel.step.value.current.toString())
         }
 
         notification =
-            NotificationCompat.Builder(this, StepWalkChannelId)
-                .setSmallIcon(jinproject.stepwalk.design.R.drawable.ic_person_walking)
+            NotificationCompat.Builder(this, StepMateChannelId)
+                .setSmallIcon(jinproject.stepwalk.design.R.drawable.ic_stepmate_shoes)
                 .setStyle(NotificationCompat.DecoratedCustomViewStyle())
                 .setCustomContentView(stepNotiLayout)
                 .setCustomBigContentView(stepNotiLayout)
+                .setColor(Color(0xFFA5D6A7).toArgb())
                 .setOngoing(true)
                 .addAction(jinproject.stepwalk.design.R.drawable.ic_time, "끄기", exitPendingIntent)
+                .setContentIntent(contentPendingIntent)
                 .build()
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE)

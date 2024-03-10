@@ -1,7 +1,5 @@
-@Suppress("DSL_SCOPE_VIOLATION")
 plugins {
     id("stepMate.android.feature")
-    id("org.jetbrains.kotlin.android")
 }
 
 android {

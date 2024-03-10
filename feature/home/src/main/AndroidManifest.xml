@@ -8,15 +8,7 @@
     <application>
         <service
             android:name=".service.StepService"
-            android:foregroundServiceType="health"
-            android:process=":jinproject.stepwalk.service" />
-
-        <receiver
-            android:name=".receiver.AlarmReceiver"
-            android:exported="false" />
-        <receiver
-            android:name=".receiver.RestartFgServiceReceiver"
-            android:exported="false" />
+            android:foregroundServiceType="health" />
     </application>
 
 </manifest>

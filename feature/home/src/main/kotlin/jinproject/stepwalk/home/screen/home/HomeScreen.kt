@@ -5,7 +5,6 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.provider.Settings
-import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
@@ -27,7 +26,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
-import androidx.core.content.ContextCompat.startActivity
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LifecycleEventEffect
@@ -57,6 +55,7 @@ internal fun HomeScreen(
     context: Context = LocalContext.current,
     homeViewModel: HomeViewModel = hiltViewModel(),
     navigateToCalendar: (Long) -> Unit,
+    navigateToHomeSetting: () -> Unit,
     showSnackBar: (SnackBarMessage) -> Unit,
 ) {
     val permissionState = rememberSaveable { mutableStateOf(false) }
@@ -64,7 +63,6 @@ internal fun HomeScreen(
     val permissionLauncher =
         rememberLauncherForActivityResult(contract = homeViewModel::permissionLauncher.get()) { result ->
             if (result.containsAll(homeViewModel::permissions.get())) {
-                Log.d("test", "권한 수락 ${result.toString()} ")
                 permissionState.value = true
             } else {
                 showSnackBar(
@@ -98,7 +96,6 @@ internal fun HomeScreen(
 
     LaunchedEffect(time, permissionState.value) {
         if (homeViewModel::checkPermissions.invoke()) {
-            Log.d("test", "권한 있음")
             permissionState.value = true
 
             val instant = Instant.now().onKorea()
@@ -133,7 +130,6 @@ internal fun HomeScreen(
             if (permissionState.value)
                 context.startForegroundService(Intent(context, StepService::class.java))
         } else {
-            Log.d("test", "권한 없음")
             permissionLauncher.launch(homeViewModel::permissions.get())
         }
     }
@@ -141,7 +137,8 @@ internal fun HomeScreen(
     HomeScreen(
         uiState = uiState,
         setTimeOnGraph = homeViewModel::setTime,
-        navigateToCalendar = navigateToCalendar
+        navigateToCalendar = navigateToCalendar,
+        navigateToHomeSetting = navigateToHomeSetting,
     )
 }
 
@@ -152,6 +149,7 @@ private fun HomeScreen(
     density: Density = LocalDensity.current,
     setTimeOnGraph: (Time) -> Unit,
     navigateToCalendar: (Long) -> Unit,
+    navigateToHomeSetting: () -> Unit,
 ) {
     val homePopUp = remember {
         mutableStateOf(false)
@@ -176,15 +174,14 @@ private fun HomeScreen(
         modifier = Modifier
             .addChartPopUpDismiss(
                 popUpState = chartPopUp,
-                setPopUpState = { state -> chartPopUp.copy(enabled = state) }
+                setPopUpState = { bool -> chartPopUp = chartPopUp.copy(enabled = bool) }
             ),
         systemBarHidingState = systemBarHidingState,
         topBar = { modifier ->
             HomeTopAppBar(
                 modifier = modifier,
                 onClickTime = { homePopUp.value = true },
-                onClickSetting = {},
-                onClickHome = {},
+                onClickSetting = navigateToHomeSetting,
                 content = {
                     UserInfoLayout(
                         modifier = Modifier
@@ -234,6 +231,7 @@ private fun PreviewHomeScreen(
     HomeScreen(
         uiState = homeUiState,
         setTimeOnGraph = {},
-        navigateToCalendar = {}
+        navigateToCalendar = {},
+        navigateToHomeSetting = {},
     )
 }

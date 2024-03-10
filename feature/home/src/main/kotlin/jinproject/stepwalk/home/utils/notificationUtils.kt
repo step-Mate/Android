@@ -8,7 +8,7 @@ import android.content.Intent
 import android.net.Uri
 import androidx.core.app.NotificationCompat
 
-internal const val StepWalkChannelId = "StepWalkChannel"
+internal const val StepMateChannelId = "StepMateChannel"
 
 internal fun NotificationManager.sendNotification(
     name: String,
@@ -26,7 +26,7 @@ internal fun NotificationManager.sendNotification(
         PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
     )
 
-    val builder = NotificationCompat.Builder(context, StepWalkChannelId)
+    val builder = NotificationCompat.Builder(context, StepMateChannelId)
         //.setSmallIcon()
         .setContentTitle("걸음수")
         .setPriority(NotificationCompat.PRIORITY_HIGH)
@@ -38,10 +38,10 @@ internal fun NotificationManager.sendNotification(
 }
 
 internal fun NotificationManager.createChannel() {
-    val name = "만보기"
-    val descriptionText = "만보기의 채널이에요."
+    val name = "만보기 알림"
+    val descriptionText = "만보기 알림 채널"
     val importance = NotificationManager.IMPORTANCE_LOW
-    val channel = NotificationChannel(StepWalkChannelId, name, importance).apply {
+    val channel = NotificationChannel(StepMateChannelId, name, importance).apply {
         description = descriptionText
         enableVibration(false)
         setShowBadge(true)
