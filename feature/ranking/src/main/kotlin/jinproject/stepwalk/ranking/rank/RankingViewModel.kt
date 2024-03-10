@@ -13,6 +13,7 @@ import jinproject.stepwalk.domain.model.user.User
 import jinproject.stepwalk.domain.usecase.auth.CheckHasTokenUseCase
 import jinproject.stepwalk.domain.usecase.rank.GetRankBoardUseCase
 import jinproject.stepwalk.domain.usecase.rank.GetUserRankUseCase
+import jinproject.stepwalk.domain.usecase.user.GetFriendRequestUseCase
 import jinproject.stepwalk.ranking.rank.state.asRank
 import jinproject.stepwalk.ranking.rank.state.asRankBoard
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -22,6 +23,7 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.launchIn
@@ -40,6 +42,7 @@ internal class RankingViewModel @Inject constructor(
     private val getRankBoardUseCase: GetRankBoardUseCase,
     checkHasTokenUseCase: CheckHasTokenUseCase,
     private val getUserRankUseCase: GetUserRankUseCase,
+    private val getFriendRequestUseCase: GetFriendRequestUseCase,
 ) : ViewModel() {
 
     private val _uiState: MutableSharedFlow<UiState> = MutableSharedFlow(replay = 1)
@@ -65,9 +68,13 @@ internal class RankingViewModel @Inject constructor(
 
     private val deletedFriend get() = savedStateHandle.get<String>("deletedFriendName") ?: ""
 
+    private val _isRequestedFriend = MutableStateFlow(false)
+    val isRequestedFriend get() = _isRequestedFriend.asStateFlow()
+
     init {
         checkHasTokenUseCase().flatMapLatest { token ->
-            if (token)
+            if (token) {
+                getIsRequestedFriend()
                 getUserRankUseCase().zip(fetchRanking()) { userStepRank, _ ->
                     val user = User(
                         rank = userStepRank.asRank(),
@@ -77,6 +84,7 @@ internal class RankingViewModel @Inject constructor(
                     _user.update { user }
                     _uiState.emit(UiState.Success)
                 }
+            }
             else
                 flow {
                     _uiState.emit(UiState.Error(CANNOT_LOGIN_EXCEPTION))
@@ -206,6 +214,17 @@ internal class RankingViewModel @Inject constructor(
                 //TODO 에러처리
             }
         ).launchIn(viewModelScope)
+    }
+
+    private suspend fun getIsRequestedFriend() {
+        getFriendRequestUseCase().onEach {requestedFriendList ->
+            _isRequestedFriend.update { requestedFriendList.isNotEmpty() }
+        }.catchDataFlow(
+            action = { e -> e },
+            onException = {
+
+            }
+        ).collect()
     }
 
     @Stable
