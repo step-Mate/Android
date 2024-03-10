@@ -123,23 +123,40 @@ class MissionRepositoryImpl @Inject constructor(
                         "CALORIE" -> MissionType.Calorie
                         else -> throw IllegalArgumentException("알 수 없는 미션 타입: [${detail.missionType}] 입니다.")
                     }
+                    val mission = originalList.await()
+                        .find { it.title == missionResponse.title }?.list?.find { it.designation == missionResponse.designation }
+                    val localAchieved = mission?.let { missionType ->
+                        if (missionType is MissionComposite) {
+                            when (type) {
+                                MissionType.Step -> missionType.missions.find { it is StepMissionLeaf }
+                                    ?.getMissionAchieved() ?: 0
+
+                                MissionType.Calorie -> missionType.missions.find { it is CalorieMissionLeaf }
+                                    ?.getMissionAchieved() ?: 0
+                            }
+                        } else {
+                            missionType.getMissionAchieved()
+                        }
+                    } ?: 0
                     missionLocal.addMissionLeaf(
                         MissionLeaf(
                             id = 0,
                             designation = missionResponse.designation,
                             type = type,
-                            achieved = detail.currentValue,
+                            achieved = if (localAchieved >= detail.currentValue) localAchieved else detail.currentValue,
                             goal = detail.goal
                         )
                     )
                 }
             }
-            checkUpdateMission(missionLocal.getAllMissionList().first().toMissionDataList().sortedBy { it.title }).forEach {designation ->
+            checkUpdateMission(
+                missionLocal.getAllMissionList().first().toMissionDataList()
+                    .sortedBy { it.title }).forEach { designation ->
                 if (designation != "뉴비")
                     completeMission(designation)
             }
 
-        }else{
+        } else {
             checkUpdateMission(originalList.await()).forEach { designation ->
                 if (designation != "뉴비")
                     completeMission(designation)
@@ -170,19 +187,22 @@ class MissionRepositoryImpl @Inject constructor(
     override fun getMissionAchieved(missionType: MissionType): Flow<Int> =
         missionLocal.getMissionAchieved(missionType)
 
-    override suspend fun checkUpdateMission() : List<String> =
-        checkUpdateMission(missionLocal.getAllMissionList().first().toMissionDataList().sortedBy { it.title }).filter { it != "뉴비" }
+    override suspend fun checkUpdateMission(): List<String> =
+        checkUpdateMission(
+            missionLocal.getAllMissionList().first().toMissionDataList()
+                .sortedBy { it.title }).filter { it != "뉴비" }
 
 
-    private suspend fun checkUpdateMission(missionList: List<MissionList>) : List<String> =
+    private suspend fun checkUpdateMission(missionList: List<MissionList>): List<String> =
         withContext(Dispatchers.IO) {
             val designationList = getDesignation().first().list.sorted()
-            val localDesignationList = async { missionList.map {missions ->
-                missions.list.filter {
-                    it.getMissionAchieved() >= it.getMissionGoal()
-                }.map { it.designation }
-            }.flatten().sorted()}
-
+            val localDesignationList = async {
+                missionList.map { missions ->
+                    missions.list.filter {
+                        it.getMissionAchieved() >= it.getMissionGoal()
+                    }.map { it.designation }
+                }.flatten().sorted()
+            }
             localDesignationList.await().subtract(designationList.toSet()).toList()
         }
 }

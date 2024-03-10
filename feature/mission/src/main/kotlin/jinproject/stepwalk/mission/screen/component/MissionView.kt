@@ -68,8 +68,8 @@ internal fun MissionMedal(
         }
     }
     val currentBackgroundColor: Color = when {
-        mission.getMissionAchieved() == 0 -> MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f)
-        mission.getMissionAchieved() == mission.getMissionGoal() -> MaterialTheme.colorScheme.primary
+        !animate -> MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f)
+        mission.getMissionAchieved() >= mission.getMissionGoal() -> MaterialTheme.colorScheme.primary
         else -> backgroundColor
     }
 
@@ -205,8 +205,8 @@ internal fun MissionBadge(
         }
     }
     val currentBackgroundColor: Color = when {
-        mission.getMissionAchieved() == 0 -> MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f)
-        mission.getMissionAchieved() == mission.getMissionGoal() -> MaterialTheme.colorScheme.primary
+        !animate -> MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f)
+        mission.getMissionAchieved() >= mission.getMissionGoal() -> MaterialTheme.colorScheme.primary
         else -> backgroundColor
     }
 
