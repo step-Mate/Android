@@ -90,6 +90,7 @@ internal fun RankingScreen(
         initialValue = SnackBarMessage.getInitValues(),
         minActiveState = Lifecycle.State.CREATED,
     )
+    val isRequestedFriend by rankingViewModel.isRequestedFriend.collectAsStateWithLifecycle()
 
     LaunchedEffect(key1 = snackBarMessage) {
         if (snackBarMessage.headerMessage.isNotBlank())
@@ -112,6 +113,7 @@ internal fun RankingScreen(
         navigateToRankingUserDetail = navigateToRankingUserDetail,
         navigateToLogin = navigateToLogin,
         navigateToNoti = navigateToNoti,
+        isRequestedFriend = isRequestedFriend,
     )
 }
 
@@ -127,6 +129,7 @@ private fun RankingScreen(
     navigateToRankingUserDetail: (String, Int, Boolean) -> Unit,
     navigateToLogin: (NavOptions?) -> Unit,
     navigateToNoti: () -> Unit,
+    isRequestedFriend: Boolean,
 ) {
     val pagerState = rememberPagerState(
         initialPage = 0,
@@ -176,6 +179,7 @@ private fun RankingScreen(
                 changeRankTab = changeRankTab,
                 navigateToRankingUserDetail = navigateToRankingUserDetail,
                 navigateToNoti = navigateToNoti,
+                isRequestedFriend = isRequestedFriend,
             )
         }
     }
@@ -195,6 +199,7 @@ internal fun OnSuccessRankingScreen(
     changeRankTab: (RankingViewModel.RankTab) -> Unit,
     navigateToRankingUserDetail: (String, Int, Boolean) -> Unit,
     navigateToNoti: () -> Unit,
+    isRequestedFriend: Boolean,
 ) {
     val systemBarHidingState = rememberSystemBarHidingState(
         bar = SystemBarHidingState.Bar.TOPBAR(
@@ -249,6 +254,7 @@ internal fun OnSuccessRankingScreen(
                 user = user.rank,
                 maxStep = user.maxStep,
                 navigateToNoti = navigateToNoti,
+                isRequestedFriend = isRequestedFriend,
             )
         }
     ) { contentModifier ->
@@ -393,5 +399,6 @@ private fun PreviewRankingScreen(
         navigateToRankingUserDetail = { _, _, _ -> },
         navigateToLogin = {},
         navigateToNoti = {},
+        isRequestedFriend = true,
     )
 }

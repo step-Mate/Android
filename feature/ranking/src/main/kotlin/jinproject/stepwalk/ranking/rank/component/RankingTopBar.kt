@@ -12,6 +12,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.text.buildAnnotatedString
@@ -28,6 +29,7 @@ import jinproject.stepwalk.design.component.FooterText
 import jinproject.stepwalk.design.component.HorizontalSpacer
 import jinproject.stepwalk.design.component.HorizontalWeightSpacer
 import jinproject.stepwalk.design.component.VerticalSpacer
+import jinproject.stepwalk.design.theme.StepWalkColor
 import jinproject.stepwalk.design.theme.StepWalkTheme
 import jinproject.stepwalk.design.tu
 import jinproject.stepwalk.ranking.detail.User
@@ -42,6 +44,7 @@ internal fun RankingTopBar(
     user: Rank,
     maxStep: Int,
     navigateToNoti: () -> Unit,
+    isRequestedFriend: Boolean,
 ) {
     Column(
         modifier = modifier
@@ -58,7 +61,12 @@ internal fun RankingTopBar(
                 icon = R.drawable.ic_notification,
                 onClick = navigateToNoti,
                 iconTint = MaterialTheme.colorScheme.onSurface,
-                iconSize = 32.dp
+                iconSize = 32.dp,
+                modifier = Modifier.drawWithContent {
+                    drawContent()
+                    if(isRequestedFriend)
+                        drawCircle(StepWalkColor.red_500.color, 10f, center = this.center.copy(y = this.center.y - 30f))
+                }
             )
         }
         Row(
@@ -110,5 +118,6 @@ private fun PreviewRankingTopBar(
         user = user.info,
         maxStep = 3000,
         navigateToNoti = {},
+        isRequestedFriend = true,
     )
 }
