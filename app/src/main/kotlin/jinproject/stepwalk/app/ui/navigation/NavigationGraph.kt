@@ -14,11 +14,11 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.NavHost
 import androidx.navigation.navOptions
-import com.beank.profile.navigation.navigateToEditUser
-import com.beank.profile.navigation.navigateToProfile
-import com.beank.profile.navigation.navigateToTerms
-import com.beank.profile.navigation.profileNavigation
-import com.beank.profile.navigation.profileRoute
+import jinproject.stepwalk.profile.navigation.navigateToEditUser
+import jinproject.stepwalk.profile.navigation.navigateToProfile
+import jinproject.stepwalk.profile.navigation.navigateToTerms
+import jinproject.stepwalk.profile.navigation.profileNavigation
+import jinproject.stepwalk.profile.navigation.profileRoute
 import jinproject.stepwalk.core.SnackBarMessage
 import jinproject.stepwalk.home.navigation.homeGraph
 import jinproject.stepwalk.home.navigation.homeNavGraph

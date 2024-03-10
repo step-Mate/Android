@@ -1,4 +1,4 @@
-package com.beank.profile.screen.profile
+package jinproject.stepwalk.profile.screen.profile
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
@@ -19,11 +19,11 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavOptions
-import com.beank.profile.screen.profile.ProfileViewModel.Companion.CANNOT_LOGIN_EXCEPTION
-import com.beank.profile.screen.profile.component.PasswordDialog
-import com.beank.profile.screen.profile.component.ProfileButton
-import com.beank.profile.screen.profile.component.ProfileDetail
-import com.beank.profile.screen.profile.component.ProfileEnterButton
+import jinproject.stepwalk.profile.screen.profile.ProfileViewModel.Companion.CANNOT_LOGIN_EXCEPTION
+import jinproject.stepwalk.profile.screen.profile.component.PasswordDialog
+import jinproject.stepwalk.profile.screen.profile.component.ProfileButton
+import jinproject.stepwalk.profile.screen.profile.component.ProfileDetail
+import jinproject.stepwalk.profile.screen.profile.component.ProfileEnterButton
 import jinproject.stepwalk.core.SnackBarMessage
 import jinproject.stepwalk.design.component.DialogState
 import jinproject.stepwalk.design.component.HeadlineText

@@ -1,9 +1,8 @@
 package jinproject.stepwalk.app.ui.navigation
 
 import androidx.annotation.DrawableRes
-import com.beank.profile.navigation.profileRoute
+import jinproject.stepwalk.profile.navigation.profileRoute
 import jinproject.stepwalk.design.R
-import jinproject.stepwalk.home.navigation.homeGraph
 import jinproject.stepwalk.home.navigation.homeRoute
 import jinproject.stepwalk.ranking.navigation.rankingRoute
 import jinproject.stepwalk.mission.navigation.missionRoute

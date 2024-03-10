@@ -1,7 +1,7 @@
 package jinproject.stepwalk.data.remote.dto.response.user
 
 import com.google.gson.annotations.SerializedName
-import jinproject.stepwalk.domain.model.User
+import jinproject.stepwalk.domain.model.user.User
 
 data class UserInfoResponse(
     @SerializedName("nickname") val name: String,

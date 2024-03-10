@@ -1,4 +1,4 @@
-package com.beank.profile.screen.edit
+package jinproject.stepwalk.profile.screen.edit
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border

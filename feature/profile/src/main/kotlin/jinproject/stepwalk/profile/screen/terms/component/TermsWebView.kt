@@ -1,4 +1,4 @@
-package com.beank.profile.screen.terms.component
+package jinproject.stepwalk.profile.screen.terms.component
 
 import android.webkit.WebView
 import android.webkit.WebViewClient

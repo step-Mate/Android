@@ -1,4 +1,4 @@
-package com.beank.profile.screen.terms
+package jinproject.stepwalk.profile.screen.terms
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
@@ -10,7 +10,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import com.beank.profile.screen.terms.component.TermsWebView
+import jinproject.stepwalk.profile.screen.terms.component.TermsWebView
 import jinproject.stepwalk.design.R
 import jinproject.stepwalk.design.component.HeadlineText
 import jinproject.stepwalk.design.component.StepMateBoxDefaultTopBar

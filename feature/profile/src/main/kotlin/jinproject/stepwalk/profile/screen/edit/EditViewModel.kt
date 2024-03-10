@@ -1,4 +1,4 @@
-package com.beank.profile.screen.edit
+package jinproject.stepwalk.profile.screen.edit
 
 import androidx.compose.runtime.Stable
 import androidx.lifecycle.SavedStateHandle
