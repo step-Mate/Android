@@ -8,7 +8,7 @@ import jinproject.stepwalk.ranking.navigation.rankingRoute
 const val missionRoute = "mission"
 const val settingRoute = "setting"
 
-enum class BottomNavigationDestination(
+enum class NavigationDestination(
     val title: String,
     val route: String,
     @DrawableRes val icon: Int,
@@ -23,8 +23,8 @@ enum class BottomNavigationDestination(
     Ranking(
         title = "랭킹",
         route = rankingRoute,
-        icon = R.drawable.ic_rankboard,
-        iconClicked = R.drawable.ic_rankboard
+        icon = R.drawable.ic_leaderboard_outline,
+        iconClicked = R.drawable.ic_leaderboard_solid
     ),
     Mission(
         title = "미션",

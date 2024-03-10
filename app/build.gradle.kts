@@ -37,7 +37,6 @@ android {
 }
 
 dependencies {
-
     implementation(project(":design"))
     implementation(project(":domain"))
     implementation(project(":data"))
@@ -48,8 +47,9 @@ dependencies {
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
-    implementation(libs.android.material)
     implementation(libs.androidx.activity.compose)
+    implementation(libs.androidx.hilt.navigation.compose)
+    implementation(libs.androidx.core.splashscreen)
 
     implementation(libs.bundles.navigation)
 
@@ -59,6 +59,8 @@ dependencies {
 
     implementation(libs.bundles.workManager)
     ksp(libs.androidx.hilt.compiler)
+
+    implementation(libs.bundles.windowManager)
 
     debugImplementation("com.squareup.leakcanary:leakcanary-android:3.0-alpha-1")
 }

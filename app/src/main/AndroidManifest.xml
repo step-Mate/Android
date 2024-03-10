@@ -5,8 +5,6 @@
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.health.READ_STEPS"/>
     <uses-permission android:name="android.permission.health.WRITE_STEPS"/>
-    <uses-permission android:name="android.permission.health.READ_HEART_RATE"/>
-    <uses-permission android:name="android.permission.health.WRITE_HEART_RATE"/>
 
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
 
@@ -16,22 +14,23 @@
     <uses-permission android:name="android.permission.ACTIVITY_RECOGNITION" android:minSdkVersion="29"/>
 
     <application
-        android:name=".StepWalkApplication"
+        android:name=".StepMateApplication"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@drawable/ic_stepmate"
         android:label="@string/app_name"
-        android:roundIcon="@mipmap/ic_launcher_round"
+        android:roundIcon="@drawable/ic_stepmate"
         android:supportsRtl="true"
         android:theme="@style/Theme.Stepwalk"
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
         <activity
-            android:name=".StepWalkActivity"
+            android:name=".StepMateActivity"
             android:exported="true"
             android:theme="@style/Theme.Stepwalk"
-            android:windowSoftInputMode="adjustResize">
+            android:windowSoftInputMode="adjustResize"
+            android:launchMode="singleTask">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -49,7 +48,7 @@
         <activity-alias
             android:name="ViewPermissionUsageActivity"
             android:exported="true"
-            android:targetActivity=".StepWalkActivity"
+            android:targetActivity=".StepMateActivity"
             android:permission="android.permission.START_VIEW_PERMISSION_USAGE"
             android:minSdkVersion="34">
             <intent-filter>
