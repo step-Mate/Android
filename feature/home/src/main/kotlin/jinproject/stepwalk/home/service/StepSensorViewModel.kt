@@ -133,13 +133,28 @@ internal class StepSensorViewModel @Inject constructor(
             .build()
     }
 
-    companion object {
-        const val KEY_DISTANCE = "distance"
-        const val KEY_START = "start"
-        const val KEY_END = "end"
-        const val KEY_STEP_LAST_TIME = "stepLastTime"
-        const val KEY_YESTERDAY = "yesterday"
-        const val KEY_IS_REBOOT = "isReboot"
+    fun getStepInsertWorkerUpdatingOnNewDay() {
+        viewModelScope.launch(Dispatchers.IO) {
+            healthConnector.insertSteps(
+                step = step.value.current - step.value.last,
+                startTime = startTime,
+                endTime = endTime,
+            )
+            setUserDayStepUseCase.queryDailyStep(
+                step.value.current.toInt()
+            )
+
+            _step.update { state ->
+                state.copy(
+                    last = 0L,
+                    yesterday = step.value.current + step.value.yesterday - step.value.stepAfterReboot,
+                    stepAfterReboot = 0L,
+                    current = 0L
+                )
+            }
+            startTime = ZonedDateTime.now()
+            endTime = ZonedDateTime.now()
+        }
     }
 }
 
