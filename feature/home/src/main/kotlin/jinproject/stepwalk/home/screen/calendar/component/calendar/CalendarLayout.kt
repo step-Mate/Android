@@ -60,17 +60,8 @@ internal fun CalendarLayout(
                     day = { day ->
                         Day(
                             day = day,
-                            time = calendarData.selectedTime,
-                            clickedDay = calendarData.selectedTime.dayOfMonth,
-                            onClickDay = { clickedDay ->
-                                setCalendarData(
-                                    calendarData.copy(
-                                        type = Day,
-                                        selectedTime = calendarData.selectedTime
-                                            .withDayOfMonth(clickedDay),
-                                    )
-                                )
-                            }
+                            calendarData = calendarData,
+                            setCalendarData = setCalendarData,
                         )
                     },
                 )
