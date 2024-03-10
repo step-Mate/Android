@@ -33,11 +33,10 @@ internal abstract class RepositoryModule {
     @Singleton
     @Binds
     abstract fun bindsUserRepository(userRepositoryImpl: UserRepositoryImpl): UserRepository
-    abstract fun bindsMissionRepository(missionRepositoryImpl: MissionRepositoryImpl) : MissionRepository
 
     @Singleton
     @Binds
-    abstract fun bindsRankRepository(rankRepositoryImpl: RankRepositoryImpl): RankRepository
+    abstract fun bindsMissionRepository(missionRepositoryImpl: MissionRepositoryImpl) : MissionRepository
 
     @Singleton
     @Binds

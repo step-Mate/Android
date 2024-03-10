@@ -1,10 +1,5 @@
 package jinproject.stepwalk.app.ui.navigation
 
-import androidx.compose.foundation.layout.RowScope
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.adaptive.navigationsuite.ExperimentalMaterial3AdaptiveNavigationSuiteApi
@@ -17,12 +12,8 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
 import androidx.navigation.NavDestination
 import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
 import androidx.navigation.navOptions
-import jinproject.stepwalk.profile.navigation.navigateToEditUser
-import jinproject.stepwalk.profile.navigation.navigateToProfile
-import jinproject.stepwalk.profile.navigation.navigateToTerms
-import jinproject.stepwalk.profile.navigation.profileNavigation
-import jinproject.stepwalk.profile.navigation.profileRoute
 import jinproject.stepwalk.core.SnackBarMessage
 import jinproject.stepwalk.home.navigation.homeNavGraph
 import jinproject.stepwalk.home.navigation.navigateToCalendar
@@ -36,6 +27,11 @@ import jinproject.stepwalk.login.navigation.navigateToSignUp
 import jinproject.stepwalk.login.navigation.navigateToSignUpDetail
 import jinproject.stepwalk.mission.navigation.missionNavGraph
 import jinproject.stepwalk.mission.navigation.navigateToMissionDetail
+import jinproject.stepwalk.profile.navigation.navigateToEditUser
+import jinproject.stepwalk.profile.navigation.navigateToProfile
+import jinproject.stepwalk.profile.navigation.navigateToTerms
+import jinproject.stepwalk.profile.navigation.profileNavigation
+import jinproject.stepwalk.profile.navigation.profileRoute
 import jinproject.stepwalk.ranking.navigation.navigateToNotification
 import jinproject.stepwalk.ranking.navigation.navigateToRanking
 import jinproject.stepwalk.ranking.navigation.navigateToRankingUserDetail

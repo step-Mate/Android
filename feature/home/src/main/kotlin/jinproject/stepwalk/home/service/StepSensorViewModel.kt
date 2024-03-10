@@ -3,6 +3,7 @@ package jinproject.stepwalk.home.service
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
+import androidx.work.Data
 import androidx.work.OneTimeWorkRequest
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.OutOfQuotaPolicy
@@ -120,9 +121,11 @@ internal class StepSensorViewModel @Inject constructor(
             startTime = ZonedDateTime.now()
             endTime = ZonedDateTime.now()
         }
-    fun getMissionUpdateWorker() : OneTimeWorkRequest {
+    }
+
+    fun getMissionUpdateWorker(): OneTimeWorkRequest {
         val inputData = Data.Builder()
-            .putLong(KEY_DISTANCE, steps.value.current - steps.value.last)
+            .putLong(KEY_DISTANCE, step.value.current - step.value.last)
             .build()
         return OneTimeWorkRequestBuilder<MissionUpdateWorker>()
             .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)

@@ -15,6 +15,9 @@ import androidx.core.app.NotificationCompat
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleService
 import androidx.lifecycle.lifecycleScope
+import androidx.work.ExistingWorkPolicy
+import androidx.work.OneTimeWorkRequest
+import androidx.work.WorkManager
 import dagger.hilt.android.AndroidEntryPoint
 import jinproject.stepwalk.home.R
 import jinproject.stepwalk.home.utils.StepMateChannelId
