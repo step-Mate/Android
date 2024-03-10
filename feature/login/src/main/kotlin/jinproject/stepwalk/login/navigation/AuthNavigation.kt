@@ -48,7 +48,7 @@ fun NavGraphBuilder.authNavGraph(
                 navigateToSignUp = navigateToSignUp,
                 navigateToFindId = navigateToFindId,
                 navigateToFindPassword = navigateToFindPassword,
-                popBackStack = backStackToHome,
+                popBackStack = popBackStack,
                 showSnackBar = showSnackBar
             )
         }
