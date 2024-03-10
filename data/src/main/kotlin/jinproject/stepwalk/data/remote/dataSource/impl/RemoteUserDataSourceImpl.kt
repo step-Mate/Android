@@ -52,6 +52,18 @@ internal class RemoteUserDataSourceImpl @Inject constructor(
             userApi.getFriendRequest()
         }?.map { data -> data["nickname"] ?: "" } ?: emptyList()
 
+    override suspend fun addStep(step: Int) {
+        suspendAndCatchStepMateData(retrofit) {
+            userApi.saveUserStep(step = step)
+        }
+    }
+
+    override suspend fun queryDailyStep(step: Int) {
+        suspendAndCatchStepMateData(retrofit) {
+            userApi.saveUserDailyStep(step = step)
+        }
+    }
+
     override suspend fun withdrawAccount(withdrawRequest: WithdrawRequest): ApiResponse<Nothing> =
         userApi.withdrawAccount(withdrawRequest)
 

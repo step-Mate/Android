@@ -14,6 +14,8 @@ internal interface RemoteUserDataSource {
     suspend fun deleteFriend(userName: String)
     suspend fun processFriendRequest(bool: Boolean, userName: String)
     suspend fun getFriendRequest(): List<String>
+    suspend fun addStep(step: Int)
+    suspend fun queryDailyStep(step: Int)
     suspend fun withdrawAccount(withdrawRequest: WithdrawRequest): ApiResponse<Nothing>
     suspend fun setBodyData(bodyRequest: BodyRequest)
     suspend fun updateNickname(nickname: String)

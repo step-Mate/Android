@@ -37,6 +37,12 @@ internal interface UserApi {
     @POST("users/friend-request/{nickname}/denied")
     suspend fun denyFriendRequest(@Path("nickname") userName: String): Response<Any>
 
+    @POST("users/save-step")
+    suspend fun saveUserStep(@Query("steps") step: Int): Response<Any>
+
+    @POST("users/save-step/midnight")
+    suspend fun saveUserDailyStep(@Query("steps") step: Int): Response<Any>
+
     @POST("users/withdraw")
     suspend fun withdrawAccount(@Body withdrawRequest: WithdrawRequest): ApiResponse<Nothing>
 
