@@ -28,7 +28,8 @@ fun NavGraphBuilder.homeNavGraph(
         composable(route = homeRoute) {
             HomeScreen(
                 navigateToCalendar = navigateToCalendar,
-                showSnackBar = showSnackBar
+                showSnackBar = showSnackBar,
+                navigateToHomeSetting = navigateToHomeSetting,
             )
         }
         composable(

@@ -3,9 +3,10 @@ package jinproject.stepwalk.home.screen.calendar
 import android.graphics.Color
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -31,7 +32,6 @@ import jinproject.stepwalk.home.screen.calendar.component.chart.CalendarHealthCh
 import jinproject.stepwalk.home.screen.home.HomeUiState
 import jinproject.stepwalk.home.screen.home.HomeUiStatePreviewParameters
 import jinproject.stepwalk.home.screen.home.state.CaloriesMenuFactory
-import jinproject.stepwalk.home.screen.home.state.Day
 import jinproject.stepwalk.home.screen.home.state.TimeMenuFactory
 import kotlin.math.ceil
 import kotlin.math.roundToLong
@@ -44,18 +44,6 @@ internal fun CalendarScreen(
 ) {
     val calendarData by calendarViewModel.calendarData.collectAsStateWithLifecycle()
     val uiState by calendarViewModel.uiState.collectAsStateWithLifecycle()
-
-    LaunchedEffect(key1 = calendarData) {
-        when (calendarData.type) {
-            Day -> {
-                calendarViewModel::setDaySteps.invoke()
-            }
-
-            else -> {
-                calendarViewModel::setPeriodSteps.invoke()
-            }
-        }
-    }
 
     CalendarScreen(
         uiState = uiState,
@@ -109,14 +97,16 @@ internal fun OnSuccessCalendarScreen(
     var popUpState by remember {
         mutableStateOf(PopUpState.getInitValues())
     }
+    val scrollState = rememberScrollState()
 
     DefaultLayout(
         modifier = Modifier
             .background(MaterialTheme.colorScheme.background)
             .addChartPopUpDismiss(
                 popUpState = popUpState,
-                setPopUpState = { bool -> popUpState.copy(enabled = bool) }
-            ),
+                setPopUpState = { bool -> popUpState = popUpState.copy(enabled = bool) }
+            )
+            .verticalScroll(scrollState),
         contentPaddingValues = PaddingValues(vertical = 16.dp, horizontal = 12.dp),
         topBar = {
             CalendarAppBar(
@@ -150,7 +140,7 @@ internal fun OnSuccessCalendarScreen(
             setPopUpState = { state -> popUpState = state },
         )
 
-        VerticalWeightSpacer(float = 1f)
+        VerticalSpacer(height = 20.dp)
 
         CalendarHealthChart(
             graph = uiState.healthTab.graph.map {
@@ -170,7 +160,7 @@ internal fun OnSuccessCalendarScreen(
             setPopUpState = { state -> popUpState = state },
         )
 
-        VerticalWeightSpacer(float = 1f)
+        VerticalSpacer(height = 20.dp)
 
         CalendarHealthChart(
             graph = uiState.healthTab.graph.map {
@@ -189,6 +179,7 @@ internal fun OnSuccessCalendarScreen(
             popUpState = popUpState,
             setPopUpState = { state -> popUpState = state },
         )
+        VerticalSpacer(height = 20.dp)
     }
 }
 
