@@ -22,6 +22,8 @@ import jinproject.stepwalk.home.navigation.navigateToHomeSetting
 import jinproject.stepwalk.login.navigation.authNavGraph
 import jinproject.stepwalk.login.navigation.navigateToFindId
 import jinproject.stepwalk.login.navigation.navigateToFindPassword
+import jinproject.stepwalk.login.navigation.navigateToInformation
+import jinproject.stepwalk.login.navigation.navigateToInformationTerms
 import jinproject.stepwalk.login.navigation.navigateToLogin
 import jinproject.stepwalk.login.navigation.navigateToSignUp
 import jinproject.stepwalk.login.navigation.navigateToSignUpDetail
@@ -67,6 +69,8 @@ internal fun NavigationGraph(
         )
 
         authNavGraph(
+            navigateToInformation = navController::navigateToInformation,
+            navigateToTerms = navController::navigateToInformationTerms,
             navigateToSignUp = navController::navigateToSignUp,
             navigateToSignUpDetail = navController::navigateToSignUpDetail,
             navigateToFindId = navController::navigateToFindId,
@@ -158,11 +162,11 @@ internal fun NavigationSuiteScope.stepMateNavigationSuiteItems(
 @Immutable
 internal object NavigationDefaults {
     @Composable
-    fun navigationIndicatorColor() = MaterialTheme.colorScheme.background
+    fun navigationIndicatorColor() = MaterialTheme.colorScheme.surface
 
     @Composable
-    fun containerColor() = MaterialTheme.colorScheme.background
+    fun containerColor() = MaterialTheme.colorScheme.surface
 
     @Composable
-    fun contentColor() = MaterialTheme.colorScheme.onBackground
+    fun contentColor() = MaterialTheme.colorScheme.onSurface
 }
