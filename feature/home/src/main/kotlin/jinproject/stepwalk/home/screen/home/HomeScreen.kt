@@ -58,46 +58,15 @@ internal fun HomeScreen(
     navigateToHomeSetting: () -> Unit,
     showSnackBar: (SnackBarMessage) -> Unit,
 ) {
-    val permissionState = rememberSaveable { mutableStateOf(false) }
-
-    val permissionLauncher =
-        rememberLauncherForActivityResult(contract = homeViewModel::permissionLauncher.get()) { result ->
-            if (result.containsAll(homeViewModel::permissions.get())) {
-                permissionState.value = true
-            } else {
-                showSnackBar(
-                    SnackBarMessage(
-                        headerMessage = "권한이 거부되었어요.",
-                        contentMessage = "권한을 수락하시지 않으면 서비스를 이용할 수 없어요."
-                    )
-                )
-                permissionState.value = false
-            }
-        }
-
     val uiState by homeViewModel.uiState.collectAsStateWithLifecycle()
     val time by homeViewModel.time.collectAsStateWithLifecycle()
 
-    LifecycleEventEffect(event = Lifecycle.Event.ON_START) {
-        if (Build.VERSION.SDK_INT >= 31) {
-            val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-
-            if (!alarmManager.canScheduleExactAlarms()) {
-                context.startActivity(Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM))
-                showSnackBar(
-                    SnackBarMessage(
-                        headerMessage = "정확한 알람 권한을 승인해 주세요.",
-                        contentMessage = "정확한 알람 권한이 없으면 오류가 발생할 수 있어요."
-                    )
-                )
-            }
-        }
+    LifecycleEventEffect(event = Lifecycle.Event.ON_CREATE) {
+        context.startForegroundService(Intent(context, StepService::class.java))
     }
 
-    LaunchedEffect(time, permissionState.value) {
+    LaunchedEffect(time) {
         if (homeViewModel::checkPermissions.invoke()) {
-            permissionState.value = true
-
             val instant = Instant.now().onKorea()
 
             /*(0..23).forEach { count ->
@@ -126,11 +95,13 @@ internal fun HomeScreen(
                     homeViewModel::setPeriodHealthData.invoke()
                 }
             }
-
-            if (permissionState.value)
-                context.startForegroundService(Intent(context, StepService::class.java))
         } else {
-            permissionLauncher.launch(homeViewModel::permissions.get())
+            showSnackBar(
+                SnackBarMessage(
+                    headerMessage = "권한을 승인해 주세요.",
+                    contentMessage = "권한이 없으면 오류가 발생할 수 있어요."
+                )
+            )
         }
     }
 
