@@ -6,7 +6,3 @@ plugins {
 android {
     namespace = "jinproject.stepwalk.misson"
 }
-
-dependencies {
-    implementation(libs.airbnb.android.lottie.compose)
-}

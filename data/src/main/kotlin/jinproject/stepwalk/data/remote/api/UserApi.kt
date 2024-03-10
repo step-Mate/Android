@@ -1,11 +1,9 @@
 package jinproject.stepwalk.data.remote.api
 
 import jinproject.stepwalk.data.remote.dto.request.BodyRequest
-import jinproject.stepwalk.data.remote.dto.request.DesignationRequest
 import jinproject.stepwalk.data.remote.dto.request.WithdrawRequest
 import jinproject.stepwalk.data.remote.dto.response.ApiResponse
 import jinproject.stepwalk.data.remote.dto.response.rank.MonthRankBoardResponse
-import jinproject.stepwalk.data.remote.dto.response.user.DesignationResponse
 import jinproject.stepwalk.data.remote.dto.response.user.UserDetailResponse
 import jinproject.stepwalk.data.remote.dto.response.user.UserInfoResponse
 import retrofit2.Response
@@ -41,12 +39,6 @@ internal interface UserApi {
 
     @POST("users/withdraw")
     suspend fun withdrawAccount(@Body withdrawRequest: WithdrawRequest): ApiResponse<Nothing>
-
-    @PATCH("select-designation")
-    suspend fun selectDesignation(@Body designationRequest: DesignationRequest): Response<Any>
-
-    @GET("designations")
-    suspend fun getDesignations(): List<DesignationResponse>
 
     @PATCH("users/body-info")
     suspend fun setBodyData(@Body bodyRequest: BodyRequest): Response<Any>

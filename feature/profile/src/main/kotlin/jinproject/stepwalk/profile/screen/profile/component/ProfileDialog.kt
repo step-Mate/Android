@@ -1,4 +1,4 @@
-package com.beank.profile.screen.profile.component
+package jinproject.stepwalk.profile.screen.profile.component
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
@@ -27,7 +27,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.beank.profile.screen.profile.PasswordValid
+import jinproject.stepwalk.profile.screen.profile.PasswordValid
 import jinproject.stepwalk.core.MAX_PASS_LENGTH
 import jinproject.stepwalk.design.R
 import jinproject.stepwalk.design.component.DefaultOutlinedTextField

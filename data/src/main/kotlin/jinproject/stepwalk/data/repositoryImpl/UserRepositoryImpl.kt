@@ -2,12 +2,10 @@ package jinproject.stepwalk.data.repositoryImpl
 
 import jinproject.stepwalk.data.local.datasource.BodyDataSource
 import jinproject.stepwalk.data.remote.dataSource.RemoteUserDataSource
-import jinproject.stepwalk.data.remote.dto.request.DesignationRequest
 import jinproject.stepwalk.data.remote.dto.request.WithdrawRequest
 import jinproject.stepwalk.data.remote.dto.request.toBodyRequest
 import jinproject.stepwalk.data.remote.utils.stepMateDataFlow
 import jinproject.stepwalk.domain.model.BodyData
-import jinproject.stepwalk.domain.model.DesignationState
 import jinproject.stepwalk.domain.model.rank.UserStepRank
 import jinproject.stepwalk.domain.model.user.User
 import jinproject.stepwalk.domain.model.user.UserDetailModel
@@ -43,17 +41,9 @@ internal class UserRepositoryImpl @Inject constructor(
         remoteUserDataSource.getFriendRequest()
     }
 
-    override fun withdrawAccount(password: String) : Flow<Boolean> = stepMateDataFlow{
+    override fun withdrawAccount(password: String): Flow<Boolean> = stepMateDataFlow {
         val response = remoteUserDataSource.withdrawAccount(WithdrawRequest(password))
         response.code == 200
-    }
-
-    override suspend fun selectDesignation(designation: String) {
-        remoteUserDataSource.selectDesignation(DesignationRequest(designation))
-    }
-
-    override fun getDesignation(): Flow<DesignationState> = stepMateDataFlow {
-        remoteUserDataSource.getDesignations()
     }
 
     override fun getBodyData(): Flow<BodyData> =

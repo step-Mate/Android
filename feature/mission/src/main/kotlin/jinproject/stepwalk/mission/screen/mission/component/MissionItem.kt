@@ -13,6 +13,11 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
@@ -31,6 +36,12 @@ internal fun MissionItem(
     missionList: MissionList,
     onClick: () -> Unit
 ) {
+    var designation by remember { mutableStateOf("") }
+    LaunchedEffect(key1 = missionList) {
+        designation =
+            missionList.list.find { it.getMissionAchieved() < it.getMissionGoal() }?.designation
+                ?: ""
+    }
     Column(
         modifier = modifier
             .shadow(elevation = 6.dp, RoundedCornerShape(8.dp))
@@ -57,27 +68,15 @@ internal fun MissionItem(
             horizontalArrangement = Arrangement.spacedBy(if (missionList.list.first() is MissionComposite) 10.dp else 0.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            if (missionList.list.first() is MissionComposite) {
-                if (missionList.list.size == 1) {//시간 미션(주간,월간)
-                    items(
-                        items = (missionList.list.first() as MissionComposite).missions,
-                        key = { it.hashCode() }) { mission ->
-                        MissionBadge(
-                            modifier = Modifier.size(100.dp),
-                            icon = mission.getIcon(),
-                            mission = mission,
-                            color = MaterialTheme.colorScheme.primary,
-                        )
-                    }
-                } else {//통합 미션
-                    items(items = missionList.list, key = { it.designation }) { mission ->
-                        MissionBadge(
-                            modifier = Modifier.size(100.dp),
-                            icon = mission.getIcon(),
-                            mission = mission,
-                            color = MaterialTheme.colorScheme.primary,
-                        )
-                    }
+            if (missionList.list.first() is MissionComposite) {//통합미션
+                items(items = missionList.list, key = { it.designation }) { mission ->
+                    MissionBadge(
+                        modifier = Modifier.size(100.dp),
+                        icon = mission.getIcon(),
+                        mission = mission,
+                        animate = mission.designation == designation,
+                        color = MaterialTheme.colorScheme.primary,
+                    )
                 }
             } else {//목표미션
                 items(items = missionList.list, key = { it.designation }) { mission ->
@@ -85,6 +84,7 @@ internal fun MissionItem(
                         modifier = Modifier.size(110.dp),
                         icon = mission.getIcon(),
                         mission = mission,
+                        animate = mission.designation == designation,
                         color = MaterialTheme.colorScheme.primary,
                     )
                 }

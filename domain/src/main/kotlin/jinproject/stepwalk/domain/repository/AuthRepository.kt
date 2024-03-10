@@ -1,5 +1,6 @@
 package jinproject.stepwalk.domain.repository
 
+import jinproject.stepwalk.domain.model.BodyData
 import jinproject.stepwalk.domain.model.ResponseState
 import jinproject.stepwalk.domain.model.SignUpData
 import kotlinx.coroutines.flow.Flow
@@ -18,7 +19,8 @@ interface AuthRepository {
         email: String,
         code: String
     ): Flow<ResponseState<Boolean>>
-
+    fun getBodyData() : Flow<BodyData>
+    suspend fun setBodyData(bodyData: BodyData)
     suspend fun logoutAccount()
     fun getAccessToken(): Flow<String>
 }

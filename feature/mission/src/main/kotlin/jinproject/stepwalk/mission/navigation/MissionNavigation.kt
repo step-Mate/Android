@@ -20,6 +20,7 @@ private const val missionDetailLink = "$missionDetailRoute/{title}"
 
 fun NavGraphBuilder.missionNavGraph(
     navigateToMissionDetail : (String) -> Unit,
+    navigateToLogin : (NavOptions?) -> Unit,
     popBackStack: () -> Unit
 ) {
     navigation(
@@ -30,7 +31,8 @@ fun NavGraphBuilder.missionNavGraph(
             route = missionRoute
         ){
             MissionScreen(
-                navigateToMissionDetail = navigateToMissionDetail
+                navigateToMissionDetail = navigateToMissionDetail,
+                navigateToLogin = navigateToLogin
             )
         }
 

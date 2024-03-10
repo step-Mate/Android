@@ -43,7 +43,8 @@ internal fun MissionMedal(
     modifier: Modifier,
     @DrawableRes icon: Int,
     mission: MissionFigure,
-    textStyle: TextStyle = MaterialTheme.typography.bodyMedium,
+    animate : Boolean,
+    textStyle: TextStyle = MaterialTheme.typography.bodySmall,
     color: Color,
     backgroundColor: Color = MaterialTheme.colorScheme.surface,
     containerColor: Color = MaterialTheme.colorScheme.scrim,
@@ -58,8 +59,8 @@ internal fun MissionMedal(
     }
     val animateFloat =
         remember(mission) { Animatable(if (mission.getMissionAchieved() == mission.getMissionGoal()) 1f else 0f) }
-    LaunchedEffect(key1 = mission) {
-        if (mission.getMissionAchieved() > 0 || mission.getMissionAchieved() < mission.getMissionGoal()) {
+    LaunchedEffect(key1 = mission,animate) {
+        if ((mission.getMissionAchieved() > 0 || mission.getMissionAchieved() < mission.getMissionGoal()) && animate) {
             animateFloat.animateTo(
                 targetValue = mission.getMissionProgress(),
                 animationSpec = tween(durationMillis = 1000, easing = FastOutSlowInEasing)
@@ -67,8 +68,8 @@ internal fun MissionMedal(
         }
     }
     val currentBackgroundColor: Color = when {
-        mission.getMissionAchieved() == 0 -> MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f)
-        mission.getMissionAchieved() == mission.getMissionGoal() -> MaterialTheme.colorScheme.primary
+        !animate -> MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f)
+        mission.getMissionAchieved() >= mission.getMissionGoal() -> MaterialTheme.colorScheme.primary
         else -> backgroundColor
     }
 
@@ -79,7 +80,6 @@ internal fun MissionMedal(
             if (onClick != null) {
                 onClick(mission)
             }
-
         }
     ) {
         Canvas(modifier = Modifier.fillMaxSize()) {
@@ -155,7 +155,7 @@ internal fun MissionMedal(
                 textLayoutResult = textLayoutResult,
                 topLeft = Offset(
                     x = center.x - textLayoutResult.size.width / 2,
-                    y = height * 0.15f,
+                    y = height * 0.2f,
                 )
             )
             translate(left = width * 0.4f, top = height * 0.4f) {
@@ -172,7 +172,8 @@ internal fun MissionBadge(
     modifier: Modifier,
     @DrawableRes icon: Int,
     mission: MissionFigure,
-    textStyle: TextStyle = MaterialTheme.typography.bodyMedium,
+    animate : Boolean,
+    textStyle: TextStyle = MaterialTheme.typography.bodySmall,
     color: Color,
     backgroundColor: Color = MaterialTheme.colorScheme.surface,
     containerColor: Color = MaterialTheme.colorScheme.scrim,
@@ -195,8 +196,8 @@ internal fun MissionBadge(
     }
     val animateFloat =
         remember { Animatable(if (mission.getMissionAchieved() == mission.getMissionGoal()) 1f else 0f) }
-    LaunchedEffect(key1 = mission) {
-        if (mission.getMissionAchieved() > 0 || mission.getMissionAchieved() < mission.getMissionGoal()) {
+    LaunchedEffect(key1 = mission,animate) {
+        if ((mission.getMissionAchieved() > 0 || mission.getMissionAchieved() < mission.getMissionGoal()) && animate) {
             animateFloat.animateTo(
                 targetValue = mission.getMissionProgress(),
                 animationSpec = tween(durationMillis = 1000, easing = FastOutSlowInEasing)
@@ -204,8 +205,8 @@ internal fun MissionBadge(
         }
     }
     val currentBackgroundColor: Color = when {
-        mission.getMissionAchieved() == 0 -> MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f)
-        mission.getMissionAchieved() == mission.getMissionGoal() -> MaterialTheme.colorScheme.primary
+        !animate -> MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f)
+        mission.getMissionAchieved() >= mission.getMissionGoal() -> MaterialTheme.colorScheme.primary
         else -> backgroundColor
     }
 
@@ -269,7 +270,7 @@ internal fun MissionBadge(
                 textLayoutResult = textLayoutResult,
                 topLeft = Offset(
                     x = center.x - textLayoutResult.size.width / 2,
-                    y = height * 0.35f,
+                    y = height * 0.4f,
                 )
             )
             translate(left = width * 0.375f, top = height * 0.6f) {

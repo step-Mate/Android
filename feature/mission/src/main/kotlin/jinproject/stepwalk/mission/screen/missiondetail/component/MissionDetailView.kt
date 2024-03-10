@@ -36,13 +36,16 @@ import jinproject.stepwalk.mission.util.getString
 
 @Composable
 internal fun MissionCompositeView(
-    selectMission : MissionComposite
-){
+    modifier: Modifier = Modifier,
+    selectMission: MissionComposite,
+    designation: String,
+) {
     var detailMission by remember { mutableStateOf(false) }
     MissionBadge(
-        modifier = Modifier.size(200.dp),
+        modifier = modifier.size(200.dp),
         icon = selectMission.getIcon(),
         mission = selectMission,
+        animate = selectMission.designation == designation,
         textStyle = MaterialTheme.typography.titleMedium,
         color = MaterialTheme.colorScheme.primary,
     )
@@ -72,7 +75,7 @@ internal fun MissionCompositeView(
         visible = detailMission
     ) {
         LazyRow(
-            modifier = Modifier
+            modifier = modifier
                 .fillMaxWidth()
                 .padding(horizontal = 60.dp, vertical = 10.dp),
             state = rememberLazyListState(),
@@ -100,14 +103,14 @@ internal fun MissionCompositeView(
         }
     }
     DescriptionLargeText(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .padding(top = 20.dp),
         text = selectMission.designation,
         textAlign = TextAlign.Center
     )
     DescriptionSmallText(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .padding(top = 10.dp),
         text = selectMission.intro,
@@ -117,33 +120,36 @@ internal fun MissionCompositeView(
 
 @Composable
 internal fun MissionCommonView(
-    selectMission: MissionCommon
-){
+    modifier: Modifier = Modifier,
+    selectMission: MissionCommon,
+    designation: String,
+) {
     MissionMedal(
-        modifier = Modifier
+        modifier = modifier
             .padding(top = 30.dp)
             .size(200.dp),
         icon = selectMission.getIcon(),
         mission = selectMission,
+        animate = selectMission.designation == designation,
         textStyle = MaterialTheme.typography.titleMedium,
         color = MaterialTheme.colorScheme.primary,
     )
     DescriptionLargeText(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .padding(top = 20.dp),
         text = "${selectMission.getMissionAchieved()}/${selectMission.getMissionGoal()}",
         textAlign = TextAlign.Center
     )
     HeadlineText(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .padding(top = 30.dp),
         text = selectMission.designation,
         textAlign = TextAlign.Center
     )
     DescriptionLargeText(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .padding(top = 10.dp),
         text = selectMission.intro,

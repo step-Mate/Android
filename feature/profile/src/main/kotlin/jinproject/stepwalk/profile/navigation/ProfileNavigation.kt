@@ -1,4 +1,4 @@
-package com.beank.profile.navigation
+package jinproject.stepwalk.profile.navigation
 
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
@@ -7,9 +7,9 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import androidx.navigation.navigation
-import com.beank.profile.screen.edit.EditScreen
-import com.beank.profile.screen.profile.ProfileScreen
-import com.beank.profile.screen.terms.TermsScreen
+import jinproject.stepwalk.profile.screen.edit.EditScreen
+import jinproject.stepwalk.profile.screen.profile.ProfileScreen
+import jinproject.stepwalk.profile.screen.terms.TermsScreen
 import jinproject.stepwalk.core.SnackBarMessage
 import jinproject.stepwalk.core.slideLeftIn
 import jinproject.stepwalk.core.slideRightOut

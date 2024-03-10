@@ -8,10 +8,10 @@ import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.navOptions
-import com.beank.profile.navigation.navigateToProfile
+import jinproject.stepwalk.profile.navigation.navigateToProfile
 import jinproject.stepwalk.home.navigation.navigateToHome
-import jinproject.stepwalk.mission.navigation.navigateToMission
 import jinproject.stepwalk.ranking.navigation.navigateToRanking
+import jinproject.stepwalk.mission.navigation.navigateToMission
 
 /**
  * Navigation을 담당하는 클래스

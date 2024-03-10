@@ -18,7 +18,7 @@ internal object DatabaseModule {
 
     @Provides
     @Singleton
-    fun providesMissionDao(database: Database) : MissionLocal {
+    fun providesMissionDao(database: Database): MissionLocal {
         return database.missionDao()
     }
 
@@ -26,7 +26,7 @@ internal object DatabaseModule {
     @Singleton
     fun providesDatabase(@ApplicationContext context: Context): Database {
         return Room.databaseBuilder(context, Database::class.java, "myDatabase")
-            .createFromAsset("stepMate.db")
             .build()
     }
+
 }

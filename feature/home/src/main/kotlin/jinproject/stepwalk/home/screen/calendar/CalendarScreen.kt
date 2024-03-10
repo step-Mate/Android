@@ -115,9 +115,7 @@ internal fun OnSuccessCalendarScreen(
             .background(MaterialTheme.colorScheme.background)
             .addChartPopUpDismiss(
                 popUpState = popUpState,
-                setPopUpState = { bool ->
-                    popUpState = popUpState.copy(enabled = bool)
-                }
+                setPopUpState = { bool -> popUpState.copy(enabled = bool) }
             ),
         contentPaddingValues = PaddingValues(vertical = 16.dp, horizontal = 12.dp),
         topBar = {

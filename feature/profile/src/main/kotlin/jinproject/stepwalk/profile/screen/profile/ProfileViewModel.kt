@@ -1,4 +1,4 @@
-package com.beank.profile.screen.profile
+package jinproject.stepwalk.profile.screen.profile
 
 import androidx.compose.runtime.Stable
 import androidx.lifecycle.ViewModel

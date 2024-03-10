@@ -1,67 +1,85 @@
 package jinproject.stepwalk.mission.screen.missiondetail
 
+import androidx.compose.runtime.Stable
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import jinproject.stepwalk.domain.model.mission.CalorieMissionLeaf
-import jinproject.stepwalk.domain.model.mission.MissionComposite
+import jinproject.stepwalk.core.catchDataFlow
 import jinproject.stepwalk.domain.model.mission.MissionList
-import jinproject.stepwalk.domain.model.onException
-import jinproject.stepwalk.domain.model.onSuccess
-import jinproject.stepwalk.domain.usecase.mission.GetMissionList
-import kotlinx.coroutines.Dispatchers
+import jinproject.stepwalk.domain.usecase.auth.CheckHasTokenUseCase
+import jinproject.stepwalk.domain.usecase.mission.GetMissionListUseCases
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.launch
+import java.util.UUID
 import javax.inject.Inject
 
 @HiltViewModel
 internal class MissionDetailViewModel @Inject constructor(
-    private val savedStateHandle: SavedStateHandle,
-    private val getMissionList: GetMissionList
+    savedStateHandle: SavedStateHandle,
+    private val getMissionListUseCases: GetMissionListUseCases,
+    private val checkHasTokenUseCase: CheckHasTokenUseCase,
 ) : ViewModel() {
-    var title = ""
+    private val _uiState: MutableSharedFlow<UiState> = MutableSharedFlow(replay = 1)
+    val uiState: SharedFlow<UiState> get() = _uiState.asSharedFlow()
+
+    val title: String = savedStateHandle.get<String>("title") ?: ""
+
     private val _missionList: MutableStateFlow<MissionList> = MutableStateFlow(
         MissionList(
             title = "",
-            list = listOf(
-                MissionComposite(
-                    designation = "",
-                    intro = "",
-                    missions = listOf(
-                        CalorieMissionLeaf(
-                            achieved = 0,
-                            goal = 10
-                        )
-                    )
-                )
-            )
+            list = listOf()
         )
     )
     val missionList get() = _missionList.asStateFlow()
 
     init {
-        title = savedStateHandle.get<String>("title") ?: ""
         fetchMission(title)
     }
 
-    private fun fetchMission(title: String) {
-        viewModelScope.launch(Dispatchers.IO) {
-            getMissionList(title).onStart {
-
-            }.onEach { missions ->
-                missions.onSuccess { mission ->
-                    _missionList.update { mission!! }
-                }.onException { code, message ->
-
+    @OptIn(ExperimentalCoroutinesApi::class)
+    private fun fetchMission(title: String) =
+        checkHasTokenUseCase().flatMapLatest { token ->
+            if (token) {
+                getMissionListUseCases(title).onEach { mission ->
+                    _missionList.update { mission }
+                    _uiState.emit(UiState.Success)
                 }
-            }.launchIn(viewModelScope)
-        }
+            } else {
+                flow {
+                    _uiState.emit(UiState.Error(CANNOT_LOGIN_EXCEPTION))
+                }
+            }
+        }.catchDataFlow(
+            action = { e ->
+                if (e.code == 402)
+                    CANNOT_LOGIN_EXCEPTION
+                else
+                    e
+            },
+            onException = { e ->
+                _uiState.emit(UiState.Error(e))
+            }
+        ).launchIn(viewModelScope)
+
+
+    @Stable
+    sealed class UiState {
+        data object Loading : UiState()
+        data object Success : UiState()
+        data class Error(val exception: Throwable, val uuid: UUID = UUID.randomUUID()) : UiState()
     }
 
+    companion object {
+        val CANNOT_LOGIN_EXCEPTION = IllegalStateException("로그인 불가")
+    }
 }

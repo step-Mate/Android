@@ -1,4 +1,4 @@
-package com.beank.profile.screen.profile.component
+package jinproject.stepwalk.profile.screen.profile.component
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box

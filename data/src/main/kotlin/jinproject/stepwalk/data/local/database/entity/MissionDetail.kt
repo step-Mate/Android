@@ -4,6 +4,7 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
+import jinproject.stepwalk.domain.model.mission.MissionType
 
 @Entity(
     foreignKeys = [ForeignKey(
@@ -24,6 +25,3 @@ data class MissionLeaf(
     val goal: Int,
 )
 
-enum class MissionType {
-    Step, Calorie
-}
