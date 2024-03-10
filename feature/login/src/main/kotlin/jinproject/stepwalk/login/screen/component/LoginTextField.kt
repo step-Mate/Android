@@ -1,8 +1,6 @@
 package jinproject.stepwalk.login.screen.component
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.IntrinsicSize
@@ -11,23 +9,18 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.input.KeyboardType
@@ -37,7 +30,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import jinproject.stepwalk.design.component.DescriptionSmallText
+import jinproject.stepwalk.design.component.DefaultOutlinedTextField
 import jinproject.stepwalk.design.theme.StepWalkColor
 import jinproject.stepwalk.design.theme.StepWalkTheme
 import jinproject.stepwalk.login.screen.signup.EmailStatePreviewParameters
@@ -48,59 +41,12 @@ import jinproject.stepwalk.login.screen.state.isError
 import jinproject.stepwalk.design.R.drawable as AppIcon
 
 @Composable
-internal fun InformationField(
-    modifier: Modifier = Modifier,
-    informationText: String,
-    errorMessage: String = "",
-    value: String,
-    isError: Boolean = false,
-    enabled: Boolean = true,
-    errorColor: Color = MaterialTheme.colorScheme.error,
-    keyboardType: KeyboardType = KeyboardType.Email,
-    leadingIcon: @Composable (() -> Unit)? = null,
-    trailingIcon: @Composable (() -> Unit)? = null,
-    suffix: @Composable (() -> Unit)? = null,
-    visualTransformation: VisualTransformation = VisualTransformation.None,
-    onNewValue: (String) -> Unit
-) {
-    OutlinedTextField(
-        singleLine = true,
-        modifier = modifier.fillMaxWidth(),
-        value = value,
-        isError = isError,
-        enabled = enabled,
-        textStyle = MaterialTheme.typography.bodyMedium,
-        onValueChange = onNewValue,
-        leadingIcon = leadingIcon,
-        trailingIcon = trailingIcon,
-        label = { Text(informationText, style = MaterialTheme.typography.bodyMedium) },
-        supportingText = {
-            if (isError) {
-                DescriptionSmallText(text = errorMessage, color = errorColor)
-            }
-        },
-        suffix = suffix,
-        keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
-        visualTransformation = visualTransformation,
-        colors = TextFieldDefaults.colors(
-            focusedContainerColor = MaterialTheme.colorScheme.background,
-            unfocusedContainerColor = MaterialTheme.colorScheme.background,
-            errorContainerColor = MaterialTheme.colorScheme.background,
-            errorIndicatorColor = errorColor,
-            errorLabelColor = errorColor,
-            errorSupportingTextColor = errorColor,
-            errorTextColor = errorColor
-        )
-    )
-}
-
-@Composable
 internal fun IdField(
     value: String,
     onNewValue: (String) -> Unit,
     idValid: SignValid = SignValid.blank,
 ) {
-    InformationField(
+    DefaultOutlinedTextField(
         informationText = "아이디",
         errorMessage = when (idValid) {
             SignValid.notValid -> "잘못된 아이디 양식이에요. 영어,숫자,_만 입력가능하고 4~12글자까지 입력가능해요."
@@ -124,7 +70,7 @@ internal fun PasswordField(
 ) {
     val isVisible = remember { mutableStateOf(false) }
 
-    InformationField(
+    DefaultOutlinedTextField(
         informationText = informationText,
         errorMessage = when (passwordValid) {
             SignValid.notValid -> "잘못된 비밀번호 양식이에요. 8~16글자까지 입력가능하고 영어,숫자,!@#\$%^&amp;*특수문자만 사용가능해요."
@@ -168,7 +114,7 @@ internal fun ColumnScope.EmailVerificationField(//account로 수정
             .padding(vertical = 4.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        InformationField(
+        DefaultOutlinedTextField(
             informationText = "이메일 입력",
             modifier = Modifier.weight(0.7f),
             value = emailValue.text,
@@ -200,33 +146,14 @@ internal fun ColumnScope.EmailVerificationField(//account로 수정
     }
     AnimatedVisibility(
         visible = if (emailCodeValue.valid == SignValid.success && !codeVisibility) false else if (codeVisibility) true else emailValue.valid == SignValid.verifying || emailCodeValue.valid == SignValid.notValid,
-        enter = slideInVertically { -it },
-        exit = slideOutVertically { -it }
     ) {
-        InformationField(
+        DefaultOutlinedTextField(
             informationText = "인증코드 입력",
             errorMessage = "잘못된 인증코드 입니다.",
             value = emailCodeValue.text,
             isError = emailCodeValue.valid == SignValid.notValid,
             keyboardType = KeyboardType.NumberPassword,
             onNewValue = onVerificationCodeValue
-        )
-    }
-}
-
-@Composable
-@Preview
-private fun PreviewInformationField(
-
-) = StepWalkTheme {
-    Column {
-        InformationField(
-            informationText = "몸무게",
-            errorMessage = "잘못된 양식입니다.",
-            value = "",
-            isError = true,
-            suffix = { DescriptionSmallText(text = "kg") },
-            onNewValue = {}
         )
     }
 }

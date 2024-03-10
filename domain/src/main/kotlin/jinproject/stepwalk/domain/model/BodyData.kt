@@ -1,7 +1,7 @@
 package jinproject.stepwalk.domain.model
 
 data class BodyData(
-    val age : Int,
-    val height : Int,
-    val weight : Int
+    var age: Int = 20,
+    var height: Int = 170,
+    var weight: Int = 60
 )

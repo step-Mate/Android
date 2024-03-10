@@ -2,7 +2,6 @@ plugins {
     id("stepMate.android.application")
     id("stepMate.android.compose")
     id("stepMate.android.parcelize")
-    id("stepMate.android.gms-services")
 }
 
 android {
@@ -43,8 +42,10 @@ dependencies {
     implementation(project(":data"))
     implementation(project(":feature:home"))
     implementation(project(":feature:login"))
+    implementation(project(":feature:mission"))
     implementation(project(":feature:core"))
     implementation(project(":feature:ranking"))
+    implementation(project(":feature:profile"))
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)

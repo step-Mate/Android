@@ -25,8 +25,8 @@ import jinproject.stepwalk.login.screen.component.IdResultDetail
 import jinproject.stepwalk.login.screen.component.LoginLayout
 import jinproject.stepwalk.login.screen.state.Account
 import jinproject.stepwalk.login.screen.state.isSuccess
-import jinproject.stepwalk.login.utils.MAX_EMAIL_CODE_LENGTH
-import jinproject.stepwalk.login.utils.MAX_EMAIL_LENGTH
+import jinproject.stepwalk.core.MAX_EMAIL_CODE_LENGTH
+import jinproject.stepwalk.core.MAX_EMAIL_LENGTH
 
 @Composable
 internal fun FindIdScreen(

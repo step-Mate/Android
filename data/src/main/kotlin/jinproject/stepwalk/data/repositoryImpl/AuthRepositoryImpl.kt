@@ -104,6 +104,9 @@ class AuthRepositoryImpl @Inject constructor(
             emit(authApi.verificationUserEmail(id, email, code).getResult())
         }
 
-    override suspend fun logoutAccount() = currentAuthDataSource.clearAuth()
+    override suspend fun logoutAccount() {
+        currentAuthDataSource.clearAuth()
+    }
+
     override fun getAccessToken(): Flow<String> = currentAuthDataSource.getAccessToken()
 }

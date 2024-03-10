@@ -3,6 +3,8 @@ package jinproject.stepwalk.domain.model.mission
 import jinproject.stepwalk.domain.model.Fraction
 import jinproject.stepwalk.domain.model.sumOrNull
 
+import androidx.annotation.DrawableRes
+
 /**
  * 미션의 수치(달성도, 목표)를 추상화한 인터페이스
  *
@@ -62,7 +64,7 @@ data class CalorieMissionLeaf(
 data class MissionComposite(
     override val designation: String,
     override val intro: String,
-    private val missions: List<MissionFigure> = emptyList(),
+    val missions: List<MissionFigure> = emptyList(),
 ) : MissionCommon(
     designation = designation,
     intro = intro,
@@ -87,4 +89,16 @@ data class MissionComposite(
             else -> throw IllegalArgumentException("$mission 은 정해지지 않은 미션 입니다.")
         }
     }
+    fun getOriginalAchieved() : Int = missions.sumOf { mission ->
+        mission.getMissionAchieved()
+    }
+    fun getOriginalGoal() : Int = missions.sumOf { mission ->
+        mission.getMissionGoal()
+    }
 }
+
+data class MissionList(
+    val title : String,
+    val list : List<MissionCommon>
+)
+

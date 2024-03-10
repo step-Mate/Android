@@ -13,23 +13,20 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import jinproject.stepwalk.core.SnackBarMessage
+import jinproject.stepwalk.design.component.DefaultOutlinedTextField
 import jinproject.stepwalk.login.screen.component.EnableButton
-import jinproject.stepwalk.login.utils.MAX_NICKNAME_LENGTH
-import jinproject.stepwalk.login.utils.MAX_WEIGHT_LENGTH
-import jinproject.stepwalk.design.R
-import jinproject.stepwalk.design.component.layout.DefaultLayout
 import jinproject.stepwalk.design.component.VerticalSpacer
 import jinproject.stepwalk.design.theme.StepWalkTheme
 import jinproject.stepwalk.login.screen.component.EmailVerificationField
-import jinproject.stepwalk.login.screen.component.InformationField
 import jinproject.stepwalk.login.screen.component.LoginLayout
 import jinproject.stepwalk.login.screen.signup.SignUpStatePreviewParameters
 import jinproject.stepwalk.login.screen.state.Account
 import jinproject.stepwalk.login.screen.state.SignValid
 import jinproject.stepwalk.login.screen.state.isError
 import jinproject.stepwalk.login.screen.state.isSuccess
-import jinproject.stepwalk.login.utils.MAX_EMAIL_CODE_LENGTH
-import jinproject.stepwalk.login.utils.MAX_EMAIL_LENGTH
+import jinproject.stepwalk.core.MAX_EMAIL_CODE_LENGTH
+import jinproject.stepwalk.core.MAX_EMAIL_LENGTH
+import jinproject.stepwalk.core.MAX_NICKNAME_LENGTH
 
 @Composable
 internal fun SignUpDetailScreen(
@@ -77,7 +74,7 @@ private fun SignUpDetailScreen(
         modifier = Modifier.fillMaxSize(),
         content = {
             VerticalSpacer(height = 80.dp)
-            InformationField(
+            DefaultOutlinedTextField(
                 informationText = "닉네임",
                 errorMessage = if (nicknameValue.valid == SignValid.duplicationId) "중복된 닉네임이 존재합니다."
                 else "한글,영어,숫자가능,특수문자불가,2~10글자까지 입력가능",
