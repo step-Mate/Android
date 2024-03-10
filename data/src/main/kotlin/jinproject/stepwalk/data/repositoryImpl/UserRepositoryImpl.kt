@@ -34,4 +34,12 @@ internal class UserRepositoryImpl @Inject constructor(
     override fun getFriendRequest(): Flow<List<String>> = stepMateDataFlow {
         remoteUserDataSource.getFriendRequest()
     }
+
+    override suspend fun addStep(step: Int) {
+        remoteUserDataSource.addStep(step = step)
+    }
+
+    override suspend fun queryDailyStep(step: Int) {
+        remoteUserDataSource.queryDailyStep(step)
+    }
 }

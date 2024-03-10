@@ -6,6 +6,7 @@ import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import jinproject.stepwalk.data.repositoryImpl.AuthRepositoryImpl
 import jinproject.stepwalk.data.repositoryImpl.RankRepositoryImpl
+import jinproject.stepwalk.data.repositoryImpl.SettingsRepositoryImpl
 import jinproject.stepwalk.data.repositoryImpl.StepRepositoryImpl
 import jinproject.stepwalk.data.repositoryImpl.UserRepositoryImpl
 import jinproject.stepwalk.domain.repository.AuthRepository
@@ -20,10 +21,6 @@ internal abstract class RepositoryModule {
 
     @Singleton
     @Binds
-    abstract fun bindsStepRepository(stepRepositoryImpl: StepRepositoryImpl): StepRepository
-
-    @Singleton
-    @Binds
     abstract fun bindsAuthRepository(authRepositoryImpl: AuthRepositoryImpl): AuthRepository
 
     @Singleton
@@ -33,4 +30,8 @@ internal abstract class RepositoryModule {
     @Singleton
     @Binds
     abstract fun bindsUserRepository(userRepositoryImpl: UserRepositoryImpl): UserRepository
+
+    @Singleton
+    @Binds
+    abstract fun bindsStepRepository(stepRepositoryImpl: StepRepositoryImpl): StepRepository
 }

@@ -48,7 +48,7 @@ internal object CaloriesMenuFactory : MenuFactory, StepCalculateMenu {
     }
 
     override fun cal(v: Number): Float {
-        return v.toFloat() * 3f / 1000
+        return v.toFloat() * 0.003f
     }
 }
 

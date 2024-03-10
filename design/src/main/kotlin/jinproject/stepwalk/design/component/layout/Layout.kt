@@ -36,7 +36,7 @@ fun DefaultLayout(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(contentPaddingValues)
+                .padding(contentPaddingValues),
         ) {
             content()
         }

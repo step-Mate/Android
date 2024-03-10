@@ -12,4 +12,6 @@ interface UserRepository {
     suspend fun deleteFriend(userName: String)
     suspend fun processFriendRequest(bool: Boolean, userName: String)
     fun getFriendRequest(): Flow<List<String>>
+    suspend fun addStep(step: Int)
+    suspend fun queryDailyStep(step: Int)
 }

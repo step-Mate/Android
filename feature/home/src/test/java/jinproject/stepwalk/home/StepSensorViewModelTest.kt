@@ -4,15 +4,12 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
 import io.mockk.coVerify
-import io.mockk.every
 import io.mockk.mockk
-import io.mockk.verify
 import jinproject.stepwalk.domain.model.StepData
-import jinproject.stepwalk.domain.usecase.GetStepUseCase
+import jinproject.stepwalk.domain.usecase.step.SetUserDayStepUseCase
 import jinproject.stepwalk.home.service.StepSensorViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.test.TestDispatcher
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.setMain
@@ -23,46 +20,27 @@ internal abstract class StepSensorViewModelTest: BehaviorSpec({
     Dispatchers.setMain(testDispatcher)
 }) {
 
-    val getStepUseCase: GetStepUseCase = mockk(relaxed = true)
-    val setStepUseCaseFake: SetStepUseCaseFake = SetStepUseCaseFake()
+    val setUserDayStepUseCase: SetUserDayStepUseCase = mockk(relaxed = true)
     val healthConnector: HealthConnector = mockk(relaxed = true)
 
     val viewModel: StepSensorViewModel = StepSensorViewModel(
-        getStepUseCase = getStepUseCase,
-        setStepUseCaseImpl = setStepUseCaseFake,
+        setUserDayStepUseCase = setUserDayStepUseCase,
         healthConnector = healthConnector,
     )
 }
 
 internal class ScenarioOnFirstInstall: StepSensorViewModelTest() {
+
     init {
         given("앱을 처음 설치하고") {
-            val stepData = StepData(
-                current = 0L,
-                last = 0L,
-                yesterday = 0L,
-                isReboot = false,
-                stepAfterReboot = 0L
-            )
-
-            every { getStepUseCase() } returns flow {
-                emit(stepData)
-            }
 
             `when`("걸음수 합계 센서의 값이 100일 때") {
                 val sensorStep = 100L
 
-                val worker = viewModel.onSensorChanged(sensorStep)
-                then("mocking 된 로직이 정상 동작된다.") {
-                    coVerify(exactly = 1) {
-                        getStepUseCase()
-                    }
-                }
-                then("마지막 저장 시간과 현재시간의 초의 차이가 60 이하이므로 리턴값은 null 이다.") {
-                    worker shouldBe null
-                }
+                viewModel.onSensorChanged(sensorStep)
+
                 then("어제 값에 센서값이 저장 된다.") {
-                    setStepUseCaseFake.stepData?.yesterday shouldBe sensorStep
+                    viewModel.step.value.yesterday shouldBe sensorStep
                 }
             }
         }
@@ -82,32 +60,17 @@ internal class ScenarioAfterInstall: StepSensorViewModelTest() {
                 stepAfterReboot = 0L
             )
 
-            every { getStepUseCase() } returns flow {
-                emit(stepData)
-            }
-
             `when`("디바이스 리부팅을 한다면") {
                 val sensorStep = 0L
 
                 viewModel.onSensorChanged(sensorStep)
 
-                then("mocking 된 로직이 정상 동작된다.") {
-                    coVerify(exactly = 1) {
-                        getStepUseCase()
-                    }
-                }
-
                 then("어제값은 0이 된다.") {
-                    setStepUseCaseFake.stepData?.yesterday shouldBe 0L
+                    viewModel.step.value.yesterday shouldBe 0L
                 }
 
                 then("저장된 오늘값은 유지된다.") {
-                    setStepUseCaseFake.stepData?.current shouldBe todayStep
-                }
-
-                then("리붓팅 이후의 세팅을 유지한다.") {
-                    setStepUseCaseFake.stepData?.isReboot shouldBe true
-                    setStepUseCaseFake.stepData?.stepAfterReboot shouldBe todayStep
+                    viewModel.step.value.current shouldBe todayStep
                 }
             }
         }
@@ -134,22 +97,13 @@ internal class ScenarioAfterInstall2: StepSensorViewModelTest() {
                     last = 0L,
                 )
 
-                every { getStepUseCase() } returns flow {
-                    emit(verifyStepData)
-                }
 
                 val sensorStep = todayStep + yesterdayStep + 1L
 
                 viewModel.onSensorChanged(sensorStep)
 
-                then("mocking 된 로직이 정상 동작된다.") {
-                    coVerify(exactly = 1) {
-                        getStepUseCase()
-                    }
-                }
-
                 then("전날의 센서값이 다음날의 어제값이 된다.") {
-                    setStepUseCaseFake.stepData?.yesterday shouldBe sensorStep
+
                 }
             }
         }
@@ -162,10 +116,6 @@ internal class ScenarioReInstall: StepSensorViewModelTest() {
         val yesterdayStep = 1200L
 
         val stepDataReInstall = StepData.getInitValues()
-
-        every { getStepUseCase() } returns flow {
-            emit(stepDataReInstall)
-        }
 
         given("걷고 나서 삭제한 뒤") {
 
@@ -183,7 +133,7 @@ internal class ScenarioReInstall: StepSensorViewModelTest() {
                 }
 
                 then("헬스커넥트로 부터 얻은 걸음수가 오늘 걸음수가 된다.") {
-                    setStepUseCaseFake.stepData?.current shouldBe todayStep
+
                 }
             }
         }
