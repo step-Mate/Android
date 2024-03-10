@@ -18,9 +18,9 @@ internal enum class AchievementDegree {
     }
 }
 
-internal fun Float.toAchievementDegree() = when (this) {
-    in 0.75f..Float.MAX_VALUE -> AchievementDegree.Perfect
-    in 0.5f..0.75f -> AchievementDegree.Normal
-    in 0.25f..0.5f -> AchievementDegree.Less
-    else -> AchievementDegree.Lack
+internal fun Float.toAchievementDegree() = when {
+    this < 0.25f -> AchievementDegree.Lack
+    this < 0.5f -> AchievementDegree.Less
+    this < 0.75f -> AchievementDegree.Normal
+    else -> AchievementDegree.Perfect
 }

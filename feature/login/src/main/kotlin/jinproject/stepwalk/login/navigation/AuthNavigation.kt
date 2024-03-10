@@ -9,14 +9,14 @@ import androidx.navigation.navArgument
 import androidx.navigation.navigation
 import jinproject.stepwalk.core.SnackBarMessage
 import jinproject.stepwalk.core.slideLeftIn
-import jinproject.stepwalk.login.screen.login.LoginScreen
-import jinproject.stepwalk.login.screen.findid.FindIdScreen
-import jinproject.stepwalk.login.screen.findpassword.FindPasswordScreen
-import jinproject.stepwalk.login.screen.signup.SignUpScreen
-import jinproject.stepwalk.login.screen.signupdetail.SignUpDetailScreen
 import jinproject.stepwalk.core.slideLeftOut
 import jinproject.stepwalk.core.slideRightIn
 import jinproject.stepwalk.core.slideRightOut
+import jinproject.stepwalk.login.screen.findid.FindIdScreen
+import jinproject.stepwalk.login.screen.findpassword.FindPasswordScreen
+import jinproject.stepwalk.login.screen.login.LoginScreen
+import jinproject.stepwalk.login.screen.signup.SignUpScreen
+import jinproject.stepwalk.login.screen.signupdetail.SignUpDetailScreen
 
 const val loginGraph = "loginGraph"
 const val loginRoute = "login"
@@ -27,23 +27,23 @@ private const val findIdRoute = "findId"
 private const val findPasswordRoute = "findPassword"
 
 fun NavGraphBuilder.authNavGraph(
-    navigateToSignUp : () -> Unit,
-    navigateToSignUpDetail : (String,String) -> Unit,
-    navigateToFindId : () -> Unit,
-    navigateToFindPassword : () -> Unit,
+    navigateToSignUp: () -> Unit,
+    navigateToSignUpDetail: (String, String) -> Unit,
+    navigateToFindId: () -> Unit,
+    navigateToFindPassword: () -> Unit,
     popBackStack: () -> Unit,
     backStackToHome: () -> Unit,
     showSnackBar: (SnackBarMessage) -> Unit
-){
+) {
     navigation(
         startDestination = loginRoute,
         route = loginGraph
-    ){
+    ) {
         composable(
             route = loginRoute,
             enterTransition = slideRightIn(500),
             exitTransition = slideLeftOut(500),
-        ){
+        ) {
             LoginScreen(
                 navigateToSignUp = navigateToSignUp,
                 navigateToFindId = navigateToFindId,
@@ -57,7 +57,7 @@ fun NavGraphBuilder.authNavGraph(
             route = signUpRoute,
             enterTransition = slideLeftIn(500),
             exitTransition = slideRightOut(500),
-        ){
+        ) {
             SignUpScreen(
                 navigateToSignUpDetail = navigateToSignUpDetail,
                 popBackStack = popBackStack,
@@ -70,16 +70,16 @@ fun NavGraphBuilder.authNavGraph(
             enterTransition = slideLeftIn(500),
             exitTransition = slideRightOut(500),
             arguments = listOf(
-                navArgument("id"){
+                navArgument("id") {
                     type = NavType.StringType
                     defaultValue = ""
                 },
-                navArgument("password"){
+                navArgument("password") {
                     type = NavType.StringType
                     defaultValue = ""
                 }
             )
-        ){
+        ) {
             SignUpDetailScreen(
                 popBackStack = popBackStack,
                 backStackToLogin = backStackToHome,
@@ -91,7 +91,7 @@ fun NavGraphBuilder.authNavGraph(
             route = findIdRoute,
             enterTransition = slideLeftIn(500),
             exitTransition = slideRightOut(500),
-        ){
+        ) {
             FindIdScreen(
                 popBackStack = popBackStack,
                 showSnackBar = showSnackBar
@@ -102,8 +102,8 @@ fun NavGraphBuilder.authNavGraph(
             route = findPasswordRoute,
             enterTransition = slideLeftIn(500),
             exitTransition = slideRightOut(500),
-        ){
-            FindPasswordScreen (
+        ) {
+            FindPasswordScreen(
                 popBackStack = popBackStack,
                 showSnackBar = showSnackBar
             )
@@ -116,26 +116,26 @@ fun NavController.navigateToLogin(navOptions: NavOptions?) {
 }
 
 fun NavController.navigateToSignUp() {
-    this.navigate(signUpRoute){
+    this.navigate(signUpRoute) {
         launchSingleTop = true
         restoreState = true
     }
 }
 
-fun NavController.navigateToSignUpDetail(id : String, password : String) {
-    this.navigate("$signUpDetailRoute/$id/$password"){
+fun NavController.navigateToSignUpDetail(id: String, password: String) {
+    this.navigate("$signUpDetailRoute/$id/$password") {
         launchSingleTop = true
     }
 }
 
 fun NavController.navigateToFindId() {
-    this.navigate(findIdRoute){
+    this.navigate(findIdRoute) {
         launchSingleTop = true
     }
 }
 
 fun NavController.navigateToFindPassword() {
-    this.navigate(findPasswordRoute){
+    this.navigate(findPasswordRoute) {
         launchSingleTop = true
     }
 }

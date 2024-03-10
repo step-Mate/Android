@@ -8,6 +8,7 @@ import jinproject.stepwalk.data.remote.dto.request.DuplicationIdRequest
 import jinproject.stepwalk.data.remote.dto.request.DuplicationNicknameRequest
 import jinproject.stepwalk.data.remote.mapper.toSignUpRequest
 import jinproject.stepwalk.data.remote.utils.getResult
+import jinproject.stepwalk.domain.model.BodyData
 import jinproject.stepwalk.domain.model.ResponseState
 import jinproject.stepwalk.domain.model.SignUpData
 import jinproject.stepwalk.domain.model.onSuccess
@@ -104,6 +105,15 @@ class AuthRepositoryImpl @Inject constructor(
             emit(authApi.verificationUserEmail(id, email, code).getResult())
         }
 
-    override suspend fun logoutAccount() = currentAuthDataSource.clearAuth()
+    override suspend fun logoutAccount() {
+        currentAuthDataSource.clearAuth()
+    }
+
+    override fun getBodyData(): Flow<BodyData> =
+        bodyDataSource.getBodyData()
+
+    override suspend fun setBodyData(bodyData: BodyData) =
+        bodyDataSource.setBodyData(bodyData)
+
     override fun getAccessToken(): Flow<String> = currentAuthDataSource.getAccessToken()
 }

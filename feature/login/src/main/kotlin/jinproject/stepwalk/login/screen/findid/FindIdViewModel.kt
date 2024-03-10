@@ -8,8 +8,8 @@ import jinproject.stepwalk.domain.model.onSuccess
 import jinproject.stepwalk.domain.usecase.auth.FindIdUseCase
 import jinproject.stepwalk.domain.usecase.auth.RequestEmailCodeUseCase
 import jinproject.stepwalk.login.screen.EmailViewModel
-import jinproject.stepwalk.login.utils.isValidEmail
-import jinproject.stepwalk.login.utils.isValidEmailCode
+import jinproject.stepwalk.core.isValidEmail
+import jinproject.stepwalk.core.isValidEmailCode
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow

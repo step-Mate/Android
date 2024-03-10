@@ -1,0 +1,8 @@
+syntax = "proto3";
+
+option java_package = "jinproject.stepwalk.data";
+
+message SettingsPreferences {
+  int32 stepGoal = 1;
+  int64 todayStep = 2;
+}

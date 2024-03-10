@@ -1,7 +1,9 @@
 package jinproject.stepwalk.home.screen.calendar.component.calendar
 
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -12,8 +14,8 @@ import jinproject.stepwalk.design.appendColorText
 import jinproject.stepwalk.design.component.DefaultButton
 import jinproject.stepwalk.design.component.DescriptionAnnotatedSmallText
 import jinproject.stepwalk.design.component.DescriptionLargeText
+import jinproject.stepwalk.home.screen.calendar.CalendarData
 import jinproject.stepwalk.home.utils.toDayOfWeekString
-import java.time.ZonedDateTime
 import java.time.temporal.TemporalAdjusters
 
 @Composable
@@ -31,11 +33,11 @@ internal fun Label(
 @Composable
 internal fun Day(
     day: Int,
-    time: ZonedDateTime,
-    clickedDay: Int,
-    onClickDay: (Int) -> Unit,
-) {
-    val lastDayOnLastMonth = time
+    calendarData: CalendarData,
+    setCalendarData: (CalendarData) -> Unit,
+
+    ) {
+    val lastDayOnLastMonth = calendarData.selectedTime
         .minusMonths(1L)
         .with(TemporalAdjusters.lastDayOfMonth())
 
@@ -47,7 +49,7 @@ internal fun Day(
     val dayOfLastDayOnLastMonth = lastDayOnLastMonth
         .dayOfMonth
 
-    val lastDayOfThisMonth = time
+    val lastDayOfThisMonth = calendarData.selectedTime
         .with(TemporalAdjusters.lastDayOfMonth())
         .dayOfMonth
 
@@ -76,7 +78,7 @@ internal fun Day(
             clickEnabled = true
             val dayOnThisMonth = day - weekOfLastDayOnLastMonth
             val textColor =
-                if (clickedDay == dayOnThisMonth) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface
+                if (calendarData.selectedTime.dayOfMonth == dayOnThisMonth) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface
 
             buildAnnotatedString {
                 appendColorText(
@@ -88,13 +90,23 @@ internal fun Day(
     }
 
     val backgroundColor =
-        if (clickedDay == text.text.toInt() && clickEnabled) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surface
+        if (calendarData.selectedTime.dayOfMonth == text.text.toInt() && clickEnabled) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surface
 
     DefaultButton(
-        onClick = { onClickDay(text.text.toInt()) },
+        onClick = {
+            val newTime = calendarData.selectedTime.withDayOfMonth(text.text.toInt())
+
+            setCalendarData(
+                calendarData.copy(
+                    type = jinproject.stepwalk.home.screen.home.state.Day,
+                    selectedTime = newTime,
+                )
+            )
+        },
         modifier = Modifier.height(30.dp),
         backgroundColor = backgroundColor,
-        enabled = clickEnabled
+        enabled = clickEnabled,
+        contentPaddingValues = PaddingValues(horizontal = 12.dp, vertical = 8.dp)
     ) {
         DescriptionAnnotatedSmallText(
             text = text,

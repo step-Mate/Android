@@ -36,17 +36,21 @@ class Fraction(val son: Int, val mother: Int) {
      * 유클리드 호제법을 이용한 최대공약수(gcd)를 반환
      */
     private fun gcd(a: Int, b:Int): Int {
-        return if(a > b)
-            if(a % b == 0)
+        return if(a > b){
+            if (b == 0)
+                a
+            else if(a % b == 0)
                 b
             else
                 gcd(b, a % b)
-        else
-            if(b % a == 0)
+        } else {
+            if (a == 0)
+                b
+            else if (b % a == 0)
                 a
             else
                 gcd(a, b % a)
-
+        }
     }
 }
 

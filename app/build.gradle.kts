@@ -2,7 +2,6 @@ plugins {
     id("stepMate.android.application")
     id("stepMate.android.compose")
     id("stepMate.android.parcelize")
-    id("stepMate.android.gms-services")
 }
 
 android {
@@ -37,19 +36,21 @@ android {
 }
 
 dependencies {
-
     implementation(project(":design"))
     implementation(project(":domain"))
     implementation(project(":data"))
     implementation(project(":feature:home"))
     implementation(project(":feature:login"))
+    implementation(project(":feature:mission"))
     implementation(project(":feature:core"))
     implementation(project(":feature:ranking"))
+    implementation(project(":feature:profile"))
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
-    implementation(libs.android.material)
     implementation(libs.androidx.activity.compose)
+    implementation(libs.androidx.hilt.navigation.compose)
+    implementation(libs.androidx.core.splashscreen)
 
     implementation(libs.bundles.navigation)
 
@@ -59,6 +60,8 @@ dependencies {
 
     implementation(libs.bundles.workManager)
     ksp(libs.androidx.hilt.compiler)
+
+    implementation(libs.bundles.windowManager)
 
     debugImplementation("com.squareup.leakcanary:leakcanary-android:3.0-alpha-1")
 }

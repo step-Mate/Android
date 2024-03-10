@@ -1,36 +1,37 @@
 package jinproject.stepwalk.app.ui.navigation
 
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.RowScope
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarItem
-import androidx.compose.material3.NavigationBarItemDefaults
+import androidx.compose.material3.adaptive.navigationsuite.ExperimentalMaterial3AdaptiveNavigationSuiteApi
+import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteItemColors
+import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScope
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.Stable
+import androidx.compose.runtime.Immutable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.vectorResource
-import androidx.compose.ui.unit.dp
+import androidx.navigation.NavDestination
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navOptions
 import jinproject.stepwalk.core.SnackBarMessage
-import jinproject.stepwalk.home.navigation.backStackToHome
-import jinproject.stepwalk.home.navigation.homeGraph
 import jinproject.stepwalk.home.navigation.homeNavGraph
 import jinproject.stepwalk.home.navigation.navigateToCalendar
+import jinproject.stepwalk.home.navigation.navigateToHome
+import jinproject.stepwalk.home.navigation.navigateToHomeSetting
 import jinproject.stepwalk.login.navigation.authNavGraph
 import jinproject.stepwalk.login.navigation.navigateToFindId
 import jinproject.stepwalk.login.navigation.navigateToFindPassword
 import jinproject.stepwalk.login.navigation.navigateToLogin
 import jinproject.stepwalk.login.navigation.navigateToSignUp
 import jinproject.stepwalk.login.navigation.navigateToSignUpDetail
+import jinproject.stepwalk.mission.navigation.missionNavGraph
+import jinproject.stepwalk.mission.navigation.navigateToMissionDetail
+import jinproject.stepwalk.profile.navigation.navigateToEditUser
+import jinproject.stepwalk.profile.navigation.navigateToProfile
+import jinproject.stepwalk.profile.navigation.navigateToTerms
+import jinproject.stepwalk.profile.navigation.profileNavigation
+import jinproject.stepwalk.profile.navigation.profileRoute
 import jinproject.stepwalk.ranking.navigation.navigateToNotification
 import jinproject.stepwalk.ranking.navigation.navigateToRanking
 import jinproject.stepwalk.ranking.navigation.navigateToRankingUserDetail
@@ -41,19 +42,28 @@ import jinproject.stepwalk.ranking.navigation.rankingRoute
 internal fun NavigationGraph(
     router: Router,
     modifier: Modifier = Modifier,
+    startDestination: String,
     showSnackBar: (SnackBarMessage) -> Unit,
 ) {
     val navController = router.navController
 
     NavHost(
         navController = navController,
-        startDestination = homeGraph,
+        startDestination = startDestination,
         modifier = modifier
     ) {
+        composable(route = permissionRoute) {
+            PermissionScreen(
+                showSnackBar = showSnackBar,
+                navigateToHome = navController::navigateToHome
+            )
+        }
+
         homeNavGraph(
             navigateToCalendar = navController::navigateToCalendar,
             popBackStack = navController::popBackStackIfCan,
-            showSnackBar = showSnackBar
+            showSnackBar = showSnackBar,
+            navigateToHomeSetting = navController::navigateToHomeSetting,
         )
 
         authNavGraph(
@@ -62,7 +72,14 @@ internal fun NavigationGraph(
             navigateToFindId = navController::navigateToFindId,
             navigateToFindPassword = navController::navigateToFindPassword,
             popBackStack = navController::popBackStackIfCan,
-            backStackToHome = navController::backStackToHome,
+            backStackToHome = {
+                val navOptions = navOptions {
+                    popUpTo(navController.graph.id){
+                        inclusive = true
+                    }
+                }
+                navController.navigateToHome(navOptions)
+            },
             showSnackBar = showSnackBar
         )
 
@@ -82,98 +99,70 @@ internal fun NavigationGraph(
             navigateToNoti = navController::navigateToNotification,
         )
 
-        composable(route = BottomNavigationDestination.Profile.route) {
-            Column(modifier = Modifier
-                .fillMaxSize()
-                .wrapContentSize()) {
-                Image(
-                    painter = painterResource(id = jinproject.stepwalk.design.R.drawable.ic_setting),
-                    contentDescription = "settingIcon"
-                )
-            }
-        }
-
-        composable(route = BottomNavigationDestination.Mission.route) {
-            Column(modifier = Modifier
-                .fillMaxSize()
-                .wrapContentSize()) {
-                Image(
-                    painter = painterResource(id = jinproject.stepwalk.design.R.drawable.ic_bookmark),
-                    contentDescription = "settingIcon"
-                )
-            }
-        }
-    }
-}
-
-
-@Composable
-internal fun BottomNavigationGraph(
-    router: Router,
-    modifier: Modifier = Modifier,
-) {
-    when {
-        router.currentDestination.showBottomBarOrHide() -> {
-            NavigationBar(
-                modifier = modifier,
-                contentColor = MaterialTheme.colorScheme.onSurface,
-                containerColor = MaterialTheme.colorScheme.surface,
-                tonalElevation = 0.dp,
-            ) {
-                BottomNavigationDestination.entries.forEach { destination ->
-                    val selected = router.currentDestination.isDestinationInHierarchy(destination)
-
-                    NavigationBarItem(
-                        selected = selected,
-                        onClick = { router.navigateOnBottomNavigationBar(destination) },
-                        icon = {
-                            Icon(
-                                imageVector = ImageVector.vectorResource(id = destination.icon),
-                                contentDescription = "clickIcon",
-                                tint = MaterialTheme.colorScheme.onSurface
-                            )
-                        },
-                        iconClicked = {
-                            Icon(
-                                imageVector = ImageVector.vectorResource(id = destination.iconClicked),
-                                contentDescription = "clickedIcon",
-                                tint = MaterialTheme.colorScheme.onSurface
-                            )
-                        }
-                    )
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun RowScope.NavigationBarItem(
-    modifier: Modifier = Modifier,
-    selected: Boolean,
-    enabled: Boolean = true,
-    alwaysShowLabel: Boolean = false,
-    onClick: () -> Unit,
-    icon: @Composable () -> Unit,
-    iconClicked: @Composable () -> Unit = icon,
-    label: @Composable (() -> Unit)? = null,
-) {
-    NavigationBarItem(
-        selected = selected,
-        onClick = onClick,
-        icon = if (selected) iconClicked else icon,
-        modifier = modifier,
-        enabled = enabled,
-        label = label,
-        alwaysShowLabel = alwaysShowLabel,
-        colors = NavigationBarItemDefaults.colors(
-            indicatorColor = NavigationDefaults.navigationIndicatorColor()
+        missionNavGraph(
+            navigateToMissionDetail = navController::navigateToMissionDetail,
+            navigateToLogin = navController::navigateToLogin,
+            popBackStack = navController::popBackStackIfCan,
         )
-    )
+
+        profileNavigation(
+            navigateToProfile = {
+                val navOptions = navOptions {
+                    popUpTo(profileRoute) {
+                        inclusive = true
+                    }
+                }
+                navController.navigateToProfile(navOptions)
+            },
+            navigateToEditUser = navController::navigateToEditUser,
+            navigateToTerms = navController::navigateToTerms,
+            navigateToLogin = navController::navigateToLogin,
+            popBackStack = navController::popBackStackIfCan,
+            showSnackBar = showSnackBar
+        )
+    }
 }
 
-@Stable
-private object NavigationDefaults {
+@OptIn(ExperimentalMaterial3AdaptiveNavigationSuiteApi::class)
+internal fun NavigationSuiteScope.stepMateNavigationSuiteItems(
+    currentDestination: NavDestination?,
+    itemColors: NavigationSuiteItemColors,
+    onClick: (NavigationDestination) -> Unit,
+) {
+    if (currentDestination.isShownBar())
+        NavigationDestination.entries.forEach { destination ->
+            val selected = currentDestination.isDestinationInHierarchy(destination)
+
+            item(
+                selected = selected,
+                onClick = { onClick(destination) },
+                icon = {
+                    if (!selected)
+                        Icon(
+                            imageVector = ImageVector.vectorResource(id = destination.icon),
+                            contentDescription = "clickIcon",
+                            tint = MaterialTheme.colorScheme.onSurface
+                        )
+                    else
+                        Icon(
+                            imageVector = ImageVector.vectorResource(id = destination.iconClicked),
+                            contentDescription = "clickedIcon",
+                            tint = MaterialTheme.colorScheme.onSurface
+                        )
+                },
+                colors = itemColors,
+            )
+        }
+}
+
+@Immutable
+internal object NavigationDefaults {
     @Composable
     fun navigationIndicatorColor() = MaterialTheme.colorScheme.background
+
+    @Composable
+    fun containerColor() = MaterialTheme.colorScheme.background
+
+    @Composable
+    fun contentColor() = MaterialTheme.colorScheme.onBackground
 }

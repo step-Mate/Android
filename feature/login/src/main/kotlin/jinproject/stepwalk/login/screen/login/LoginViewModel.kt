@@ -2,8 +2,8 @@ package jinproject.stepwalk.login.screen.login
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import jinproject.stepwalk.login.utils.isValidID
-import jinproject.stepwalk.login.utils.isValidPassword
+import jinproject.stepwalk.core.isValidID
+import jinproject.stepwalk.core.isValidPassword
 import dagger.hilt.android.lifecycle.HiltViewModel
 import jinproject.stepwalk.domain.usecase.auth.SignInUseCase
 import jinproject.stepwalk.login.screen.state.AuthState

@@ -48,9 +48,9 @@ fun StepLayout(
 
         layout(maxWidth, maxHeight) {
             val characterXPos = if (progress == 1f)
-                (maxWidth * progress).roundToInt() - characterPlaceable.width
+                (maxWidth * progress).toInt() - characterPlaceable.width
             else
-                (maxWidth * progress).roundToInt() - characterPlaceable.width / 2
+                (maxWidth * progress).toInt() - characterPlaceable.width / 2
             characterPlaceable.place(
                 x = characterXPos,
                 y = 0
@@ -82,9 +82,9 @@ fun StepFooterLayout(
 
         layout(maxWidth, totalPlaceable.height) {
             val totalXPos = if (progress == 1f)
-                (maxWidth * progress).roundToInt() - totalPlaceable.width
+                (maxWidth * progress).toInt() - totalPlaceable.width
             else
-                (maxWidth * progress).roundToInt() - totalPlaceable.width / 2
+                (maxWidth * progress).toInt() - totalPlaceable.width / 2
 
             val goalPlaceableXPos = maxWidth - goalPlaceable.width
 
