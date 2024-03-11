@@ -143,7 +143,7 @@ class MissionRepositoryImpl @Inject constructor(
                             id = 0,
                             designation = missionResponse.designation,
                             type = type,
-                            achieved = if (localAchieved >= detail.currentValue) localAchieved else detail.currentValue,
+                            achieved = if (localAchieved >= detail.currentValue) localAchieved else detail.currentValue.toInt(),
                             goal = detail.goal
                         )
                     )
