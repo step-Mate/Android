@@ -117,9 +117,10 @@ fun StepMateDefaultTopBar(
 @Composable
 fun StepMateBoxDefaultTopBar(
     modifier: Modifier = Modifier,
+    iconAlignment: Alignment = Alignment.CenterStart,
     @DrawableRes icon: Int,
     onClick: () -> Unit,
-    content: @Composable BoxScope.() -> Unit,
+    content: @Composable BoxScope.() -> Unit = {},
 ) {
     Box(
         modifier = modifier
@@ -128,7 +129,7 @@ fun StepMateBoxDefaultTopBar(
     ) {
         DefaultIconButton(
             modifier = Modifier
-                .align(Alignment.CenterStart),
+                .align(iconAlignment),
             icon = icon,
             onClick = onClick,
             iconTint = MaterialTheme.colorScheme.onSurface

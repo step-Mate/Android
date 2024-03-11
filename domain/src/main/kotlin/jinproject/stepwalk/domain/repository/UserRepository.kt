@@ -22,4 +22,7 @@ interface UserRepository {
     suspend fun setBodyLocalData(bodyData: BodyData)
     suspend fun updateNickname(nickname: String)
     fun getMyInfo(): Flow<User>
+    suspend fun setBodyAge(age: Int)
+    suspend fun setBodyWeight(weight: Int)
+    suspend fun setBodyHeight(height: Int)
 }

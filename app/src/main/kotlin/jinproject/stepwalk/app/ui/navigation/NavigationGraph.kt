@@ -20,6 +20,7 @@ import jinproject.stepwalk.core.SnackBarMessage
 import jinproject.stepwalk.home.navigation.homeNavGraph
 import jinproject.stepwalk.home.navigation.navigateToCalendar
 import jinproject.stepwalk.home.navigation.navigateToHome
+import jinproject.stepwalk.home.navigation.navigateToHomeGraph
 import jinproject.stepwalk.home.navigation.navigateToHomeSetting
 import jinproject.stepwalk.login.navigation.authNavGraph
 import jinproject.stepwalk.login.navigation.navigateToFindId
@@ -47,6 +48,7 @@ internal fun NavigationGraph(
     router: Router,
     modifier: Modifier = Modifier,
     startDestination: String,
+    homeStartDestination: String,
     showSnackBar: (SnackBarMessage) -> Unit,
 ) {
     val navController = router.navController
@@ -59,15 +61,17 @@ internal fun NavigationGraph(
         composable(route = permissionRoute) {
             PermissionScreen(
                 showSnackBar = showSnackBar,
-                navigateToHome = navController::navigateToHome
+                navigateToHomeGraph = navController::navigateToHomeGraph
             )
         }
 
         homeNavGraph(
+            startDestination = homeStartDestination,
             navigateToCalendar = navController::navigateToCalendar,
             popBackStack = navController::popBackStackIfCan,
             showSnackBar = showSnackBar,
             navigateToHomeSetting = navController::navigateToHomeSetting,
+            navigateToHome = navController::navigateToHome,
         )
 
         authNavGraph(
