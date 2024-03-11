@@ -12,8 +12,9 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.viewinterop.AndroidView
 import jinproject.stepwalk.design.R
+import androidx.compose.ui.viewinterop.AndroidView
+
 
 @Composable
 fun WebView(
@@ -34,7 +35,7 @@ fun WebView(
 
 @Composable
 fun TermsScreen(
-    popBackStack : () -> Unit
+    popBackStack: () -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -53,3 +54,5 @@ fun TermsScreen(
         WebView(url = "https://sites.google.com/view/stepmate-personal-info-policy/%ED%99%88")
     }
 }
+
+
