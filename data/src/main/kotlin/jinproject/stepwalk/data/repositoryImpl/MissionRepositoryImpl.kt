@@ -172,7 +172,7 @@ class MissionRepositoryImpl @Inject constructor(
 
     override suspend fun completeMission(designation: String) {
         suspendAndCatchStepMateData(retrofit) {
-            missionApi.completeMission(title = designation)
+            missionApi.completeMission(designation = designation)
         }
     }
 

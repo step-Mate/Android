@@ -15,7 +15,7 @@ interface MissionApi {
     suspend fun getMissionList(): List<MissionsResponse>
 
     @POST("missions/complete")
-    suspend fun completeMission(@Query("title") title: String): Response<Any>
+    suspend fun completeMission(@Query("designation") designation: String): Response<Any>
 
     @PATCH("select-designation")
     suspend fun selectDesignation(@Body designationRequest: DesignationRequest): Response<Any>

@@ -25,7 +25,6 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.handleCoroutineException
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.time.ZonedDateTime
@@ -37,7 +36,7 @@ internal class StepSensorViewModel @Inject constructor(
     private val manageStepUseCase: ManageStepUseCase,
     private val healthConnector: HealthConnector,
     private val updateMissionUseCases: UpdateMissionUseCases,
-    private val checkUpdateMissionUseCases: CheckUpdateMissionUseCases
+    private val checkUpdateMissionUseCases: CheckUpdateMissionUseCases,
     checkHasTokenUseCase: CheckHasTokenUseCase,
 ) {
     private var startTime: ZonedDateTime = ZonedDateTime.now()
