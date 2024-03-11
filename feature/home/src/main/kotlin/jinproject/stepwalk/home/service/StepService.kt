@@ -22,6 +22,8 @@ import jinproject.stepwalk.home.utils.createChannel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import java.util.Calendar
 import javax.inject.Inject
@@ -66,15 +68,16 @@ internal class StepService : LifecycleService() {
                 stepNotiLayout?.setTextViewText(R.id.tv_stepHeader, stepData.current.toString())
                 notificationManager.notify(NOTIFICATION_ID, notification)
             }
-            stepSensorViewModel.designation.collectLatest { completeList ->
-                completeList.forEach { designation ->
-                    notificationManager.notify(
-                        NOTIFICATION_MISSION_ID,
-                        setMissionNotification(designation)
-                    )
-                }
-            }
+
         }
+        stepSensorViewModel.designation.onEach { completeList ->
+            completeList.forEach { designation ->
+                notificationManager.notify(
+                    NOTIFICATION_MISSION_ID,
+                    setMissionNotification(designation)
+                )
+            }
+        }.launchIn(lifecycleScope)
 
         registerSensor()
         alarmUpdatingDayStep()

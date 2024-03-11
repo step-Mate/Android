@@ -124,6 +124,7 @@ private fun EditScreen(
     DefaultLayout(
         modifier = Modifier
             .fillMaxSize()
+            .imePadding()
             .systemBarsPadding()
             .verticalScroll(rememberScrollState()),
         contentPaddingValues = PaddingValues(horizontal = 12.dp),
@@ -139,10 +140,7 @@ private fun EditScreen(
             }
         }
     ) {
-        Column(
-            modifier = Modifier
-                .imePadding()
-        ) {
+        Column {
             if (!loginState) {
                 DefaultOutlinedTextField(
                     modifier = Modifier.padding(top = 20.dp),
@@ -252,27 +250,22 @@ private fun EditScreen(
             }
         }
 
-        Column(
+        DefaultButton(
             modifier = Modifier
-                .padding(bottom = 30.dp),
-            verticalArrangement = Arrangement.Bottom
+                .fillMaxWidth()
+                .padding(top = 10.dp)
+                .height(50.dp),
+            onClick = {
+                onEvent(EditUserEvent.Save)
+            },
+            enabled = !(nicknameValidState != Valid.Success && ageValidState && heightValidState && weightValidState),
+            backgroundColor = MaterialTheme.colorScheme.primary,
+            shape = RoundedCornerShape(5.dp)
         ) {
-            DefaultButton(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(50.dp),
-                onClick = {
-                    onEvent(EditUserEvent.Save)
-                },
-                enabled = !(nicknameValidState != Valid.Success && ageValidState && heightValidState && weightValidState),
-                backgroundColor = MaterialTheme.colorScheme.primary,
-                shape = RoundedCornerShape(5.dp)
-            ) {
-                DescriptionLargeText(
-                    text = "저장",
-                    color = MaterialTheme.colorScheme.onPrimary.copy(alpha = if (!(nicknameValidState != Valid.Success && ageValidState && heightValidState && weightValidState)) 1f else 0.3f)
-                )
-            }
+            DescriptionLargeText(
+                text = "저장",
+                color = MaterialTheme.colorScheme.onPrimary.copy(alpha = if (!(nicknameValidState != Valid.Success && ageValidState && heightValidState && weightValidState)) 1f else 0.3f)
+            )
         }
     }
 }

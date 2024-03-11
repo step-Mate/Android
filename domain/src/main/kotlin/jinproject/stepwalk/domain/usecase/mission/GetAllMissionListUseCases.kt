@@ -1,5 +1,6 @@
 package jinproject.stepwalk.domain.usecase.mission
 
+import jinproject.stepwalk.domain.model.mission.MissionComposite
 import jinproject.stepwalk.domain.model.mission.MissionList
 import jinproject.stepwalk.domain.repository.MissionRepository
 import kotlinx.coroutines.flow.Flow
@@ -11,7 +12,12 @@ class GetAllMissionListUseCases @Inject constructor(
 ) {
     operator fun invoke(): Flow<List<MissionList>> = missionRepository.getAllMissionList().map {list ->
         list.map { mission ->
-            MissionList(mission.title,mission.list.sortedBy { it.getMissionGoal() })
+            MissionList(mission.title,
+                if (mission.list.first() is MissionComposite)
+                    mission.list.sortedBy { (it as MissionComposite).getOriginalGoal() }
+                else
+                    mission.list.sortedBy { it.getMissionGoal() }
+            )
         }
     }
 }

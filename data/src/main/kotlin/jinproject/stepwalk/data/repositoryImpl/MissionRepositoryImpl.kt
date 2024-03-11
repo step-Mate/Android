@@ -152,14 +152,12 @@ class MissionRepositoryImpl @Inject constructor(
             checkUpdateMission(
                 missionLocal.getAllMissionList().first().toMissionDataList()
                     .sortedBy { it.title }).forEach { designation ->
-                if (designation != "뉴비")
                     completeMission(designation)
             }
 
         } else {
             checkUpdateMission(originalList.await()).forEach { designation ->
-                if (designation != "뉴비")
-                    completeMission(designation)
+                completeMission(designation)
             }
         }
     }
@@ -189,10 +187,15 @@ class MissionRepositoryImpl @Inject constructor(
     override fun getMissionAchieved(missionType: MissionType): Flow<Int> =
         missionLocal.getMissionAchieved(missionType)
 
-    override suspend fun checkUpdateMission(): List<String> =
-        checkUpdateMission(
+    override suspend fun checkUpdateMission(): List<String> {
+        val complete = checkUpdateMission(
             missionLocal.getAllMissionList().first().toMissionDataList()
-                .sortedBy { it.title }).filter { it != "뉴비" }
+                .sortedBy { it.title })
+        complete.forEach { designation ->
+            completeMission(designation)
+        }
+        return complete
+    }
 
 
     private suspend fun checkUpdateMission(missionList: List<MissionList>): List<String> =

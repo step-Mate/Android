@@ -161,6 +161,7 @@ internal class StepSensorViewModel @Inject constructor(
     private suspend fun checkUpdateMissionList() = withContext(Dispatchers.IO) {
         val completeList = checkUpdateMissionUseCases()
         if (completeList.isNotEmpty()) {
+            Log.d("designation",completeList.toString())
             _designation.update { completeList }
         }
     }
