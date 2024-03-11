@@ -164,8 +164,10 @@ class MissionRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun updateMission(type: MissionType, achieved: Int) {
-        missionLocal.updateMissionAchieved(type, achieved)
+    override suspend fun updateMission(achieved: Int) {
+        val step = getMissionAchieved(MissionType.Step).first() + achieved
+        missionLocal.updateMissionAchieved(MissionType.Step,step)
+        missionLocal.updateMissionAchieved(MissionType.Calorie,(step * 0.003f).toInt())
     }
 
     override suspend fun completeMission(designation: String) {

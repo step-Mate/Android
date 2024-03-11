@@ -158,7 +158,7 @@ internal fun NavigationSuiteScope.stepMateNavigationSuiteItems(
 @Immutable
 internal object NavigationDefaults {
     @Composable
-    fun navigationIndicatorColor() = MaterialTheme.colorScheme.background
+    fun navigationIndicatorColor() = MaterialTheme.colorScheme.surface
 
     @Composable
     fun containerColor() = MaterialTheme.colorScheme.background

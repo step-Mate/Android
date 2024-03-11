@@ -7,7 +7,6 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material.SnackbarDuration
 import androidx.compose.material.SnackbarHostState
 import androidx.compose.material3.MaterialTheme
@@ -126,12 +125,11 @@ class StepMateActivity : ComponentActivity() {
                         snackBarHostState = snackBarHostState,
                         dismissSnackBar = { snackBarHostState.currentSnackbarData?.dismiss() })
                 }
-            ) { paddingValues ->
+            ) {
                 NavigationGraph(
                     router = router,
                     modifier = Modifier
-                        .fillMaxSize()
-                        .padding(bottom = paddingValues.calculateBottomPadding()),
+                        .fillMaxSize(),
                     startDestination = if (permissionState) homeGraph else permissionRoute,
                     showSnackBar = { snackBarMessage ->
                         coroutineScope.launch {

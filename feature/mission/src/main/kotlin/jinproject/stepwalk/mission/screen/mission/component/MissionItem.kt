@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -11,6 +12,7 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -21,6 +23,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
 import jinproject.stepwalk.design.component.DescriptionLargeText
 import jinproject.stepwalk.design.component.VerticalSpacer
@@ -29,6 +33,7 @@ import jinproject.stepwalk.domain.model.mission.MissionList
 import jinproject.stepwalk.mission.screen.component.MissionBadge
 import jinproject.stepwalk.mission.screen.component.MissionMedal
 import jinproject.stepwalk.mission.util.getIcon
+import jinproject.stepwalk.design.R
 
 @Composable
 internal fun MissionItem(
@@ -49,12 +54,18 @@ internal fun MissionItem(
             .fillMaxWidth()
             .clickable { onClick() },
     ) {
-        DescriptionLargeText(
+        Row(
             modifier = Modifier
-                .padding(top = 20.dp, start = 20.dp),
-            text = missionList.title,
-            color = MaterialTheme.colorScheme.onSurface
-        )
+                .padding(top = 20.dp, start = 20.dp, end = 20.dp).fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            DescriptionLargeText(
+                text = missionList.title,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            Icon(imageVector = ImageVector.vectorResource(id = R.drawable.ic_arrow_right_small), contentDescription = "right")
+        }
         VerticalSpacer(height = if (missionList.list.first() is MissionComposite) 0.dp else 20.dp)
         LazyRow(
             modifier = Modifier

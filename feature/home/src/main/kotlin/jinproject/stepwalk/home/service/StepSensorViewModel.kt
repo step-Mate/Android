@@ -3,16 +3,13 @@ package jinproject.stepwalk.home.service
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
-import androidx.work.Data
-import androidx.work.OneTimeWorkRequest
-import androidx.work.OneTimeWorkRequestBuilder
-import androidx.work.OutOfQuotaPolicy
 import jinproject.stepwalk.design.component.lazyList.TimeScheduler
 import jinproject.stepwalk.domain.model.StepData
+import jinproject.stepwalk.domain.usecase.mission.CheckUpdateMissionUseCases
+import jinproject.stepwalk.domain.usecase.mission.UpdateMissionUseCases
 import jinproject.stepwalk.domain.usecase.step.ManageStepUseCase
 import jinproject.stepwalk.domain.usecase.step.SetUserDayStepUseCase
 import jinproject.stepwalk.home.HealthConnector
-import jinproject.stepwalk.home.worker.MissionUpdateWorker
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -23,6 +20,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.time.ZonedDateTime
 import javax.inject.Inject
 import kotlin.coroutines.CoroutineContext
@@ -31,12 +29,17 @@ internal class StepSensorViewModel @Inject constructor(
     private val setUserDayStepUseCase: SetUserDayStepUseCase,
     private val manageStepUseCase: ManageStepUseCase,
     private val healthConnector: HealthConnector,
+    private val updateMissionUseCases: UpdateMissionUseCases,
+    private val checkUpdateMissionUseCases: CheckUpdateMissionUseCases
 ) {
     private var startTime: ZonedDateTime = ZonedDateTime.now()
     private var endTime: ZonedDateTime = ZonedDateTime.now()
 
     private val _step: MutableStateFlow<StepData> = MutableStateFlow(StepData.getInitValues())
     val step: StateFlow<StepData> get() = _step.asStateFlow()
+
+    private val _designation: MutableStateFlow<List<String>> = MutableStateFlow(emptyList())
+    val designation: StateFlow<List<String>> get() = _designation.asStateFlow()
 
     val viewModelScope: CoroutineScope =
         ViewModelCoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
@@ -45,6 +48,7 @@ internal class StepSensorViewModel @Inject constructor(
         scope = viewModelScope,
         callBack = {
             updateStepBySensor()
+            checkUpdateMissionList()
         }
     )
 
@@ -92,6 +96,7 @@ internal class StepSensorViewModel @Inject constructor(
             setUserDayStepUseCase.addStep(
                 walked.toInt()
             )
+            updateMissionUseCases(walked.toInt())
         }
 
         _step.update { state -> state.copy(last = step.value.current) }
@@ -123,14 +128,11 @@ internal class StepSensorViewModel @Inject constructor(
         }
     }
 
-    fun getMissionUpdateWorker(): OneTimeWorkRequest {
-        val inputData = Data.Builder()
-            .putLong(KEY_DISTANCE, step.value.current - step.value.last)
-            .build()
-        return OneTimeWorkRequestBuilder<MissionUpdateWorker>()
-            .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
-            .setInputData(inputData)
-            .build()
+    private suspend fun checkUpdateMissionList() = withContext(Dispatchers.IO) {
+        val completeList = checkUpdateMissionUseCases()
+        if (completeList.isNotEmpty()) {
+            _designation.update { completeList }
+        }
     }
 
     companion object {
