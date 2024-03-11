@@ -6,24 +6,28 @@ import android.view.ViewTreeObserver
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material.SnackbarDuration
 import androidx.compose.material.SnackbarHostState
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.LocalTonalElevationEnabled
 import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.NavigationDrawerItemDefaults
 import androidx.compose.material3.NavigationRailItemDefaults
-import androidx.compose.material3.Scaffold
+import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
+import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.material3.adaptive.navigationsuite.ExperimentalMaterial3AdaptiveNavigationSuiteApi
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteDefaults
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteItemColors
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffold
+import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffoldDefaults
+import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteType
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
@@ -33,9 +37,9 @@ import jinproject.stepwalk.app.ui.StepMateViewModel
 import jinproject.stepwalk.app.ui.navigation.NavigationDefaults
 import jinproject.stepwalk.app.ui.navigation.NavigationGraph
 import jinproject.stepwalk.app.ui.navigation.Router
-import jinproject.stepwalk.app.ui.navigation.permissionRoute
+import jinproject.stepwalk.app.ui.navigation.isShownBar
+import jinproject.stepwalk.app.ui.navigation.permission.permissionRoute
 import jinproject.stepwalk.app.ui.navigation.stepMateNavigationSuiteItems
-import jinproject.stepwalk.design.component.StepMateSnackBar
 import jinproject.stepwalk.design.theme.StepWalkTheme
 import jinproject.stepwalk.home.navigation.homeGraph
 import kotlinx.coroutines.CoroutineScope
@@ -73,7 +77,10 @@ class StepMateActivity : ComponentActivity() {
         )
     }
 
-    @OptIn(ExperimentalMaterial3AdaptiveNavigationSuiteApi::class)
+    @OptIn(
+        ExperimentalMaterial3AdaptiveNavigationSuiteApi::class,
+        ExperimentalMaterial3AdaptiveApi::class
+    )
     @Composable
     private fun StepMateApp(
         coroutineScope: CoroutineScope = rememberCoroutineScope(),
@@ -94,44 +101,42 @@ class StepMateActivity : ComponentActivity() {
             ),
             navigationDrawerItemColors = NavigationDrawerItemDefaults.colors(),
         )
+        val currentWindowAdaptiveInfo =
+            NavigationSuiteScaffoldDefaults.calculateFromAdaptiveInfo(currentWindowAdaptiveInfo())
 
-        NavigationSuiteScaffold(
-            navigationSuiteItems = {
-                stepMateNavigationSuiteItems(
-                    currentDestination = currentDestination,
-                    itemColors = navigationSuiteItemColors,
-                    onClick = { destination ->
-                        router.navigateTopLevelDestination(destination)
-                    }
-                )
-            },
-            containerColor = MaterialTheme.colorScheme.background,
-            contentColor = MaterialTheme.colorScheme.onBackground,
-            navigationSuiteColors = NavigationSuiteDefaults.colors(
-                navigationBarContainerColor = NavigationDefaults.containerColor(),
-                navigationBarContentColor = NavigationDefaults.contentColor(),
-                navigationRailContainerColor = NavigationDefaults.containerColor(),
-                navigationRailContentColor = NavigationDefaults.contentColor(),
-                navigationDrawerContainerColor = NavigationDefaults.containerColor(),
-                navigationDrawerContentColor = NavigationDefaults.contentColor(),
-            ),
-        ) {
-            Scaffold(
-                modifier = Modifier.fillMaxSize(),
-                snackbarHost = {
-                    StepMateSnackBar(headerMessage = snackBarHostState.currentSnackbarData?.message
-                        ?: "",
-                        contentMessage = snackBarHostState.currentSnackbarData?.actionLabel
-                            ?: "",
-                        snackBarHostState = snackBarHostState,
-                        dismissSnackBar = { snackBarHostState.currentSnackbarData?.dismiss() })
-                }
-            ) { paddingValues ->
+        val layoutType by rememberUpdatedState(
+            newValue = if (!currentDestination.isShownBar())
+                NavigationSuiteType.None
+            else
+                currentWindowAdaptiveInfo
+        )
+
+        CompositionLocalProvider(value = LocalTonalElevationEnabled provides false) {
+            NavigationSuiteScaffold(
+                navigationSuiteItems = {
+                    stepMateNavigationSuiteItems(
+                        currentDestination = currentDestination,
+                        itemColors = navigationSuiteItemColors,
+                        onClick = { destination ->
+                            router.navigateTopLevelDestination(destination)
+                        }
+                    )
+                },
+                layoutType = layoutType,
+                containerColor = Color.Transparent,
+                contentColor = Color.Transparent,
+                navigationSuiteColors = NavigationSuiteDefaults.colors(
+                    navigationBarContainerColor = NavigationDefaults.containerColor(),
+                    navigationBarContentColor = NavigationDefaults.contentColor(),
+                    navigationRailContainerColor = NavigationDefaults.containerColor(),
+                    navigationRailContentColor = NavigationDefaults.contentColor(),
+                    navigationDrawerContainerColor = NavigationDefaults.containerColor(),
+                    navigationDrawerContentColor = NavigationDefaults.contentColor(),
+                ),
+            ) {
                 NavigationGraph(
                     router = router,
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(bottom = paddingValues.calculateBottomPadding()),
+                    modifier = Modifier,
                     startDestination = if (permissionState) homeGraph else permissionRoute,
                     showSnackBar = { snackBarMessage ->
                         coroutineScope.launch {

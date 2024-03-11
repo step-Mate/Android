@@ -20,6 +20,7 @@ import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.animateLottieCompositionAsState
 import com.airbnb.lottie.compose.rememberLottieComposition
 import jinproject.stepwalk.design.component.DescriptionLargeText
+import jinproject.stepwalk.design.component.DescriptionSmallText
 import jinproject.stepwalk.design.component.FooterText
 import jinproject.stepwalk.design.component.HorizontalWeightSpacer
 import jinproject.stepwalk.design.component.VerticalWeightSpacer
@@ -34,6 +35,7 @@ import jinproject.stepwalk.home.screen.home.state.HealthTab
 @Composable
 internal fun UserInfoLayout(
     modifier: Modifier = Modifier,
+    userName: String = "",
     step: HealthTab,
 ) {
     val progress = (step.header.total.toFloat() / step.header.goal.toFloat()).coerceIn(0f, 1f)
@@ -54,7 +56,7 @@ internal fun UserInfoLayout(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(28.dp),
-            name = "홍길동",
+            name = userName,
         )
         VerticalWeightSpacer(float = 1f)
         StepLayout(
@@ -105,12 +107,15 @@ internal fun UserStatus(
         Column(
             modifier = Modifier
         ) {
-            Row(
-                verticalAlignment = Alignment.Bottom,
-            ) {
-                DescriptionLargeText(text = name)
-                FooterText(text = "님")
-            }
+            if (name.isNotBlank())
+                Row(
+                    verticalAlignment = Alignment.Bottom,
+                ) {
+                    DescriptionLargeText(text = name)
+                    FooterText(text = "님")
+                }
+            else
+                DescriptionSmallText(text = "StepMate 를 이용해 주셔서 감사해요.")
             FooterText(text = "오늘도 즐거운 하루 되세요!", modifier = Modifier.padding(start = 2.dp))
         }
         HorizontalWeightSpacer(float = 1f)
