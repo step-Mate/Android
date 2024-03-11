@@ -74,7 +74,7 @@ internal fun NavigationGraph(
             popBackStack = navController::popBackStackIfCan,
             backStackToHome = {
                 val navOptions = navOptions {
-                    popUpTo(navController.graph.id){
+                    popUpTo(navController.graph.id) {
                         inclusive = true
                     }
                 }
