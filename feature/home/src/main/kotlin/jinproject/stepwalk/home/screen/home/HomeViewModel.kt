@@ -4,8 +4,12 @@ import androidx.compose.runtime.Stable
 import androidx.health.connect.client.permission.HealthPermission
 import androidx.health.connect.client.records.StepsRecord
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import jinproject.stepwalk.core.catchDataFlow
+import jinproject.stepwalk.domain.usecase.auth.CheckHasTokenUseCase
 import jinproject.stepwalk.domain.usecase.setting.StepGoalUseCase
+import jinproject.stepwalk.domain.usecase.user.GetMyInfoUseCases
 import jinproject.stepwalk.home.HealthConnector
 import jinproject.stepwalk.home.screen.home.state.Day
 import jinproject.stepwalk.home.screen.home.state.HealthTab
@@ -20,7 +24,10 @@ import jinproject.stepwalk.home.utils.onKorea
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
 import java.time.Duration
 import java.time.Instant
@@ -50,6 +57,8 @@ internal data class HomeUiState(
 internal class HomeViewModel @Inject constructor(
     private val healthConnector: HealthConnector,
     private val stepGoalUseCase: StepGoalUseCase,
+    tokenUseCase: CheckHasTokenUseCase,
+    private val getMyInfoUseCase: GetMyInfoUseCases,
 ) : ViewModel() {
 
     private val _uiState: MutableStateFlow<HomeUiState> =
@@ -59,6 +68,9 @@ internal class HomeViewModel @Inject constructor(
 
     private val _time: MutableStateFlow<Time> = MutableStateFlow(Day)
     val time: StateFlow<Time> get() = _time.asStateFlow()
+
+    private var _userName: MutableStateFlow<String> = MutableStateFlow("")
+    val userName get() = _userName.asStateFlow()
 
     private val today get() = Instant.now().onKorea()
     private val endTime
@@ -79,6 +91,18 @@ internal class HomeViewModel @Inject constructor(
         }.toMutableSet().apply {
             addAll(healthDataTypes.map { HealthPermission.getWritePermission(it) })
         }.toSet()
+
+    init {
+        tokenUseCase.invoke().onEach {  hasToken ->
+            if(hasToken)
+                getMyInfoUseCase().onEach { user ->
+                    _userName.update { user.name }
+                }.catchDataFlow(
+                    action = { e -> e },
+                    onException = { e -> }
+                ).collect()
+        }.launchIn(viewModelScope)
+    }
 
     suspend fun checkPermissions() = healthConnector.checkPermissions(permissions)
 

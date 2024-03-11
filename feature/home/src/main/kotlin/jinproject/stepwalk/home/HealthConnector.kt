@@ -8,6 +8,7 @@ import androidx.activity.result.contract.ActivityResultContract
 import androidx.health.connect.client.HealthConnectClient
 import androidx.health.connect.client.PermissionController
 import androidx.health.connect.client.aggregate.AggregateMetric
+import androidx.health.connect.client.permission.HealthPermission
 import androidx.health.connect.client.records.HeartRateRecord
 import androidx.health.connect.client.records.StepsRecord
 import androidx.health.connect.client.records.metadata.DataOrigin
@@ -288,5 +289,16 @@ class HealthConnector @Inject constructor(
                 put(HealthCareExtras.KEY_HEART_RATE_MIN, HeartRateRecord.BPM_MIN)
                 put(HealthCareExtras.KEY_HEART_RATE_AVG, HeartRateRecord.BPM_AVG)
             }
+
+        private val healthDataTypes = setOf(
+            StepsRecord::class,
+        )
+
+        val healthConnectPermissions: Set<String> =
+            healthDataTypes.map {
+                HealthPermission.getReadPermission(it)
+            }.toMutableSet().apply {
+                addAll(healthDataTypes.map { HealthPermission.getWritePermission(it) })
+            }.toSet()
     }
 }

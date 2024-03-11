@@ -60,6 +60,7 @@ internal fun HomeScreen(
 ) {
     val uiState by homeViewModel.uiState.collectAsStateWithLifecycle()
     val time by homeViewModel.time.collectAsStateWithLifecycle()
+    val userName by homeViewModel.userName.collectAsStateWithLifecycle()
 
     LifecycleEventEffect(event = Lifecycle.Event.ON_CREATE) {
         context.startForegroundService(Intent(context, StepService::class.java))
@@ -107,6 +108,7 @@ internal fun HomeScreen(
 
     HomeScreen(
         uiState = uiState,
+        userName = userName,
         setTimeOnGraph = homeViewModel::setTime,
         navigateToCalendar = navigateToCalendar,
         navigateToHomeSetting = navigateToHomeSetting,
@@ -116,6 +118,7 @@ internal fun HomeScreen(
 @Composable
 private fun HomeScreen(
     uiState: HomeUiState,
+    userName: String,
     context: Context = LocalContext.current,
     density: Density = LocalDensity.current,
     setTimeOnGraph: (Time) -> Unit,
@@ -158,6 +161,7 @@ private fun HomeScreen(
                         modifier = Modifier
                             .padding(bottom = 10.dp, start = 12.dp, end = 12.dp),
                         step = uiState.step,
+                        userName = userName,
                     )
                 }
             )
@@ -201,6 +205,7 @@ private fun PreviewHomeScreen(
 ) = StepWalkTheme {
     HomeScreen(
         uiState = homeUiState,
+        userName = "",
         setTimeOnGraph = {},
         navigateToCalendar = {},
         navigateToHomeSetting = {},

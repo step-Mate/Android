@@ -1,5 +1,6 @@
 package jinproject.stepwalk.home.service
 
+import android.util.Log
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
@@ -9,10 +10,13 @@ import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.OutOfQuotaPolicy
 import jinproject.stepwalk.design.component.lazyList.TimeScheduler
 import jinproject.stepwalk.domain.model.StepData
+import jinproject.stepwalk.domain.model.exception.StepMateHttpException
+import jinproject.stepwalk.domain.usecase.auth.CheckHasTokenUseCase
 import jinproject.stepwalk.domain.usecase.step.ManageStepUseCase
 import jinproject.stepwalk.domain.usecase.step.SetUserDayStepUseCase
 import jinproject.stepwalk.home.HealthConnector
 import jinproject.stepwalk.home.worker.MissionUpdateWorker
+import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -21,7 +25,10 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.handleCoroutineException
 import kotlinx.coroutines.launch
 import java.time.ZonedDateTime
 import javax.inject.Inject
@@ -31,6 +38,7 @@ internal class StepSensorViewModel @Inject constructor(
     private val setUserDayStepUseCase: SetUserDayStepUseCase,
     private val manageStepUseCase: ManageStepUseCase,
     private val healthConnector: HealthConnector,
+    checkHasTokenUseCase: CheckHasTokenUseCase,
 ) {
     private var startTime: ZonedDateTime = ZonedDateTime.now()
     private var endTime: ZonedDateTime = ZonedDateTime.now()
@@ -38,8 +46,20 @@ internal class StepSensorViewModel @Inject constructor(
     private val _step: MutableStateFlow<StepData> = MutableStateFlow(StepData.getInitValues())
     val step: StateFlow<StepData> get() = _step.asStateFlow()
 
+    private val coroutineExceptionHandler = CoroutineExceptionHandler { coroutineContext, t ->
+        when (t) {
+            is StepMateHttpException -> {
+                Log.e("test", "HttpException [${t.code}] has occurred cuz of [${t.message}]")
+            }
+
+            else -> {
+                Log.d("test", "error has occurred : ${t.message}")
+            }
+        }
+    }
+
     val viewModelScope: CoroutineScope =
-        ViewModelCoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
+        ViewModelCoroutineScope(SupervisorJob() + Dispatchers.Main.immediate + coroutineExceptionHandler)
 
     private val sensorTimeScheduler = TimeScheduler(
         scope = viewModelScope,
@@ -49,6 +69,7 @@ internal class StepSensorViewModel @Inject constructor(
     )
 
     private var isRecreated = true
+    private var isLoginUser = false
 
     init {
         viewModelScope.launch {
@@ -65,6 +86,10 @@ internal class StepSensorViewModel @Inject constructor(
                 )
             }
         }
+
+        checkHasTokenUseCase().onEach { bool ->
+            isLoginUser = bool
+        }.launchIn(viewModelScope)
     }
 
     suspend fun onSensorChanged(stepBySensor: Long) {
@@ -89,9 +114,11 @@ internal class StepSensorViewModel @Inject constructor(
                 startTime = startTime,
                 endTime = endTime,
             )
-            setUserDayStepUseCase.addStep(
-                walked.toInt()
-            )
+
+            if (isLoginUser)
+                setUserDayStepUseCase.addStep(
+                    walked.toInt()
+                )
         }
 
         _step.update { state -> state.copy(last = step.value.current) }
@@ -106,9 +133,11 @@ internal class StepSensorViewModel @Inject constructor(
                 startTime = startTime,
                 endTime = endTime,
             )
-            setUserDayStepUseCase.queryDailyStep(
-                step.value.current.toInt()
-            )
+
+            if (isLoginUser)
+                setUserDayStepUseCase.queryDailyStep(
+                    step.value.current.toInt()
+                )
 
             _step.update { state ->
                 state.copy(
