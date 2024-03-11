@@ -11,23 +11,32 @@ import jinproject.stepwalk.core.SnackBarMessage
 import jinproject.stepwalk.home.screen.calendar.CalendarScreen
 import jinproject.stepwalk.home.screen.home.HomeScreen
 import jinproject.stepwalk.home.screen.homeSetting.HomeSettingScreen
+import jinproject.stepwalk.home.screen.homeUserBody.HomeUserBodyScreen
 
 const val homeGraph = "homeGraph"
 const val homeRoute = "home"
+const val homeUserBody = "homeUserBody"
 private const val calendarRoute = "calendar"
 private const val calendarLink = "$calendarRoute/{start}"
 private const val homeSettingRoute = "homeSetting"
 
 fun NavGraphBuilder.homeNavGraph(
+    startDestination: String,
     navigateToCalendar: (Long) -> Unit,
     popBackStack: () -> Unit,
     showSnackBar: (SnackBarMessage) -> Unit,
     navigateToHomeSetting: () -> Unit,
+    navigateToHome: (NavOptions?) -> Unit,
 ) {
     navigation(
         route = homeGraph,
-        startDestination = homeRoute
+        startDestination = startDestination
     ) {
+        composable(route = homeUserBody) {
+            HomeUserBodyScreen(
+                navigateToHome = navigateToHome,
+            )
+        }
         composable(route = homeRoute) {
             HomeScreen(
                 navigateToCalendar = navigateToCalendar,
@@ -63,10 +72,10 @@ fun NavController.navigateToCalendar(time: Long) {
     this.navigate("$calendarRoute/$time")
 }
 
-fun NavController.backStackToHome() {
-    this.popBackStack(homeRoute, inclusive = false)
-}
-
 fun NavController.navigateToHomeSetting() {
     this.navigate(homeSettingRoute)
+}
+
+fun NavController.navigateToHomeGraph(navOptions: NavOptions?) {
+    this.navigate(homeGraph, navOptions = navOptions)
 }

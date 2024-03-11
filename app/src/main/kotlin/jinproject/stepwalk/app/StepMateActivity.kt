@@ -42,6 +42,8 @@ import jinproject.stepwalk.app.ui.navigation.permission.permissionRoute
 import jinproject.stepwalk.app.ui.navigation.stepMateNavigationSuiteItems
 import jinproject.stepwalk.design.theme.StepWalkTheme
 import jinproject.stepwalk.home.navigation.homeGraph
+import jinproject.stepwalk.home.navigation.homeRoute
+import jinproject.stepwalk.home.navigation.homeUserBody
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -90,6 +92,7 @@ class StepMateActivity : ComponentActivity() {
         val snackBarHostState = remember { SnackbarHostState() }
 
         val permissionState by stepMateViewModel.permissionState.collectAsStateWithLifecycle()
+        val isBodyDataExist by stepMateViewModel.isBodyDataExist.collectAsStateWithLifecycle()
 
         val currentDestination = router.currentDestination
         val navigationSuiteItemColors = NavigationSuiteItemColors(
@@ -138,6 +141,7 @@ class StepMateActivity : ComponentActivity() {
                     router = router,
                     modifier = Modifier,
                     startDestination = if (permissionState) homeGraph else permissionRoute,
+                    homeStartDestination = if (isBodyDataExist) homeRoute else homeUserBody,
                     showSnackBar = { snackBarMessage ->
                         coroutineScope.launch {
                             snackBarHostState.showSnackbar(

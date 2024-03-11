@@ -2,23 +2,16 @@ package jinproject.stepwalk.home.screen.homeSetting
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentWidth
-import androidx.compose.foundation.pager.PageSize
-import androidx.compose.foundation.pager.VerticalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -28,18 +21,16 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.util.lerp
 import androidx.hilt.navigation.compose.hiltViewModel
 import jinproject.stepwalk.core.SnackBarMessage
 import jinproject.stepwalk.design.R
 import jinproject.stepwalk.design.component.DescriptionLargeText
-import jinproject.stepwalk.design.component.HeadlineText
 import jinproject.stepwalk.design.component.HorizontalDivider
 import jinproject.stepwalk.design.component.HorizontalWeightSpacer
+import jinproject.stepwalk.design.component.StepMateNumberPicker
 import jinproject.stepwalk.design.component.StepMateTopBar
 import jinproject.stepwalk.design.component.VerticalSpacer
 import jinproject.stepwalk.design.component.clickableAvoidingDuplication
@@ -47,7 +38,6 @@ import jinproject.stepwalk.design.component.layout.DefaultLayout
 import jinproject.stepwalk.design.theme.StepWalkTheme
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import kotlin.math.absoluteValue
 
 @Composable
 internal fun HomeSettingScreen(
@@ -84,67 +74,23 @@ private fun HomeSettingScreen(
         mutableStateOf(false)
     }
 
-    if (isSheetVisible)
-        ModalBottomSheet(
-            onDismissRequest = {
-                val goal = pagerItems[pagerState.currentPage]
-                setStepGoal(goal)
-                showSnackBar(
-                    SnackBarMessage(
-                        headerMessage = "걸음수 목표치가 설정되었어요.",
-                        contentMessage = "목표치: [$goal]"
-                    )
-                )
-                isSheetVisible = false
-            },
-            sheetState = sheetState,
-            dragHandle = {
-                BottomSheetDefaults.DragHandle()
-            },
-            containerColor = MaterialTheme.colorScheme.background,
-        ) {
-            VerticalPager(
-                modifier = Modifier.height(300.dp),
-                state = pagerState,
-                pageSize = PageSize.Fixed(100.dp),
-                contentPadding = PaddingValues(vertical = 100.dp)
-            ) { page ->
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(90.dp)
-                        .padding(10.dp),
-                    verticalArrangement = Arrangement.Center
-                ) {
-                    HeadlineText(
-                        text = pagerItems[page].toString(),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .wrapContentWidth()
-                            .graphicsLayer {
-                                val pageOffset = (
-                                        (pagerState.currentPage - page) + pagerState.currentPageOffsetFraction
-                                        ).absoluteValue
-                                alpha = lerp(
-                                    start = 0.3f,
-                                    stop = 1f,
-                                    fraction = 1f - pageOffset.coerceIn(0f, 1f)
-                                )
-                                scaleX = lerp(
-                                    start = 0.5f,
-                                    stop = 1f,
-                                    fraction = 1f - pageOffset.coerceIn(0f, 1f)
-                                )
-                                scaleY = lerp(
-                                    start = 0.5f,
-                                    stop = 1f,
-                                    fraction = 1f - pageOffset.coerceIn(0f, 1f)
-                                )
-                            },
-                    )
-                }
-            }
-        }
+    StepMateNumberPicker(
+        isSheetVisible = isSheetVisible,
+        items = pagerItems,
+        pagerState = pagerState,
+        sheetState = sheetState,
+        updateIsSheetVisibility = { bool -> isSheetVisible = bool }
+    ) {
+        val goal = pagerItems[pagerState.currentPage]
+
+        setStepGoal(goal)
+        showSnackBar(
+            SnackBarMessage(
+                headerMessage = "걸음수 목표치가 설정되었어요.",
+                contentMessage = "목표치: [$goal]"
+            )
+        )
+    }
 
     DefaultLayout(
         topBar = {

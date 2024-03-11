@@ -56,7 +56,7 @@ internal const val permissionRoute = "permission"
 internal fun PermissionScreen(
     permissionViewModel: PermissionViewModel = hiltViewModel(),
     showSnackBar: (SnackBarMessage) -> Unit,
-    navigateToHome: (NavOptions?) -> Unit,
+    navigateToHomeGraph: (NavOptions?) -> Unit,
 ) {
     val notificationPermission by permissionViewModel.notificationPermission.collectAsStateWithLifecycle()
     val activityRecognitionPermission by permissionViewModel.activityRecognitionPermission.collectAsStateWithLifecycle()
@@ -65,7 +65,7 @@ internal fun PermissionScreen(
 
     SideEffect {
         if (notificationPermission && activityRecognitionPermission && exactAlarmPermission && healthConnectPermission)
-            navigateToHome(
+            navigateToHomeGraph(
                 navOptions {
                     popUpTo(permissionRoute) {
                         inclusive = true
