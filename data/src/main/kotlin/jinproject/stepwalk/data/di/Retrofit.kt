@@ -27,6 +27,7 @@ import retrofit2.converter.scalars.ScalarsConverterFactory
 import retrofit2.create
 import java.io.IOException
 import java.lang.reflect.Type
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import javax.inject.Qualifier
 import javax.inject.Singleton
@@ -64,6 +65,9 @@ internal object RetrofitWithTokenModule {
             .addInterceptor(HttpLoggingInterceptor().apply {
                 level = HttpLoggingInterceptor.Level.BODY
             })
+            .connectTimeout(30, TimeUnit.SECONDS)
+            .readTimeout(20, TimeUnit.SECONDS)
+            .writeTimeout(20, TimeUnit.SECONDS)
             .addInterceptor(headerInterceptor)
             .build()
     }

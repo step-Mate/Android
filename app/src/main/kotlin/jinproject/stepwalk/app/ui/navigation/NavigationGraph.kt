@@ -14,6 +14,8 @@ import androidx.navigation.NavDestination
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navOptions
+import jinproject.stepwalk.app.ui.navigation.permission.PermissionScreen
+import jinproject.stepwalk.app.ui.navigation.permission.permissionRoute
 import jinproject.stepwalk.core.SnackBarMessage
 import jinproject.stepwalk.home.navigation.homeNavGraph
 import jinproject.stepwalk.home.navigation.navigateToCalendar
@@ -133,30 +135,29 @@ internal fun NavigationSuiteScope.stepMateNavigationSuiteItems(
     itemColors: NavigationSuiteItemColors,
     onClick: (NavigationDestination) -> Unit,
 ) {
-    if (currentDestination.isShownBar())
-        NavigationDestination.entries.forEach { destination ->
-            val selected = currentDestination.isDestinationInHierarchy(destination)
+    NavigationDestination.entries.forEach { destination ->
+        val selected = currentDestination.isDestinationInHierarchy(destination)
 
-            item(
-                selected = selected,
-                onClick = { onClick(destination) },
-                icon = {
-                    if (!selected)
-                        Icon(
-                            imageVector = ImageVector.vectorResource(id = destination.icon),
-                            contentDescription = "clickIcon",
-                            tint = MaterialTheme.colorScheme.onSurface
-                        )
-                    else
-                        Icon(
-                            imageVector = ImageVector.vectorResource(id = destination.iconClicked),
-                            contentDescription = "clickedIcon",
-                            tint = MaterialTheme.colorScheme.onSurface
-                        )
-                },
-                colors = itemColors,
-            )
-        }
+        item(
+            selected = selected,
+            onClick = { onClick(destination) },
+            icon = {
+                if (!selected)
+                    Icon(
+                        imageVector = ImageVector.vectorResource(id = destination.icon),
+                        contentDescription = "clickIcon",
+                        tint = MaterialTheme.colorScheme.onSurface
+                    )
+                else
+                    Icon(
+                        imageVector = ImageVector.vectorResource(id = destination.iconClicked),
+                        contentDescription = "clickedIcon",
+                        tint = MaterialTheme.colorScheme.onSurface
+                    )
+            },
+            colors = itemColors,
+        )
+    }
 }
 
 @Immutable
