@@ -7,12 +7,12 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import androidx.navigation.navigation
-import jinproject.stepwalk.profile.screen.edit.EditScreen
-import jinproject.stepwalk.profile.screen.profile.ProfileScreen
-import jinproject.stepwalk.profile.screen.terms.TermsScreen
 import jinproject.stepwalk.core.SnackBarMessage
 import jinproject.stepwalk.core.slideLeftIn
 import jinproject.stepwalk.core.slideRightOut
+import jinproject.stepwalk.design.component.TermsScreen
+import jinproject.stepwalk.profile.screen.edit.EditScreen
+import jinproject.stepwalk.profile.screen.profile.ProfileScreen
 
 const val profileGraph = "profileGraph"
 const val profileRoute = "profile"

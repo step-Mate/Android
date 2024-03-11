@@ -14,6 +14,8 @@ import androidx.navigation.NavDestination
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navOptions
+import jinproject.stepwalk.app.ui.navigation.permission.PermissionScreen
+import jinproject.stepwalk.app.ui.navigation.permission.permissionRoute
 import jinproject.stepwalk.core.SnackBarMessage
 import jinproject.stepwalk.home.navigation.homeNavGraph
 import jinproject.stepwalk.home.navigation.navigateToCalendar
@@ -22,6 +24,8 @@ import jinproject.stepwalk.home.navigation.navigateToHomeSetting
 import jinproject.stepwalk.login.navigation.authNavGraph
 import jinproject.stepwalk.login.navigation.navigateToFindId
 import jinproject.stepwalk.login.navigation.navigateToFindPassword
+import jinproject.stepwalk.login.navigation.navigateToInformation
+import jinproject.stepwalk.login.navigation.navigateToInformationTerms
 import jinproject.stepwalk.login.navigation.navigateToLogin
 import jinproject.stepwalk.login.navigation.navigateToSignUp
 import jinproject.stepwalk.login.navigation.navigateToSignUpDetail
@@ -67,6 +71,8 @@ internal fun NavigationGraph(
         )
 
         authNavGraph(
+            navigateToInformation = navController::navigateToInformation,
+            navigateToTerms = navController::navigateToInformationTerms,
             navigateToSignUp = navController::navigateToSignUp,
             navigateToSignUpDetail = navController::navigateToSignUpDetail,
             navigateToFindId = navController::navigateToFindId,
@@ -74,7 +80,7 @@ internal fun NavigationGraph(
             popBackStack = navController::popBackStackIfCan,
             backStackToHome = {
                 val navOptions = navOptions {
-                    popUpTo(navController.graph.id){
+                    popUpTo(navController.graph.id) {
                         inclusive = true
                     }
                 }
@@ -129,30 +135,29 @@ internal fun NavigationSuiteScope.stepMateNavigationSuiteItems(
     itemColors: NavigationSuiteItemColors,
     onClick: (NavigationDestination) -> Unit,
 ) {
-    if (currentDestination.isShownBar())
-        NavigationDestination.entries.forEach { destination ->
-            val selected = currentDestination.isDestinationInHierarchy(destination)
+    NavigationDestination.entries.forEach { destination ->
+        val selected = currentDestination.isDestinationInHierarchy(destination)
 
-            item(
-                selected = selected,
-                onClick = { onClick(destination) },
-                icon = {
-                    if (!selected)
-                        Icon(
-                            imageVector = ImageVector.vectorResource(id = destination.icon),
-                            contentDescription = "clickIcon",
-                            tint = MaterialTheme.colorScheme.onSurface
-                        )
-                    else
-                        Icon(
-                            imageVector = ImageVector.vectorResource(id = destination.iconClicked),
-                            contentDescription = "clickedIcon",
-                            tint = MaterialTheme.colorScheme.onSurface
-                        )
-                },
-                colors = itemColors,
-            )
-        }
+        item(
+            selected = selected,
+            onClick = { onClick(destination) },
+            icon = {
+                if (!selected)
+                    Icon(
+                        imageVector = ImageVector.vectorResource(id = destination.icon),
+                        contentDescription = "clickIcon",
+                        tint = MaterialTheme.colorScheme.onSurface
+                    )
+                else
+                    Icon(
+                        imageVector = ImageVector.vectorResource(id = destination.iconClicked),
+                        contentDescription = "clickedIcon",
+                        tint = MaterialTheme.colorScheme.onSurface
+                    )
+            },
+            colors = itemColors,
+        )
+    }
 }
 
 @Immutable
@@ -161,8 +166,8 @@ internal object NavigationDefaults {
     fun navigationIndicatorColor() = MaterialTheme.colorScheme.surface
 
     @Composable
-    fun containerColor() = MaterialTheme.colorScheme.background
+    fun containerColor() = MaterialTheme.colorScheme.surface
 
     @Composable
-    fun contentColor() = MaterialTheme.colorScheme.onBackground
+    fun contentColor() = MaterialTheme.colorScheme.onSurface
 }

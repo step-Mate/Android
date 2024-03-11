@@ -1,4 +1,4 @@
-package jinproject.stepwalk.app.ui.navigation
+package jinproject.stepwalk.app.ui.navigation.permission
 
 import android.Manifest
 import android.app.AlarmManager
@@ -48,6 +48,7 @@ import jinproject.stepwalk.design.component.VerticalSpacer
 import jinproject.stepwalk.design.component.clickableAvoidingDuplication
 import jinproject.stepwalk.design.component.layout.DefaultLayout
 import jinproject.stepwalk.design.theme.StepWalkTheme
+import jinproject.stepwalk.home.HealthConnector.Companion.healthConnectPermissions
 
 internal const val permissionRoute = "permission"
 
@@ -76,7 +77,6 @@ internal fun PermissionScreen(
 
     PermissionScreen(
         healthConnectPermissionContract = permissionViewModel::healthConnectPermissionContract.get(),
-        healthConnectPermissions = permissionViewModel::healthConnectPermissions.get(),
         requireInstallHealthApk = permissionViewModel::requireInstallHealthApk,
         showSnackBar = showSnackBar,
         notificationPermission = notificationPermission,
@@ -94,7 +94,6 @@ internal fun PermissionScreen(
 private fun PermissionScreen(
     context: Context = LocalContext.current,
     healthConnectPermissionContract: ActivityResultContract<Set<String>, Set<String>>,
-    healthConnectPermissions: Set<String>,
     requireInstallHealthApk: () -> Unit,
     showSnackBar: (SnackBarMessage) -> Unit,
     notificationPermission: Boolean,
@@ -340,7 +339,6 @@ internal fun PermissionDescription(
 private fun PreviewPermissionScreen() = StepWalkTheme {
     PermissionScreen(
         healthConnectPermissionContract = PermissionController.createRequestPermissionResultContract(),
-        healthConnectPermissions = setOf(),
         showSnackBar = {},
         notificationPermission = true,
         activityRecognitionPermission = false,

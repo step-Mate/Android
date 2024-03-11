@@ -3,8 +3,10 @@ package jinproject.stepwalk.profile.screen.profile.component
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -71,14 +73,14 @@ internal fun ProfileDetail(
                 .fillMaxWidth()
         ) {
             Row(
-                modifier = Modifier.padding(start = 30.dp, top = 50.dp),
-                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.padding(start = 30.dp, top = 50.dp).height(IntrinsicSize.Min),
+                verticalAlignment = Alignment.Bottom,
             ) {
                 FooterText(
                     text = userState.designation.ifEmpty { "뉴비" },
                     color = MaterialTheme.colorScheme.onSurface
                 )
-                HorizontalSpacer(width = 10.dp)
+                HorizontalSpacer(width = 4.dp)
                 DescriptionSmallText(
                     text = "${userState.name} 님",
                     color = MaterialTheme.colorScheme.onSurface
@@ -86,19 +88,19 @@ internal fun ProfileDetail(
             }
 
             Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.padding(start = 30.dp, top = 10.dp, bottom = 20.dp)
+                verticalAlignment = Alignment.Bottom,
+                modifier = Modifier.padding(start = 30.dp, top = 10.dp, bottom = 20.dp).height(IntrinsicSize.Min)
             ) {
                 DescriptionSmallText(
                     text = "${bodyDataState.age} 세",
                     color = MaterialTheme.colorScheme.onSurface
                 )
-                HorizontalSpacer(width = 10.dp)
+                HorizontalSpacer(width = 4.dp)
                 DescriptionSmallText(
                     text = "${bodyDataState.height} cm",
                     color = MaterialTheme.colorScheme.onSurface
                 )
-                HorizontalSpacer(width = 10.dp)
+                HorizontalSpacer(width = 4.dp)
                 DescriptionSmallText(
                     text = "${bodyDataState.weight} kg",
                     color = MaterialTheme.colorScheme.onSurface
