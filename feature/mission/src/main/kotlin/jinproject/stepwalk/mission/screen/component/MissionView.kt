@@ -58,7 +58,7 @@ internal fun MissionMedal(
         textMeasurer.measure(mission.getMissionGoal().toString(), textStyle)
     }
     val animateFloat =
-        remember(mission) { Animatable(if (mission.getMissionAchieved() == mission.getMissionGoal()) 1f else 0f) }
+        remember(mission) { Animatable(if (mission.getMissionAchieved() >= mission.getMissionGoal()) 1f else 0f) }
     LaunchedEffect(key1 = mission,animate) {
         if ((mission.getMissionAchieved() > 0 || mission.getMissionAchieved() < mission.getMissionGoal()) && animate) {
             animateFloat.animateTo(
@@ -68,8 +68,8 @@ internal fun MissionMedal(
         }
     }
     val currentBackgroundColor: Color = when {
-        !animate -> MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f)
         mission.getMissionAchieved() >= mission.getMissionGoal() -> MaterialTheme.colorScheme.primary
+        !animate -> MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f)
         else -> backgroundColor
     }
 
@@ -195,7 +195,7 @@ internal fun MissionBadge(
         )
     }
     val animateFloat =
-        remember { Animatable(if (mission.getMissionAchieved() == mission.getMissionGoal()) 1f else 0f) }
+        remember { Animatable(if (mission.getMissionAchieved() >= mission.getMissionGoal()) 1f else 0f) }
     LaunchedEffect(key1 = mission,animate) {
         if ((mission.getMissionAchieved() > 0 || mission.getMissionAchieved() < mission.getMissionGoal()) && animate) {
             animateFloat.animateTo(
@@ -205,8 +205,8 @@ internal fun MissionBadge(
         }
     }
     val currentBackgroundColor: Color = when {
-        !animate -> MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f)
         mission.getMissionAchieved() >= mission.getMissionGoal() -> MaterialTheme.colorScheme.primary
+        !animate -> MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f)
         else -> backgroundColor
     }
 

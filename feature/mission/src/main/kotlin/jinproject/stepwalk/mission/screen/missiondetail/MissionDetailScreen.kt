@@ -5,9 +5,12 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.layout.systemBarsPadding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -100,6 +103,7 @@ private fun MissionDetailScreen(
                 ?: ""
     }
     BottomSheetScaffold(
+        modifier = Modifier.systemBarsPadding(),
         scaffoldState = scaffoldState,
         sheetContent = {
             LazyVerticalGrid(
@@ -124,7 +128,7 @@ private fun MissionDetailScreen(
                 } else {//목표미션
                     items(items = missionList.list, key = { it.designation }) { mission ->
                         MissionMedal(
-                            modifier = Modifier.size(120.dp),
+                            modifier = Modifier.height(110.dp).width(90.dp),
                             icon = mission.getIcon(),
                             mission = mission,
                             animate = mission.designation == designation,

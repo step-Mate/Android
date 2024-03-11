@@ -106,7 +106,8 @@ internal fun InformationScreen(
                     contentDescription = "right arrow",
                     modifier = Modifier
                         .padding(end = 10.dp)
-                        .align(Alignment.CenterEnd)
+                        .align(Alignment.CenterEnd),
+                    tint = MaterialTheme.colorScheme.onSurface
                 )
             }
             VerticalSpacer(height = 30.dp)

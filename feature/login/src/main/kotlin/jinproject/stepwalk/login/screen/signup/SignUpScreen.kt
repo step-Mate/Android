@@ -1,8 +1,8 @@
 package jinproject.stepwalk.login.screen.signup
 
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Icon
@@ -76,7 +76,7 @@ private fun SignUpScreen(
 
     LoginLayout(
         text = "회원가입",
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier.padding(top = 30.dp),
         content = {
             VerticalSpacer(height = 30.dp)
             HeadlineText(

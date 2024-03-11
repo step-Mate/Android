@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -121,6 +122,10 @@ private fun EditScreen(
     val weightState by weight.collectAsStateWithLifecycle()
 
     DefaultLayout(
+        modifier = Modifier
+            .fillMaxSize()
+            .systemBarsPadding()
+            .verticalScroll(rememberScrollState()),
         contentPaddingValues = PaddingValues(horizontal = 12.dp),
         topBar = {
             StepMateBoxDefaultTopBar(
@@ -137,7 +142,6 @@ private fun EditScreen(
         Column(
             modifier = Modifier
                 .imePadding()
-                .verticalScroll(rememberScrollState())
         ) {
             if (!loginState) {
                 DefaultOutlinedTextField(
@@ -250,8 +254,7 @@ private fun EditScreen(
 
         Column(
             modifier = Modifier
-                .fillMaxSize()
-                .padding(bottom = 20.dp),
+                .padding(bottom = 30.dp),
             verticalArrangement = Arrangement.Bottom
         ) {
             DefaultButton(
