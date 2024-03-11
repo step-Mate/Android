@@ -15,7 +15,7 @@ import javax.inject.Inject
 
 internal class UserRepositoryImpl @Inject constructor(
     private val remoteUserDataSource: RemoteUserDataSource,
-    private val bodyDataSource: BodyDataSource
+    private val cacheBodyDataSource: BodyDataSource,
 ) : UserRepository {
     override fun getMyRank(): Flow<UserStepRank> = stepMateDataFlow {
         remoteUserDataSource.getMyRank()
@@ -55,15 +55,15 @@ internal class UserRepositoryImpl @Inject constructor(
     }
 
     override fun getBodyData(): Flow<BodyData> =
-        bodyDataSource.getBodyData()
+        cacheBodyDataSource.getBodyData()
 
     override suspend fun setBodyData(bodyData: BodyData) {
         remoteUserDataSource.setBodyData(bodyData.toBodyRequest())
-        bodyDataSource.setBodyData(bodyData)
+        cacheBodyDataSource.setBodyData(bodyData)
     }
 
     override suspend fun setBodyLocalData(bodyData: BodyData) =
-        bodyDataSource.setBodyData(bodyData)
+        cacheBodyDataSource.setBodyData(bodyData)
 
     override suspend fun updateNickname(nickname: String) {
         remoteUserDataSource.updateNickname(nickname)
@@ -71,5 +71,17 @@ internal class UserRepositoryImpl @Inject constructor(
 
     override fun getMyInfo(): Flow<User> = stepMateDataFlow {
         remoteUserDataSource.getMyInfo()
+    }
+
+    override suspend fun setBodyAge(age: Int) {
+        cacheBodyDataSource.setAge(age)
+    }
+
+    override suspend fun setBodyWeight(weight: Int) {
+        cacheBodyDataSource.setWeight(weight)
+    }
+
+    override suspend fun setBodyHeight(height: Int) {
+        cacheBodyDataSource.setHeight(height)
     }
 }
