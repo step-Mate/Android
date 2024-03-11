@@ -34,7 +34,7 @@ import jinproject.stepwalk.login.screen.component.PasswordField
 @Composable
 internal fun LoginScreen(
     loginViewModel: LoginViewModel = hiltViewModel(),
-    navigateToSignUp: () -> Unit,
+    navigateToInformation: () -> Unit,
     navigateToFindId: () -> Unit,
     navigateToFindPassword: () -> Unit,
     popBackStack: () -> Unit,
@@ -53,7 +53,7 @@ internal fun LoginScreen(
     LoginScreen(
         checkValidAccount = loginViewModel::checkValidAccount,
         isLoading = state.isLoading,
-        navigateToSignUp = navigateToSignUp,
+        navigateToSignUp = navigateToInformation,
         navigateToFindId = navigateToFindId,
         navigateToFindPassword = navigateToFindPassword,
         popBackStack = popBackStack
@@ -113,7 +113,7 @@ private fun LoginScreen(
                 enabled = !isLoading,
                 loading = isLoading
             ) {
-                checkValidAccount(id, password)//수정
+                checkValidAccount(id, password)
             }
             FindAndSignUpButtons(
                 findAccountId = navigateToFindId,

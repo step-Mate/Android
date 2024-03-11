@@ -24,6 +24,8 @@ import jinproject.stepwalk.home.navigation.navigateToHomeSetting
 import jinproject.stepwalk.login.navigation.authNavGraph
 import jinproject.stepwalk.login.navigation.navigateToFindId
 import jinproject.stepwalk.login.navigation.navigateToFindPassword
+import jinproject.stepwalk.login.navigation.navigateToInformation
+import jinproject.stepwalk.login.navigation.navigateToInformationTerms
 import jinproject.stepwalk.login.navigation.navigateToLogin
 import jinproject.stepwalk.login.navigation.navigateToSignUp
 import jinproject.stepwalk.login.navigation.navigateToSignUpDetail
@@ -69,6 +71,8 @@ internal fun NavigationGraph(
         )
 
         authNavGraph(
+            navigateToInformation = navController::navigateToInformation,
+            navigateToTerms = navController::navigateToInformationTerms,
             navigateToSignUp = navController::navigateToSignUp,
             navigateToSignUpDetail = navController::navigateToSignUpDetail,
             navigateToFindId = navController::navigateToFindId,
