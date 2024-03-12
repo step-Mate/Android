@@ -20,7 +20,7 @@ internal class HomeUiStatePreviewParameters : PreviewParameterProvider<HomeUiSta
 
     override val values: Sequence<HomeUiState> = sequenceOf(
         HomeUiState(
-            step = StepTabFactory(day.steps).create(
+            step = StepTabFactory(day.steps, User.getInitValues()).create(
                 time = day.time,
                 goal = 50000
             ),
@@ -28,10 +28,9 @@ internal class HomeUiStatePreviewParameters : PreviewParameterProvider<HomeUiSta
                 time = day.time,
                 goal = 90
             ),
-            user = User.getInitValues(),
         ),
         HomeUiState(
-            step = StepTabFactory(week.steps).create(
+            step = StepTabFactory(week.steps, User.getInitValues()).create(
                 time = week.time,
                 goal = 20000
             ),
@@ -39,7 +38,6 @@ internal class HomeUiStatePreviewParameters : PreviewParameterProvider<HomeUiSta
                 time = week.time,
                 goal = 90
             ),
-            user = User.getInitValues(),
         ),
     )
 }

@@ -12,6 +12,7 @@ import androidx.compose.material3.LocalTonalElevationEnabled
 import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.NavigationDrawerItemDefaults
 import androidx.compose.material3.NavigationRailItemDefaults
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.material3.adaptive.navigationsuite.ExperimentalMaterial3AdaptiveNavigationSuiteApi
@@ -40,6 +41,7 @@ import jinproject.stepwalk.app.ui.navigation.Router
 import jinproject.stepwalk.app.ui.navigation.isShownBar
 import jinproject.stepwalk.app.ui.navigation.permission.permissionRoute
 import jinproject.stepwalk.app.ui.navigation.stepMateNavigationSuiteItems
+import jinproject.stepwalk.design.component.StepMateSnackBar
 import jinproject.stepwalk.design.theme.StepWalkTheme
 import jinproject.stepwalk.home.navigation.homeGraph
 import jinproject.stepwalk.home.navigation.homeRoute
@@ -137,21 +139,33 @@ class StepMateActivity : ComponentActivity() {
                     navigationDrawerContentColor = NavigationDefaults.contentColor(),
                 ),
             ) {
-                NavigationGraph(
-                    router = router,
-                    modifier = Modifier,
-                    startDestination = if (permissionState) homeGraph else permissionRoute,
-                    homeStartDestination = if (isBodyDataExist) homeRoute else homeUserBody,
-                    showSnackBar = { snackBarMessage ->
-                        coroutineScope.launch {
-                            snackBarHostState.showSnackbar(
-                                message = snackBarMessage.headerMessage,
-                                actionLabel = snackBarMessage.contentMessage,
-                                duration = SnackbarDuration.Indefinite
-                            )
-                        }
+                Scaffold(
+                    snackbarHost = {
+                        StepMateSnackBar(
+                            headerMessage = snackBarHostState.currentSnackbarData?.message ?: "",
+                            contentMessage = snackBarHostState.currentSnackbarData?.actionLabel
+                                ?: "",
+                            snackBarHostState = snackBarHostState,
+                            dismissSnackBar = { snackBarHostState.currentSnackbarData?.dismiss() })
                     }
-                )
+                ) { paddingValues ->
+                    NavigationGraph(
+                        router = router,
+                        modifier = Modifier,
+                        startDestination = if (permissionState) homeGraph else permissionRoute,
+                        homeStartDestination = if (isBodyDataExist) homeRoute else homeUserBody,
+                        showSnackBar = { snackBarMessage ->
+                            coroutineScope.launch {
+                                snackBarHostState.showSnackbar(
+                                    message = snackBarMessage.headerMessage,
+                                    actionLabel = snackBarMessage.contentMessage,
+                                    duration = SnackbarDuration.Indefinite
+                                )
+                            }
+                        }
+                    )
+                    paddingValues
+                }
             }
         }
     }

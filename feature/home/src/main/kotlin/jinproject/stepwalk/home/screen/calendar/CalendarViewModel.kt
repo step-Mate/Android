@@ -4,6 +4,10 @@ import androidx.compose.runtime.Stable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import jinproject.stepwalk.core.catchDataFlow
+import jinproject.stepwalk.domain.usecase.auth.CheckHasTokenUseCase
+import jinproject.stepwalk.domain.usecase.user.GetBodyDataUseCases
+import jinproject.stepwalk.domain.usecase.user.GetMyInfoUseCases
 import jinproject.stepwalk.home.HealthConnector
 import jinproject.stepwalk.home.screen.calendar.state.ZonedTime
 import jinproject.stepwalk.home.screen.calendar.state.ZonedTimeRange
@@ -13,13 +17,19 @@ import jinproject.stepwalk.home.screen.home.state.Month
 import jinproject.stepwalk.home.screen.home.state.Step
 import jinproject.stepwalk.home.screen.home.state.StepTabFactory
 import jinproject.stepwalk.home.screen.home.state.Time
+import jinproject.stepwalk.home.screen.home.state.User
 import jinproject.stepwalk.home.screen.home.state.Year
 import jinproject.stepwalk.home.screen.home.state.getStartTime
+import jinproject.stepwalk.home.screen.home.state.toHomeUserState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.flow.zip
 import kotlinx.coroutines.launch
 import java.time.Duration
 import java.time.ZonedDateTime
@@ -31,6 +41,9 @@ import javax.inject.Inject
 @HiltViewModel
 internal class CalendarViewModel @Inject constructor(
     private val healthConnector: HealthConnector,
+    tokenUseCase: CheckHasTokenUseCase,
+    private val getMyInfoUseCase: GetMyInfoUseCases,
+    private val getBodyDataUseCases: GetBodyDataUseCases,
 ) : ViewModel() {
 
     private val _calendarData: MutableStateFlow<CalendarData> =
@@ -40,10 +53,29 @@ internal class CalendarViewModel @Inject constructor(
     private val _uiState: MutableStateFlow<UiState> = MutableStateFlow(UiState.Loading)
     val uiState: StateFlow<UiState> get() = _uiState.asStateFlow()
 
+    private var _user: MutableStateFlow<User> = MutableStateFlow(User.getInitValues())
+    val user get() = _user.asStateFlow()
+
     init {
         viewModelScope.launch(Dispatchers.IO) {
             getTimeList()
         }
+
+        tokenUseCase.invoke().onEach { hasToken ->
+            if (hasToken)
+                getMyInfoUseCase().zip(getBodyDataUseCases()) { user, bodyData ->
+                    _user.update {
+                        user.toHomeUserState().copy(
+                            age = bodyData.age,
+                            weight = bodyData.weight,
+                            height = bodyData.height
+                        )
+                    }
+                }.catchDataFlow(
+                    action = { e -> e },
+                    onException = { e -> }
+                ).collect()
+        }.launchIn(viewModelScope)
     }
 
     private suspend fun getTimeList() {
@@ -137,11 +169,11 @@ internal class CalendarViewModel @Inject constructor(
     ) {
         getHealthTab {
             steps?.let {
-                StepTabFactory.getInstance(steps).create(
+                StepTabFactory.getInstance(steps, user.value).create(
                     time = calendarData.value.type,
                     goal = 3000
                 )
-            } ?: StepTabFactory.getInstance(emptyList()).getDefaultValues(calendarData.value.type)
+            } ?: StepTabFactory.getInstance(emptyList(), User.getInitValues()).getDefaultValues(calendarData.value.type)
         }
     }
 
