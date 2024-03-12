@@ -258,7 +258,7 @@ private fun EditScreen(
             onClick = {
                 onEvent(EditUserEvent.Save)
             },
-            enabled = !(nicknameValidState != Valid.Success && ageValidState && heightValidState && weightValidState),
+            enabled = (nicknameValidState == Valid.Success && !ageValidState && !heightValidState && !weightValidState),
             backgroundColor = MaterialTheme.colorScheme.primary,
             shape = RoundedCornerShape(5.dp)
         ) {
