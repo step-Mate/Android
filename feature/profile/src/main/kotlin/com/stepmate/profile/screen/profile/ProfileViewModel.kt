@@ -72,7 +72,7 @@ class ProfileViewModel @Inject constructor(
                 }
             } else {
                 flow {
-                    _user.update { User.getInitValues().copy(designation = "회원가입시 다양한 기능을 사용할 수 있어요") }
+                    _user.update { User.getInitValues().copy(name = "",designation = "회원가입시 다양한 기능을 사용할 수 있어요") }
                     _uiState.emit(UiState.Anonymous)
                 }
             }

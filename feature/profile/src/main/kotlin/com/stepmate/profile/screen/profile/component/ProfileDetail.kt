@@ -82,7 +82,7 @@ internal fun ProfileDetail(
                 )
                 HorizontalSpacer(width = 4.dp)
                 DescriptionSmallText(
-                    text = "${userState.name} 님",
+                    text = if (userState.name.isEmpty()) "" else "${userState.name} 님",
                     color = MaterialTheme.colorScheme.onSurface
                 )
             }
