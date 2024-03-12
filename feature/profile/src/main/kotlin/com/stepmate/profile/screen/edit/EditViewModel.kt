@@ -4,7 +4,6 @@ import androidx.compose.runtime.Stable
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import dagger.hilt.android.lifecycle.HiltViewModel
 import com.stepmate.core.SnackBarMessage
 import com.stepmate.core.catchDataFlow
 import com.stepmate.core.isValidAge
@@ -21,6 +20,7 @@ import com.stepmate.domain.usecase.user.SelectDesignationUseCases
 import com.stepmate.domain.usecase.user.SetBodyLocalUseCases
 import com.stepmate.domain.usecase.user.SetBodyUseCases
 import com.stepmate.domain.usecase.user.UpdateNicknameUseCases
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.FlowPreview
@@ -31,7 +31,6 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -149,10 +148,11 @@ class EditViewModel @Inject constructor(
     @OptIn(FlowPreview::class)
     private suspend fun checkNicknameValid() = _nickname
         .debounce(800)
-        .filter { it.isNotEmpty() }
         .distinctUntilChanged()
         .onEach { nickname ->
-            if (nickname != originalNickname) {
+            if (nickname.isEmpty()) {
+                _nicknameValid.value = Valid.NotValid
+            } else if (nickname != originalNickname) {
                 if (nickname.isValidNickname()) {
                     _nicknameValid.value = checkDuplicationNickname(nickname)
                 } else {
