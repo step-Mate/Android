@@ -25,6 +25,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -50,6 +51,7 @@ import jinproject.stepwalk.mission.screen.missiondetail.component.MissionComposi
 import jinproject.stepwalk.mission.util.getIcon
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
 
 @Composable
 internal fun MissionDetailScreen(
@@ -91,6 +93,7 @@ private fun MissionDetailScreen(
     var selectMission by remember { mutableStateOf<MissionFigure>(missionList.list.first()) }
     val scaffoldState = rememberBottomSheetScaffoldState()
     var designation by remember { mutableStateOf("") }
+    val coroutineScope = rememberCoroutineScope()
 
     LaunchedEffect(key1 = missionList) {
         selectMission =
@@ -121,7 +124,12 @@ private fun MissionDetailScreen(
                             mission = mission,
                             animate = mission.designation == designation,
                             color = MaterialTheme.colorScheme.primary,
-                            onClick = { thisMission -> selectMission = thisMission }
+                            onClick = { thisMission ->
+                                selectMission = thisMission
+                                coroutineScope.launch {
+                                    scaffoldState.bottomSheetState.partialExpand()
+                                }
+                            }
                         )
                     }
                 } else {//목표미션
@@ -134,7 +142,12 @@ private fun MissionDetailScreen(
                             mission = mission,
                             animate = mission.designation == designation,
                             color = MaterialTheme.colorScheme.primary,
-                            onClick = { thisMission -> selectMission = thisMission }
+                            onClick = { thisMission ->
+                                selectMission = thisMission
+                                coroutineScope.launch {
+                                    scaffoldState.bottomSheetState.partialExpand()
+                                }
+                            }
                         )
                     }
                 }

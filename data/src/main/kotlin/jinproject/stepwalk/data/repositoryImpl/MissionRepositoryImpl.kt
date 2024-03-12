@@ -152,7 +152,7 @@ class MissionRepositoryImpl @Inject constructor(
             checkUpdateMission(
                 missionLocal.getAllMissionList().first().toMissionDataList()
                     .sortedBy { it.title }).forEach { designation ->
-                    completeMission(designation)
+                completeMission(designation)
             }
 
         } else {
@@ -164,8 +164,8 @@ class MissionRepositoryImpl @Inject constructor(
 
     override suspend fun updateMission(achieved: Int) {
         val step = getMissionAchieved(MissionType.Step).first() + achieved
-        missionLocal.updateMissionAchieved(MissionType.Step,step)
-        missionLocal.updateMissionAchieved(MissionType.Calorie,(step * 0.003f).toInt())
+        missionLocal.updateMissionAchieved(MissionType.Step, step)
+        missionLocal.updateMissionAchieved(MissionType.Calorie, (step * 0.003f).toInt())
     }
 
     override suspend fun completeMission(designation: String) {
@@ -196,7 +196,6 @@ class MissionRepositoryImpl @Inject constructor(
         }
         return complete
     }
-
 
     private suspend fun checkUpdateMission(missionList: List<MissionList>): List<String> =
         withContext(Dispatchers.IO) {
