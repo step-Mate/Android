@@ -35,6 +35,7 @@ fun NavGraphBuilder.homeNavGraph(
         composable(route = homeUserBody) {
             HomeUserBodyScreen(
                 navigateToHome = navigateToHome,
+                showSnackBar = showSnackBar,
             )
         }
         composable(route = homeRoute) {

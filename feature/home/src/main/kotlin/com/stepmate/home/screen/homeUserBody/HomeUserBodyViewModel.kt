@@ -2,9 +2,9 @@ package com.stepmate.home.screen.homeUserBody
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import dagger.hilt.android.lifecycle.HiltViewModel
 import com.stepmate.domain.usecase.user.GetBodyDataUseCases
 import com.stepmate.domain.usecase.user.SetBodyLocalUseCases
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -29,9 +29,6 @@ class HomeUserBodyViewModel @Inject constructor(
     private val _weight = MutableStateFlow(0)
     val weight get() = _weight.asStateFlow()
 
-    private val _bottomSheetType = MutableStateFlow(BottomSheetType.Age)
-    val bottomSheetType get() = _bottomSheetType
-
     init {
         getUserBody()
     }
@@ -54,18 +51,10 @@ class HomeUserBodyViewModel @Inject constructor(
         }
     }
 
-    fun updateBottomSheetType(type: BottomSheetType) = _bottomSheetType.update { type }
-
     private fun getUserBody() = getBodyDataUseCases().onEach { bodyData ->
         _age.update { bodyData.age }
         _height.update { bodyData.height }
         _weight.update { bodyData.weight }
     }.launchIn(viewModelScope)
-
-    enum class BottomSheetType(val display: String) {
-        Age("나이"),
-        Weight("몸무게"),
-        Height("키")
-    }
 
 }
