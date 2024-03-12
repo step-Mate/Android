@@ -96,7 +96,7 @@ internal fun PasswordField(
 }
 
 @Composable
-internal fun ColumnScope.EmailVerificationField(//account로 수정
+internal fun ColumnScope.EmailVerificationField(
     email: Account,
     emailCode: Account,
     codeVisibility: Boolean = false,
@@ -119,7 +119,7 @@ internal fun ColumnScope.EmailVerificationField(//account로 수정
             modifier = Modifier.weight(0.7f),
             value = emailValue.text,
             onNewValue = onEmailValue,
-            enabled = emailCodeValue.valid != SignValid.success,
+            enabled = !(emailCodeValue.valid == SignValid.success || emailValue.valid == SignValid.verifying),
             isError = emailCodeValue.valid == SignValid.success || emailValue.valid == SignValid.notValid || emailValue.valid == SignValid.verifying,
             errorMessage = when {
                 emailCodeValue.valid == SignValid.success -> "이메일이 인증되었습니다."
@@ -141,7 +141,7 @@ internal fun ColumnScope.EmailVerificationField(//account로 수정
                 .padding(start = 10.dp, bottom = 5.dp),
             enabled = emailValue.valid == SignValid.success
         ) {
-            requestEmailVerification()//서버에서 이메일 코드처리
+            requestEmailVerification()
         }
     }
     AnimatedVisibility(
