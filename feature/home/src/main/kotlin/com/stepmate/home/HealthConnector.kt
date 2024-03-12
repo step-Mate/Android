@@ -276,7 +276,7 @@ class HealthConnector @Inject constructor(
 
     companion object {
 
-        private const val DATA_ORIGIN = "jinproject.stepwalk.app"
+        private const val DATA_ORIGIN = "com.stepmate.app"
 
         private val stepMetrics =
             mutableMapOf<String, AggregateMetric<Long>>().apply {
