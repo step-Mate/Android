@@ -5,10 +5,10 @@ plugins {
 }
 
 android {
-    namespace = "jinproject.stepwalk.app"
+    namespace = "com.stepmate.app"
 
     defaultConfig {
-        applicationId = "jinproject.stepwalk.app"
+        applicationId = "com.stepmate.app"
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
@@ -63,5 +63,5 @@ dependencies {
 
     implementation(libs.bundles.windowManager)
 
-    debugImplementation("com.squareup.leakcanary:leakcanary-android:3.0-alpha-1")
+    //debugImplementation("com.squareup.leakcanary:leakcanary-android:3.0-alpha-1")
 }

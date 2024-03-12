@@ -4,5 +4,5 @@ plugins {
 }
 
 android {
-    namespace = "jinproject.stepwalk.domain"
+    namespace = "com.stepmate.domain"
 }

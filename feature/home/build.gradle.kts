@@ -3,7 +3,7 @@ plugins {
 }
 
 android {
-    namespace = "jinproject.stepwalk.home"
+    namespace = "com.stepmate.home"
 }
 
 dependencies {

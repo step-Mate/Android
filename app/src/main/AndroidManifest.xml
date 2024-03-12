@@ -14,7 +14,7 @@
     <uses-permission android:name="android.permission.ACTIVITY_RECOGNITION" android:minSdkVersion="29"/>
 
     <application
-        android:name=".StepMateApplication"
+        android:name="com.stepmate.app.StepMateApplication"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -26,7 +26,7 @@
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
         <activity
-            android:name=".StepMateActivity"
+            android:name="com.stepmate.app.StepMateActivity"
             android:exported="true"
             android:theme="@style/Theme.Stepwalk"
             android:windowSoftInputMode="adjustResize"
@@ -48,7 +48,7 @@
         <activity-alias
             android:name="ViewPermissionUsageActivity"
             android:exported="true"
-            android:targetActivity=".StepMateActivity"
+            android:targetActivity="com.stepmate.app.StepMateActivity"
             android:permission="android.permission.START_VIEW_PERMISSION_USAGE"
             android:minSdkVersion="34">
             <intent-filter>

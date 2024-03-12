@@ -12,7 +12,7 @@ dependencyResolutionManagement {
         mavenCentral()
     }
 }
-rootProject.name = "Stepwalk"
+rootProject.name = "StepMate"
 include(":app")
 include(":design")
 include(":domain")

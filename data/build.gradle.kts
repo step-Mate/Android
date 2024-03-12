@@ -1,7 +1,6 @@
 import com.android.build.gradle.internal.cxx.configure.gradleLocalProperties
 import com.google.protobuf.gradle.GenerateProtoTask
 
-@Suppress("DSL_SCOPE_VIOLATION") // TODO: Remove once KTIJ-19369 is fixed
 plugins {
     id("stepMate.android.library")
     id("stepMate.android.hilt")
@@ -9,7 +8,7 @@ plugins {
 }
 
 android {
-    namespace = "jinproject.stepwalk.data"
+    namespace = "com.stepmate.data"
 
     defaultConfig {
         buildConfigField("String","SERVER_IP",getApiKey("server.ip"))

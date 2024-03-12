@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-option java_package = "jinproject.stepwalk.data";
+option java_package = "com.stepmate.data";
 
 message SettingsPreferences {
   int32 stepGoal = 1;

@@ -3,7 +3,7 @@ plugins {
 }
 
 android {
-    namespace = "jinproject.stepwalk.ranking"
+    namespace = "com.stepmate.ranking"
 }
 
 dependencies {

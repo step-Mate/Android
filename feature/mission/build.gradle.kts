@@ -4,5 +4,5 @@ plugins {
 }
 
 android {
-    namespace = "jinproject.stepwalk.misson"
+    namespace = "com.stepmate.misson"
 }

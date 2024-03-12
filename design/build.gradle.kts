@@ -4,7 +4,7 @@ plugins {
 }
 
 android {
-    namespace = "jinproject.stepwalk.design"
+    namespace = "com.stepmate.design"
 }
 
 dependencies {
