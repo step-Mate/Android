@@ -41,14 +41,17 @@ internal object DistanceMenuFactory : MenuFactory, StepCalculateMenu {
     }
 }
 
-internal object CaloriesMenuFactory : MenuFactory, StepCalculateMenu {
-    const val intro = "칼로리(Kcal)"
+internal class CaloriesMenuFactory(
+    private val weight: Int,
+) : MenuFactory, StepCalculateMenu {
+    val intro = "칼로리(Kcal)"
     override fun <T> create(v: T): MenuItem {
         return MenuItem(cal(v), R.drawable.ic_fire, intro)
     }
 
     override fun cal(v: Number): Float {
-        return v.toFloat() * 0.003f
+        val mets = 3.0
+        return (mets * (3.5 * weight * TimeMenuFactory.cal(v).toDouble()) * 5 / 1000).toFloat()
     }
 }
 

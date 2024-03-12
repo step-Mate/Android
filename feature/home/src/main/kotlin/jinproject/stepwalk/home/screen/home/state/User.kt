@@ -4,19 +4,27 @@ import androidx.compose.runtime.Stable
 
 @Stable
 internal data class User(
-    val uid: Long,
     val name: String,
+    val level: Int,
     val age: Int,
-    val kg: Float,
-    val height: Float,
+    val weight: Int,
+    val height: Int,
 ) {
     companion object {
         fun getInitValues() = User(
-            uid = 0L,
             name = "",
+            level = 0,
             age = 0,
-            kg = 55f,
-            height = 0f
+            weight = 55,
+            height = 0,
         )
     }
 }
+
+internal fun jinproject.stepwalk.domain.model.user.User.toHomeUserState() = User(
+    name = this.name,
+    level = this.level,
+    age = 0,
+    weight = 0,
+    height = 0,
+)

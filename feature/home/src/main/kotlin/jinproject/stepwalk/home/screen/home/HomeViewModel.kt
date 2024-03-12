@@ -1,14 +1,13 @@
 package jinproject.stepwalk.home.screen.home
 
 import androidx.compose.runtime.Stable
-import androidx.health.connect.client.permission.HealthPermission
-import androidx.health.connect.client.records.StepsRecord
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import jinproject.stepwalk.core.catchDataFlow
 import jinproject.stepwalk.domain.usecase.auth.CheckHasTokenUseCase
 import jinproject.stepwalk.domain.usecase.setting.StepGoalUseCase
+import jinproject.stepwalk.domain.usecase.user.GetBodyDataUseCases
 import jinproject.stepwalk.domain.usecase.user.GetMyInfoUseCases
 import jinproject.stepwalk.home.HealthConnector
 import jinproject.stepwalk.home.screen.home.state.Day
@@ -20,6 +19,7 @@ import jinproject.stepwalk.home.screen.home.state.StepTabFactory
 import jinproject.stepwalk.home.screen.home.state.Time
 import jinproject.stepwalk.home.screen.home.state.User
 import jinproject.stepwalk.home.screen.home.state.getStartTime
+import jinproject.stepwalk.home.screen.home.state.toHomeUserState
 import jinproject.stepwalk.home.utils.onKorea
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -29,6 +29,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.flow.zip
 import java.time.Duration
 import java.time.Instant
 import java.time.temporal.ChronoUnit
@@ -38,16 +39,14 @@ import javax.inject.Inject
 internal data class HomeUiState(
     val step: HealthTab,
     val heartRate: HealthTab,
-    val user: User,
 ) {
     companion object {
         fun getInitValues(): HomeUiState {
             val time: Time = Day
 
             return HomeUiState(
-                step = StepTabFactory.getInstance(emptyList()).getDefaultValues(time),
+                step = StepTabFactory.getInstance(emptyList(), User.getInitValues()).getDefaultValues(time),
                 heartRate = HeartRateTabFactory.getInstance(emptyList()).getDefaultValues(time),
-                user = User.getInitValues(),
             )
         }
     }
@@ -59,6 +58,7 @@ internal class HomeViewModel @Inject constructor(
     private val stepGoalUseCase: StepGoalUseCase,
     tokenUseCase: CheckHasTokenUseCase,
     private val getMyInfoUseCase: GetMyInfoUseCases,
+    private val getBodyDataUseCases: GetBodyDataUseCases,
 ) : ViewModel() {
 
     private val _uiState: MutableStateFlow<HomeUiState> =
@@ -69,8 +69,8 @@ internal class HomeViewModel @Inject constructor(
     private val _time: MutableStateFlow<Time> = MutableStateFlow(Day)
     val time: StateFlow<Time> get() = _time.asStateFlow()
 
-    private var _userName: MutableStateFlow<String> = MutableStateFlow("")
-    val userName get() = _userName.asStateFlow()
+    private var _user: MutableStateFlow<User> = MutableStateFlow(User.getInitValues())
+    val user get() = _user.asStateFlow()
 
     private val today get() = Instant.now().onKorea()
     private val endTime
@@ -79,24 +79,17 @@ internal class HomeViewModel @Inject constructor(
             .withMinute(59)
             .toLocalDateTime()
 
-    val permissionLauncher = healthConnector.requestPermissionsActivityContract()
-
-    private val healthDataTypes = setOf(
-        StepsRecord::class,
-    )
-
-    val permissions =
-        healthDataTypes.map {
-            HealthPermission.getReadPermission(it)
-        }.toMutableSet().apply {
-            addAll(healthDataTypes.map { HealthPermission.getWritePermission(it) })
-        }.toSet()
-
     init {
-        tokenUseCase.invoke().onEach {  hasToken ->
-            if(hasToken)
-                getMyInfoUseCase().onEach { user ->
-                    _userName.update { user.name }
+        tokenUseCase.invoke().onEach { hasToken ->
+            if (hasToken)
+                getMyInfoUseCase().zip(getBodyDataUseCases()) { user, bodyData ->
+                    _user.update {
+                        user.toHomeUserState().copy(
+                            age = bodyData.age,
+                            weight = bodyData.weight,
+                            height = bodyData.height
+                        )
+                    }
                 }.catchDataFlow(
                     action = { e -> e },
                     onException = { e -> }
@@ -104,7 +97,8 @@ internal class HomeViewModel @Inject constructor(
         }.launchIn(viewModelScope)
     }
 
-    suspend fun checkPermissions() = healthConnector.checkPermissions(permissions)
+    suspend fun checkPermissions() =
+        healthConnector.checkPermissions(HealthConnector.healthConnectPermissions)
 
     suspend fun setDurationHealthData(duration: Duration) {
         val startTime = today
@@ -142,11 +136,11 @@ internal class HomeViewModel @Inject constructor(
         _uiState.update { state ->
             state.copy(
                 step = steps?.let {
-                    StepTabFactory.getInstance(steps).create(
+                    StepTabFactory.getInstance(steps, user.value).create(
                         time = time.value,
                         goal = stepGoalUseCase.getStep().first()
                     )
-                } ?: StepTabFactory.getInstance(emptyList()).getDefaultValues(time.value),
+                } ?: StepTabFactory.getInstance(emptyList(), User.getInitValues()).getDefaultValues(time.value),
             )
         }
     }
@@ -158,7 +152,7 @@ internal class HomeViewModel @Inject constructor(
     fun setSteps(steps: List<Step>?) = steps?.let {
         _uiState.update { state ->
             state.copy(
-                step = StepTabFactory.getInstance(steps).create(
+                step = StepTabFactory.getInstance(steps, user.value).create(
                     time = time.value,
                     goal = 3000
                 )

@@ -44,6 +44,7 @@ internal class StepFactory : HealthCareFactory<Step> {
 
 internal class StepTabFactory(
     override var healthCareList: List<Step>,
+    val user: User,
 ) : HealthTabFactory<Step>(healthCareList) {
 
     override fun create(time: Time, goal: Int): HealthTab {
@@ -51,7 +52,10 @@ internal class StepTabFactory(
             HealthTab(
                 header = HealthPage(total, goal, title = "걸음수"),
                 graph = time.getGraph(healthCareList),
-                menu = getMenuList(total)
+                menu = getMenuList(
+                    figure = total,
+                    weight = user.weight,
+                )
             )
         }.getOrElse { e ->
             if (e is IllegalArgumentException) {
@@ -65,29 +69,37 @@ internal class StepTabFactory(
         HealthTab(
             header = HealthPage(-1, 1, title = "걸음수"),
             graph = HealthTab.getDefaultGraphItems(time.toNumberOfDays()),
-            menu = listOf(
-                DistanceMenuFactory.create(0),
-                TimeMenuFactory.create(0),
-                CaloriesMenuFactory.create(0)
-            )
+            menu = run {
+                val user = User.getInitValues()
+
+                listOf(
+                    DistanceMenuFactory.create(0),
+                    TimeMenuFactory.create(0),
+                    CaloriesMenuFactory(
+                        weight = user.weight,
+                    ).create(0)
+                )
+            }
         )
 
     companion object {
         private var _instance: StepTabFactory? = null
 
-        fun getInstance(healthCareList: List<Step>): StepTabFactory {
+        fun getInstance(healthCareList: List<Step>, user: User): StepTabFactory {
             if (_instance == null)
-                _instance = StepTabFactory(healthCareList)
+                _instance = StepTabFactory(healthCareList, user)
             else
                 _instance!!.healthCareList = healthCareList
 
             return _instance!!
         }
 
-        fun getMenuList(figure: Long): List<MenuItem> = listOf(
+        fun getMenuList(figure: Long, weight: Int): List<MenuItem> = listOf(
             DistanceMenuFactory.create(figure),
             TimeMenuFactory.create(figure),
-            CaloriesMenuFactory.create(figure)
+            CaloriesMenuFactory(
+                weight = weight,
+            ).create(figure)
         )
     }
 }
