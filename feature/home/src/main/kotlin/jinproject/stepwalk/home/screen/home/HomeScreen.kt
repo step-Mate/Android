@@ -1,11 +1,7 @@
 package jinproject.stepwalk.home.screen.home
 
-import android.app.AlarmManager
 import android.content.Context
 import android.content.Intent
-import android.os.Build
-import android.provider.Settings
-import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
@@ -17,7 +13,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -44,6 +39,7 @@ import jinproject.stepwalk.home.screen.home.component.tab.HealthTabLayout
 import jinproject.stepwalk.home.screen.home.component.userinfo.UserInfoLayout
 import jinproject.stepwalk.home.screen.home.state.Day
 import jinproject.stepwalk.home.screen.home.state.Time
+import jinproject.stepwalk.home.screen.home.state.User
 import jinproject.stepwalk.home.service.StepService
 import jinproject.stepwalk.home.utils.onKorea
 import java.time.Duration
@@ -60,7 +56,7 @@ internal fun HomeScreen(
 ) {
     val uiState by homeViewModel.uiState.collectAsStateWithLifecycle()
     val time by homeViewModel.time.collectAsStateWithLifecycle()
-    val userName by homeViewModel.userName.collectAsStateWithLifecycle()
+    val user by homeViewModel.user.collectAsStateWithLifecycle()
 
     LifecycleEventEffect(event = Lifecycle.Event.ON_CREATE) {
         context.startForegroundService(Intent(context, StepService::class.java))
@@ -108,7 +104,7 @@ internal fun HomeScreen(
 
     HomeScreen(
         uiState = uiState,
-        userName = userName,
+        user = user,
         setTimeOnGraph = homeViewModel::setTime,
         navigateToCalendar = navigateToCalendar,
         navigateToHomeSetting = navigateToHomeSetting,
@@ -118,7 +114,7 @@ internal fun HomeScreen(
 @Composable
 private fun HomeScreen(
     uiState: HomeUiState,
-    userName: String,
+    user: User,
     context: Context = LocalContext.current,
     density: Density = LocalDensity.current,
     setTimeOnGraph: (Time) -> Unit,
@@ -161,7 +157,7 @@ private fun HomeScreen(
                         modifier = Modifier
                             .padding(bottom = 10.dp, start = 12.dp, end = 12.dp),
                         step = uiState.step,
-                        userName = userName,
+                        user = user,
                     )
                 }
             )
@@ -174,6 +170,7 @@ private fun HomeScreen(
             VerticalSpacer(height = 10.dp)
             HealthTabLayout(
                 healthTab = uiState.step,
+                user = user,
                 navigateToDetailChart = {
                     val firstInstallTime = context.packageManager.getPackageInfo(
                         context.packageName,
@@ -205,7 +202,7 @@ private fun PreviewHomeScreen(
 ) = StepWalkTheme {
     HomeScreen(
         uiState = homeUiState,
-        userName = "",
+        user = User.getInitValues(),
         setTimeOnGraph = {},
         navigateToCalendar = {},
         navigateToHomeSetting = {},

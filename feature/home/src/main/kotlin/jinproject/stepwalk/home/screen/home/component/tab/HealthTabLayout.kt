@@ -35,6 +35,7 @@ import jinproject.stepwalk.home.screen.home.HomeUiStatePreviewParameters
 import jinproject.stepwalk.home.screen.home.component.tab.menu.MenuPager
 import jinproject.stepwalk.home.screen.home.state.Day
 import jinproject.stepwalk.home.screen.home.state.HealthTab
+import jinproject.stepwalk.home.screen.home.state.User
 import jinproject.stepwalk.home.screen.home.state.Week
 import jinproject.stepwalk.home.utils.displayOnKorea
 import jinproject.stepwalk.home.utils.toDayOfWeekString
@@ -43,15 +44,17 @@ import java.time.LocalDate
 @Composable
 internal fun ColumnScope.HealthTabLayout(
     healthTab: HealthTab,
+    user: User,
     navigateToDetailChart: () -> Unit,
     popUpState: PopUpState,
     setPopUpState: (PopUpState) -> Unit,
 ) {
-    MenuPager(healthTab = healthTab)
+    MenuPager(
+        healthTab = healthTab,
+        user = user
+    )
 
     VerticalSpacer(height = 40.dp)
-
-
 
     Column(
         modifier = Modifier
@@ -183,6 +186,7 @@ private fun PreviewUserSteps(
     ) {
         HealthTabLayout(
             healthTab = uiState.step,
+            user = User.getInitValues(),
             navigateToDetailChart = {},
             popUpState = PopUpState.getInitValues(),
             setPopUpState = {}

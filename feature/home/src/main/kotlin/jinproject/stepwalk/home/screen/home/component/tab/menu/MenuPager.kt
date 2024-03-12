@@ -37,14 +37,17 @@ import jinproject.stepwalk.home.screen.home.HomeUiState
 import jinproject.stepwalk.home.screen.home.HomeUiStatePreviewParameters
 import jinproject.stepwalk.home.screen.home.state.HealthTab
 import jinproject.stepwalk.home.screen.home.state.StepTabFactory
+import jinproject.stepwalk.home.screen.home.state.User
 import jinproject.stepwalk.home.screen.home.state.toAchievementDegree
 import java.text.DecimalFormat
 import kotlin.math.absoluteValue
+import kotlin.math.roundToInt
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3AdaptiveApi::class)
 @Composable
 internal fun MenuPager(
     healthTab: HealthTab,
+    user: User,
 ) {
     val pageNumber = remember {
         100
@@ -55,7 +58,10 @@ internal fun MenuPager(
     }
 
     val pages = healthTab.menu
-    val goals = StepTabFactory.getMenuList(healthTab.header.goal.toLong())
+    val goals = StepTabFactory.getMenuList(
+        figure = healthTab.header.goal.toLong(),
+        weight = user.weight,
+    )
 
     BoxWithConstraints(modifier = Modifier) {
         val pageSize: Dp
@@ -113,7 +119,7 @@ internal fun MenuPager(
                     val currentPage = pages[page % pages.size]
 
                     val figure = when (currentPage.intro.contains("분")) {
-                        true -> currentPage.value.toInt().toFloat()
+                        true -> currentPage.value.roundToInt().toFloat()
                         false -> String.format("%.2f", currentPage.value).toFloat()
                     }
 
@@ -163,5 +169,6 @@ private fun PreviewMenuPager(
 ) = StepWalkTheme {
     MenuPager(
         healthTab = homeUiState.step,
+        user = User.getInitValues(),
     )
 }

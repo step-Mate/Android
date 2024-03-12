@@ -19,6 +19,7 @@ import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.animateLottieCompositionAsState
 import com.airbnb.lottie.compose.rememberLottieComposition
+import jinproject.stepwalk.core.getCharacter
 import jinproject.stepwalk.design.component.DescriptionLargeText
 import jinproject.stepwalk.design.component.DescriptionSmallText
 import jinproject.stepwalk.design.component.FooterText
@@ -31,16 +32,17 @@ import jinproject.stepwalk.design.theme.StepWalkTheme
 import jinproject.stepwalk.home.screen.home.HomeUiState
 import jinproject.stepwalk.home.screen.home.HomeUiStatePreviewParameters
 import jinproject.stepwalk.home.screen.home.state.HealthTab
+import jinproject.stepwalk.home.screen.home.state.User
 
 @Composable
 internal fun UserInfoLayout(
     modifier: Modifier = Modifier,
-    userName: String = "",
+    user: User,
     step: HealthTab,
 ) {
     val progress = (step.header.total.toFloat() / step.header.goal.toFloat()).coerceIn(0f, 1f)
 
-    val composition by rememberLottieComposition(LottieCompositionSpec.Asset("ic_anim_running_1.json"))
+    val composition by rememberLottieComposition(LottieCompositionSpec.Asset(getCharacter(user.level)))
     val lottieProgress by animateLottieCompositionAsState(
         composition,
         iterations = LottieConstants.IterateForever
@@ -56,7 +58,7 @@ internal fun UserInfoLayout(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(28.dp),
-            name = userName,
+            name = user.name,
         )
         VerticalWeightSpacer(float = 1f)
         StepLayout(
@@ -129,6 +131,7 @@ private fun PreviewUserInfo(
     uiState: HomeUiState,
 ) = StepWalkTheme {
     UserInfoLayout(
-        step = uiState.step
+        step = uiState.step,
+        user = User.getInitValues()
     )
 }

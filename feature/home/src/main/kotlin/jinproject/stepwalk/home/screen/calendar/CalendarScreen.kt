@@ -33,6 +33,7 @@ import jinproject.stepwalk.home.screen.home.HomeUiState
 import jinproject.stepwalk.home.screen.home.HomeUiStatePreviewParameters
 import jinproject.stepwalk.home.screen.home.state.CaloriesMenuFactory
 import jinproject.stepwalk.home.screen.home.state.TimeMenuFactory
+import jinproject.stepwalk.home.screen.home.state.User
 import kotlin.math.ceil
 import kotlin.math.roundToLong
 
@@ -44,9 +45,11 @@ internal fun CalendarScreen(
 ) {
     val calendarData by calendarViewModel.calendarData.collectAsStateWithLifecycle()
     val uiState by calendarViewModel.uiState.collectAsStateWithLifecycle()
+    val user by calendarViewModel.user.collectAsStateWithLifecycle()
 
     CalendarScreen(
         uiState = uiState,
+        user = user,
         calendarData = calendarData,
         popBackStack = popBackStack,
         setCalendarData = calendarViewModel::setCalendarData,
@@ -57,6 +60,7 @@ internal fun CalendarScreen(
 @Composable
 internal fun CalendarScreen(
     uiState: CalendarViewModel.UiState,
+    user: User,
     calendarData: CalendarData,
     popBackStack: () -> Unit,
     setCalendarData: (CalendarData) -> Unit,
@@ -70,6 +74,7 @@ internal fun CalendarScreen(
         is CalendarViewModel.UiState.Success -> {
             OnSuccessCalendarScreen(
                 uiState = uiState,
+                user = user,
                 calendarData = calendarData,
                 popBackStack = popBackStack,
                 setCalendarData = setCalendarData,
@@ -90,6 +95,7 @@ internal fun CalendarScreen(
 @Composable
 internal fun OnSuccessCalendarScreen(
     uiState: CalendarViewModel.UiState.Success,
+    user: User,
     calendarData: CalendarData,
     popBackStack: () -> Unit,
     setCalendarData: (CalendarData) -> Unit,
@@ -144,7 +150,11 @@ internal fun OnSuccessCalendarScreen(
 
         CalendarHealthChart(
             graph = uiState.healthTab.graph.map {
-                ceil(CaloriesMenuFactory.cal(it.toFloat()).toDouble()).roundToLong()
+                ceil(
+                    CaloriesMenuFactory(
+                        weight = user.weight,
+                    ).cal(it.toFloat()).toDouble()
+                ).roundToLong()
             },
             header = "칼로리(Kcal)",
             type = calendarData.type,
@@ -191,6 +201,7 @@ private fun PreviewCalendarScreen(
 ) = StepWalkTheme {
     CalendarScreen(
         uiState = CalendarViewModel.UiState.Success(uiState.step),
+        user = User.getInitValues(),
         calendarData = CalendarData.getInitValues(),
         popBackStack = {},
         setCalendarData = {},

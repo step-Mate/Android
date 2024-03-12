@@ -8,9 +8,11 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.width
@@ -201,10 +203,10 @@ internal fun OnSuccessRankingScreen(
     navigateToNoti: () -> Unit,
     isRequestedFriend: Boolean,
 ) {
+    val systemBarPadding = WindowInsets.systemBars.asPaddingValues()
     val systemBarHidingState = rememberSystemBarHidingState(
         bar = SystemBarHidingState.Bar.TOPBAR(
             maxHeight = with(density) {
-                val systemBarPadding = WindowInsets.systemBars.asPaddingValues()
                 182.dp.roundToPx() + systemBarPadding.calculateTopPadding()
                     .roundToPx() + systemBarPadding.calculateBottomPadding().roundToPx()
             },
@@ -263,6 +265,7 @@ internal fun OnSuccessRankingScreen(
             modifier = contentModifier,
         ) {
             TabRow(
+                modifier = Modifier.height(22.dp + systemBarPadding.calculateTopPadding() + systemBarPadding.calculateBottomPadding()),
                 selectedTabIndex = pagerState.currentPage,
                 indicator = { tabPositions ->
                     TabRowDefaults.Indicator(
