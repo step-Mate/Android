@@ -9,7 +9,7 @@ interface MissionRepository {
     fun getAllMissionList(): Flow<List<MissionList>>
     fun getMissionList(title: String): Flow<MissionList>
     suspend fun updateMissionList()
-    suspend fun updateMission(type: MissionType, achieved: Int)
+    suspend fun updateMission(achieved: Int)
     suspend fun completeMission(designation: String)
     suspend fun selectDesignation(designation: String)
     fun getDesignation(): Flow<DesignationState>

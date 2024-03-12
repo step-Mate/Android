@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import jinproject.stepwalk.core.catchDataFlow
+import jinproject.stepwalk.core.getCharacter
 import jinproject.stepwalk.core.isValidPassword
 import jinproject.stepwalk.domain.model.BodyData
 import jinproject.stepwalk.domain.model.user.User
@@ -51,7 +52,7 @@ class ProfileViewModel @Inject constructor(
     private val _uiState: MutableStateFlow<UiState> = MutableStateFlow(UiState.Loading)
     val uiState: StateFlow<UiState> get() = _uiState.asStateFlow()
 
-    private val _user = MutableStateFlow(User.getInitValues())
+    private val _user = MutableStateFlow(User.getInitValues().copy(designation = "회원가입시 다양한 기능을 사용할 수 있어요"))
     val user get() = _user.asStateFlow()
 
     private val _bodyData = MutableStateFlow(BodyData())
@@ -66,12 +67,12 @@ class ProfileViewModel @Inject constructor(
         checkHasTokenUseCase().flatMapLatest { token ->
             if (token) {
                 getMyInfoUseCases().onEach { user ->
-                    _user.update { user }
+                    _user.update { user.copy(character = getCharacter(user.level)) }
                     _uiState.emit(UiState.Login)
                 }
             } else {
                 flow {
-                    _user.update { User.getInitValues() }
+                    _user.update { User.getInitValues().copy(designation = "회원가입시 다양한 기능을 사용할 수 있어요") }
                     _uiState.emit(UiState.Anonymous)
                 }
             }

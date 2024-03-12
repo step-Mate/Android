@@ -15,9 +15,6 @@ import androidx.core.app.NotificationCompat
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleService
 import androidx.lifecycle.lifecycleScope
-import androidx.work.ExistingWorkPolicy
-import androidx.work.OneTimeWorkRequest
-import androidx.work.WorkManager
 import dagger.hilt.android.AndroidEntryPoint
 import jinproject.stepwalk.home.R
 import jinproject.stepwalk.home.utils.StepMateChannelId
@@ -25,6 +22,8 @@ import jinproject.stepwalk.home.utils.createChannel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import java.util.Calendar
 import javax.inject.Inject
@@ -69,7 +68,16 @@ internal class StepService : LifecycleService() {
                 stepNotiLayout?.setTextViewText(R.id.tv_stepHeader, stepData.current.toString())
                 notificationManager.notify(NOTIFICATION_ID, notification)
             }
+
         }
+        stepSensorViewModel.designation.onEach { completeList ->
+            completeList.forEach { designation ->
+                notificationManager.notify(
+                    NOTIFICATION_MISSION_ID,
+                    setMissionNotification(designation)
+                )
+            }
+        }.launchIn(lifecycleScope)
 
         registerSensor()
         alarmUpdatingDayStep()
@@ -126,16 +134,6 @@ internal class StepService : LifecycleService() {
         return START_STICKY
     }
 
-    private fun setWorker(worker: OneTimeWorkRequest) {
-        WorkManager
-            .getInstance(this)
-            .beginUniqueWork(
-                "insertStepWork",
-                ExistingWorkPolicy.REPLACE,
-                worker
-            ).then(stepSensorViewModel.getMissionUpdateWorker()).enqueue()
-    }
-
     override fun onDestroy() {
         if (::stepSensorViewModel.isInitialized)
             unRegisterSensor()
@@ -188,7 +186,18 @@ internal class StepService : LifecycleService() {
             startForeground(NOTIFICATION_ID, notification)
     }
 
+    private fun setMissionNotification(designation: String): Notification =
+        NotificationCompat.Builder(applicationContext, StepMateChannelId)
+            .setSmallIcon(jinproject.stepwalk.design.R.drawable.ic_person_walking)
+            .setStyle(NotificationCompat.DecoratedCustomViewStyle())
+            .setContentTitle("미션 달성")
+            .setContentText("$designation 을 완료하였습니다.")
+            .setOngoing(true)
+            .build()
+
+
     companion object {
         const val NOTIFICATION_ID = 999
+        private const val NOTIFICATION_MISSION_ID = 100
     }
 }

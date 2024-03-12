@@ -5,6 +5,7 @@ import jinproject.stepwalk.data.local.database.dao.MissionLocal
 import jinproject.stepwalk.data.local.database.entity.Mission
 import jinproject.stepwalk.data.local.database.entity.MissionLeaf
 import jinproject.stepwalk.data.local.database.entity.toMissionDataList
+import jinproject.stepwalk.data.local.datasource.BodyDataSource
 import jinproject.stepwalk.data.remote.api.MissionApi
 import jinproject.stepwalk.data.remote.dto.request.DesignationRequest
 import jinproject.stepwalk.data.remote.dto.response.mission.toMissionList
@@ -34,6 +35,7 @@ import javax.inject.Inject
 class MissionRepositoryImpl @Inject constructor(
     private val missionLocal: MissionLocal,
     private val missionApi: MissionApi,
+    private val bodyDataSource: BodyDataSource,
     @RetrofitWithTokenModule.RetrofitWithInterceptor private val retrofit: Retrofit,
 ) : MissionRepository {
     override fun getAllMissionList(): Flow<List<MissionList>> =
@@ -143,7 +145,7 @@ class MissionRepositoryImpl @Inject constructor(
                             id = 0,
                             designation = missionResponse.designation,
                             type = type,
-                            achieved = if (localAchieved >= detail.currentValue) localAchieved else detail.currentValue,
+                            achieved = if (localAchieved >= detail.currentValue) localAchieved else detail.currentValue.toInt(),
                             goal = detail.goal
                         )
                     )
@@ -152,25 +154,25 @@ class MissionRepositoryImpl @Inject constructor(
             checkUpdateMission(
                 missionLocal.getAllMissionList().first().toMissionDataList()
                     .sortedBy { it.title }).forEach { designation ->
-                if (designation != "뉴비")
-                    completeMission(designation)
+                completeMission(designation)
             }
 
         } else {
             checkUpdateMission(originalList.await()).forEach { designation ->
-                if (designation != "뉴비")
-                    completeMission(designation)
+                completeMission(designation)
             }
         }
     }
 
-    override suspend fun updateMission(type: MissionType, achieved: Int) {
-        missionLocal.updateMissionAchieved(type, achieved)
+    override suspend fun updateMission(achieved: Int) {
+        val step = getMissionAchieved(MissionType.Step).first() + achieved
+        missionLocal.updateMissionAchieved(MissionType.Step, step)
+        missionLocal.updateMissionAchieved(MissionType.Calorie, getCalories(step).toInt())
     }
 
     override suspend fun completeMission(designation: String) {
         suspendAndCatchStepMateData(retrofit) {
-            missionApi.completeMission(designation)
+            missionApi.completeMission(designation = designation)
         }
     }
 
@@ -187,11 +189,15 @@ class MissionRepositoryImpl @Inject constructor(
     override fun getMissionAchieved(missionType: MissionType): Flow<Int> =
         missionLocal.getMissionAchieved(missionType)
 
-    override suspend fun checkUpdateMission(): List<String> =
-        checkUpdateMission(
+    override suspend fun checkUpdateMission(): List<String> {
+        val complete = checkUpdateMission(
             missionLocal.getAllMissionList().first().toMissionDataList()
-                .sortedBy { it.title }).filter { it != "뉴비" }
-
+                .sortedBy { it.title })
+        complete.forEach { designation ->
+            completeMission(designation)
+        }
+        return complete
+    }
 
     private suspend fun checkUpdateMission(missionList: List<MissionList>): List<String> =
         withContext(Dispatchers.IO) {
@@ -205,4 +211,7 @@ class MissionRepositoryImpl @Inject constructor(
             }
             localDesignationList.await().subtract(designationList.toSet()).toList()
         }
+
+    private suspend fun getCalories(step : Int) =
+        3.0 * (3.5 * bodyDataSource.getBodyData().map { it.weight }.first() * step * 0.0008 * 15) * 5 / 1000
 }

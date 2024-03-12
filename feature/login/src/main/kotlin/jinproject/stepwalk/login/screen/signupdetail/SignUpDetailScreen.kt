@@ -1,8 +1,8 @@
 package jinproject.stepwalk.login.screen.signupdetail
 
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -12,21 +12,21 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import jinproject.stepwalk.core.MAX_EMAIL_CODE_LENGTH
+import jinproject.stepwalk.core.MAX_EMAIL_LENGTH
+import jinproject.stepwalk.core.MAX_NICKNAME_LENGTH
 import jinproject.stepwalk.core.SnackBarMessage
 import jinproject.stepwalk.design.component.DefaultOutlinedTextField
-import jinproject.stepwalk.login.screen.component.EnableButton
 import jinproject.stepwalk.design.component.VerticalSpacer
 import jinproject.stepwalk.design.theme.StepWalkTheme
 import jinproject.stepwalk.login.screen.component.EmailVerificationField
+import jinproject.stepwalk.login.screen.component.EnableButton
 import jinproject.stepwalk.login.screen.component.LoginLayout
 import jinproject.stepwalk.login.screen.signup.SignUpStatePreviewParameters
 import jinproject.stepwalk.login.screen.state.Account
 import jinproject.stepwalk.login.screen.state.SignValid
 import jinproject.stepwalk.login.screen.state.isError
 import jinproject.stepwalk.login.screen.state.isSuccess
-import jinproject.stepwalk.core.MAX_EMAIL_CODE_LENGTH
-import jinproject.stepwalk.core.MAX_EMAIL_LENGTH
-import jinproject.stepwalk.core.MAX_NICKNAME_LENGTH
 
 @Composable
 internal fun SignUpDetailScreen(
@@ -71,7 +71,7 @@ private fun SignUpDetailScreen(
 
     LoginLayout(
         text = "회원가입",
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier.padding(top = 30.dp),
         content = {
             VerticalSpacer(height = 80.dp)
             DefaultOutlinedTextField(

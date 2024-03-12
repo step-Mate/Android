@@ -16,11 +16,11 @@ interface MissionLocal {
 
     @Transaction
     @Query("SELECT * FROM mission")
-    fun getAllMissionList() : Flow<List<MissionList>>
+    fun getAllMissionList(): Flow<List<MissionList>>
 
     @Transaction
     @Query("SELECT * FROM mission WHERE title = :title")
-    fun getMissionList(title : String) : Flow<List<MissionList>>
+    fun getMissionList(title: String): Flow<List<MissionList>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun addMission(mission: Mission)
@@ -29,9 +29,12 @@ interface MissionLocal {
     suspend fun addMissionLeaf(missionLeaf: MissionLeaf)
 
     @Query("UPDATE missionleaf SET achieved = :achieved WHERE achieved <= goal and type = :type")
-    suspend fun updateMissionAchieved(type: MissionType, achieved : Int)
+    suspend fun updateMissionAchieved(type: MissionType, achieved: Int)
 
     @Query("SELECT MAX(achieved) FROM missionleaf WHERE type = :type")
-    fun getMissionAchieved(type: MissionType) : Flow<Int>
+    fun getMissionAchieved(type: MissionType): Flow<Int>
+
+    @Query("DELETE FROM mission")
+    suspend fun deleteMission()
 
 }

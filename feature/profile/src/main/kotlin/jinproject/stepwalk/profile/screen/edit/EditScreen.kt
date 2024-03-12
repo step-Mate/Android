@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -121,6 +122,11 @@ private fun EditScreen(
     val weightState by weight.collectAsStateWithLifecycle()
 
     DefaultLayout(
+        modifier = Modifier
+            .fillMaxSize()
+            .imePadding()
+            .systemBarsPadding()
+            .verticalScroll(rememberScrollState()),
         contentPaddingValues = PaddingValues(horizontal = 12.dp),
         topBar = {
             StepMateBoxDefaultTopBar(
@@ -134,11 +140,7 @@ private fun EditScreen(
             }
         }
     ) {
-        Column(
-            modifier = Modifier
-                .imePadding()
-                .verticalScroll(rememberScrollState())
-        ) {
+        Column {
             if (!loginState) {
                 DefaultOutlinedTextField(
                     modifier = Modifier.padding(top = 20.dp),
@@ -248,28 +250,22 @@ private fun EditScreen(
             }
         }
 
-        Column(
+        DefaultButton(
             modifier = Modifier
-                .fillMaxSize()
-                .padding(bottom = 20.dp),
-            verticalArrangement = Arrangement.Bottom
+                .fillMaxWidth()
+                .padding(top = 10.dp)
+                .height(50.dp),
+            onClick = {
+                onEvent(EditUserEvent.Save)
+            },
+            enabled = !(nicknameValidState != Valid.Success && ageValidState && heightValidState && weightValidState),
+            backgroundColor = MaterialTheme.colorScheme.primary,
+            shape = RoundedCornerShape(5.dp)
         ) {
-            DefaultButton(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(50.dp),
-                onClick = {
-                    onEvent(EditUserEvent.Save)
-                },
-                enabled = !(nicknameValidState != Valid.Success && ageValidState && heightValidState && weightValidState),
-                backgroundColor = MaterialTheme.colorScheme.primary,
-                shape = RoundedCornerShape(5.dp)
-            ) {
-                DescriptionLargeText(
-                    text = "저장",
-                    color = MaterialTheme.colorScheme.onPrimary.copy(alpha = if (!(nicknameValidState != Valid.Success && ageValidState && heightValidState && weightValidState)) 1f else 0.3f)
-                )
-            }
+            DescriptionLargeText(
+                text = "저장",
+                color = MaterialTheme.colorScheme.onPrimary.copy(alpha = if (!(nicknameValidState != Valid.Success && ageValidState && heightValidState && weightValidState)) 1f else 0.3f)
+            )
         }
     }
 }

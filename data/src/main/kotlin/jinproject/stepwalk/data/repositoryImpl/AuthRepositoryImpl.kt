@@ -1,5 +1,6 @@
 package jinproject.stepwalk.data.repositoryImpl
 
+import jinproject.stepwalk.data.local.database.dao.MissionLocal
 import jinproject.stepwalk.data.local.datasource.BodyDataSource
 import jinproject.stepwalk.data.local.datasource.CurrentAuthDataSource
 import jinproject.stepwalk.data.remote.api.AuthApi
@@ -20,6 +21,7 @@ import javax.inject.Inject
 
 class AuthRepositoryImpl @Inject constructor(
     private val authApi: AuthApi,
+    private val missionLocal : MissionLocal,
     private val currentAuthDataSource: CurrentAuthDataSource,
     private val bodyDataSource: BodyDataSource,
 ) : AuthRepository {
@@ -107,6 +109,7 @@ class AuthRepositoryImpl @Inject constructor(
 
     override suspend fun logoutAccount() {
         currentAuthDataSource.clearAuth()
+        missionLocal.deleteMission()
     }
 
     override fun getBodyData(): Flow<BodyData> =

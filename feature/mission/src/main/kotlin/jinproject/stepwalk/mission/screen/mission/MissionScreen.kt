@@ -2,10 +2,7 @@ package jinproject.stepwalk.mission.screen.mission
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.statusBars
-import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -87,7 +84,6 @@ private fun MissionScreen(
     val missionListState by missionList.collectAsStateWithLifecycle()
 
     DefaultLayout(
-        modifier = Modifier.windowInsetsPadding(WindowInsets.statusBars),
         contentPaddingValues = PaddingValues(horizontal = 12.dp)
     ) {
         LazyColumn(

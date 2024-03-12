@@ -142,7 +142,7 @@ class EditViewModel @Inject constructor(
                 onException = { e ->
                     _uiState.emit(UiState.Error(e))
                 }
-            )
+            ).launchIn(viewModelScope)
         }
     }
 

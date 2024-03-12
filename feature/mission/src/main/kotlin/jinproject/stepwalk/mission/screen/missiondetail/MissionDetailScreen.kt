@@ -3,13 +3,13 @@ package jinproject.stepwalk.mission.screen.missiondetail
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -25,10 +25,10 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -51,6 +51,7 @@ import jinproject.stepwalk.mission.screen.missiondetail.component.MissionComposi
 import jinproject.stepwalk.mission.util.getIcon
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
 
 @Composable
 internal fun MissionDetailScreen(
@@ -92,6 +93,7 @@ private fun MissionDetailScreen(
     var selectMission by remember { mutableStateOf<MissionFigure>(missionList.list.first()) }
     val scaffoldState = rememberBottomSheetScaffoldState()
     var designation by remember { mutableStateOf("") }
+    val coroutineScope = rememberCoroutineScope()
 
     LaunchedEffect(key1 = missionList) {
         selectMission =
@@ -103,6 +105,7 @@ private fun MissionDetailScreen(
                 ?: ""
     }
     BottomSheetScaffold(
+        modifier = Modifier.fillMaxSize(),
         scaffoldState = scaffoldState,
         sheetContent = {
             LazyVerticalGrid(
@@ -121,18 +124,30 @@ private fun MissionDetailScreen(
                             mission = mission,
                             animate = mission.designation == designation,
                             color = MaterialTheme.colorScheme.primary,
-                            onClick = { thisMission -> selectMission = thisMission }
+                            onClick = { thisMission ->
+                                selectMission = thisMission
+                                coroutineScope.launch {
+                                    scaffoldState.bottomSheetState.partialExpand()
+                                }
+                            }
                         )
                     }
                 } else {//목표미션
                     items(items = missionList.list, key = { it.designation }) { mission ->
                         MissionMedal(
-                            modifier = Modifier.size(120.dp),
+                            modifier = Modifier
+                                .height(110.dp)
+                                .width(90.dp),
                             icon = mission.getIcon(),
                             mission = mission,
                             animate = mission.designation == designation,
                             color = MaterialTheme.colorScheme.primary,
-                            onClick = { thisMission -> selectMission = thisMission }
+                            onClick = { thisMission ->
+                                selectMission = thisMission
+                                coroutineScope.launch {
+                                    scaffoldState.bottomSheetState.partialExpand()
+                                }
+                            }
                         )
                     }
                 }
@@ -149,10 +164,11 @@ private fun MissionDetailScreen(
                 HeadlineText(text = title, modifier = Modifier.align(Alignment.Center))
             }
         },
-        sheetPeekHeight = 200.dp,
+        sheetPeekHeight = 250.dp,
         sheetShape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp),
         sheetShadowElevation = 12.dp,
-        sheetContentColor = MaterialTheme.colorScheme.surface
+        sheetContainerColor = MaterialTheme.colorScheme.surface,
+        containerColor = MaterialTheme.colorScheme.background
     ) {
         Column(
             modifier = Modifier.fillMaxSize(),

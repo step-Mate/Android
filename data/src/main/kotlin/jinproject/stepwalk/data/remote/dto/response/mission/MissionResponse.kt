@@ -47,7 +47,7 @@ data class MissionsResponse(
 
 data class MissionDetailResponse(
     val missionType: String,
-    val currentValue : Int,
+    val currentValue : Float,
     val goal: Int
 )
 
@@ -66,7 +66,7 @@ internal fun List<MissionsResponse>.toMissionList() : List<MissionList> {
                             StepMission(
                                 designation = missionResponse.designation,
                                 intro = missionResponse.contents,
-                                achieved = detail.currentValue,
+                                achieved = detail.currentValue.toInt(),
                                 goal = detail.goal
                             )
                         )
@@ -81,7 +81,7 @@ internal fun List<MissionsResponse>.toMissionList() : List<MissionList> {
                             CalorieMission(
                                 designation = missionResponse.designation,
                                 intro = missionResponse.contents,
-                                achieved = detail.currentValue,
+                                achieved = detail.currentValue.toInt(),
                                 goal = detail.goal,
                             )
                         )
@@ -97,7 +97,7 @@ internal fun List<MissionsResponse>.toMissionList() : List<MissionList> {
                     "STEP" -> {
                         leafList.add(
                             StepMissionLeaf(
-                                achieved = detail.currentValue,
+                                achieved = detail.currentValue.toInt(),
                                 goal = detail.goal
                             )
                         )
@@ -105,7 +105,7 @@ internal fun List<MissionsResponse>.toMissionList() : List<MissionList> {
                     "CALORIE" -> {
                         leafList.add(
                             CalorieMissionLeaf(
-                                achieved = detail.currentValue,
+                                achieved = detail.currentValue.toInt(),
                                 goal = detail.goal,
                             )
                         )
