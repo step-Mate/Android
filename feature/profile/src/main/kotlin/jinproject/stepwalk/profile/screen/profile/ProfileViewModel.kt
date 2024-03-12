@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import jinproject.stepwalk.core.catchDataFlow
+import jinproject.stepwalk.core.getCharacter
 import jinproject.stepwalk.core.isValidPassword
 import jinproject.stepwalk.domain.model.BodyData
 import jinproject.stepwalk.domain.model.user.User
@@ -66,7 +67,7 @@ class ProfileViewModel @Inject constructor(
         checkHasTokenUseCase().flatMapLatest { token ->
             if (token) {
                 getMyInfoUseCases().onEach { user ->
-                    _user.update { user }
+                    _user.update { user.copy(character = getCharacter(user.level)) }
                     _uiState.emit(UiState.Login)
                 }
             } else {
