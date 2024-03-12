@@ -5,6 +5,7 @@ import jinproject.stepwalk.data.local.database.dao.MissionLocal
 import jinproject.stepwalk.data.local.database.entity.Mission
 import jinproject.stepwalk.data.local.database.entity.MissionLeaf
 import jinproject.stepwalk.data.local.database.entity.toMissionDataList
+import jinproject.stepwalk.data.local.datasource.BodyDataSource
 import jinproject.stepwalk.data.remote.api.MissionApi
 import jinproject.stepwalk.data.remote.dto.request.DesignationRequest
 import jinproject.stepwalk.data.remote.dto.response.mission.toMissionList
@@ -34,6 +35,7 @@ import javax.inject.Inject
 class MissionRepositoryImpl @Inject constructor(
     private val missionLocal: MissionLocal,
     private val missionApi: MissionApi,
+    private val bodyDataSource: BodyDataSource,
     @RetrofitWithTokenModule.RetrofitWithInterceptor private val retrofit: Retrofit,
 ) : MissionRepository {
     override fun getAllMissionList(): Flow<List<MissionList>> =
@@ -165,7 +167,7 @@ class MissionRepositoryImpl @Inject constructor(
     override suspend fun updateMission(achieved: Int) {
         val step = getMissionAchieved(MissionType.Step).first() + achieved
         missionLocal.updateMissionAchieved(MissionType.Step, step)
-        missionLocal.updateMissionAchieved(MissionType.Calorie, (step * 0.003f).toInt())
+        missionLocal.updateMissionAchieved(MissionType.Calorie, getCalories(step).toInt())
     }
 
     override suspend fun completeMission(designation: String) {
@@ -209,4 +211,7 @@ class MissionRepositoryImpl @Inject constructor(
             }
             localDesignationList.await().subtract(designationList.toSet()).toList()
         }
+
+    private suspend fun getCalories(step : Int) =
+        3.0 * (3.5 * bodyDataSource.getBodyData().map { it.weight }.first() * step * 0.0008 * 15) * 5 / 1000
 }
