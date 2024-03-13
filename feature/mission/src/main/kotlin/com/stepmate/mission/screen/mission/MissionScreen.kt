@@ -8,9 +8,12 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -26,6 +29,7 @@ import com.stepmate.design.theme.StepMateTheme
 import com.stepmate.domain.model.mission.MissionList
 import com.stepmate.mission.screen.mission.MissionViewModel.Companion.CANNOT_LOGIN_EXCEPTION
 import com.stepmate.mission.screen.mission.component.MissionItem
+import com.stepmate.mission.util.NotificationHandler
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
@@ -70,6 +74,7 @@ internal fun MissionScreen(
         MissionViewModel.UiState.Success -> {
             MissionScreen(
                 missionList = missionViewModel.missionList,
+                completeMissionList = missionViewModel.designation,
                 navigateToMissionDetail = navigateToMissionDetail
             )
         }
@@ -79,9 +84,19 @@ internal fun MissionScreen(
 @Composable
 private fun MissionScreen(
     missionList: StateFlow<List<MissionList>>,
+    completeMissionList : StateFlow<List<String>>,
     navigateToMissionDetail: (String) -> Unit
 ) {
     val missionListState by missionList.collectAsStateWithLifecycle()
+    val completeMissionListState by completeMissionList.collectAsStateWithLifecycle()
+    val context = LocalContext.current
+    val notificationHandler = remember{ NotificationHandler(context = context)}
+
+    LaunchedEffect(key1 = completeMissionListState){
+        completeMissionListState.forEach { designation ->
+            notificationHandler.showMissionNotification(designation)
+        }
+    }
 
     DefaultLayout(
         contentPaddingValues = PaddingValues(horizontal = 12.dp)
@@ -115,6 +130,7 @@ private fun PreviewMissionScreen(
 ) = StepMateTheme {
     MissionScreen(
         missionList = MutableStateFlow(listOf()),
+        completeMissionList = MutableStateFlow(listOf()),
         navigateToMissionDetail = { _ -> }
     )
 }

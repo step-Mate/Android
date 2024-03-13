@@ -13,6 +13,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.flatMapLatest
@@ -36,10 +37,15 @@ internal class MissionViewModel @Inject constructor(
     private val _missionList: MutableStateFlow<List<MissionList>> = MutableStateFlow(emptyList())
     val missionList get() = _missionList.asStateFlow()
 
+    private val _designation: MutableStateFlow<List<String>> = MutableStateFlow(emptyList())
+    val designation: StateFlow<List<String>> get() = _designation.asStateFlow()
+
     init {
         checkHasTokenUseCase().flatMapLatest { token ->
             if (token) {
-                updateMissionListUseCases()
+                val completeMission = updateMissionListUseCases()
+                if (completeMission.isNotEmpty())
+                    _designation.update { completeMission }
                 getAllMissionListUseCases().onEach { missions ->
                     _missionList.update { missions }
                     _uiState.emit(UiState.Success)
