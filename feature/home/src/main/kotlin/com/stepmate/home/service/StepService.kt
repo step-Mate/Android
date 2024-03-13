@@ -187,11 +187,17 @@ internal class StepService : LifecycleService() {
     }
 
     private fun setMissionNotification(designation: String): Notification =
-        NotificationCompat.Builder(applicationContext, StepMateChannelId)
+        NotificationCompat.Builder(this, StepMateChannelId)
             .setSmallIcon(com.stepmate.design.R.drawable.ic_person_walking)
             .setStyle(NotificationCompat.DecoratedCustomViewStyle())
             .setContentTitle("미션 달성")
             .setContentText("$designation 을 완료하였습니다.")
+            .setContentIntent(PendingIntent.getActivity(
+                this,
+                NOTIFICATION_MISSION_ID,
+                Intent(this, Class.forName("com.stepmate.app.StepMateActivity")),
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            ))
             .setOngoing(true)
             .build()
 

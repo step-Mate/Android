@@ -132,7 +132,7 @@ class EditViewModel @Inject constructor(
         }
         if (!anonymousState) {//로그인 상태일시
             getDesignationsUseCases().onEach { designationState ->
-                _designationList.update { designationState.list }
+                _designationList.update { designationState.list.filter { !it.contains("주간") } }
                 _uiState.emit(UiState.Success)
             }.catchDataFlow(
                 action = { e ->

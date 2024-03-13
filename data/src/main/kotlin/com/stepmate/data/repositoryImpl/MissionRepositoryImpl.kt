@@ -104,7 +104,7 @@ class MissionRepositoryImpl @Inject constructor(
             MissionList(title, missionList)
         }
 
-    override suspend fun updateMissionList() = withContext(Dispatchers.IO) {
+    override suspend fun updateMissionList(): List<String> = withContext(Dispatchers.IO) {
         val list = missionApi.getMissionList()
         val apiList = list.toMissionList().sortedBy { it.title }
         val originalList = async {
@@ -145,22 +145,29 @@ class MissionRepositoryImpl @Inject constructor(
                             id = 0,
                             designation = missionResponse.designation,
                             type = type,
-                            achieved = if (localAchieved >= detail.currentValue) localAchieved else detail.currentValue.toInt(),
+                            achieved = when {
+                                missionResponse.detail.size >= 2 && detail.currentValue.toInt() == 0 -> 0
+                                localAchieved >= detail.currentValue.toInt() -> localAchieved
+                                else -> detail.currentValue.toInt()
+                            },
                             goal = detail.goal
                         )
                     )
                 }
             }
-            checkUpdateMission(
+            val complete = checkUpdateMission(
                 missionLocal.getAllMissionList().first().toMissionDataList()
-                    .sortedBy { it.title }).forEach { designation ->
+                    .sortedBy { it.title })
+            complete.forEach { designation ->
                 completeMission(designation)
             }
-
+            complete
         } else {
-            checkUpdateMission(originalList.await()).forEach { designation ->
+            val complete = checkUpdateMission(originalList.await())
+            complete.forEach { designation ->
                 completeMission(designation)
             }
+            complete
         }
     }
 
@@ -168,12 +175,6 @@ class MissionRepositoryImpl @Inject constructor(
         val step = getMissionAchieved(MissionType.Step).first() + achieved
         missionLocal.updateMissionAchieved(MissionType.Step, step)
         missionLocal.updateMissionAchieved(MissionType.Calorie, getCalories(step).toInt())
-    }
-
-    override suspend fun completeMission(designation: String) {
-        suspendAndCatchStepMateData(retrofit) {
-            missionApi.completeMission(designation = designation)
-        }
     }
 
     override suspend fun selectDesignation(designation: String) {
@@ -199,19 +200,29 @@ class MissionRepositoryImpl @Inject constructor(
         return complete
     }
 
+    private suspend fun completeMission(designation: String) {
+        suspendAndCatchStepMateData(retrofit) {
+            missionApi.completeMission(designation = designation)
+        }
+    }
+
     private suspend fun checkUpdateMission(missionList: List<MissionList>): List<String> =
         withContext(Dispatchers.IO) {
             val designationList = getDesignation().first().list.sorted()
             val localDesignationList = async {
                 missionList.map { missions ->
-                    missions.list.filter {
-                        it.getMissionAchieved() >= it.getMissionGoal()
+                    missions.list.filter { missionCommon ->
+                        if (missionCommon is MissionComposite)
+                            missionCommon.getOriginalAchieved() >= missionCommon.getOriginalGoal()
+                        else
+                            missionCommon.getMissionAchieved() >= missionCommon.getMissionGoal()
                     }.map { it.designation }
                 }.flatten().sorted()
             }
             localDesignationList.await().subtract(designationList.toSet()).toList()
         }
 
-    private suspend fun getCalories(step : Int) =
-        3.0 * (3.5 * bodyDataSource.getBodyData().map { it.weight }.first() * step * 0.0008 * 15) * 5 / 1000
+    private suspend fun getCalories(step: Int) =
+        3.0 * (3.5 * bodyDataSource.getBodyData().map { it.weight }
+            .first() * step * 0.0008 * 15) * 5 / 1000
 }
