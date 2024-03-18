@@ -35,7 +35,6 @@ import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.stepmate.design.theme.StepMateTheme
-import com.stepmate.domain.model.mission.MissionComposite
 import com.stepmate.domain.model.mission.MissionFigure
 
 @Composable
@@ -43,7 +42,7 @@ internal fun MissionMedal(
     modifier: Modifier,
     @DrawableRes icon: Int,
     mission: MissionFigure,
-    animate : Boolean,
+    animate: Boolean,
     textStyle: TextStyle = MaterialTheme.typography.bodySmall,
     color: Color,
     backgroundColor: Color = MaterialTheme.colorScheme.surface,
@@ -59,7 +58,7 @@ internal fun MissionMedal(
     }
     val animateFloat =
         remember(mission) { Animatable(if (mission.getMissionAchieved() >= mission.getMissionGoal()) 1f else 0f) }
-    LaunchedEffect(key1 = mission,animate) {
+    LaunchedEffect(key1 = mission, animate) {
         if ((mission.getMissionAchieved() > 0 || mission.getMissionAchieved() < mission.getMissionGoal()) && animate) {
             animateFloat.animateTo(
                 targetValue = mission.getMissionProgress(),
@@ -172,7 +171,7 @@ internal fun MissionBadge(
     modifier: Modifier,
     @DrawableRes icon: Int,
     mission: MissionFigure,
-    animate : Boolean,
+    animate: Boolean,
     textStyle: TextStyle = MaterialTheme.typography.bodySmall,
     color: Color,
     backgroundColor: Color = MaterialTheme.colorScheme.surface,
@@ -184,19 +183,15 @@ internal fun MissionBadge(
     val painter = rememberVectorPainter(image = vector)
     val textMeasurer = rememberTextMeasurer()
     val textLayoutResult = remember(
-        if (mission is MissionComposite) {
-            mission.getOriginalGoal().toString()
-        } else mission.getMissionGoal().toString(), textStyle
+        mission.getMissionGoal().toString(), textStyle
     ) {
         textMeasurer.measure(
-            if (mission is MissionComposite) {
-                mission.getOriginalGoal().toString()
-            } else mission.getMissionGoal().toString(), textStyle
+            mission.getMissionGoal().toString(), textStyle
         )
     }
     val animateFloat =
-        remember { Animatable(if (mission.getMissionAchieved() >= mission.getMissionGoal()) 1f else 0f) }
-    LaunchedEffect(key1 = mission,animate) {
+        remember(mission) { Animatable(if (mission.getMissionAchieved() >= mission.getMissionGoal()) 1f else 0f) }
+    LaunchedEffect(key1 = mission, animate) {
         if ((mission.getMissionAchieved() > 0 || mission.getMissionAchieved() < mission.getMissionGoal()) && animate) {
             animateFloat.animateTo(
                 targetValue = mission.getMissionProgress(),

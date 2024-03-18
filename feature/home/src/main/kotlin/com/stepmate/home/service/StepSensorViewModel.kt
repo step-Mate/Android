@@ -9,6 +9,7 @@ import com.stepmate.domain.model.StepData
 import com.stepmate.domain.model.exception.StepMateHttpException
 import com.stepmate.domain.usecase.auth.CheckHasTokenUseCase
 import com.stepmate.domain.usecase.mission.CheckUpdateMissionUseCases
+import com.stepmate.domain.usecase.mission.ResetMissionTimeUseCases
 import com.stepmate.domain.usecase.mission.UpdateMissionUseCases
 import com.stepmate.domain.usecase.step.ManageStepUseCase
 import com.stepmate.domain.usecase.step.SetUserDayStepUseCase
@@ -37,6 +38,7 @@ internal class StepSensorViewModel @Inject constructor(
     private val healthConnector: HealthConnector,
     private val updateMissionUseCases: UpdateMissionUseCases,
     private val checkUpdateMissionUseCases: CheckUpdateMissionUseCases,
+    private val resetMissionTimeUseCases: ResetMissionTimeUseCases,
     checkHasTokenUseCase: CheckHasTokenUseCase,
 ) {
     private var startTime: ZonedDateTime = ZonedDateTime.now()
@@ -67,8 +69,9 @@ internal class StepSensorViewModel @Inject constructor(
         scope = viewModelScope,
         callBack = {
             updateStepBySensor()
-            if (isLoginUser)
+            if (isLoginUser) {
                 checkUpdateMissionList()
+            }
         }
     )
 
@@ -158,13 +161,18 @@ internal class StepSensorViewModel @Inject constructor(
         }
     }
 
+    fun resetTimeMission(){
+        viewModelScope.launch(Dispatchers.IO) {
+            resetMissionTimeUseCases()
+        }
+    }
+
     private suspend fun checkUpdateMissionList() = withContext(Dispatchers.IO) {
         val completeList = checkUpdateMissionUseCases()
         if (completeList.isNotEmpty()) {
             _designation.update { completeList }
         }
     }
-
 }
 
 internal class ViewModelCoroutineScope(

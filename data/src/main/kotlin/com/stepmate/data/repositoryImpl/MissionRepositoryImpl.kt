@@ -171,10 +171,13 @@ class MissionRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun updateMission(achieved: Int) {
+    override suspend fun updateMission(achieved: Int) = withContext(Dispatchers.IO) {
         val step = getMissionAchieved(MissionType.Step).first() + achieved
+        val timeStep = async { getMissionTimeAchieved(MissionType.Step).first() + achieved }
         missionLocal.updateMissionAchieved(MissionType.Step, step)
         missionLocal.updateMissionAchieved(MissionType.Calorie, getCalories(step).toInt())
+        missionLocal.updateMissionTimeAchieved(MissionType.Step, timeStep.await())
+        missionLocal.updateMissionTimeAchieved(MissionType.Calorie, getCalories(timeStep.await()).toInt())
     }
 
     override suspend fun selectDesignation(designation: String) {
@@ -187,9 +190,6 @@ class MissionRepositoryImpl @Inject constructor(
         missionApi.getDesignations().toDesignationModel()
     }
 
-    override fun getMissionAchieved(missionType: MissionType): Flow<Int> =
-        missionLocal.getMissionAchieved(missionType)
-
     override suspend fun checkUpdateMission(): List<String> {
         val complete = checkUpdateMission(
             missionLocal.getAllMissionList().first().toMissionDataList()
@@ -200,6 +200,15 @@ class MissionRepositoryImpl @Inject constructor(
         return complete
     }
 
+    override suspend fun resetMissionTime() =
+        missionLocal.resetMissionTime()
+
+    private fun getMissionAchieved(missionType: MissionType): Flow<Int> =
+        missionLocal.getMissionAchieved(missionType)
+
+    private fun getMissionTimeAchieved(missionType: MissionType) : Flow<Int> =
+        missionLocal.getMissionTimeAchieved(missionType)
+
     private suspend fun completeMission(designation: String) {
         suspendAndCatchStepMateData(retrofit) {
             missionApi.completeMission(designation = designation)
@@ -209,13 +218,10 @@ class MissionRepositoryImpl @Inject constructor(
     private suspend fun checkUpdateMission(missionList: List<MissionList>): List<String> =
         withContext(Dispatchers.IO) {
             val designationList = getDesignation().first().list.sorted()
-            val localDesignationList = async {
+            val localDesignationList = async(Dispatchers.Default) {
                 missionList.map { missions ->
                     missions.list.filter { missionCommon ->
-                        if (missionCommon is MissionComposite)
-                            missionCommon.getOriginalAchieved() >= missionCommon.getOriginalGoal()
-                        else
-                            missionCommon.getMissionAchieved() >= missionCommon.getMissionGoal()
+                        missionCommon.getMissionAchieved() >= missionCommon.getMissionGoal()
                     }.map { it.designation }
                 }.flatten().sorted()
             }

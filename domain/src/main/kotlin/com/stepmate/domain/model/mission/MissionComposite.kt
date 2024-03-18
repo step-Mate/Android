@@ -78,22 +78,18 @@ data class MissionComposite(
         )
     }.sumOrNull() ?: Fraction(son = 0, mother = 0)
 
-    override fun getMissionAchieved(): Int = fraction.son
-    override fun getMissionGoal(): Int = fraction.mother
+    override fun getMissionAchieved(): Int = missions.sumOf { mission ->
+        mission.getMissionAchieved()
+    }
+    override fun getMissionGoal(): Int = missions.sumOf { mission ->
+        mission.getMissionGoal()
+    }
     override fun getReward(): Int = missions.sumOf { mission ->
         when (mission) {
             is StepMissionLeaf -> mission.getMissionGoal() / 1000
             is CalorieMissionLeaf -> mission.getMissionGoal() / 10
             else -> throw IllegalArgumentException("$mission 은 정해지지 않은 미션 입니다.")
         }
-    }
-
-    fun getOriginalAchieved(): Int = missions.sumOf { mission ->
-        mission.getMissionAchieved()
-    }
-
-    fun getOriginalGoal(): Int = missions.sumOf { mission ->
-        mission.getMissionGoal()
     }
 }
 

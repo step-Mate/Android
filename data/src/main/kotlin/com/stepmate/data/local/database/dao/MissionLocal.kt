@@ -28,11 +28,20 @@ interface MissionLocal {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun addMissionLeaf(missionLeaf: MissionLeaf)
 
-    @Query("UPDATE missionleaf SET achieved = :achieved WHERE achieved <= goal and type = :type")
+    @Query("UPDATE missionleaf SET achieved = :achieved WHERE achieved <= goal and type = :type and id IN (SELECT id  FROM  missionleaf  WHERE  type = :type and designation NOT LIKE '%주간%')")
     suspend fun updateMissionAchieved(type: MissionType, achieved: Int)
 
-    @Query("SELECT MAX(achieved) FROM missionleaf WHERE type = :type")
+    @Query("UPDATE missionleaf SET achieved = :achieved WHERE achieved <= goal and type = :type and id IN (SELECT id  FROM  missionleaf  WHERE  type = :type and designation LIKE '%주간%')")
+    suspend fun updateMissionTimeAchieved(type: MissionType, achieved: Int)
+
+    @Query("SELECT MAX(achieved) FROM missionleaf WHERE type = :type and designation NOT LIKE '%주간%'")
     fun getMissionAchieved(type: MissionType): Flow<Int>
+
+    @Query("SELECT MAX(achieved) FROM missionleaf WHERE type = :type and designation LIKE '%주간%'")
+    fun getMissionTimeAchieved(type: MissionType): Flow<Int>
+
+    @Query("UPDATE missionleaf SET achieved = 0 WHERE id IN (SELECT id  FROM  missionleaf  WHERE designation LIKE '%주간%')")
+    suspend fun resetMissionTime()
 
     @Query("DELETE FROM mission")
     suspend fun deleteMission()
