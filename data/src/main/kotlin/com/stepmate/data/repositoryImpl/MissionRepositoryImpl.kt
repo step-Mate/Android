@@ -221,7 +221,15 @@ class MissionRepositoryImpl @Inject constructor(
             val localDesignationList = async(Dispatchers.Default) {
                 missionList.map { missions ->
                     missions.list.filter { missionCommon ->
-                        missionCommon.getMissionAchieved() >= missionCommon.getMissionGoal()
+                        if (missionCommon is MissionComposite){
+                            missionCommon.missions.forEach { missionFigure ->
+                                if(missionFigure.getMissionAchieved() < missionFigure.getMissionGoal())
+                                    return@filter false
+                            }
+                            return@filter true
+                        }else{
+                            missionCommon.getMissionAchieved() >= missionCommon.getMissionGoal()
+                        }
                     }.map { it.designation }
                 }.flatten().sorted()
             }
