@@ -177,7 +177,10 @@ class MissionRepositoryImpl @Inject constructor(
         missionLocal.updateMissionAchieved(MissionType.Step, step)
         missionLocal.updateMissionAchieved(MissionType.Calorie, getCalories(step).toInt())
         missionLocal.updateMissionTimeAchieved(MissionType.Step, timeStep.await())
-        missionLocal.updateMissionTimeAchieved(MissionType.Calorie, getCalories(timeStep.await()).toInt())
+        missionLocal.updateMissionTimeAchieved(
+            MissionType.Calorie,
+            getCalories(timeStep.await()).toInt()
+        )
     }
 
     override suspend fun selectDesignation(designation: String) {
@@ -206,7 +209,7 @@ class MissionRepositoryImpl @Inject constructor(
     private fun getMissionAchieved(missionType: MissionType): Flow<Int> =
         missionLocal.getMissionAchieved(missionType)
 
-    private fun getMissionTimeAchieved(missionType: MissionType) : Flow<Int> =
+    private fun getMissionTimeAchieved(missionType: MissionType): Flow<Int> =
         missionLocal.getMissionTimeAchieved(missionType)
 
     private suspend fun completeMission(designation: String) {
@@ -220,17 +223,14 @@ class MissionRepositoryImpl @Inject constructor(
             val designationList = getDesignation().first().list.sorted()
             val localDesignationList = async(Dispatchers.Default) {
                 missionList.map { missions ->
-                    missions.list.filter { missionCommon ->
-                        if (missionCommon is MissionComposite){
-                            missionCommon.missions.forEach { missionFigure ->
-                                if(missionFigure.getMissionAchieved() < missionFigure.getMissionGoal())
-                                    return@filter false
-                            }
-                            return@filter true
-                        }else{
-                            missionCommon.getMissionAchieved() >= missionCommon.getMissionGoal()
-                        }
-                    }.map { it.designation }
+                    val complete = arrayListOf<String>()
+                    missions.list.forEach { missionCommon ->
+                        if (missionCommon.getMissionProgress() == 1f)
+                            complete.add(missionCommon.designation)
+                        else
+                            return@forEach
+                    }
+                    complete
                 }.flatten().sorted()
             }
             localDesignationList.await().subtract(designationList.toSet()).toList()

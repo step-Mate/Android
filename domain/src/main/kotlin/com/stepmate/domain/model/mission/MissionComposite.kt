@@ -76,7 +76,7 @@ data class MissionComposite(
     override fun getMissionProgress(): Float =
         (missions.sumOf { mission ->
             mission.getMissionProgress().toDouble()
-        } / missions.size).toFloat()
+        } / missions.size).toFloat().coerceAtMost(1f)
 
     override fun getReward(): Int = missions.sumOf { mission ->
         when (mission) {
