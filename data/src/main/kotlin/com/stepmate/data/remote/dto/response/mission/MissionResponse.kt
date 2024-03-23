@@ -1,36 +1,37 @@
 package com.stepmate.data.remote.dto.response.mission
 
-import com.google.gson.annotations.SerializedName
 import com.stepmate.domain.model.mission.CalorieMission
-import com.stepmate.domain.model.mission.StepMission
 import com.stepmate.domain.model.mission.CalorieMissionLeaf
 import com.stepmate.domain.model.mission.MissionCommon
 import com.stepmate.domain.model.mission.MissionComposite
 import com.stepmate.domain.model.mission.MissionFigure
 import com.stepmate.domain.model.mission.MissionList
+import com.stepmate.domain.model.mission.StepMission
 import com.stepmate.domain.model.mission.StepMissionLeaf
 
 internal data class MissionResponse(
-    @SerializedName("title") val designation: String,
+    val title: String,
+    val designation: String,
     val contents: String,
     val goal: Int,
+    val stepCurrentValue: Int,
+    val calorieCurrentValue: Float,
     val missionType: String,
-    val complete: Boolean,
 )
 
 internal fun List<MissionResponse>.toMissionComponentList() = this.map { missionResponse ->
-    when (missionResponse.missionType) { //TODO achieved 가 없음
+    when (missionResponse.missionType) {
         "STEP" -> StepMission(
             designation = missionResponse.designation,
             intro = missionResponse.contents,
-            achieved = 0,
+            achieved = missionResponse.stepCurrentValue,
             goal = missionResponse.goal,
         )
 
         "CALORIE" -> CalorieMission(
             designation = missionResponse.designation,
             intro = missionResponse.contents,
-            achieved = 0,
+            achieved = missionResponse.calorieCurrentValue.toInt(),
             goal = missionResponse.goal,
         )
 
@@ -39,24 +40,24 @@ internal fun List<MissionResponse>.toMissionComponentList() = this.map { mission
 }
 
 data class MissionsResponse(
-    val title : String,
+    val title: String,
     val designation: String,
     val contents: String,
-    val detail : List<MissionDetailResponse>
+    val detail: List<MissionDetailResponse>
 )
 
 data class MissionDetailResponse(
     val missionType: String,
-    val currentValue : Float,
+    val currentValue: Float,
     val goal: Int
 )
 
-internal fun List<MissionsResponse>.toMissionList() : List<MissionList> {
+internal fun List<MissionsResponse>.toMissionList(): List<MissionList> {
     val missionList = HashMap<String, ArrayList<MissionCommon>>()
-    this.forEach {missionResponse ->
-        if (missionResponse.detail.size == 1){
+    this.forEach { missionResponse ->
+        if (missionResponse.detail.size == 1) {
             missionResponse.detail.forEach { detail ->
-                when(detail.missionType){
+                when (detail.missionType) {
                     "STEP" -> {
                         val missions = missionList.getOrDefault(
                             missionResponse.title,
@@ -72,6 +73,7 @@ internal fun List<MissionsResponse>.toMissionList() : List<MissionList> {
                         )
                         missionList[missionResponse.title] = missions
                     }
+
                     "CALORIE" -> {
                         val missions = missionList.getOrDefault(
                             missionResponse.title,
@@ -87,13 +89,14 @@ internal fun List<MissionsResponse>.toMissionList() : List<MissionList> {
                         )
                         missionList[missionResponse.title] = missions
                     }
+
                     else -> throw IllegalArgumentException("알 수 없는 미션 타입: [${detail.missionType}] 입니다.")
                 }
             }
-        }else{
+        } else {
             val leafList = ArrayList<MissionFigure>()
             missionResponse.detail.forEach { detail ->
-                when(detail.missionType){
+                when (detail.missionType) {
                     "STEP" -> {
                         leafList.add(
                             StepMissionLeaf(
@@ -102,6 +105,7 @@ internal fun List<MissionsResponse>.toMissionList() : List<MissionList> {
                             )
                         )
                     }
+
                     "CALORIE" -> {
                         leafList.add(
                             CalorieMissionLeaf(
@@ -110,6 +114,7 @@ internal fun List<MissionsResponse>.toMissionList() : List<MissionList> {
                             )
                         )
                     }
+
                     else -> throw IllegalArgumentException("알 수 없는 미션 타입: [${detail.missionType}] 입니다.")
                 }
             }
@@ -128,6 +133,6 @@ internal fun List<MissionsResponse>.toMissionList() : List<MissionList> {
         }
     }
     return missionList.map {
-        MissionList(it.key,it.value)
+        MissionList(it.key, it.value)
     }
 }

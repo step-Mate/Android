@@ -1,8 +1,5 @@
 package com.stepmate.domain.model.mission
 
-import com.stepmate.domain.model.Fraction
-import com.stepmate.domain.model.sumOrNull
-
 /**
  * 미션의 수치(달성도, 목표)를 추상화한 인터페이스
  *
@@ -68,32 +65,25 @@ data class MissionComposite(
     intro = intro,
 ) {
 
-    /**
-     * 여러 단일 미션들의 수치값들을 합하여 하나의 복합체로써의 합계된 수치(달성도, 목표)를 표현하기 위해 분수(Fraction) 을 이용
-     */
-    private val fraction = missions.map { mission ->
-        Fraction(
-            son = mission.getMissionAchieved(),
-            mother = mission.getMissionGoal()
-        )
-    }.sumOrNull() ?: Fraction(son = 0, mother = 0)
+    override fun getMissionAchieved(): Int = missions.sumOf { mission ->
+        mission.getMissionAchieved()
+    }
 
-    override fun getMissionAchieved(): Int = fraction.son
-    override fun getMissionGoal(): Int = fraction.mother
+    override fun getMissionGoal(): Int = missions.sumOf { mission ->
+        mission.getMissionGoal()
+    }
+
+    override fun getMissionProgress(): Float =
+        (missions.sumOf { mission ->
+            mission.getMissionProgress().toDouble()
+        } / missions.size).toFloat().coerceAtMost(1f)
+
     override fun getReward(): Int = missions.sumOf { mission ->
         when (mission) {
             is StepMissionLeaf -> mission.getMissionGoal() / 1000
             is CalorieMissionLeaf -> mission.getMissionGoal() / 10
             else -> throw IllegalArgumentException("$mission 은 정해지지 않은 미션 입니다.")
         }
-    }
-
-    fun getOriginalAchieved(): Int = missions.sumOf { mission ->
-        mission.getMissionAchieved()
-    }
-
-    fun getOriginalGoal(): Int = missions.sumOf { mission ->
-        mission.getMissionGoal()
     }
 }
 

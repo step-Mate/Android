@@ -59,7 +59,7 @@ internal fun MissionCompositeView(
     ) {
         DescriptionLargeText(
             modifier = Modifier.padding(start = 50.dp),
-            text = "${selectMission.getOriginalAchieved()}/${selectMission.getOriginalGoal()}",
+            text = "${selectMission.getMissionAchieved()}/${selectMission.getMissionGoal()}",
             textAlign = TextAlign.Center
         )
         DefaultIconButton(
