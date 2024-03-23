@@ -14,6 +14,7 @@ import com.stepmate.domain.usecase.mission.UpdateMissionUseCases
 import com.stepmate.domain.usecase.step.ManageStepUseCase
 import com.stepmate.domain.usecase.step.SetUserDayStepUseCase
 import com.stepmate.home.HealthConnector
+import com.stepmate.home.service.StepException.NEED_RE_LOGIN
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -47,9 +48,21 @@ internal class StepSensorViewModel @Inject constructor(
     private val _step: MutableStateFlow<StepData> = MutableStateFlow(StepData.getInitValues())
     val step: StateFlow<StepData> get() = _step.asStateFlow()
 
+    private val _exception = MutableStateFlow("")
+    val exception get() = _exception.asStateFlow()
+
+    private var isLoginUser = false
+
     private val coroutineExceptionHandler = CoroutineExceptionHandler { coroutineContext, t ->
         when (t) {
             is StepMateHttpException -> {
+                when (t.code) {
+                    402 -> {
+                        isLoginUser = false
+                        _exception.update { NEED_RE_LOGIN }
+                    }
+                }
+
                 Log.e("test", "HttpException [${t.code}] has occurred cuz of [${t.message}]")
             }
 
@@ -69,17 +82,14 @@ internal class StepSensorViewModel @Inject constructor(
         scope = viewModelScope,
         callBack = {
             updateStepBySensor()
-            if (isLoginUser) {
-                checkUpdateMissionList()
-            }
+            checkUpdateMissionList()
         }
     )
 
     private var isRecreated = true
-    private var isLoginUser = false
 
     init {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             val todayStep = healthConnector.getTodayTotalStep()
             val diff = manageStepUseCase.getTodayStep().first() - todayStep
 
@@ -122,17 +132,15 @@ internal class StepSensorViewModel @Inject constructor(
                 endTime = endTime,
             )
 
+            _step.update { state -> state.copy(last = step.value.current) }
+
+            startTime = ZonedDateTime.now()
+
             if (isLoginUser) {
-                setUserDayStepUseCase.addStep(
-                    walked.toInt()
-                )
+                setUserDayStepUseCase.addStep(walked.toInt())
                 updateMissionUseCases(walked.toInt())
             }
         }
-
-        _step.update { state -> state.copy(last = step.value.current) }
-
-        startTime = ZonedDateTime.now()
     }
 
     fun getStepInsertWorkerUpdatingOnNewDay() {
@@ -143,11 +151,6 @@ internal class StepSensorViewModel @Inject constructor(
                 endTime = endTime,
             )
 
-            if (isLoginUser)
-                setUserDayStepUseCase.queryDailyStep(
-                    step.value.current.toInt()
-                )
-
             _step.update { state ->
                 state.copy(
                     last = 0L,
@@ -156,23 +159,36 @@ internal class StepSensorViewModel @Inject constructor(
                     current = 0L
                 )
             }
+
             startTime = ZonedDateTime.now()
             endTime = ZonedDateTime.now()
+
+            if (isLoginUser)
+                setUserDayStepUseCase.queryDailyStep(
+                    step.value.current.toInt()
+                )
         }
     }
 
-    fun resetTimeMission(){
+    fun resetTimeMission() {
         viewModelScope.launch(Dispatchers.IO) {
             resetMissionTimeUseCases()
         }
     }
 
-    private suspend fun checkUpdateMissionList() = withContext(Dispatchers.IO) {
-        val completeList = checkUpdateMissionUseCases()
-        if (completeList.isNotEmpty()) {
-            _designation.update { completeList }
-        }
+    private suspend fun checkUpdateMissionList() {
+        if (isLoginUser)
+            withContext(Dispatchers.IO) {
+                val completeList = checkUpdateMissionUseCases()
+                if (completeList.isNotEmpty()) {
+                    _designation.update { completeList }
+                }
+            }
     }
+}
+
+object StepException {
+    const val NEED_RE_LOGIN = "NEED RE LOGIN"
 }
 
 internal class ViewModelCoroutineScope(
