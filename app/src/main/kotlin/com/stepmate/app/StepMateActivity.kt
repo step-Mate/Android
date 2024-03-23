@@ -1,5 +1,6 @@
 package com.stepmate.app
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.view.ViewTreeObserver
@@ -23,6 +24,7 @@ import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffo
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteType
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -33,7 +35,7 @@ import androidx.core.view.WindowCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.compose.rememberNavController
-import dagger.hilt.android.AndroidEntryPoint
+import androidx.navigation.navOptions
 import com.stepmate.app.ui.StepMateViewModel
 import com.stepmate.app.ui.navigation.NavigationDefaults
 import com.stepmate.app.ui.navigation.NavigationGraph
@@ -46,6 +48,9 @@ import com.stepmate.design.theme.StepMateTheme
 import com.stepmate.home.navigation.homeGraph
 import com.stepmate.home.navigation.homeRoute
 import com.stepmate.home.navigation.homeUserBody
+import com.stepmate.home.service.StepException
+import com.stepmate.login.navigation.navigateToLogin
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -81,6 +86,16 @@ class StepMateActivity : ComponentActivity() {
         )
     }
 
+    override fun onNewIntent(intent: Intent?) {
+        super.onNewIntent(intent)
+
+        val isNeedReLogin = intent?.getStringExtra(StepException.NEED_RE_LOGIN)
+
+        isNeedReLogin?.let {
+            stepMateViewModel.updateIsNeedLogin(true)
+        }
+    }
+
     @OptIn(
         ExperimentalMaterial3AdaptiveNavigationSuiteApi::class,
         ExperimentalMaterial3AdaptiveApi::class
@@ -95,6 +110,14 @@ class StepMateActivity : ComponentActivity() {
 
         val permissionState by stepMateViewModel.permissionState.collectAsStateWithLifecycle()
         val isBodyDataExist by stepMateViewModel.isBodyDataExist.collectAsStateWithLifecycle()
+        val isNeedReLogin by stepMateViewModel.isNeedReLogin.collectAsStateWithLifecycle()
+
+        LaunchedEffect(key1 = isNeedReLogin,) {
+            if(isNeedReLogin) {
+                navController.navigateToLogin(null)
+                stepMateViewModel.updateIsNeedLogin(false)
+            }
+        }
 
         val currentDestination = router.currentDestination
         val navigationSuiteItemColors = NavigationSuiteItemColors(

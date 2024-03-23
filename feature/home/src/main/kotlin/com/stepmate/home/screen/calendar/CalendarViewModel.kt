@@ -80,22 +80,20 @@ internal class CalendarViewModel @Inject constructor(
 
     private suspend fun getTimeList() {
         val today = ZonedDateTime.now()
-        val steps = healthConnector.readStepsByPeriods(
+        val permittedSteps = healthConnector.readStepsByPeriods(
             startTime = today.withYear(2022).toLocalDateTime(),
             endTime = today.toLocalDateTime(),
             period = Month.toPeriod()
         )
 
-        val startTime = steps?.firstOrNull { it.distance != 0L }?.startTime ?: today
+        val startTime = permittedSteps?.firstOrNull { it.distance != 0L }?.startTime ?: today
         val endTime = ZonedTime(today)
 
         val timeRange = ZonedTimeRange(ZonedTime(startTime), endTime)
 
         _calendarData.update { calendarData.value.copy(range = timeRange) }
 
-        setHealthData(
-            steps = steps,
-        )
+        setDaySteps(calendarData.value)
     }
 
     fun setCalendarData(data: CalendarData) {
@@ -173,7 +171,8 @@ internal class CalendarViewModel @Inject constructor(
                     time = calendarData.value.type,
                     goal = 3000
                 )
-            } ?: StepTabFactory.getInstance(emptyList(), User.getInitValues()).getDefaultValues(calendarData.value.type)
+            } ?: StepTabFactory.getInstance(emptyList(), User.getInitValues())
+                .getDefaultValues(calendarData.value.type)
         }
     }
 

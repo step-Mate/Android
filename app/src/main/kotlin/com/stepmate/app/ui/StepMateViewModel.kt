@@ -29,6 +29,9 @@ internal class StepMateViewModel @Inject constructor(
     private val _isBodyDataExist = MutableStateFlow(false)
     val isBodyDataExist get() = _isBodyDataExist.asStateFlow()
 
+    private val _isNeedReLogin = MutableStateFlow(false)
+    val isNeedReLogin get() = _isNeedReLogin.asStateFlow()
+
     suspend fun checkPermission() {
         val isNotificationGranted =
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
@@ -53,4 +56,6 @@ internal class StepMateViewModel @Inject constructor(
     private suspend fun isBodyDataExist() = getBodyDataUseCases().onEach { bodyData ->
         _isBodyDataExist.update { bodyData.age != 0 && bodyData.height != 0 && bodyData.weight != 0 }
     }.first()
+
+    fun updateIsNeedLogin(bool: Boolean) = _isNeedReLogin.update { bool }
 }
