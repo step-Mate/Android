@@ -22,8 +22,6 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import java.util.Calendar
 import javax.inject.Inject
@@ -42,15 +40,27 @@ internal class StepService : LifecycleService() {
     val serviceDispatcher = Dispatchers.IO.limitedParallelism(1)
 
     private val alarmManager: AlarmManager by lazy { getSystemService(Context.ALARM_SERVICE) as AlarmManager }
-    private val stepSensorManager: StepSensorManager by lazy {
-        StepSensorManager(
-            context = this,
-            onSensorChanged = { event ->
-                lifecycleScope.launch(serviceDispatcher) {
-                    val stepBySensor = event?.values?.first()?.toLong() ?: 0L
-                    stepSensorViewModel.onSensorChanged(stepBySensor)
-                }
-            }
+    private lateinit var stepSensorManager: StepSensorManager
+
+    private val missionPendingIntent by lazy {
+        PendingIntent.getForegroundService(
+            this,
+            800,
+            Intent(this, StepService::class.java).apply {
+                putExtra("missionClear", true)
+            },
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+    }
+
+    private val dailyStepPendingIntent by lazy {
+        PendingIntent.getForegroundService(
+            this,
+            700,
+            Intent(this, StepService::class.java).apply {
+                putExtra("alarm", true)
+            },
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
     }
 
@@ -64,10 +74,24 @@ internal class StepService : LifecycleService() {
         setNotification()
 
         lifecycleScope.launch {
+            stepSensorViewModel.initStep()
+
+            stepSensorManager = StepSensorManager(
+                context = this@StepService,
+                onSensorChanged = { event ->
+                    lifecycleScope.launch(serviceDispatcher) {
+                        val stepBySensor = event?.values?.first()?.toLong() ?: 0L
+                        stepSensorViewModel.onSensorChanged(stepBySensor)
+                    }
+                }
+            )
+
+            registerSensor()
+
             launch {
                 stepSensorViewModel.step.collectLatest { stepData ->
                     stepNotiLayout?.setTextViewText(R.id.tv_stepHeader, stepData.current.toString())
-                    notificationManager.notify(NOTIFICATION_ID, notification)
+                    notificationManager.notify(NOTIFICATION_STEP_ID, notification)
                 }
             }
 
@@ -78,7 +102,7 @@ internal class StepService : LifecycleService() {
                             startActivity(
                                 Intent(
                                     this@StepService,
-                                    Class.forName("com.stepmate.app.StepMateActivity")
+                                    Class.forName(StepMateActivity)
                                 ).apply {
                                     putExtra(
                                         StepException.NEED_RE_LOGIN,
@@ -93,53 +117,21 @@ internal class StepService : LifecycleService() {
                     }
                 }
             }
-        }
 
-        stepSensorViewModel.designation.onEach { completeList ->
-            completeList.forEach { designation ->
-                notificationManager.notify(
-                    NOTIFICATION_MISSION_ID,
-                    setMissionNotification(designation)
-                )
+            launch {
+                stepSensorViewModel.designation.collectLatest { completeList ->
+                    completeList.forEach { designation ->
+                        notificationManager.notify(
+                            NOTIFICATION_MISSION_ID,
+                            setMissionNotification(designation)
+                        )
+                    }
+                }
             }
-        }.launchIn(lifecycleScope)
-
-        registerSensor()
-        alarmUpdatingDayStep()
-        alarmMissionReset()
-    }
-
-    private fun registerSensor() {
-        stepSensorManager.registerSensor()
-    }
-
-    private fun unRegisterSensor() {
-        stepSensorManager.unRegisterSensor()
-    }
-
-    private fun alarmUpdatingDayStep() {
-        val time = Calendar.getInstance().apply {
-            add(Calendar.DAY_OF_MONTH, 1)
-            set(Calendar.HOUR_OF_DAY, 0)
-            set(Calendar.MINUTE, 0)
-            set(Calendar.SECOND, 0)
         }
 
-        val dayResetPendingIntent = PendingIntent.getForegroundService(
-            this,
-            700,
-            Intent(this, StepService::class.java).apply {
-                putExtra("alarm", true)
-            },
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-        )
-
-        val alarmClock = AlarmManager.AlarmClockInfo(time.timeInMillis, dayResetPendingIntent)
-
-        alarmManager.setAlarmClock(
-            alarmClock,
-            dayResetPendingIntent
-        )
+        alarmResettingDailyStep()
+        alarmResettingWeeklyMission()
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -150,18 +142,18 @@ internal class StepService : LifecycleService() {
 
         when {
             exitFlag == true -> {
-                alarmMissionCancle()
+                cancelResettingWeeklyMissionAlarm()
                 stopSelf()
             }
 
             alarmFlag -> {
                 stepSensorViewModel.getStepInsertWorkerUpdatingOnNewDay()
-                alarmUpdatingDayStep()
+                alarmResettingDailyStep()
             }
 
             missionFlag -> {
                 stepSensorViewModel.resetTimeMission()
-                alarmMissionReset()
+                alarmResettingWeeklyMission()
             }
         }
 
@@ -169,40 +161,28 @@ internal class StepService : LifecycleService() {
     }
 
     override fun onDestroy() {
-        if (::stepSensorViewModel.isInitialized)
-            unRegisterSensor()
-        alarmMissionCancle()
+        unRegisterSensor()
+        cancelResettingWeeklyMissionAlarm()
+        cancelResettingDailyStepAlarm()
 
-        val dayResetPendingIntent = PendingIntent.getForegroundService(
-            this,
-            700,
-            Intent(this, StepService::class.java).apply {
-                putExtra("alarm", true)
-            },
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-        )
-
-        alarmManager.cancel(dayResetPendingIntent)
         super.onDestroy()
     }
 
     private fun setNotification() {
 
-        val exitIntent = Intent(this, StepService::class.java).apply {
-            putExtra("exit", true)
-        }
-
         val exitPendingIntent = PendingIntent.getService(
             this,
-            NOTIFICATION_ID,
-            exitIntent,
+            NOTIFICATION_STEP_ID,
+            Intent(this, StepService::class.java).apply {
+                putExtra("exit", true)
+            },
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
         val contentPendingIntent = PendingIntent.getActivity(
             this,
-            NOTIFICATION_ID,
-            Intent(this, Class.forName("com.stepmate.app.StepMateActivity")),
+            NOTIFICATION_STEP_ID,
+            Intent(this, Class.forName(StepMateActivity)),
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
@@ -224,11 +204,37 @@ internal class StepService : LifecycleService() {
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
             startForeground(
-                NOTIFICATION_ID, notification,
+                NOTIFICATION_STEP_ID, notification,
                 ServiceInfo.FOREGROUND_SERVICE_TYPE_HEALTH
             )
         else
-            startForeground(NOTIFICATION_ID, notification)
+            startForeground(NOTIFICATION_STEP_ID, notification)
+    }
+
+    private fun registerSensor() {
+        if (::stepSensorManager.isInitialized)
+            stepSensorManager.registerSensor()
+    }
+
+    private fun unRegisterSensor() {
+        if (::stepSensorManager.isInitialized)
+            stepSensorManager.unRegisterSensor()
+    }
+
+    private fun alarmResettingDailyStep() {
+        val time = Calendar.getInstance().apply {
+            add(Calendar.DAY_OF_MONTH, 1)
+            set(Calendar.HOUR_OF_DAY, 0)
+            set(Calendar.MINUTE, 0)
+            set(Calendar.SECOND, 0)
+        }
+
+        val alarmClock = AlarmManager.AlarmClockInfo(time.timeInMillis, dailyStepPendingIntent)
+
+        alarmManager.setAlarmClock(
+            alarmClock,
+            dailyStepPendingIntent
+        )
     }
 
     private fun setMissionNotification(designation: String): Notification =
@@ -241,14 +247,14 @@ internal class StepService : LifecycleService() {
                 PendingIntent.getActivity(
                     this,
                     NOTIFICATION_MISSION_ID,
-                    Intent(this, Class.forName("com.stepmate.app.StepMateActivity")),
+                    Intent(this, Class.forName(StepMateActivity)),
                     PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
                 )
             )
             .setOngoing(true)
             .build()
 
-    private fun alarmMissionReset() {
+    private fun alarmResettingWeeklyMission() {
         val time = Calendar.getInstance().apply {
             set(Calendar.DAY_OF_WEEK, Calendar.MONDAY)
             set(Calendar.HOUR_OF_DAY, 0)
@@ -257,29 +263,25 @@ internal class StepService : LifecycleService() {
             add(Calendar.DATE, 7)
         }
         val alarmClock =
-            AlarmManager.AlarmClockInfo(time.timeInMillis, notifyMissionPendingIntent())
+            AlarmManager.AlarmClockInfo(time.timeInMillis, missionPendingIntent)
+
         alarmManager.setAlarmClock(
             alarmClock,
-            notifyMissionPendingIntent()
+            missionPendingIntent
         )
     }
 
-    private fun alarmMissionCancle() {
-        alarmManager.cancel(notifyMissionPendingIntent())
+    private fun cancelResettingWeeklyMissionAlarm() {
+        alarmManager.cancel(missionPendingIntent)
     }
 
-    private fun notifyMissionPendingIntent() = PendingIntent.getForegroundService(
-        this,
-        800,
-        Intent(this, StepService::class.java).apply {
-            putExtra("missionClear", true)
-        },
-        PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-    )
-
+    private fun cancelResettingDailyStepAlarm() {
+        alarmManager.cancel(dailyStepPendingIntent)
+    }
 
     companion object {
-        const val NOTIFICATION_ID = 999
+        private const val NOTIFICATION_STEP_ID = 999
         private const val NOTIFICATION_MISSION_ID = 100
+        private const val StepMateActivity = "com.stepmate.app.StepMateActivity"
     }
 }

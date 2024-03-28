@@ -13,7 +13,7 @@ data class StepData(
      */
     fun getTodayStep(
         stepBySensor: Long,
-        isReboot: Boolean
+        isReCreated: Boolean
     ): StepData =
         when (isRebootDevice(stepBySensor)) {
             true -> {
@@ -25,7 +25,7 @@ data class StepData(
             false -> {
                 val today = stepBySensor - yesterday + stepAfterReboot
 
-                if (isReboot)
+                if (isReCreated)
                     copy(
                         yesterday = stepBySensor,
                     )
