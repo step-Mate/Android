@@ -81,32 +81,34 @@ internal class StepSensorViewModel @Inject constructor(
     private val sensorTimeScheduler = TimeScheduler(
         scope = viewModelScope,
         callBack = {
-            updateStepBySensor()
-            checkUpdateMissionList()
+            withContext(Dispatchers.IO) {
+                updateStepBySensor()
+                checkUpdateMissionList()
+            }
         }
     )
 
     private var isRecreated = true
 
     init {
-        viewModelScope.launch(Dispatchers.IO) {
-            val todayStep = healthConnector.getTodayTotalStep()
-            val diff = manageStepUseCase.getTodayStep().first() - todayStep
-
-            val notAddedStep = if (diff > 0) diff else 0L
-
-            _step.update { state ->
-                state.copy(
-                    current = todayStep,
-                    stepAfterReboot = todayStep + notAddedStep,
-                    last = todayStep
-                )
-            }
-        }
-
         checkHasTokenUseCase().onEach { bool ->
             isLoginUser = bool
         }.launchIn(viewModelScope)
+    }
+
+    suspend fun initStep() {
+        val todayStep = healthConnector.getTodayTotalStep()
+        val diff = manageStepUseCase.getTodayStep().first() - todayStep
+
+        val notAddedStep = if (diff > 0) diff else 0L
+
+        _step.update { state ->
+            state.copy(
+                current = todayStep,
+                stepAfterReboot = todayStep + notAddedStep,
+                last = todayStep
+            )
+        }
     }
 
     suspend fun onSensorChanged(stepBySensor: Long) {
@@ -160,6 +162,8 @@ internal class StepSensorViewModel @Inject constructor(
                 )
             }
 
+            manageStepUseCase.setTodayStep(0)
+
             startTime = ZonedDateTime.now()
             endTime = ZonedDateTime.now()
 
@@ -177,13 +181,12 @@ internal class StepSensorViewModel @Inject constructor(
     }
 
     private suspend fun checkUpdateMissionList() {
-        if (isLoginUser)
-            withContext(Dispatchers.IO) {
-                val completeList = checkUpdateMissionUseCases()
-                if (completeList.isNotEmpty()) {
-                    _designation.update { completeList }
-                }
+        if (isLoginUser) {
+            val completeList = checkUpdateMissionUseCases()
+            if (completeList.isNotEmpty()) {
+                _designation.update { completeList }
             }
+        }
     }
 }
 
