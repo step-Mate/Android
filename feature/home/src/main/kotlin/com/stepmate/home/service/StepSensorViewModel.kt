@@ -119,6 +119,9 @@ internal class StepSensorViewModel @Inject constructor(
 
         manageStepUseCase.setTodayStep(step.value.current)
 
+        if (!sensorTimeScheduler.isRunning)
+            startTime = ZonedDateTime.now()
+
         sensorTimeScheduler.setTime(60 * 1000)
 
         endTime = ZonedDateTime.now()
@@ -136,8 +139,6 @@ internal class StepSensorViewModel @Inject constructor(
 
             _step.update { state -> state.copy(last = step.value.current) }
 
-            startTime = ZonedDateTime.now()
-
             if (isLoginUser) {
                 setUserDayStepUseCase.addStep(walked.toInt())
                 updateMissionUseCases(walked.toInt())
@@ -147,8 +148,10 @@ internal class StepSensorViewModel @Inject constructor(
 
     fun getStepInsertWorkerUpdatingOnNewDay() {
         viewModelScope.launch(Dispatchers.IO) {
+            val walked = step.value.current - step.value.last
+
             healthConnector.insertSteps(
-                step = step.value.current - step.value.last,
+                step = walked,
                 startTime = startTime,
                 endTime = endTime,
             )
@@ -162,15 +165,17 @@ internal class StepSensorViewModel @Inject constructor(
                 )
             }
 
-            manageStepUseCase.setTodayStep(0)
+            manageStepUseCase.setTodayStep(0L)
 
             startTime = ZonedDateTime.now()
             endTime = ZonedDateTime.now()
 
-            if (isLoginUser)
+            if (isLoginUser) {
                 setUserDayStepUseCase.queryDailyStep(
                     step.value.current.toInt()
                 )
+                updateMissionUseCases(walked.toInt())
+            }
         }
     }
 

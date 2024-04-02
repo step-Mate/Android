@@ -2,6 +2,7 @@ plugins {
     id("stepMate.android.application")
     id("stepMate.android.compose")
     id("stepMate.android.parcelize")
+    id("stepMate.android.gms-services")
 }
 
 android {
