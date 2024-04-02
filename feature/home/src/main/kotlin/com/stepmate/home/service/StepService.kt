@@ -79,7 +79,7 @@ internal class StepService : LifecycleService() {
             stepSensorManager = StepSensorManager(
                 context = this@StepService,
                 onSensorChanged = { event ->
-                    lifecycleScope.launch(serviceDispatcher) {
+                    launch(serviceDispatcher) {
                         val stepBySensor = event?.values?.first()?.toLong() ?: 0L
                         stepSensorViewModel.onSensorChanged(stepBySensor)
                     }
@@ -108,6 +108,7 @@ internal class StepService : LifecycleService() {
                                         StepException.NEED_RE_LOGIN,
                                         StepException.NEED_RE_LOGIN
                                     )
+                                    flags = Intent.FLAG_ACTIVITY_NEW_TASK
                                 })
                         }
 

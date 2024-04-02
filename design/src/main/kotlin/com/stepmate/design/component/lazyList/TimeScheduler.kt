@@ -49,22 +49,26 @@ class TimeScheduler(
             scheduledTime -= 1000L
         }
         callBack()
+        job = null
     }
 
     fun setTime(minimumExecutingTime: Long = STANDARD_MILLIS) {
         scheduledTime = minimumExecutingTime
 
-        if (job == null) {
-            job = execute()
+        job = if (job == null) {
+            execute()
         } else {
-            if (!job!!.isActive)
-                job = execute()
+            if (job!!.isActive)
+                job!!.cancel()
+
+            execute()
         }
     }
 
     fun cancel() {
         if (job != null && job!!.isActive) {
             job!!.cancel()
+            job = null
             scheduledTime = 0
         }
     }
