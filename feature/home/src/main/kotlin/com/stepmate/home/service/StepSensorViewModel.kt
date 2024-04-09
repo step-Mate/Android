@@ -4,17 +4,21 @@ import android.util.Log
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
+import androidx.work.Data
+import androidx.work.OneTimeWorkRequest
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.OutOfQuotaPolicy
 import com.stepmate.design.component.lazyList.TimeScheduler
 import com.stepmate.domain.model.StepData
 import com.stepmate.domain.model.exception.StepMateHttpException
 import com.stepmate.domain.usecase.auth.CheckHasTokenUseCase
-import com.stepmate.domain.usecase.mission.CheckUpdateMissionUseCases
 import com.stepmate.domain.usecase.mission.ResetMissionTimeUseCases
-import com.stepmate.domain.usecase.mission.UpdateMissionUseCases
 import com.stepmate.domain.usecase.step.ManageStepUseCase
 import com.stepmate.domain.usecase.step.SetUserDayStepUseCase
 import com.stepmate.home.HealthConnector
 import com.stepmate.home.service.StepException.NEED_RE_LOGIN
+import com.stepmate.home.worker.MissionCheckWorker
+import com.stepmate.home.worker.MissionUpdateWorker
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -30,6 +34,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.time.ZonedDateTime
+import java.util.Calendar
 import javax.inject.Inject
 import kotlin.coroutines.CoroutineContext
 
@@ -37,8 +42,6 @@ internal class StepSensorViewModel @Inject constructor(
     private val setUserDayStepUseCase: SetUserDayStepUseCase,
     private val manageStepUseCase: ManageStepUseCase,
     private val healthConnector: HealthConnector,
-    private val updateMissionUseCases: UpdateMissionUseCases,
-    private val checkUpdateMissionUseCases: CheckUpdateMissionUseCases,
     private val resetMissionTimeUseCases: ResetMissionTimeUseCases,
     checkHasTokenUseCase: CheckHasTokenUseCase,
 ) {
@@ -72,8 +75,8 @@ internal class StepSensorViewModel @Inject constructor(
         }
     }
 
-    private val _designation: MutableStateFlow<List<String>> = MutableStateFlow(emptyList())
-    val designation: StateFlow<List<String>> get() = _designation.asStateFlow()
+    private val _missionUpdate: MutableStateFlow<Pair<Long, Long>> = MutableStateFlow(Pair(0, 0))
+    val missionUpdate: StateFlow<Pair<Long, Long>> = _missionUpdate.asStateFlow()
 
     val viewModelScope: CoroutineScope =
         ViewModelCoroutineScope(SupervisorJob() + Dispatchers.Main.immediate + coroutineExceptionHandler)
@@ -82,8 +85,8 @@ internal class StepSensorViewModel @Inject constructor(
         scope = viewModelScope,
         callBack = {
             withContext(Dispatchers.IO) {
-                updateStepBySensor()
-                checkUpdateMissionList()
+                val walked = updateStepBySensor()
+                checkUpdateMissionList(walked)
             }
         }
     )
@@ -101,7 +104,6 @@ internal class StepSensorViewModel @Inject constructor(
         val diff = manageStepUseCase.getTodayStep().first() - todayStep
 
         val notAddedStep = if (diff > 0) diff else 0L
-
         _step.update { state ->
             state.copy(
                 current = todayStep,
@@ -118,7 +120,6 @@ internal class StepSensorViewModel @Inject constructor(
             isRecreated = false
 
         manageStepUseCase.setTodayStep(step.value.current)
-
         if (!sensorTimeScheduler.isRunning)
             startTime = ZonedDateTime.now()
 
@@ -127,7 +128,7 @@ internal class StepSensorViewModel @Inject constructor(
         endTime = ZonedDateTime.now()
     }
 
-    private suspend fun updateStepBySensor() {
+    private suspend fun updateStepBySensor(): Long {
         val walked = step.value.current - step.value.last
 
         if (walked > 0) {
@@ -141,9 +142,9 @@ internal class StepSensorViewModel @Inject constructor(
 
             if (isLoginUser) {
                 setUserDayStepUseCase.addStep(walked.toInt())
-                updateMissionUseCases(walked.toInt())
             }
         }
+        return walked
     }
 
     fun getStepInsertWorkerUpdatingOnNewDay() {
@@ -174,7 +175,6 @@ internal class StepSensorViewModel @Inject constructor(
                 setUserDayStepUseCase.queryDailyStep(
                     step.value.current.toInt()
                 )
-                updateMissionUseCases(walked.toInt())
             }
         }
     }
@@ -185,12 +185,20 @@ internal class StepSensorViewModel @Inject constructor(
         }
     }
 
-    private suspend fun checkUpdateMissionList() {
+    fun getMissionCheckWorker(): OneTimeWorkRequest =
+        OneTimeWorkRequestBuilder<MissionCheckWorker>()
+            .setExpedited(OutOfQuotaPolicy.DROP_WORK_REQUEST)
+            .build()
+
+    fun getMissionUpdateWorker(walked: Long): OneTimeWorkRequest =
+        OneTimeWorkRequestBuilder<MissionUpdateWorker>()
+            .setInputData(Data.Builder().putLong("walk", walked).build())
+            .setExpedited(OutOfQuotaPolicy.DROP_WORK_REQUEST)
+            .build()
+
+    private fun checkUpdateMissionList(walked: Long) {
         if (isLoginUser) {
-            val completeList = checkUpdateMissionUseCases()
-            if (completeList.isNotEmpty()) {
-                _designation.update { completeList }
-            }
+            _missionUpdate.update { Pair(Calendar.getInstance().timeInMillis, walked) }
         }
     }
 }

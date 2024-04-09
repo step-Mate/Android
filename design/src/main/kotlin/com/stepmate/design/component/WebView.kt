@@ -51,7 +51,7 @@ fun TermsScreen(
         ) {
             HeadlineText(text = "이용 약관", modifier = Modifier.align(Alignment.Center))
         }
-        WebView(url = "https://sites.google.com/view/stepmate-personal-info-policy/%ED%99%88")
+        WebView(url = "http://stepmate.shop/privacy-policy")
     }
 }
 
