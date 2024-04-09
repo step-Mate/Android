@@ -37,6 +37,7 @@ class NotificationHandler(
                 Intent(context, Class.forName("com.stepmate.app.StepMateActivity")),
                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
             ))
+            .setOngoing(true)
             .build()
         notificationManager.notify(NOTIFICATION_MISSION_ID,notification)
     }
