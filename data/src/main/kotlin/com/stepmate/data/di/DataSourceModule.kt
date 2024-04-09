@@ -6,7 +6,9 @@ import com.stepmate.data.local.datasource.CurrentAuthDataSource
 import com.stepmate.data.local.datasource.impl.BodyDataSourceImpl
 import com.stepmate.data.local.datasource.impl.CacheSettingsDataSourceImpl
 import com.stepmate.data.local.datasource.impl.CurrentAuthDataSourceImpl
+import com.stepmate.data.remote.dataSource.MissionDataSource
 import com.stepmate.data.remote.dataSource.RemoteUserDataSource
+import com.stepmate.data.remote.dataSource.impl.MissionDataSourceImpl
 import com.stepmate.data.remote.dataSource.impl.RemoteUserDataSourceImpl
 import dagger.Binds
 import dagger.Module
@@ -33,4 +35,8 @@ internal abstract class DataSourceModule {
     @Singleton
     @Binds
     abstract fun bindsCacheSettingsDataSource(settingsDataSourceImpl: CacheSettingsDataSourceImpl): CacheSettingsDataSource
+
+    @Singleton
+    @Binds
+    abstract fun bindsMissionDataSource(missionDataSourceImpl: MissionDataSourceImpl) : MissionDataSource
 }
