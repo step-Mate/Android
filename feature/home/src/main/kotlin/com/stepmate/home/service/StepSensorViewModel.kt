@@ -85,8 +85,8 @@ internal class StepSensorViewModel @Inject constructor(
         scope = viewModelScope,
         callBack = {
             withContext(Dispatchers.IO) {
-                val walked = updateStepBySensor()
-                checkUpdateMissionList(walked)
+                updateStepBySensor()
+                checkUpdateMissionList(step.value.current - step.value.last)
             }
         }
     )
@@ -128,7 +128,7 @@ internal class StepSensorViewModel @Inject constructor(
         endTime = ZonedDateTime.now()
     }
 
-    private suspend fun updateStepBySensor(): Long {
+    private suspend fun updateStepBySensor() {
         val walked = step.value.current - step.value.last
 
         if (walked > 0) {
@@ -144,7 +144,6 @@ internal class StepSensorViewModel @Inject constructor(
                 setUserDayStepUseCase.addStep(walked.toInt())
             }
         }
-        return walked
     }
 
     fun getStepInsertWorkerUpdatingOnNewDay() {

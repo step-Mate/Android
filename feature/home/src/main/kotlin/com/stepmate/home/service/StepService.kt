@@ -58,11 +58,11 @@ internal class StepService : LifecycleService() {
     override fun onCreate() {
         super.onCreate()
         lifecycle.addObserver(stepSensorViewModel.viewModelScope as LifecycleEventObserver)
-        setNotification()
         val notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
         notificationManager.createChannel()
+        setNotification()
 
-        lifecycleScope.launch(Dispatchers.IO) {
+        lifecycleScope.launch {
             stepSensorViewModel.initStep()
 
             stepSensorManager = StepSensorManager(
@@ -121,16 +121,17 @@ internal class StepService : LifecycleService() {
         super.onStartCommand(intent, flags, startId)
         exitFlag = intent?.getBooleanExtra("exit", false) ?: false
         val alarmFlag = intent?.getBooleanExtra("alarm", false) ?: false
-        if (intent != null && !exitFlag!! && !alarmFlag) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
-                startForeground(
-                    NOTIFICATION_STEP_ID, notification,
-                    ServiceInfo.FOREGROUND_SERVICE_TYPE_HEALTH
-                )
-            else
-                startForeground(NOTIFICATION_STEP_ID, notification)
-        }
         when {
+            intent != null && !exitFlag!! && !alarmFlag -> {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+                    startForeground(
+                        NOTIFICATION_STEP_ID, notification,
+                        ServiceInfo.FOREGROUND_SERVICE_TYPE_HEALTH
+                    )
+                else
+                    startForeground(NOTIFICATION_STEP_ID, notification)
+            }
+
             exitFlag == true -> {
                 stopSelf()
             }
