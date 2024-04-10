@@ -22,6 +22,7 @@ import com.stepmate.home.worker.MissionUpdateWorker
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -81,6 +82,9 @@ internal class StepSensorViewModel @Inject constructor(
     val viewModelScope: CoroutineScope =
         ViewModelCoroutineScope(SupervisorJob() + Dispatchers.Main.immediate + coroutineExceptionHandler)
 
+    @OptIn(ExperimentalCoroutinesApi::class)
+    val sensorDispatcher = Dispatchers.IO.limitedParallelism(1)
+
     private val sensorTimeScheduler = TimeScheduler(
         scope = viewModelScope,
         callBack = {
@@ -108,25 +112,39 @@ internal class StepSensorViewModel @Inject constructor(
             state.copy(
                 current = todayStep,
                 stepAfterReboot = todayStep + notAddedStep,
-                last = todayStep
+                last = todayStep,
             )
         }
     }
 
-    suspend fun onSensorChanged(stepBySensor: Long) {
-        _step.update { state -> state.getTodayStep(stepBySensor, isRecreated) }
+    suspend fun setYesterdayStepIfKilledBySystem() {
+        val yesterdayStep = manageStepUseCase.getYesterdayStep().first()
 
-        if (isRecreated)
-            isRecreated = false
-
-        manageStepUseCase.setTodayStep(step.value.current)
-        if (!sensorTimeScheduler.isRunning)
-            startTime = ZonedDateTime.now()
-
-        sensorTimeScheduler.setTime(60 * 1000)
-
-        endTime = ZonedDateTime.now()
+        _step.update { state -> state.copy(yesterday = yesterdayStep) }
     }
+
+    suspend fun initYesterdayStep() {
+        val sensorByStep = step.value.current + step.value.yesterday - step.value.stepAfterReboot
+
+        manageStepUseCase.setYesterdayStep(sensorByStep)
+    }
+
+    suspend fun onSensorChanged(stepBySensor: Long) =
+        withContext(sensorDispatcher + coroutineExceptionHandler) {
+            _step.update { state -> state.getTodayStep(stepBySensor, isRecreated) }
+
+            if (isRecreated)
+                isRecreated = false
+
+            manageStepUseCase.setTodayStep(step.value.current)
+
+            if (!sensorTimeScheduler.isRunning)
+                startTime = ZonedDateTime.now()
+
+            sensorTimeScheduler.setTime(30 * 1000)
+
+            endTime = ZonedDateTime.now()
+        }
 
     private suspend fun updateStepBySensor() {
         val walked = step.value.current - step.value.last
@@ -149,6 +167,7 @@ internal class StepSensorViewModel @Inject constructor(
     fun getStepInsertWorkerUpdatingOnNewDay() {
         viewModelScope.launch(Dispatchers.IO) {
             val walked = step.value.current - step.value.last
+            val yesterday = step.value.current + step.value.yesterday - step.value.stepAfterReboot
 
             healthConnector.insertSteps(
                 step = walked,
@@ -159,13 +178,14 @@ internal class StepSensorViewModel @Inject constructor(
             _step.update { state ->
                 state.copy(
                     last = 0L,
-                    yesterday = step.value.current + step.value.yesterday - step.value.stepAfterReboot,
+                    yesterday = yesterday,
                     stepAfterReboot = 0L,
                     current = 0L
                 )
             }
 
             manageStepUseCase.setTodayStep(0L)
+            manageStepUseCase.setYesterdayStep(yesterday)
 
             startTime = ZonedDateTime.now()
             endTime = ZonedDateTime.now()
@@ -206,7 +226,7 @@ object StepException {
     const val NEED_RE_LOGIN = "NEED RE LOGIN"
 }
 
-internal class ViewModelCoroutineScope(
+private class ViewModelCoroutineScope(
     context: CoroutineContext,
 ) : LifecycleEventObserver, CoroutineScope {
     override val coroutineContext: CoroutineContext = context

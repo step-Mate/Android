@@ -13,4 +13,10 @@ class StepRepositoryImpl @Inject constructor(
     override suspend fun setTodayStep(todayStep: Long) {
         cacheSettingsDataSource.setTodayStep(todayStep)
     }
+
+    override suspend fun setYesterdayStep(step: Long) {
+        cacheSettingsDataSource.setYesterdayStep(step)
+    }
+
+    override fun getYesterdayStep(): Flow<Long> = cacheSettingsDataSource.getYesterdayStep()
 }
