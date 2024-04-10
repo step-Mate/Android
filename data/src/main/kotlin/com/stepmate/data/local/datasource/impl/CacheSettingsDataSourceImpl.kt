@@ -11,8 +11,8 @@ import java.io.IOException
 import javax.inject.Inject
 
 class CacheSettingsDataSourceImpl @Inject constructor(
-    private val dataStore: DataStore<SettingsPreferences>
-): CacheSettingsDataSource {
+    private val dataStore: DataStore<SettingsPreferences>,
+) : CacheSettingsDataSource {
 
     private val data = dataStore.data
         .catch { exception ->
@@ -42,4 +42,14 @@ class CacheSettingsDataSourceImpl @Inject constructor(
     }
 
     override fun getTodayStep(): Flow<Long> = data.map { prefs -> prefs.todayStep }
+    override suspend fun setYesterdayStep(step: Long) {
+        dataStore.updateData { pref ->
+            pref
+                .toBuilder()
+                .setYesterdayStep(step)
+                .build()
+        }
+    }
+
+    override fun getYesterdayStep(): Flow<Long> = data.map { prefs -> prefs.yesterdayStep }
 }

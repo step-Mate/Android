@@ -11,4 +11,8 @@ class ManageStepUseCase @Inject constructor(
     suspend fun setTodayStep(todayStep: Long) = stepRepository.setTodayStep(todayStep)
 
     fun getTodayStep(): Flow<Long> = stepRepository.getTodayStep()
+
+    suspend fun setYesterdayStep(step: Long) = stepRepository.setYesterdayStep(step)
+
+    fun getYesterdayStep(): Flow<Long> = stepRepository.getYesterdayStep()
 }
