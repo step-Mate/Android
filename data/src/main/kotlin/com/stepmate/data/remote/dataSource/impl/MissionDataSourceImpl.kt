@@ -105,11 +105,11 @@ internal class MissionDataSourceImpl @Inject constructor(
         }
 
     override suspend fun updateMissionList(): List<String> = withContext(Dispatchers.IO) {
-        val list = missionApi.getMissionList()
-        val apiList = list.toMissionList().sortedBy { it.title }
         val originalList = async {
             missionLocal.getAllMissionList().first().toMissionDataList().sortedBy { it.title }
         }
+        val list = missionApi.getMissionList()
+        val apiList = list.toMissionList().sortedBy { it.title }
         if (originalList.await().isEmpty() || apiList != originalList) {
             list.forEach { missionResponse ->
                 missionLocal.addMission(
@@ -172,8 +172,8 @@ internal class MissionDataSourceImpl @Inject constructor(
     }
 
     override suspend fun updateMission(achieved: Int) = withContext(Dispatchers.IO) {
-        val step = getMissionAchieved(MissionType.Step).first() + achieved
         val timeStep = async { getMissionTimeAchieved(MissionType.Step).first() + achieved }
+        val step = getMissionAchieved(MissionType.Step).first() + achieved
         missionLocal.updateMissionAchieved(MissionType.Step, step)
         missionLocal.updateMissionAchieved(MissionType.Calorie, getCalories(step).toInt())
         missionLocal.updateMissionTimeAchieved(MissionType.Step, timeStep.await())
@@ -220,7 +220,6 @@ internal class MissionDataSourceImpl @Inject constructor(
 
     private suspend fun checkUpdateMission(missionList: List<MissionList>): List<String> =
         withContext(Dispatchers.IO) {
-            val designationList = getDesignation().first().list.sorted()
             val localDesignationList = async(Dispatchers.Default) {
                 missionList.map { missions ->
                     val complete = arrayListOf<String>()
@@ -233,6 +232,7 @@ internal class MissionDataSourceImpl @Inject constructor(
                     complete
                 }.flatten().sorted()
             }
+            val designationList = getDesignation().first().list.sorted()
             localDesignationList.await().subtract(designationList.toSet()).toList()
         }
 
