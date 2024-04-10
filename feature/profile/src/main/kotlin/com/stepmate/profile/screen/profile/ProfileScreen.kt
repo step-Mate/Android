@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -120,6 +121,7 @@ private fun ProfileScreen(
     }
 
     DefaultLayout(
+        modifier = Modifier.statusBarsPadding(),
         contentPaddingValues = PaddingValues()
     ) {
         VerticalSpacer(height = 140.dp)

@@ -25,6 +25,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import java.time.DayOfWeek
+import java.time.ZonedDateTime
 import java.util.Calendar
 import javax.inject.Inject
 
@@ -137,12 +139,9 @@ internal class StepService : LifecycleService() {
             }
 
             alarmFlag -> {
-                val nowTime = Calendar.getInstance()
-                val monday = Calendar.getInstance().apply {
-                    set(Calendar.DAY_OF_WEEK, Calendar.MONDAY)
-                }
+                val today = ZonedDateTime.now().dayOfWeek
                 stepSensorViewModel.getStepInsertWorkerUpdatingOnNewDay()
-                if (nowTime.get(Calendar.DATE) == monday.get(Calendar.DATE))
+                if (today == DayOfWeek.MONDAY)
                     stepSensorViewModel.resetTimeMission()
                 alarmResettingDailyStep()
             }

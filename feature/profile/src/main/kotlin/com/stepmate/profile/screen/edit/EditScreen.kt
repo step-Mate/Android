@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBars
-import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -125,7 +124,6 @@ private fun EditScreen(
         modifier = Modifier
             .fillMaxSize()
             .imePadding()
-            .systemBarsPadding()
             .verticalScroll(rememberScrollState()),
         contentPaddingValues = PaddingValues(horizontal = 12.dp),
         topBar = {
