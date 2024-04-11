@@ -138,6 +138,15 @@ internal class StepService : LifecycleService() {
             }
 
             else -> {
+                if (intent != null)
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+                        startForeground(
+                            NOTIFICATION_STEP_ID, notification,
+                            ServiceInfo.FOREGROUND_SERVICE_TYPE_HEALTH
+                        )
+                    else
+                        startForeground(NOTIFICATION_STEP_ID, notification)
+
                 if (intent == null || isCreated) {
                     lifecycleScope.launch {
                         stepSensorViewModel.initStep()
@@ -150,14 +159,6 @@ internal class StepService : LifecycleService() {
                             isCreated = false
                         }
                     }
-                } else {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
-                        startForeground(
-                            NOTIFICATION_STEP_ID, notification,
-                            ServiceInfo.FOREGROUND_SERVICE_TYPE_HEALTH
-                        )
-                    else
-                        startForeground(NOTIFICATION_STEP_ID, notification)
                 }
             }
         }
