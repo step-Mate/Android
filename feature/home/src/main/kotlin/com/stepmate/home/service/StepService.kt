@@ -23,7 +23,6 @@ import com.stepmate.home.utils.createChannel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import java.time.DayOfWeek
 import java.time.ZonedDateTime
 import java.util.Calendar
@@ -102,8 +101,7 @@ internal class StepService : LifecycleService() {
                                 })
                         }
 
-                        else -> {
-                        }
+                        else -> {}
                     }
                 }
             }
@@ -130,10 +128,12 @@ internal class StepService : LifecycleService() {
             }
 
             alarmFlag -> {
-                val today = ZonedDateTime.now().dayOfWeek
                 stepSensorViewModel.getStepInsertWorkerUpdatingOnNewDay()
+
+                val today = ZonedDateTime.now().dayOfWeek
                 if (today == DayOfWeek.MONDAY)
                     stepSensorViewModel.resetTimeMission()
+
                 alarmResettingDailyStep()
             }
 
@@ -153,11 +153,12 @@ internal class StepService : LifecycleService() {
                         registerSensor()
 
                         if (intent == null)
-                            stepSensorViewModel.setYesterdayStepIfKilledBySystem()
+                            stepSensorViewModel.getYesterdayStepIfKilledBySystem()
                         else if (isCreated) {
                             stepSensorViewModel.initYesterdayStep()
-                            isCreated = false
                         }
+
+                        isCreated = false
                     }
                 }
             }
@@ -199,7 +200,6 @@ internal class StepService : LifecycleService() {
                 .setSmallIcon(com.stepmate.design.R.drawable.ic_stepmate_shoes)
                 .setStyle(NotificationCompat.DecoratedCustomViewStyle())
                 .setCustomContentView(stepNotiLayout)
-                .setCustomBigContentView(stepNotiLayout)
                 .setColor(Color(0xFFA5D6A7).toArgb())
                 .setOngoing(true)
                 .addAction(com.stepmate.design.R.drawable.ic_time, "끄기", exitPendingIntent)
@@ -207,7 +207,7 @@ internal class StepService : LifecycleService() {
                 .build()
     }
 
-    private suspend fun registerSensor() = withContext(stepSensorViewModel.sensorDispatcher) {
+    private fun registerSensor() {
         stepSensorManager.registerSensor()
     }
 

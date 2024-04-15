@@ -95,7 +95,7 @@ internal class StepSensorViewModel @Inject constructor(
         }
     )
 
-    private var isRecreated = true
+    var isRecreated = true
 
     init {
         checkHasTokenUseCase().onEach { bool ->
@@ -108,6 +108,7 @@ internal class StepSensorViewModel @Inject constructor(
         val diff = manageStepUseCase.getTodayStep().first() - todayStep
 
         val notAddedStep = if (diff > 0) diff else 0L
+
         _step.update { state ->
             state.copy(
                 current = todayStep,
@@ -117,10 +118,15 @@ internal class StepSensorViewModel @Inject constructor(
         }
     }
 
-    suspend fun setYesterdayStepIfKilledBySystem() {
+    suspend fun getYesterdayStepIfKilledBySystem() {
         val yesterdayStep = manageStepUseCase.getYesterdayStep().first()
 
-        _step.update { state -> state.copy(yesterday = yesterdayStep) }
+        _step.update { state ->
+            state.copy(
+                yesterday = yesterdayStep,
+                stepAfterReboot = state.stepAfterReboot - state.current
+            )
+        }
     }
 
     suspend fun initYesterdayStep() {
@@ -129,21 +135,22 @@ internal class StepSensorViewModel @Inject constructor(
         manageStepUseCase.setYesterdayStep(sensorByStep)
     }
 
-    suspend fun onSensorChanged(stepBySensor: Long) =
+    suspend fun onSensorChanged(stepBySensor: Long, second: Int = 30) =
         withContext(sensorDispatcher + coroutineExceptionHandler) {
             _step.update { state -> state.getTodayStep(stepBySensor, isRecreated) }
 
             if (isRecreated)
                 isRecreated = false
+            else {
+                manageStepUseCase.setTodayStep(step.value.current)
 
-            manageStepUseCase.setTodayStep(step.value.current)
+                if (!sensorTimeScheduler.isRunning)
+                    startTime = ZonedDateTime.now()
 
-            if (!sensorTimeScheduler.isRunning)
-                startTime = ZonedDateTime.now()
+                sensorTimeScheduler.setTime(second * 1000L)
 
-            sensorTimeScheduler.setTime(30 * 1000)
-
-            endTime = ZonedDateTime.now()
+                endTime = ZonedDateTime.now()
+            }
         }
 
     private suspend fun updateStepBySensor() {

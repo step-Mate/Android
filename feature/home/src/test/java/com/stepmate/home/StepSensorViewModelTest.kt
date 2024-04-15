@@ -6,136 +6,155 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
 import com.stepmate.domain.model.StepData
+import com.stepmate.domain.usecase.auth.CheckHasTokenUseCase
+import com.stepmate.domain.usecase.step.ManageStepUseCase
 import com.stepmate.domain.usecase.step.SetUserDayStepUseCase
 import com.stepmate.home.service.StepSensorViewModel
+import io.mockk.every
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.test.TestDispatcher
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.setMain
 
 @OptIn(ExperimentalCoroutinesApi::class)
-internal abstract class StepSensorViewModelTest: BehaviorSpec({
+internal abstract class StepSensorViewModelTest : BehaviorSpec({
     val testDispatcher: TestDispatcher = UnconfinedTestDispatcher()
     Dispatchers.setMain(testDispatcher)
 }) {
 
     val setUserDayStepUseCase: SetUserDayStepUseCase = mockk(relaxed = true)
     val healthConnector: HealthConnector = mockk(relaxed = true)
+    val hasTokenUseCase: CheckHasTokenUseCase = mockk(relaxed = true)
+    val manageStepUseCase: ManageStepUseCase = mockk(relaxed = true)
 
     val viewModel: StepSensorViewModel = StepSensorViewModel(
         setUserDayStepUseCase = setUserDayStepUseCase,
         healthConnector = healthConnector,
+        manageStepUseCase = manageStepUseCase,
+        resetMissionTimeUseCases = mockk(relaxed = true),
+        checkHasTokenUseCase = hasTokenUseCase,
     )
 }
 
-internal class ScenarioOnFirstInstall: StepSensorViewModelTest() {
+internal class ScenarioOnFirstInstall : StepSensorViewModelTest() {
 
     init {
         given("앱을 처음 설치하고") {
+            coEvery { hasTokenUseCase() } returns flow { emit(false) }
+
+            coEvery { healthConnector.getTodayTotalStep() } returns 0L
+            coEvery { manageStepUseCase.getTodayStep() } returns flow { emit(0L) }
+
+            viewModel.initStep()
 
             `when`("걸음수 합계 센서의 값이 100일 때") {
-                val sensorStep = 100L
+                val step = 100L
+                var sensorStep = step
 
                 viewModel.onSensorChanged(sensorStep)
+                viewModel.initYesterdayStep()
 
-                then("어제 값에 센서값이 저장 된다.") {
-                    viewModel.step.value.yesterday shouldBe sensorStep
+                and("100 걸음을 걸었다면") {
+                    val walked = 100
+
+                    for (i in 0..walked) {
+                        viewModel.onSensorChanged(sensorStep++)
+                    }
+
+                    then("어제 값에 센서값이 저장 된다.") {
+                        viewModel.step.value.yesterday shouldBe step
+                    }
+
+                    then("오늘 걸음수는 200 이다.") {
+                        viewModel.step.value.current shouldBe walked
+                    }
+
+                    then("타이머내에 저장되지 않은 걸음수는 0 이다.") {
+                        viewModel.step.value.stepAfterReboot shouldBe 0L
+                    }
                 }
             }
         }
     }
 }
 
-internal class ScenarioAfterInstall: StepSensorViewModelTest() {
+internal class ScenarioAfterInstallAndKilledBySystem : StepSensorViewModelTest() {
+    private var stepBySensor = 0L
+
     init {
-        given("앱 설치 이후") {
-            val todayStep = 100L
+        given("앱 실행 이후") {
+            coEvery { hasTokenUseCase() } returns flow { emit(false) }
 
-            val stepData = StepData(
-                current = todayStep,
-                last = 50L,
-                yesterday = 1200L,
-                isReboot = false,
-                stepAfterReboot = 0L
-            )
+            coEvery { healthConnector.getTodayTotalStep() } returns 0L
+            every { manageStepUseCase.getTodayStep() } returns flow { emit(0L) }
 
-            `when`("디바이스 리부팅을 한다면") {
-                val sensorStep = 0L
+            viewModel.initStep()
 
-                viewModel.onSensorChanged(sensorStep)
+            and("어제 걸음수는 1000 이고, 100걸음을 걷고") {
+                val yesterdayStep = 1000L
 
-                then("어제값은 0이 된다.") {
-                    viewModel.step.value.yesterday shouldBe 0L
-                }
+                coEvery { manageStepUseCase.getYesterdayStep() } returns flow { emit(yesterdayStep) }
 
-                then("저장된 오늘값은 유지된다.") {
-                    viewModel.step.value.current shouldBe todayStep
-                }
-            }
-        }
-    }
-}
+                viewModel.onSensorChanged(yesterdayStep)
+                viewModel.initYesterdayStep()
 
-internal class ScenarioAfterInstall2: StepSensorViewModelTest() {
-    init {
-        given("앱 설치 이후") {
-            val todayStep = 100L
-            val yesterdayStep = 1200L
+                stepBySensor = yesterdayStep
+                addStepByWalk(100)
 
-            val stepData = StepData(
-                current = todayStep,
-                last = 50L,
-                yesterday = yesterdayStep,
-                isReboot = false,
-                stepAfterReboot = 0L
-            )
+                and("걸음수가 저장이 된 후") {
+                    delay(1100L)
+                    coEvery { healthConnector.getTodayTotalStep() } returns 100L
+                    every { manageStepUseCase.getTodayStep() } returns flow { emit(100L) }
 
-            `when`("하루가 지났을 때") {
-                val verifyStepData: StepData = stepData.copy(
-                    yesterday = stepData.current + stepData.yesterday,
-                    last = 0L,
-                )
+                    `when`("서비스가 시스템에 의해 종료되었을 때") {
+                        killedBySystem()
 
+                        and("100걸음을 더 걸었다면") {
+                            addStepByWalk(100)
 
-                val sensorStep = todayStep + yesterdayStep + 1L
-
-                viewModel.onSensorChanged(sensorStep)
-
-                then("전날의 센서값이 다음날의 어제값이 된다.") {
-
-                }
-            }
-        }
-    }
-}
-
-internal class ScenarioReInstall: StepSensorViewModelTest() {
-    init {
-        val todayStep = 100L
-        val yesterdayStep = 1200L
-
-        val stepDataReInstall = StepData.getInitValues()
-
-        given("걷고 나서 삭제한 뒤") {
-
-            `when`("재설치 했을 때") {
-                val sensorStep = todayStep + yesterdayStep
-
-                coEvery { healthConnector.getTodayTotalStep() } returns todayStep
-
-                viewModel.onSensorChanged(sensorStep)
-
-                then("헬스커넥트로 부터 값을 가져온다.") {
-                    coVerify(exactly = 1) {
-                        healthConnector.getTodayTotalStep()
+                            then("어제 값은 1000, 오늘값은 200") {
+                                val step = viewModel.step.value
+                                step.yesterday shouldBe 1000L
+                                step.current shouldBe 200L
+                            }
+                        }
                     }
                 }
 
-                then("헬스커넥트로 부터 얻은 걸음수가 오늘 걸음수가 된다.") {
+                xand("걸음수가 저장이 되지 않은 후") {
+                    `when`("서비스가 시스템에 의해 종료되었을 때") {
 
+                        killedBySystem()
+                        and("100걸음을 더 걸었다면") {
+                            addStepByWalk(100)
+
+                            then("어제 값은 1000, 오늘값은 200") {
+                                val step = viewModel.step.value
+                                step.yesterday shouldBe 1000L
+                                step.current shouldBe 200L
+                            }
+                        }
+                    }
                 }
             }
+        }
+    }
+
+    private suspend fun killedBySystem() {
+        viewModel.initStep()
+        viewModel.isRecreated = true
+        viewModel.onSensorChanged(stepBySensor)
+
+        // intent == null
+        viewModel.getYesterdayStepIfKilledBySystem()
+    }
+
+    private suspend fun addStepByWalk(walked: Int) {
+        for (i in 1..walked) {
+            viewModel.onSensorChanged(++stepBySensor)
         }
     }
 }
