@@ -1,5 +1,7 @@
 package com.stepmate.ranking.rank
 
+import android.util.Log
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -9,12 +11,16 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
@@ -203,12 +209,13 @@ internal fun OnSuccessRankingScreen(
     isRequestedFriend: Boolean,
 ) {
     val systemBarPadding = WindowInsets.systemBars.asPaddingValues()
+    val topBarHeight = with(density) {
+        (182.dp + systemBarPadding.calculateTopPadding()
+                + systemBarPadding.calculateBottomPadding()).roundToPx()
+    }
     val systemBarHidingState = rememberSystemBarHidingState(
         bar = SystemBarHidingState.Bar.TOPBAR(
-            maxHeight = with(density) {
-                182.dp.roundToPx() + systemBarPadding.calculateTopPadding()
-                    .roundToPx() + systemBarPadding.calculateBottomPadding().roundToPx()
-            },
+            maxHeight = topBarHeight,
             minHeight = 0,
         )
     )
@@ -246,6 +253,14 @@ internal fun OnSuccessRankingScreen(
         },
     )
 
+    val windowInsetsPadding = animateDpAsState(
+        targetValue = if (systemBarHidingState.progress >= 0.95f)
+            WindowInsets.systemBars.asPaddingValues().calculateTopPadding()
+        else
+            1.dp,
+        label = "windowInsetsPadding",
+    )
+
     HideableTopBarLayout(
         modifier = modifier,
         systemBarHidingState = systemBarHidingState,
@@ -261,10 +276,11 @@ internal fun OnSuccessRankingScreen(
     ) { contentModifier ->
 
         Column(
-            modifier = contentModifier,
+            modifier = contentModifier.padding(vertical = windowInsetsPadding.value),
         ) {
             TabRow(
-                modifier = Modifier.height(22.dp + systemBarPadding.calculateTopPadding() + systemBarPadding.calculateBottomPadding()),
+                modifier = Modifier
+                    .height(22.dp),
                 selectedTabIndex = pagerState.currentPage,
                 indicator = { tabPositions ->
                     TabRowDefaults.Indicator(

@@ -1,5 +1,6 @@
 package com.stepmate.design.component.lazyList
 
+import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.derivedStateOf
@@ -35,7 +36,7 @@ class ScrollBarState(
     var threshold by mutableFloatStateOf(maxHeight)
         private set
 
-    val progress by derivedStateOf { offset / threshold }
+    val progress by derivedStateOf { (offset.toDouble() / threshold.toDouble()).toFloat() }
 
     fun onScroll(delta: Float) {
         offset = (offset - delta).coerceIn(0f..threshold)
