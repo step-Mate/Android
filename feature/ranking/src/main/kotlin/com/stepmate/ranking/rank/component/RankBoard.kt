@@ -72,12 +72,13 @@ internal fun RankBoard(
 ) {
     val isUpperScrollActive by remember {
         derivedStateOf {
-            lazyListState.firstVisibleItemIndex > 3
+            lazyListState.firstVisibleItemIndex > 0
         }
     }
 
-    val top3RankHeight = 190.dp
+    val top3RankHeight = 208.dp
     val rankBoardHeightPadding = 4.dp
+    val rankItemHeight = 144.dp
     val viewPortSize by remember {
         derivedStateOf {
             lazyListState.layoutInfo.viewportSize
@@ -86,11 +87,10 @@ internal fun RankBoard(
 
     val scrollBarState = rememberScrollBarState(
         maxHeight = with(density) {
-            val rankItemHeight = (126.8).dp.toPx()
             //아이템 사이즈가 늘어날 때 마다 처음 보이는 화면의 크기만큼은 스크롤이 발생하면서 시작하기 때문에 차감해야 함
-            val perViewPortHeight = viewPortSize.height * (rankBoard.page - 1)
+            val perViewPortHeight = viewPortSize.height * (rankBoard.page)
 
-            rankItemHeight * rankBoard.remain.size + top3RankHeight.toPx() - rankBoardHeightPadding.toPx() * 2 + perViewPortHeight
+            (rankItemHeight * rankBoard.remain.size + top3RankHeight - rankBoardHeightPadding * 2).toPx() - perViewPortHeight
         }
     )
 
@@ -187,7 +187,7 @@ internal fun RankBoard(
                 scrollBarState = scrollBarState,
                 lazyListState = lazyListState,
                 headerItemHeight = top3RankHeight + rankBoardHeightPadding,
-                perItemHeight = (144).dp,
+                perItemHeight = rankItemHeight,
             )
 
     }
