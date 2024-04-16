@@ -276,7 +276,7 @@ internal fun OnSuccessRankingScreen(
     ) { contentModifier ->
 
         Column(
-            modifier = contentModifier.padding(vertical = windowInsetsPadding.value),
+            modifier = contentModifier.padding(top = windowInsetsPadding.value),
         ) {
             TabRow(
                 modifier = Modifier
