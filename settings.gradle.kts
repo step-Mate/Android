@@ -12,10 +12,15 @@ dependencyResolutionManagement {
         mavenCentral()
     }
 }
-rootProject.name = "Stepwalk"
+rootProject.name = "StepMate"
 include(":app")
 include(":design")
 include(":domain")
 include(":feature")
 include(":feature:home")
 include(":data")
+include(":feature:login")
+include(":feature:mission")
+include(":feature:core")
+include(":feature:ranking")
+include(":feature:profile")

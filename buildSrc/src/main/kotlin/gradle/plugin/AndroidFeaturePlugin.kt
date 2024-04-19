@@ -22,22 +22,27 @@ internal class AndroidFeaturePlugin : Plugin<Project> {
             defaultConfig {
                 testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
             }
+
+            testOptions {
+                unitTests.all {
+                    it.useJUnitPlatform()
+                }
+            }
         }
 
         val libs = extensions.getByType<VersionCatalogsExtension>().named("libs")
         dependencies {
             "implementation"(project(":domain"))
             "implementation"(project(":design"))
-
-            "testImplementation"(libs.findLibrary("junit").get())
-            "androidTestImplementation"(libs.findLibrary("androidx.test.ext").get())
-            "androidTestImplementation"(libs.findLibrary("androidx.test.espresso.core").get())
+            "implementation"(project(":feature:core"))
 
             "implementation"(libs.findLibrary("androidx.hilt.navigation.compose").get())
             "implementation"(libs.findBundle("lifecycle").get())
-            "implementation"(libs.findBundle("testing").get())
-            "implementation"(libs.findBundle("kotest").get())
-            "implementation"(libs.findLibrary("junit.jupiter.engine").get())
+            "implementation"(libs.findBundle("windowManager").get())
+
+            "testImplementation"(libs.findBundle("testing").get())
+            "testImplementation"(libs.findBundle("kotest").get())
+            "testRuntimeOnly"(libs.findLibrary("junit.jupiter.engine").get())
         }
     }
 }

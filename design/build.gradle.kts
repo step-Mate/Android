@@ -4,9 +4,10 @@ plugins {
 }
 
 android {
-    namespace = "jinproject.stepwalk.design"
+    namespace = "com.stepmate.design"
 }
 
 dependencies {
     implementation(libs.androidx.core.ktx)
+    implementation(libs.airbnb.android.lottie.compose)
 }

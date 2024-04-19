@@ -1,4 +1,6 @@
-@Suppress("DSL_SCOPE_VIOLATION") // TODO: Remove once KTIJ-19369 is fixed
+import com.android.build.gradle.internal.cxx.configure.gradleLocalProperties
+import com.google.protobuf.gradle.GenerateProtoTask
+
 plugins {
     id("stepMate.android.library")
     id("stepMate.android.hilt")
@@ -6,18 +8,35 @@ plugins {
 }
 
 android {
-    namespace = "jinproject.stepwalk.data"
+    namespace = "com.stepmate.data"
+
+    defaultConfig {
+        buildConfigField("String","SERVER_IP",getApiKey("server.ip"))
+    }
+
+    buildFeatures {
+        buildConfig = true
+    }
+}
+
+fun getApiKey(propertyKey:String):String{
+    return gradleLocalProperties(rootDir).getProperty(propertyKey)
 }
 
 dependencies {
     implementation(project(":domain"))
     implementation(libs.bundles.datastore)
+    implementation(libs.bundles.square)
+
+    implementation(libs.androidx.room.ktx)
+    annotationProcessor(libs.androidx.room.compiler)
+    ksp(libs.androidx.room.compiler)
+    testImplementation(libs.androidx.room.testing)
 }
 
 protobuf {
-
     protoc {
-        artifact = "com.google.protobuf:protoc:3.23.4"
+        artifact = "com.google.protobuf:protoc:3.25.0"
     }
 
     generateProtoTasks {
@@ -26,6 +45,22 @@ protobuf {
                 create("java") {
                     option("lite")
                 }
+            }
+        }
+    }
+}
+
+androidComponents {
+    onVariants(selector().all()) { variant ->
+        afterEvaluate {
+            val protoTask =
+                project.tasks.getByName("generate" + variant.name.replaceFirstChar { it.uppercaseChar() } + "Proto") as GenerateProtoTask
+
+            project.tasks.getByName("ksp" + variant.name.replaceFirstChar { it.uppercaseChar() } + "Kotlin") {
+                dependsOn(protoTask)
+                (this as org.jetbrains.kotlin.gradle.tasks.AbstractKotlinCompileTool<*>).setSource(
+                    protoTask.outputBaseDir
+                )
             }
         }
     }
