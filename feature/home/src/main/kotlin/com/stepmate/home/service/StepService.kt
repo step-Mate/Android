@@ -161,8 +161,8 @@ internal class StepService : LifecycleService() {
                         startForeground(NOTIFICATION_STEP_ID, notification)
 
                 lifecycleScope.launch {
-                    if(isCreated) {
-                        if(intent == null)
+                    if (isCreated) {
+                        if (intent == null)
                             isServiceKilledBySystem = true
 
                         stepSensorViewModel.initStep()

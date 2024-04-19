@@ -1,16 +1,14 @@
 package com.stepmate.home
 
-import io.kotest.core.spec.style.BehaviorSpec
-import io.kotest.matchers.shouldBe
-import io.mockk.coEvery
-import io.mockk.coVerify
-import io.mockk.mockk
-import com.stepmate.domain.model.StepData
 import com.stepmate.domain.usecase.auth.CheckHasTokenUseCase
 import com.stepmate.domain.usecase.step.ManageStepUseCase
 import com.stepmate.domain.usecase.step.SetUserDayStepUseCase
 import com.stepmate.home.service.StepSensorViewModel
+import io.kotest.core.spec.style.BehaviorSpec
+import io.kotest.matchers.shouldBe
+import io.mockk.coEvery
 import io.mockk.every
+import io.mockk.mockk
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
