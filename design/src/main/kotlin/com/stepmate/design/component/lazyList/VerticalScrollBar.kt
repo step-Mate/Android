@@ -134,7 +134,7 @@ class ScrollBarNestedScrollConnection(
 private fun PreviewVerticalScrollBar() = StepMateTheme {
     BoxWithConstraints {
         VerticalScrollBar(
-            scrollBarState = rememberScrollBarState(maxHeight = maxHeight.value).apply {
+            scrollBarState = rememberScrollBarState(viewHeight = maxHeight.value).apply {
                 this.changeOffset(maxHeight.value)
             },
             lazyListState = rememberLazyListState(),

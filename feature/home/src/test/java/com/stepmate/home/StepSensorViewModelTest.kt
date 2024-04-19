@@ -1,16 +1,14 @@
 package com.stepmate.home
 
-import io.kotest.core.spec.style.BehaviorSpec
-import io.kotest.matchers.shouldBe
-import io.mockk.coEvery
-import io.mockk.coVerify
-import io.mockk.mockk
-import com.stepmate.domain.model.StepData
 import com.stepmate.domain.usecase.auth.CheckHasTokenUseCase
 import com.stepmate.domain.usecase.step.ManageStepUseCase
 import com.stepmate.domain.usecase.step.SetUserDayStepUseCase
 import com.stepmate.home.service.StepSensorViewModel
+import io.kotest.core.spec.style.BehaviorSpec
+import io.kotest.matchers.shouldBe
+import io.mockk.coEvery
 import io.mockk.every
+import io.mockk.mockk
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
@@ -54,14 +52,14 @@ internal class ScenarioOnFirstInstall : StepSensorViewModelTest() {
                 val step = 100L
                 var sensorStep = step
 
-                viewModel.onSensorChanged(sensorStep)
+                viewModel.onSensorChanged(stepBySensor = sensorStep, isCreated = true)
                 viewModel.initYesterdayStep()
 
                 and("100 걸음을 걸었다면") {
                     val walked = 100
 
                     for (i in 0..walked) {
-                        viewModel.onSensorChanged(sensorStep++)
+                        viewModel.onSensorChanged(stepBySensor = sensorStep++, isCreated = false)
                     }
 
                     then("어제 값에 센서값이 저장 된다.") {
@@ -91,6 +89,7 @@ internal class ScenarioAfterInstallAndKilledBySystem : StepSensorViewModelTest()
             coEvery { healthConnector.getTodayTotalStep() } returns 0L
             every { manageStepUseCase.getTodayStep() } returns flow { emit(0L) }
 
+            var isCreated = true
             viewModel.initStep()
 
             and("어제 걸음수는 1000 이고, 100걸음을 걷고") {
@@ -98,8 +97,10 @@ internal class ScenarioAfterInstallAndKilledBySystem : StepSensorViewModelTest()
 
                 coEvery { manageStepUseCase.getYesterdayStep() } returns flow { emit(yesterdayStep) }
 
-                viewModel.onSensorChanged(yesterdayStep)
+                viewModel.onSensorChanged(stepBySensor = yesterdayStep, isCreated = isCreated)
                 viewModel.initYesterdayStep()
+
+                isCreated = false
 
                 stepBySensor = yesterdayStep
                 addStepByWalk(100)
@@ -119,6 +120,7 @@ internal class ScenarioAfterInstallAndKilledBySystem : StepSensorViewModelTest()
                                 val step = viewModel.step.value
                                 step.yesterday shouldBe 1000L
                                 step.current shouldBe 200L
+                                step.stepAfterReboot shouldBe 0L
                             }
                         }
                     }
@@ -126,8 +128,8 @@ internal class ScenarioAfterInstallAndKilledBySystem : StepSensorViewModelTest()
 
                 xand("걸음수가 저장이 되지 않은 후") {
                     `when`("서비스가 시스템에 의해 종료되었을 때") {
-
                         killedBySystem()
+
                         and("100걸음을 더 걸었다면") {
                             addStepByWalk(100)
 
@@ -143,18 +145,15 @@ internal class ScenarioAfterInstallAndKilledBySystem : StepSensorViewModelTest()
         }
     }
 
-    private suspend fun killedBySystem() {
+    private suspend fun killedBySystem(isCreated: Boolean = true) {
         viewModel.initStep()
-        viewModel.isRecreated = true
-        viewModel.onSensorChanged(stepBySensor)
-
-        // intent == null
+        viewModel.onSensorChanged(stepBySensor = stepBySensor, isCreated = isCreated)
         viewModel.getYesterdayStepIfKilledBySystem()
     }
 
     private suspend fun addStepByWalk(walked: Int) {
         for (i in 1..walked) {
-            viewModel.onSensorChanged(++stepBySensor)
+            viewModel.onSensorChanged(stepBySensor = ++stepBySensor, isCreated = false)
         }
     }
 }

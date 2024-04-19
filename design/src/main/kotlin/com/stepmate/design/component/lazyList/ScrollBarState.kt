@@ -1,6 +1,5 @@
 package com.stepmate.design.component.lazyList
 
-import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.derivedStateOf
@@ -11,8 +10,9 @@ import androidx.compose.runtime.setValue
 
 @Composable
 fun rememberScrollBarState(
-    maxHeight: Float,
+    viewHeight: Float,
 ): ScrollBarState {
+    val maxHeight = viewHeight.coerceAtLeast(0f)
 
     val state = remember {
         ScrollBarState(

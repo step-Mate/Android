@@ -39,6 +39,8 @@ internal class StepService : LifecycleService() {
     private var exitFlag: Boolean? = null
 
     private val alarmManager: AlarmManager by lazy { getSystemService(Context.ALARM_SERVICE) as AlarmManager }
+    private var isServiceKilledBySystem: Boolean = false
+    private var isCreated = true
     private val stepSensorManager: StepSensorManager by lazy {
         StepSensorManager(
             context = this@StepService,
@@ -46,7 +48,20 @@ internal class StepService : LifecycleService() {
                 val stepBySensor = event?.values?.first()?.toLong() ?: 0L
 
                 lifecycleScope.launch {
-                    stepSensorViewModel.onSensorChanged(stepBySensor)
+                    stepSensorViewModel.onSensorChanged(
+                        stepBySensor = stepBySensor,
+                        isCreated = isCreated
+                    )
+
+                    if (isCreated) {
+                        if (isServiceKilledBySystem)
+                            stepSensorViewModel.getYesterdayStepIfKilledBySystem()
+                        else {
+                            stepSensorViewModel.initYesterdayStep()
+                        }
+
+                        isCreated = false
+                    }
                 }
             }
         )
@@ -62,8 +77,6 @@ internal class StepService : LifecycleService() {
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
     }
-
-    private var isCreated = true
 
     override fun onCreate() {
         super.onCreate()
@@ -147,18 +160,13 @@ internal class StepService : LifecycleService() {
                     else
                         startForeground(NOTIFICATION_STEP_ID, notification)
 
-                if (intent == null || isCreated) {
-                    lifecycleScope.launch {
+                lifecycleScope.launch {
+                    if (isCreated) {
+                        if (intent == null)
+                            isServiceKilledBySystem = true
+
                         stepSensorViewModel.initStep()
                         registerSensor()
-
-                        if (intent == null)
-                            stepSensorViewModel.getYesterdayStepIfKilledBySystem()
-                        else if (isCreated) {
-                            stepSensorViewModel.initYesterdayStep()
-                        }
-
-                        isCreated = false
                     }
                 }
             }

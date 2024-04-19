@@ -15,11 +15,6 @@ import androidx.health.connect.client.records.metadata.DataOrigin
 import androidx.health.connect.client.request.AggregateGroupByDurationRequest
 import androidx.health.connect.client.request.AggregateGroupByPeriodRequest
 import androidx.health.connect.client.time.TimeRangeFilter
-import dagger.Module
-import dagger.Provides
-import dagger.hilt.InstallIn
-import dagger.hilt.android.qualifiers.ApplicationContext
-import dagger.hilt.components.SingletonComponent
 import com.stepmate.home.screen.home.state.HealthCare
 import com.stepmate.home.screen.home.state.HealthCareExtras
 import com.stepmate.home.screen.home.state.HealthCareFactory
@@ -28,6 +23,11 @@ import com.stepmate.home.screen.home.state.HeartRateFactory
 import com.stepmate.home.screen.home.state.Step
 import com.stepmate.home.screen.home.state.StepFactory
 import com.stepmate.home.utils.onKorea
+import dagger.Module
+import dagger.Provides
+import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
+import dagger.hilt.components.SingletonComponent
 import java.time.Duration
 import java.time.Instant
 import java.time.LocalDateTime
