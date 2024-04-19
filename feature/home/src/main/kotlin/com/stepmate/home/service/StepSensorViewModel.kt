@@ -95,8 +95,6 @@ internal class StepSensorViewModel @Inject constructor(
         }
     )
 
-    var isRecreated = true
-
     init {
         checkHasTokenUseCase().onEach { bool ->
             isLoginUser = bool
@@ -130,18 +128,14 @@ internal class StepSensorViewModel @Inject constructor(
     }
 
     suspend fun initYesterdayStep() {
-        val sensorByStep = step.value.current + step.value.yesterday - step.value.stepAfterReboot
-
-        manageStepUseCase.setYesterdayStep(sensorByStep)
+        manageStepUseCase.setYesterdayStep(step.value.yesterday)
     }
 
-    suspend fun onSensorChanged(stepBySensor: Long, second: Int = 30) =
+    suspend fun onSensorChanged(stepBySensor: Long, second: Int = 30, isCreated: Boolean) =
         withContext(sensorDispatcher + coroutineExceptionHandler) {
-            _step.update { state -> state.getTodayStep(stepBySensor, isRecreated) }
+            _step.update { state -> state.getTodayStep(stepBySensor, isCreated) }
 
-            if (isRecreated)
-                isRecreated = false
-            else {
+            if (!isCreated) {
                 manageStepUseCase.setTodayStep(step.value.current)
 
                 if (!sensorTimeScheduler.isRunning)
