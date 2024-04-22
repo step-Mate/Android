@@ -54,6 +54,8 @@ class HealthConnector @Inject constructor(
         getHealthClient()
     }
 
+    var isPossibleToInstall: Boolean = false
+
     suspend fun checkPermissions(
         permissions: Set<String>,
     ): Boolean {
@@ -82,16 +84,21 @@ class HealthConnector @Inject constructor(
         val providerPackageName = "com.google.android.apps.healthdata"
         val uriString =
             "market://details?id=$providerPackageName&url=healthconnect%3A%2F%2Fonboarding"
+        val playStorePackageName = "com.android.vending"
 
-        context.startActivity(
-            Intent(Intent.ACTION_VIEW).apply {
-                setPackage("com.android.vending")
-                data = Uri.parse(uriString)
-                putExtra("overlay", true)
-                putExtra("callerId", context.packageName)
-                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            }
-        )
+        runCatching {
+            context.packageManager.getPackageInfo(playStorePackageName, 0)
+        }.onSuccess {
+            context.startActivity(
+                Intent(Intent.ACTION_VIEW).apply {
+                    setPackage(playStorePackageName)
+                    data = Uri.parse(uriString)
+                    putExtra("overlay", true)
+                    putExtra("callerId", context.packageName)
+                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                }
+            )
+        }
     }
 
     suspend fun insertSteps(
