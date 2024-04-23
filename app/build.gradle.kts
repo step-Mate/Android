@@ -11,7 +11,7 @@ android {
     defaultConfig {
         applicationId = "com.stepmate.app"
         targetSdk = 34
-        versionCode = 2
+        versionCode = 6
         versionName = "1.0.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -20,20 +20,6 @@ android {
         }
     }
 
-    packaging {
-        resources {
-            excludes += "/META-INF/{AL2.0,LGPL2.1,LICENSE.md,LICENSE-notice.md}"
-        }
-    }
-
-    configurations.all {
-        resolutionStrategy {
-            exclude(
-                group = "org.jetbrains.kotlinx",
-                module = "kotlinx-coroutines-debug"
-            )
-        }
-    }
 }
 
 dependencies {
