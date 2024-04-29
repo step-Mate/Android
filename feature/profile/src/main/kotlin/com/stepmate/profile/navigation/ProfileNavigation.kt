@@ -86,7 +86,7 @@ fun NavController.navigateToProfile(navOptions: NavOptions?) {
 }
 
 fun NavController.navigateToEditUser(nickname: String, designation: String, anonymous: Boolean) {
-    this.navigate("$editRoute/$nickname/$anonymous/${designation.ifEmpty { "-1" }}") {
+    this.navigate("$editRoute/${nickname.ifEmpty { "-" }}/$anonymous/${designation.ifEmpty { "-1" }}") {
         launchSingleTop = true
     }
 }

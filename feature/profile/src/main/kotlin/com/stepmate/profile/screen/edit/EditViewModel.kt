@@ -118,7 +118,7 @@ class EditViewModel @Inject constructor(
     }
 
     init {
-        _nickname.value = originalNickname
+        _nickname.value = if (originalNickname == "-") "" else originalNickname
         val tempDesignation = savedStateHandle.get<String>("designation") ?: ""
         _designation.value = if (tempDesignation == "-1") "" else tempDesignation
 
