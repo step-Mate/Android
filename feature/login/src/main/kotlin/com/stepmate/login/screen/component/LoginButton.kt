@@ -28,8 +28,8 @@ import com.stepmate.design.R
 import com.stepmate.design.component.DefaultButton
 import com.stepmate.design.component.DefaultTextButton
 import com.stepmate.design.component.VerticalDivider
-import com.stepmate.design.theme.StepWalkColor
 import com.stepmate.design.theme.StepMateTheme
+import com.stepmate.design.theme.StepWalkColor
 
 //간편 로그인용
 @Composable
