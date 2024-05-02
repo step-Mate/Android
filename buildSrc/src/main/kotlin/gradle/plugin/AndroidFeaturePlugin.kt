@@ -1,13 +1,9 @@
 package gradle.plugin
 
-import com.android.build.api.dsl.LibraryExtension
+import gradle.plugin.configure.configureTest
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.api.artifacts.VersionCatalogsExtension
-import org.gradle.kotlin.dsl.configure
 import org.gradle.kotlin.dsl.dependencies
-import org.gradle.kotlin.dsl.exclude
-import org.gradle.kotlin.dsl.getByType
 
 internal class AndroidFeaturePlugin : Plugin<Project> {
 
@@ -18,19 +14,9 @@ internal class AndroidFeaturePlugin : Plugin<Project> {
             apply("stepMate.android.compose")
         }
 
-        extensions.configure<LibraryExtension> {
-            defaultConfig {
-                testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-            }
+        configureTest()
 
-            testOptions {
-                unitTests.all {
-                    it.useJUnitPlatform()
-                }
-            }
-        }
-
-        val libs = extensions.getByType<VersionCatalogsExtension>().named("libs")
+        val libs = getVersionCatalog()
         dependencies {
             "implementation"(project(":domain"))
             "implementation"(project(":design"))
@@ -38,11 +24,6 @@ internal class AndroidFeaturePlugin : Plugin<Project> {
 
             "implementation"(libs.findLibrary("androidx.hilt.navigation.compose").get())
             "implementation"(libs.findBundle("lifecycle").get())
-            "implementation"(libs.findBundle("windowManager").get())
-
-            "testImplementation"(libs.findBundle("testing").get())
-            "testImplementation"(libs.findBundle("kotest").get())
-            "testRuntimeOnly"(libs.findLibrary("junit.jupiter.engine").get())
         }
     }
 }

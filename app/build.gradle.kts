@@ -39,16 +39,12 @@ dependencies {
     implementation(libs.androidx.hilt.navigation.compose)
     implementation(libs.androidx.core.splashscreen)
 
-    implementation(libs.bundles.navigation)
-
     implementation(libs.bundles.lifecycle)
 
     implementation(libs.androidx.health.connect.client)
 
     implementation(libs.bundles.workManager)
     ksp(libs.androidx.hilt.compiler)
-
-    implementation(libs.bundles.windowManager)
 
     //debugImplementation("com.squareup.leakcanary:leakcanary-android:3.0-alpha-1")
 }

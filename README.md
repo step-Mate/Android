@@ -43,3 +43,15 @@
 - 앱 실행시 androidx.core.splashscreen api로 splash 노출 후 제거 타이밍을 앱 실행에 필요한 권한들의 승인 여부 완료까지 지연시킨뒤, 권한이 필요하면 권한 화면을 노출하고 그렇지않으면 홈화면으로 전환하는 권한 관리 플로우를 구현하였습니다.
 - 포그라운드 서비스의 특성을 활용하여 실시간으로 걸음수를 수집 및 필터링하여 헬스커넥트와 서버로 저장하고 가져오는 알고리즘을 구현하였습니다.
 - Compose 에서 순수함수 특성(멱등성) 과 SideEffect 를 다루기 위한 api 들을 이해한 뒤, 이를 이용하여 Compose-State 를 최적화 함으로써 불필요한 recomposition 을 방지하도록 구현하였습니다.
+
+# Member
+
+> **황진호 ([jowunnal](https://github.com/jowunnal "github link"))** 
+
+> **공경일 ([kyungil9](https://github.com/kyungil9 "github link"))** 
+
+<br>
+
+| 황진호 | 공경일 |
+| ----- | ----- |
+| 걸음수 수집 & 홈 화면, 랭킹 화면 | 미션 화면, 내정보 화면 |
