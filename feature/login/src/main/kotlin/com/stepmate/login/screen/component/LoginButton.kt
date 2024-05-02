@@ -28,8 +28,8 @@ import com.stepmate.design.R
 import com.stepmate.design.component.DefaultButton
 import com.stepmate.design.component.DefaultTextButton
 import com.stepmate.design.component.VerticalDivider
-import com.stepmate.design.theme.StepWalkColor
 import com.stepmate.design.theme.StepMateTheme
+import com.stepmate.design.theme.StepWalkColor
 
 //간편 로그인용
 @Composable
@@ -78,21 +78,18 @@ internal fun FindAndSignUpButtons(
     ) {
         DefaultTextButton(
             text = "아이디 찾기",
-            textColor = MaterialTheme.colorScheme.scrim,
             onClick = findAccountId,
             modifier = Modifier.padding(horizontal = 10.dp)
         )
         VerticalDivider(modifier = Modifier.padding(vertical = 10.dp))
         DefaultTextButton(
             text = "비밀번호 찾기",
-            textColor = MaterialTheme.colorScheme.scrim,
             onClick = findAccountPassword,
             modifier = Modifier.padding(horizontal = 10.dp)
         )
         VerticalDivider(modifier = Modifier.padding(vertical = 10.dp))
         DefaultTextButton(
             text = "회원가입",
-            textColor = MaterialTheme.colorScheme.scrim,
             onClick = createAccount,
             modifier = Modifier.padding(horizontal = 10.dp)
         )
