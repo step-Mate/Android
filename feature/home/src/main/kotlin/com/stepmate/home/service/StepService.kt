@@ -121,7 +121,8 @@ internal class StepService : LifecycleService() {
 
             launch {
                 stepSensorViewModel.missionUpdate.collectLatest {
-                    setWorker(it.second)
+                    if (it.first != 0L)
+                        setWorker(it.second)
                 }
             }
         }
