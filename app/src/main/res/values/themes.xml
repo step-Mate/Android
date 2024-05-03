@@ -1,5 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="Theme.Stepwalk" parent="android:Theme.Material.Light.NoActionBar">
+    <style name="Theme.StepMate" parent="android:Theme.Material.Light.NoActionBar">
+    </style>
+
+    <style name="Theme.StepMate.Splash" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_stepmate</item>
+
+        <item name="postSplashScreenTheme">@style/Theme.StepMate</item>
     </style>
 </resources>
