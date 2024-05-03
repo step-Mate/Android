@@ -1,10 +1,10 @@
 package com.stepmate.domain.usecase.mission
 
-import com.stepmate.domain.repository.LocalMissionRepository
+import com.stepmate.domain.repository.MissionRepository
 import javax.inject.Inject
 
 class ResetMissionTimeUseCases @Inject constructor(
-    private val localMissionRepository: LocalMissionRepository
+    private val missionRepository: MissionRepository
 ) {
-    suspend operator fun invoke() = localMissionRepository.resetMissionTime()
+    suspend operator fun invoke() = missionRepository.resetMissionTime()
 }

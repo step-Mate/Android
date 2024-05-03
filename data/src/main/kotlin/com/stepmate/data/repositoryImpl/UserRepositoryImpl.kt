@@ -84,8 +84,4 @@ internal class UserRepositoryImpl @Inject constructor(
     override suspend fun setBodyHeight(height: Int) {
         cacheBodyDataSource.setHeight(height)
     }
-
-    override suspend fun getCalories(step: Int): Double =
-        cacheBodyDataSource.getCalories(step)
-
 }

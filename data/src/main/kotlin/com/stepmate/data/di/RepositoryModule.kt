@@ -1,14 +1,12 @@
 package com.stepmate.data.di
 
 import com.stepmate.data.repositoryImpl.AuthRepositoryImpl
-import com.stepmate.data.repositoryImpl.LocalMissionRepositoryImpl
 import com.stepmate.data.repositoryImpl.MissionRepositoryImpl
 import com.stepmate.data.repositoryImpl.RankRepositoryImpl
 import com.stepmate.data.repositoryImpl.SettingsRepositoryImpl
 import com.stepmate.data.repositoryImpl.StepRepositoryImpl
 import com.stepmate.data.repositoryImpl.UserRepositoryImpl
 import com.stepmate.domain.repository.AuthRepository
-import com.stepmate.domain.repository.LocalMissionRepository
 import com.stepmate.domain.repository.MissionRepository
 import com.stepmate.domain.repository.RankRepository
 import com.stepmate.domain.repository.SettingsRepository
@@ -48,7 +46,4 @@ internal abstract class RepositoryModule {
     @Binds
     abstract fun bindsSettingsRepository(settingsRepositoryImpl: SettingsRepositoryImpl): SettingsRepository
 
-    @Singleton
-    @Binds
-    abstract fun bindsLocalMissionRepository(localMissionRepositoryImpl: LocalMissionRepositoryImpl): LocalMissionRepository
 }
