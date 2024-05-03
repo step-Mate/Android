@@ -4,7 +4,7 @@ import com.stepmate.domain.model.DesignationState
 import com.stepmate.domain.model.mission.MissionList
 import kotlinx.coroutines.flow.Flow
 
-internal interface MissionDataSource {
+internal interface RemoteMissionDataSource {
     suspend fun getMissionList(): List<MissionList>
     suspend fun selectDesignation(designation: String)
     fun getDesignation(): Flow<DesignationState>

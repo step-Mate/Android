@@ -2,7 +2,7 @@ package com.stepmate.data.remote.dataSource.impl
 
 import com.stepmate.data.di.RetrofitWithTokenModule
 import com.stepmate.data.remote.api.MissionApi
-import com.stepmate.data.remote.dataSource.MissionDataSource
+import com.stepmate.data.remote.dataSource.RemoteMissionDataSource
 import com.stepmate.data.remote.dto.request.DesignationRequest
 import com.stepmate.data.remote.dto.response.mission.toMissionList
 import com.stepmate.data.remote.dto.response.user.toDesignationModel
@@ -18,10 +18,10 @@ import kotlinx.coroutines.withContext
 import retrofit2.Retrofit
 import javax.inject.Inject
 
-internal class MissionDataSourceImpl @Inject constructor(
+internal class RemoteMissionDataSourceImpl @Inject constructor(
     private val missionApi: MissionApi,
     @RetrofitWithTokenModule.RetrofitWithInterceptor private val retrofit: Retrofit,
-) : MissionDataSource {
+) : RemoteMissionDataSource {
 
     override suspend fun getMissionList(): List<MissionList> =
         missionApi.getMissionList().toMissionList().sortedBy { it.title }

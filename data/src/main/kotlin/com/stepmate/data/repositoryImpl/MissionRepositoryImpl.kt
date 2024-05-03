@@ -2,7 +2,7 @@ package com.stepmate.data.repositoryImpl
 
 import com.stepmate.data.local.datasource.BodyDataSource
 import com.stepmate.data.local.datasource.LocalMissionDataSource
-import com.stepmate.data.remote.dataSource.MissionDataSource
+import com.stepmate.data.remote.dataSource.RemoteMissionDataSource
 import com.stepmate.domain.model.DesignationState
 import com.stepmate.domain.model.mission.MissionList
 import com.stepmate.domain.repository.MissionRepository
@@ -10,24 +10,24 @@ import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
 internal class MissionRepositoryImpl @Inject constructor(
-    private val missionDataSource: MissionDataSource,
+    private val remoteMissionDataSource: RemoteMissionDataSource,
     private val localMissionDataSource: LocalMissionDataSource,
     private val bodyDataSource: BodyDataSource
 ) : MissionRepository {
     override suspend fun getLocalMissionList(): List<MissionList> =
-        missionDataSource.getMissionList()
+        remoteMissionDataSource.getMissionList()
 
     override suspend fun selectDesignation(designation: String) =
-        missionDataSource.selectDesignation(designation)
+        remoteMissionDataSource.selectDesignation(designation)
 
     override fun getDesignation(): Flow<DesignationState> =
-        missionDataSource.getDesignation()
+        remoteMissionDataSource.getDesignation()
 
     override suspend fun completeMission(designation: String) =
-        missionDataSource.completeMission(designation)
+        remoteMissionDataSource.completeMission(designation)
 
     override suspend fun checkUpdateMission(missionList: List<MissionList>): List<String> =
-        missionDataSource.checkUpdateMission(missionList)
+        remoteMissionDataSource.checkUpdateMission(missionList)
 
     override fun getAllLocalMissionList(): Flow<List<MissionList>> =
         localMissionDataSource.getAllMissionList()
