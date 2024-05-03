@@ -4,29 +4,29 @@ import android.util.Log
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
-import androidx.work.Data
-import androidx.work.OneTimeWorkRequest
-import androidx.work.OneTimeWorkRequestBuilder
-import androidx.work.OutOfQuotaPolicy
 import com.stepmate.design.component.lazyList.TimeScheduler
 import com.stepmate.domain.model.StepData
 import com.stepmate.domain.model.exception.StepMateHttpException
 import com.stepmate.domain.usecase.auth.CheckHasTokenUseCase
+import com.stepmate.domain.usecase.mission.CheckUpdateMissionUseCases
 import com.stepmate.domain.usecase.mission.ResetMissionTimeUseCases
+import com.stepmate.domain.usecase.mission.UpdateMissionUseCases
 import com.stepmate.domain.usecase.step.ManageStepUseCase
 import com.stepmate.domain.usecase.step.SetUserDayStepUseCase
 import com.stepmate.home.HealthConnector
 import com.stepmate.home.service.StepException.NEED_RE_LOGIN
-import com.stepmate.home.worker.MissionCheckWorker
-import com.stepmate.home.worker.MissionUpdateWorker
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.channels.BufferOverflow
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.launchIn
@@ -35,7 +35,6 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.time.ZonedDateTime
-import java.util.Calendar
 import javax.inject.Inject
 import kotlin.coroutines.CoroutineContext
 
@@ -44,6 +43,8 @@ internal class StepSensorViewModel @Inject constructor(
     private val manageStepUseCase: ManageStepUseCase,
     private val healthConnector: HealthConnector,
     private val resetMissionTimeUseCases: ResetMissionTimeUseCases,
+    private val updateMissionUseCases: UpdateMissionUseCases,
+    private val checkUpdateMissionUseCases: CheckUpdateMissionUseCases,
     checkHasTokenUseCase: CheckHasTokenUseCase,
 ) {
     private var startTime: ZonedDateTime = ZonedDateTime.now()
@@ -76,8 +77,10 @@ internal class StepSensorViewModel @Inject constructor(
         }
     }
 
-    private val _missionUpdate: MutableStateFlow<Pair<Long, Long>> = MutableStateFlow(Pair(0, 0))
-    val missionUpdate: StateFlow<Pair<Long, Long>> = _missionUpdate.asStateFlow()
+    private val _completeMissionList: MutableSharedFlow<List<String>> = MutableSharedFlow(
+        replay = 0, extraBufferCapacity = 1, onBufferOverflow = BufferOverflow.DROP_OLDEST
+    )
+    val completeMissionList: SharedFlow<List<String>> = _completeMissionList.asSharedFlow()
 
     val viewModelScope: CoroutineScope =
         ViewModelCoroutineScope(SupervisorJob() + Dispatchers.Main.immediate + coroutineExceptionHandler)
@@ -90,7 +93,6 @@ internal class StepSensorViewModel @Inject constructor(
         callBack = {
             withContext(Dispatchers.IO) {
                 updateStepBySensor()
-                checkUpdateMissionList(step.value.current - step.value.last)
             }
         }
     )
@@ -161,6 +163,10 @@ internal class StepSensorViewModel @Inject constructor(
 
             if (isLoginUser) {
                 setUserDayStepUseCase.addStep(walked.toInt())
+                withContext(Dispatchers.IO + coroutineExceptionHandler) {
+                    updateMissionUseCases(walked.toInt())
+                    _completeMissionList.emit(checkUpdateMissionUseCases())
+                }
             }
         }
     }
@@ -202,23 +208,6 @@ internal class StepSensorViewModel @Inject constructor(
     fun resetTimeMission() {
         viewModelScope.launch(Dispatchers.IO) {
             resetMissionTimeUseCases()
-        }
-    }
-
-    fun getMissionCheckWorker(): OneTimeWorkRequest =
-        OneTimeWorkRequestBuilder<MissionCheckWorker>()
-            .setExpedited(OutOfQuotaPolicy.DROP_WORK_REQUEST)
-            .build()
-
-    fun getMissionUpdateWorker(walked: Long): OneTimeWorkRequest =
-        OneTimeWorkRequestBuilder<MissionUpdateWorker>()
-            .setInputData(Data.Builder().putLong("walk", walked).build())
-            .setExpedited(OutOfQuotaPolicy.DROP_WORK_REQUEST)
-            .build()
-
-    private fun checkUpdateMissionList(walked: Long) {
-        if (isLoginUser) {
-            _missionUpdate.update { Pair(Calendar.getInstance().timeInMillis, walked) }
         }
     }
 }

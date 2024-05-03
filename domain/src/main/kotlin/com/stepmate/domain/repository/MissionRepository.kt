@@ -5,12 +5,9 @@ import com.stepmate.domain.model.mission.MissionList
 import kotlinx.coroutines.flow.Flow
 
 interface MissionRepository {
-    fun getAllMissionList(): Flow<List<MissionList>>
-    fun getMissionList(title: String): Flow<MissionList>
-    suspend fun updateMissionList(): List<String>
-    suspend fun updateMission(achieved: Int)
+    suspend fun getMissionList(): List<MissionList>
     suspend fun selectDesignation(designation: String)
     fun getDesignation(): Flow<DesignationState>
-    suspend fun checkUpdateMission(): List<String>
-    suspend fun resetMissionTime()
+    suspend fun completeMission(designation: String)
+    suspend fun checkUpdateMission(missionList: List<MissionList>): List<String>
 }

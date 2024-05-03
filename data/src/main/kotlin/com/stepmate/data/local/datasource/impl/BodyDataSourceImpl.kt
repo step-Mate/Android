@@ -6,6 +6,7 @@ import com.stepmate.data.local.datasource.BodyDataSource
 import com.stepmate.domain.model.BodyData
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import java.io.IOException
 import javax.inject.Inject
@@ -59,4 +60,7 @@ class BodyDataSourceImpl @Inject constructor(
                 .build()
         }
     }
+    override suspend fun getCalories(step: Int) =
+        3.0 * (3.5 * data.map { it.weight }
+            .first() * step * 0.0008 * 15) * 5 / 1000
 }

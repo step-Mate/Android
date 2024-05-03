@@ -7,11 +7,12 @@ import com.stepmate.domain.model.mission.CalorieMissionLeaf
 import com.stepmate.domain.model.mission.MissionCommon
 import com.stepmate.domain.model.mission.MissionComposite
 import com.stepmate.domain.model.mission.MissionFigure
+import com.stepmate.domain.model.mission.MissionList
 import com.stepmate.domain.model.mission.MissionType
 import com.stepmate.domain.model.mission.StepMission
 import com.stepmate.domain.model.mission.StepMissionLeaf
 
-data class MissionList(
+data class LocalMissionList(
     @Embedded val mission: Mission,
     @Relation(
         parentColumn = "designation",
@@ -20,7 +21,7 @@ data class MissionList(
     val leaf: List<MissionLeaf>
 )
 
-internal fun List<MissionList>.toMissionDataList() : List<com.stepmate.domain.model.mission.MissionList>{
+internal fun List<LocalMissionList>.toMissionDataList(): List<MissionList> {
     val missionList = HashMap<String, ArrayList<MissionCommon>>()
     this.forEach {
         if (it.leaf.size == 1) {
@@ -40,6 +41,7 @@ internal fun List<MissionList>.toMissionDataList() : List<com.stepmate.domain.mo
                     )
                     missionList[it.mission.title] = missions
                 }
+
                 MissionType.Calorie -> {
                     val missions = missionList.getOrDefault(
                         it.mission.title,
@@ -68,6 +70,7 @@ internal fun List<MissionList>.toMissionDataList() : List<com.stepmate.domain.mo
                             )
                         )
                     }
+
                     MissionType.Calorie -> {
                         leafList.add(
                             CalorieMissionLeaf(
@@ -93,6 +96,6 @@ internal fun List<MissionList>.toMissionDataList() : List<com.stepmate.domain.mo
         }
     }
     return missionList.map {
-        com.stepmate.domain.model.mission.MissionList(it.key, it.value)
+        MissionList(it.key, it.value)
     }
 }

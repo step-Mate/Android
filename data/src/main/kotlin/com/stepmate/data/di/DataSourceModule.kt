@@ -3,9 +3,11 @@ package com.stepmate.data.di
 import com.stepmate.data.local.datasource.BodyDataSource
 import com.stepmate.data.local.datasource.CacheSettingsDataSource
 import com.stepmate.data.local.datasource.CurrentAuthDataSource
+import com.stepmate.data.local.datasource.LocalMissionDataSource
 import com.stepmate.data.local.datasource.impl.BodyDataSourceImpl
 import com.stepmate.data.local.datasource.impl.CacheSettingsDataSourceImpl
 import com.stepmate.data.local.datasource.impl.CurrentAuthDataSourceImpl
+import com.stepmate.data.local.datasource.impl.LocalMissionDataSourceImpl
 import com.stepmate.data.remote.dataSource.MissionDataSource
 import com.stepmate.data.remote.dataSource.RemoteUserDataSource
 import com.stepmate.data.remote.dataSource.impl.MissionDataSourceImpl
@@ -39,4 +41,8 @@ internal abstract class DataSourceModule {
     @Singleton
     @Binds
     abstract fun bindsMissionDataSource(missionDataSourceImpl: MissionDataSourceImpl) : MissionDataSource
+
+    @Singleton
+    @Binds
+    abstract fun bindsLocalMissionDataSource(localMissionDataSourceImpl: LocalMissionDataSourceImpl) : LocalMissionDataSource
 }

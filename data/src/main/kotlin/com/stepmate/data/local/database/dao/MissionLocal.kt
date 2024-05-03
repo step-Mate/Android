@@ -7,7 +7,7 @@ import androidx.room.Query
 import androidx.room.Transaction
 import com.stepmate.data.local.database.entity.Mission
 import com.stepmate.data.local.database.entity.MissionLeaf
-import com.stepmate.data.local.database.entity.MissionList
+import com.stepmate.data.local.database.entity.LocalMissionList
 import com.stepmate.domain.model.mission.MissionType
 import kotlinx.coroutines.flow.Flow
 
@@ -16,11 +16,11 @@ interface MissionLocal {
 
     @Transaction
     @Query("SELECT * FROM mission")
-    fun getAllMissionList(): Flow<List<MissionList>>
+    fun getAllMissionList(): Flow<List<LocalMissionList>>
 
     @Transaction
     @Query("SELECT * FROM mission WHERE title = :title")
-    fun getMissionList(title: String): Flow<List<MissionList>>
+    fun getMissionList(title: String): Flow<List<LocalMissionList>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun addMission(mission: Mission)

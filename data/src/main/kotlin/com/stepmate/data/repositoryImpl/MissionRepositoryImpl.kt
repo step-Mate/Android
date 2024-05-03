@@ -10,17 +10,8 @@ import javax.inject.Inject
 internal class MissionRepositoryImpl @Inject constructor(
     private val missionDataSource: MissionDataSource
 ) : MissionRepository {
-    override fun getAllMissionList(): Flow<List<MissionList>> =
-        missionDataSource.getAllMissionList()
-
-    override fun getMissionList(title: String): Flow<MissionList> =
-        missionDataSource.getMissionList(title)
-
-    override suspend fun updateMissionList(): List<String> =
-        missionDataSource.updateMissionList()
-
-    override suspend fun updateMission(achieved: Int) =
-        missionDataSource.updateMission(achieved)
+    override suspend fun getMissionList(): List<MissionList> =
+        missionDataSource.getMissionList()
 
     override suspend fun selectDesignation(designation: String) =
         missionDataSource.selectDesignation(designation)
@@ -28,10 +19,9 @@ internal class MissionRepositoryImpl @Inject constructor(
     override fun getDesignation(): Flow<DesignationState> =
         missionDataSource.getDesignation()
 
-    override suspend fun checkUpdateMission(): List<String> =
-        missionDataSource.checkUpdateMission()
+    override suspend fun completeMission(designation: String) =
+        missionDataSource.completeMission(designation)
 
-    override suspend fun resetMissionTime() =
-        missionDataSource.resetMissionTime()
-
+    override suspend fun checkUpdateMission(missionList: List<MissionList>): List<String> =
+        missionDataSource.checkUpdateMission(missionList)
 }

@@ -25,4 +25,5 @@ interface UserRepository {
     suspend fun setBodyAge(age: Int)
     suspend fun setBodyWeight(weight: Int)
     suspend fun setBodyHeight(height: Int)
+    suspend fun getCalories(step : Int) : Double
 }
