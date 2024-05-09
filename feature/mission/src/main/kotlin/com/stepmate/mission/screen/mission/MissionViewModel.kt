@@ -6,9 +6,9 @@ import androidx.lifecycle.viewModelScope
 import com.stepmate.core.catchDataFlow
 import com.stepmate.domain.model.mission.MissionList
 import com.stepmate.domain.usecase.auth.CheckHasTokenUseCase
-import com.stepmate.domain.usecase.mission.CheckUpdateMissionUseCases
+import com.stepmate.domain.usecase.mission.CheckCompleteMissionUseCases
 import com.stepmate.domain.usecase.mission.GetAllMissionListUseCases
-import com.stepmate.domain.usecase.mission.UpdateMissionListUseCases
+import com.stepmate.domain.usecase.mission.SynchronizationMissionListUseCases
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -30,8 +30,8 @@ import javax.inject.Inject
 internal class MissionViewModel @Inject constructor(
     getAllMissionListUseCases: GetAllMissionListUseCases,
     checkHasTokenUseCase: CheckHasTokenUseCase,
-    private val updateMissionListUseCases: UpdateMissionListUseCases,
-    private val checkUpdateMissionUseCases: CheckUpdateMissionUseCases
+    private val synchronizationMissionListUseCases: SynchronizationMissionListUseCases,
+    private val checkCompleteMissionUseCases: CheckCompleteMissionUseCases
 ) : ViewModel() {
     private val _uiState: MutableSharedFlow<UiState> = MutableSharedFlow(replay = 1)
     val uiState: SharedFlow<UiState> get() = _uiState.asSharedFlow()
@@ -45,8 +45,8 @@ internal class MissionViewModel @Inject constructor(
     init {
         checkHasTokenUseCase().flatMapLatest { token ->
             if (token) {
-                updateMissionListUseCases()
-                val completeMission = checkUpdateMissionUseCases()
+                synchronizationMissionListUseCases()
+                val completeMission = checkCompleteMissionUseCases()
                 if (completeMission.isNotEmpty())
                     _designation.update { completeMission }
                 getAllMissionListUseCases().onEach { missions ->

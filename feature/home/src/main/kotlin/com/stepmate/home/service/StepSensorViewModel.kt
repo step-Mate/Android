@@ -8,8 +8,9 @@ import com.stepmate.design.component.lazyList.TimeScheduler
 import com.stepmate.domain.model.StepData
 import com.stepmate.domain.model.exception.StepMateHttpException
 import com.stepmate.domain.usecase.auth.CheckHasTokenUseCase
-import com.stepmate.domain.usecase.mission.CheckUpdateMissionUseCases
+import com.stepmate.domain.usecase.mission.CheckCompleteMissionUseCases
 import com.stepmate.domain.usecase.mission.ResetMissionTimeUseCases
+import com.stepmate.domain.usecase.mission.SynchronizationMissionListUseCases
 import com.stepmate.domain.usecase.mission.UpdateMissionUseCases
 import com.stepmate.domain.usecase.step.ManageStepUseCase
 import com.stepmate.domain.usecase.step.SetUserDayStepUseCase
@@ -44,7 +45,8 @@ internal class StepSensorViewModel @Inject constructor(
     private val healthConnector: HealthConnector,
     private val resetMissionTimeUseCases: ResetMissionTimeUseCases,
     private val updateMissionUseCases: UpdateMissionUseCases,
-    private val checkUpdateMissionUseCases: CheckUpdateMissionUseCases,
+    private val checkCompleteMissionUseCases: CheckCompleteMissionUseCases,
+    private val synchronizationMissionListUseCases: SynchronizationMissionListUseCases,
     checkHasTokenUseCase: CheckHasTokenUseCase,
 ) {
     private var startTime: ZonedDateTime = ZonedDateTime.now()
@@ -100,6 +102,8 @@ internal class StepSensorViewModel @Inject constructor(
     init {
         checkHasTokenUseCase().onEach { bool ->
             isLoginUser = bool
+            if (isLoginUser)
+                synchronizationMissionListUseCases()
         }.launchIn(viewModelScope)
     }
 
@@ -165,7 +169,7 @@ internal class StepSensorViewModel @Inject constructor(
                 setUserDayStepUseCase.addStep(walked.toInt())
                 withContext(Dispatchers.IO + coroutineExceptionHandler) {
                     updateMissionUseCases(walked.toInt())
-                    _completeMissionList.emit(checkUpdateMissionUseCases())
+                    _completeMissionList.emit(checkCompleteMissionUseCases())
                 }
             }
         }

@@ -6,15 +6,9 @@ import com.stepmate.data.remote.dataSource.RemoteMissionDataSource
 import com.stepmate.data.remote.dto.request.DesignationRequest
 import com.stepmate.data.remote.dto.response.mission.toMissionList
 import com.stepmate.data.remote.dto.response.user.toDesignationModel
-import com.stepmate.data.remote.utils.stepMateDataFlow
 import com.stepmate.data.remote.utils.suspendAndCatchStepMateData
 import com.stepmate.domain.model.DesignationState
 import com.stepmate.domain.model.mission.MissionList
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.withContext
 import retrofit2.Retrofit
 import javax.inject.Inject
 
@@ -32,31 +26,13 @@ internal class RemoteMissionDataSourceImpl @Inject constructor(
         }
     }
 
-    override fun getDesignation(): Flow<DesignationState> = stepMateDataFlow {
+    override suspend fun getDesignation(): DesignationState =
         missionApi.getDesignations().toDesignationModel()
-    }
+
 
     override suspend fun completeMission(designation: String) {
         suspendAndCatchStepMateData(retrofit) {
             missionApi.completeMission(designation = designation)
         }
     }
-
-    override suspend fun checkUpdateMission(missionList: List<MissionList>): List<String> =
-        withContext(Dispatchers.IO) {
-            val localDesignationList = async(Dispatchers.Default) {
-                missionList.map { missions ->
-                    val complete = arrayListOf<String>()
-                    missions.list.forEach { missionCommon ->
-                        if (missionCommon.getMissionProgress() == 1f)
-                            complete.add(missionCommon.designation)
-                        else
-                            return@forEach
-                    }
-                    complete
-                }.flatten().sorted()
-            }
-            val designationList = getDesignation().first().list.sorted()
-            localDesignationList.await().subtract(designationList.toSet()).toList()
-        }
 }

@@ -5,10 +5,10 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
+import com.stepmate.data.local.database.entity.LocalMissionList
 import com.stepmate.data.local.database.entity.Mission
 import com.stepmate.data.local.database.entity.MissionLeaf
-import com.stepmate.data.local.database.entity.LocalMissionList
-import com.stepmate.domain.model.mission.MissionType
+import com.stepmate.data.local.database.entity.MissionType
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -23,16 +23,19 @@ interface MissionLocal {
     fun getMissionList(title: String): Flow<List<LocalMissionList>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun addMission(mission: Mission)
+    suspend fun addMissions(vararg mission: Mission)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun addMissionLeaf(missionLeaf: MissionLeaf)
+    suspend fun addMissionLeafs(vararg missionLeaf: MissionLeaf)
 
-    @Query("UPDATE missionleaf SET achieved = :achieved WHERE achieved <= goal and type = :type and id IN (SELECT id  FROM  missionleaf  WHERE  type = :type and designation NOT LIKE '%주간%')")
+    @Query("UPDATE missionleaf SET achieved = :achieved WHERE achieved <= goal and achieved < :achieved and type = :type and id IN (SELECT id  FROM  missionleaf  WHERE  type = :type and designation NOT LIKE '%주간%')")
     suspend fun updateMissionAchieved(type: MissionType, achieved: Int)
 
-    @Query("UPDATE missionleaf SET achieved = :achieved WHERE achieved <= goal and type = :type and id IN (SELECT id  FROM  missionleaf  WHERE  type = :type and designation LIKE '%주간%')")
+    @Query("UPDATE missionleaf SET achieved = :achieved WHERE achieved <= goal and achieved < :achieved and type = :type and id IN (SELECT id  FROM  missionleaf  WHERE  type = :type and designation LIKE '%주간%')")
     suspend fun updateMissionTimeAchieved(type: MissionType, achieved: Int)
+
+    @Query("UPDATE missionleaf SET achieved = :achieved WHERE achieved <= goal and achieved < :achieved and designation = :designation and type = :type")
+    suspend fun synchronizationMissionAchieved(designation : String, type: MissionType,  achieved: Int)
 
     @Query("SELECT MAX(achieved) FROM missionleaf WHERE type = :type and designation NOT LIKE '%주간%'")
     fun getMissionAchieved(type: MissionType): Flow<Int>

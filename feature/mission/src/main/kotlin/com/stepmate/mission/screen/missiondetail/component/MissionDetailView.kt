@@ -59,7 +59,7 @@ internal fun MissionCompositeView(
     ) {
         DescriptionLargeText(
             modifier = Modifier.padding(start = 50.dp),
-            text = "${selectMission.getMissionAchieved()}/${selectMission.getMissionGoal()}",
+            text = "${if (selectMission.getMissionProgress() == 1f) selectMission.getMissionGoal() else selectMission.getMissionAchieved()}/${selectMission.getMissionGoal()}",
             textAlign = TextAlign.Center
         )
         DefaultIconButton(
@@ -95,7 +95,7 @@ internal fun MissionCompositeView(
                     )
                     DescriptionSmallText(
                         modifier = Modifier.padding(top = 10.dp),
-                        text = "${mission.getMissionAchieved()}/${mission.getMissionGoal()}",
+                        text = "${if(mission.getMissionProgress() == 1f) mission.getMissionGoal() else mission.getMissionAchieved()}/${mission.getMissionGoal()}",
                         textAlign = TextAlign.Center
                     )
                 }
@@ -138,7 +138,7 @@ internal fun MissionCommonView(
         modifier = modifier
             .fillMaxWidth()
             .padding(top = 20.dp),
-        text = "${selectMission.getMissionAchieved()}/${selectMission.getMissionGoal()}",
+        text = "${if(selectMission.getMissionProgress() == 1f) selectMission.getMissionGoal() else selectMission.getMissionAchieved()}/${selectMission.getMissionGoal()}",
         textAlign = TextAlign.Center
     )
     HeadlineText(

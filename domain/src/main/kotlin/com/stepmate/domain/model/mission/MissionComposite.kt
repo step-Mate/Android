@@ -88,6 +88,4 @@ data class MissionList(
     val list: List<MissionCommon>,
 )
 
-enum class MissionType {
-    Step, Calorie
-}
+
