@@ -42,15 +42,12 @@ import com.stepmate.design.theme.StepMateTheme
 import com.stepmate.domain.model.mission.MissionCommon
 import com.stepmate.domain.model.mission.MissionComposite
 import com.stepmate.domain.model.mission.MissionFigure
-import com.stepmate.domain.model.mission.MissionList
 import com.stepmate.domain.model.mission.StepMission
 import com.stepmate.mission.screen.component.MissionBadge
 import com.stepmate.mission.screen.component.MissionMedal
 import com.stepmate.mission.screen.missiondetail.component.MissionCommonView
 import com.stepmate.mission.screen.missiondetail.component.MissionCompositeView
 import com.stepmate.mission.util.getIcon
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 @Composable
@@ -59,6 +56,7 @@ internal fun MissionDetailScreen(
     popBackStack: () -> Unit
 ) {
     val uiState by missionDetailViewModel.uiState.collectAsStateWithLifecycle(initialValue = MissionDetailViewModel.UiState.Loading)
+    val missionList by missionDetailViewModel.missionList.collectAsStateWithLifecycle()
 
     when (uiState) {
         is MissionDetailViewModel.UiState.Error -> {
@@ -75,7 +73,7 @@ internal fun MissionDetailScreen(
         MissionDetailViewModel.UiState.Success -> {
             MissionDetailScreen(
                 title = missionDetailViewModel.title,
-                detailList = missionDetailViewModel.missionList,
+                missionList = missionList,
                 popBackStack = popBackStack
             )
         }
@@ -86,22 +84,22 @@ internal fun MissionDetailScreen(
 @Composable
 private fun MissionDetailScreen(
     title: String,
-    detailList: StateFlow<MissionList>,
+    missionList: List<MissionCommon>,
     popBackStack: () -> Unit
 ) {
-    val missionList by detailList.collectAsStateWithLifecycle()
-    var selectMission by remember { mutableStateOf<MissionFigure>(missionList.list.first()) }
+    var selectMission by remember { mutableStateOf<MissionFigure>(missionList.first()) }
+    val missionState by remember { mutableStateOf(missionList.first() is MissionComposite) }
     val scaffoldState = rememberBottomSheetScaffoldState()
     var designation by remember { mutableStateOf("") }
     val coroutineScope = rememberCoroutineScope()
 
     LaunchedEffect(key1 = missionList) {
         selectMission =
-            if (missionList.list.first().getMissionAchieved() == 0) missionList.list.first() else
-                missionList.list.find { it.getMissionAchieved() > 0 && it.getMissionAchieved() < it.getMissionGoal() }
-                    ?: missionList.list.last()
+            if (missionList.first().getMissionAchieved() == 0) missionList.first() else
+                missionList.find { it.getMissionAchieved() > 0 && it.getMissionAchieved() < it.getMissionGoal() }
+                    ?: missionList.last()
         designation =
-            missionList.list.find { it.getMissionAchieved() < it.getMissionGoal() }?.designation
+            missionList.find { it.getMissionAchieved() < it.getMissionGoal() }?.designation
                 ?: ""
     }
     BottomSheetScaffold(
@@ -114,10 +112,10 @@ private fun MissionDetailScreen(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(top = 10.dp, start = 10.dp, end = 10.dp),
-                verticalArrangement = Arrangement.spacedBy(if (missionList.list.first() is MissionComposite) 10.dp else 0.dp),
+                verticalArrangement = Arrangement.spacedBy(if (missionState) 10.dp else 0.dp),
             ) {
-                if (missionList.list.first() is MissionComposite) { //통합 미션
-                    items(items = missionList.list, key = { it.designation }) { mission ->
+                if (missionState) { //통합 미션
+                    items(items = missionList, key = { it.designation }) { mission ->
                         MissionBadge(
                             modifier = Modifier.size(120.dp),
                             icon = mission.getIcon(),
@@ -133,7 +131,7 @@ private fun MissionDetailScreen(
                         )
                     }
                 } else {//목표미션
-                    items(items = missionList.list, key = { it.designation }) { mission ->
+                    items(items = missionList, key = { it.designation }) { mission ->
                         MissionMedal(
                             modifier = Modifier
                                 .height(110.dp)
@@ -197,36 +195,32 @@ private fun PreviewMissionRepeatScreen(
 ) = StepMateTheme {
     MissionDetailScreen(
         title = "칼로리",
-        detailList = MutableStateFlow(
-            MissionList(
-                title = "일일 미션",
-                list = listOf(
-                    StepMission(
-                        designation = "100 심박수",
-                        intro = "100걸음을 달성",
-                        achieved = 10,
-                        goal = 100
-                    ),
-                    StepMission(
-                        designation = "200",
-                        intro = "",
-                        achieved = 10,
-                        goal = 100
-                    ),
-                    StepMission(
-                        designation = "300",
-                        intro = "",
-                        achieved = 10,
-                        goal = 100
-                    ),
-                    StepMission(
-                        designation = "400",
-                        intro = "",
-                        achieved = 10,
-                        goal = 100
-                    ),
-                )
-            )
+        missionList =
+        listOf(
+            StepMission(
+                designation = "100 심박수",
+                intro = "100걸음을 달성",
+                achieved = 10,
+                goal = 100
+            ),
+            StepMission(
+                designation = "200",
+                intro = "",
+                achieved = 10,
+                goal = 100
+            ),
+            StepMission(
+                designation = "300",
+                intro = "",
+                achieved = 10,
+                goal = 100
+            ),
+            StepMission(
+                designation = "400",
+                intro = "",
+                achieved = 10,
+                goal = 100
+            ),
         ),
         popBackStack = {}
     )

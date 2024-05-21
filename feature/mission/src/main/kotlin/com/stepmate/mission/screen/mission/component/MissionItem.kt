@@ -26,25 +26,25 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
+import com.stepmate.design.R
 import com.stepmate.design.component.DescriptionLargeText
 import com.stepmate.design.component.VerticalSpacer
+import com.stepmate.domain.model.mission.MissionCommon
 import com.stepmate.domain.model.mission.MissionComposite
-import com.stepmate.domain.model.mission.MissionList
 import com.stepmate.mission.screen.component.MissionBadge
 import com.stepmate.mission.screen.component.MissionMedal
 import com.stepmate.mission.util.getIcon
-import com.stepmate.design.R
 
 @Composable
 internal fun MissionItem(
     modifier: Modifier = Modifier,
-    missionList: MissionList,
+    missionList: List<MissionCommon>,
     onClick: () -> Unit
 ) {
     var designation by remember { mutableStateOf("") }
     LaunchedEffect(key1 = missionList) {
         designation =
-            missionList.list.find { it.getMissionAchieved() < it.getMissionGoal() }?.designation
+            missionList.find { it.getMissionAchieved() < it.getMissionGoal() }?.designation
                 ?: ""
     }
     Column(
@@ -56,31 +56,35 @@ internal fun MissionItem(
     ) {
         Row(
             modifier = Modifier
-                .padding(top = 20.dp, start = 20.dp, end = 20.dp).fillMaxWidth(),
+                .padding(top = 20.dp, start = 20.dp, end = 20.dp)
+                .fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
             DescriptionLargeText(
-                text = missionList.title,
+                text = missionList.first().getMissionTitle(),
                 color = MaterialTheme.colorScheme.onSurface
             )
-            Icon(imageVector = ImageVector.vectorResource(id = R.drawable.ic_arrow_right_small), contentDescription = "right")
+            Icon(
+                imageVector = ImageVector.vectorResource(id = R.drawable.ic_arrow_right_small),
+                contentDescription = "right"
+            )
         }
-        VerticalSpacer(height = if (missionList.list.first() is MissionComposite) 0.dp else 20.dp)
+        VerticalSpacer(height = if (missionList.first() is MissionComposite) 0.dp else 20.dp)
         LazyRow(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(
-                    start = if (missionList.list.first() is MissionComposite) 10.dp else 5.dp,
+                    start = if (missionList.first() is MissionComposite) 10.dp else 5.dp,
                     end = 10.dp,
-                    bottom = if (missionList.list.first() is MissionComposite) 20.dp else 10.dp,
+                    bottom = if (missionList.first() is MissionComposite) 20.dp else 10.dp,
                 ),
             state = rememberLazyListState(),
-            horizontalArrangement = Arrangement.spacedBy(if (missionList.list.first() is MissionComposite) 10.dp else 0.dp),
+            horizontalArrangement = Arrangement.spacedBy(if (missionList.first() is MissionComposite) 10.dp else 0.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            if (missionList.list.first() is MissionComposite) {//통합미션
-                items(items = missionList.list, key = { it.designation }) { mission ->
+            if (missionList.first() is MissionComposite) {//통합미션
+                items(items = missionList, key = { it.designation }) { mission ->
                     MissionBadge(
                         modifier = Modifier.size(100.dp),
                         icon = mission.getIcon(),
@@ -90,7 +94,7 @@ internal fun MissionItem(
                     )
                 }
             } else {//목표미션
-                items(items = missionList.list, key = { it.designation }) { mission ->
+                items(items = missionList, key = { it.designation }) { mission ->
                     MissionMedal(
                         modifier = Modifier.size(110.dp),
                         icon = mission.getIcon(),

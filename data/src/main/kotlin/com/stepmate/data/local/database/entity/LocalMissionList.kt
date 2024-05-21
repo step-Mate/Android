@@ -6,7 +6,6 @@ import com.stepmate.domain.model.mission.CalorieMission
 import com.stepmate.domain.model.mission.CalorieMissionLeaf
 import com.stepmate.domain.model.mission.MissionCommon
 import com.stepmate.domain.model.mission.MissionComposite
-import com.stepmate.domain.model.mission.MissionList
 import com.stepmate.domain.model.mission.StepMission
 import com.stepmate.domain.model.mission.StepMissionLeaf
 
@@ -19,47 +18,48 @@ data class LocalMissionList(
     val leaf: List<MissionLeaf>
 )
 
-internal fun List<LocalMissionList>.toMissionDataList(): List<MissionList> {
+internal fun List<LocalMissionList>.toMissionDataList(): Map<String, List<MissionCommon>> {
     val missionList = HashMap<String, ArrayList<MissionCommon>>()
-    this.forEach {
-        if (it.leaf.size == 1) {
-            when (it.leaf.first().type) {
+    this.forEach { localMission ->
+        if (localMission.leaf.size == 1) {
+            when (localMission.leaf.first().type) {
                 MissionType.Step -> {
                     val missions = missionList.getOrDefault(
-                        it.mission.title,
+                        localMission.mission.title,
                         arrayListOf()
                     )
                     missions.add(
                         StepMission(
-                            designation = it.mission.designation,
-                            intro = it.mission.intro,
-                            achieved = it.leaf.first().achieved,
-                            goal = it.leaf.first().goal
+                            designation = localMission.mission.designation,
+                            intro = localMission.mission.intro,
+                            achieved = localMission.leaf.first().achieved,
+                            goal = localMission.leaf.first().goal
                         )
                     )
-                    missionList[it.mission.title] = missions
+                    missionList[localMission.mission.title] = missions
                 }
 
                 MissionType.Calorie -> {
                     val missions = missionList.getOrDefault(
-                        it.mission.title,
+                        localMission.mission.title,
                         arrayListOf()
                     )
                     missions.add(
                         CalorieMission(
-                            designation = it.mission.designation,
-                            intro = it.mission.intro,
-                            achieved = it.leaf.first().achieved,
-                            goal = it.leaf.first().goal
+                            designation = localMission.mission.designation,
+                            intro = localMission.mission.intro,
+                            achieved = localMission.leaf.first().achieved,
+                            goal = localMission.leaf.first().goal
                         )
                     )
-                    missionList[it.mission.title] = missions
+                    missionList[localMission.mission.title] = missions
                 }
+
                 else -> {}
             }
         } else {
             val leafList = ArrayList<com.stepmate.domain.model.mission.MissionLeaf>()
-            it.leaf.forEach { leaf ->
+            localMission.leaf.forEach { leaf ->
                 when (leaf.type) {
                     MissionType.Step -> {
                         leafList.add(
@@ -78,38 +78,37 @@ internal fun List<LocalMissionList>.toMissionDataList(): List<MissionList> {
                             )
                         )
                     }
+
                     else -> {}
                 }
             }
             val missions = missionList.getOrDefault(
-                it.mission.title,
+                localMission.mission.title,
                 arrayListOf()
             )
             missions.add(
                 MissionComposite(
-                    designation = it.mission.designation,
-                    intro = it.mission.intro,
+                    designation = localMission.mission.designation,
+                    intro = localMission.mission.intro,
                     missions = leafList
                 )
             )
-            missionList[it.mission.title] = missions
+            missionList[localMission.mission.title] = missions
         }
     }
-    return missionList.map {
-        MissionList(it.key, it.value)
-    }
+    return missionList.mapValues { it.value.toList() }
 }
 
-fun List<MissionList>.toLocalMissionList() : Pair<List<Mission>,List<MissionLeaf>> {
+fun Map<String, List<MissionCommon>>.toLocalMissionList(): Pair<List<Mission>, List<MissionLeaf>> {
     val missionPair = Pair<ArrayList<Mission>, ArrayList<MissionLeaf>>(
         arrayListOf(),
         arrayListOf()
     )
     this.forEach { missionList ->
-        missionList.list.forEach { mission ->
+        missionList.value.forEach { mission ->
             missionPair.first.add(
                 Mission(
-                    title = missionList.title,
+                    title = missionList.key,
                     designation = mission.designation,
                     intro = mission.intro
                 )

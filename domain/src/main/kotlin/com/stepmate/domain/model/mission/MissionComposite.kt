@@ -12,7 +12,6 @@ interface MissionFigure {
     fun getMissionGoal(): Int
     fun getMissionProgress() =
         (getMissionAchieved().toFloat() / getMissionGoal().toFloat()).coerceAtMost(1f)
-
     fun getReward(): Int
 }
 
@@ -81,11 +80,7 @@ data class MissionComposite(
             else -> throw IllegalArgumentException("$mission 은 정해지지 않은 미션 입니다.")
         }
     }
+
+    override fun getMissionTitle(): String = "주간 미션"
 }
-
-data class MissionList(
-    val title: String,
-    val list: List<MissionCommon>,
-)
-
 

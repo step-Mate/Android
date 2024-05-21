@@ -2,7 +2,6 @@ package com.stepmate.data.remote.api
 
 import com.stepmate.data.remote.dto.request.DesignationRequest
 import com.stepmate.data.remote.dto.response.mission.MissionsResponse
-import com.stepmate.data.remote.dto.response.user.DesignationResponse
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
@@ -21,5 +20,5 @@ interface MissionApi {
     suspend fun selectDesignation(@Body designationRequest: DesignationRequest): Response<Any>
 
     @GET("designations")
-    suspend fun getDesignations(): List<DesignationResponse>
+    suspend fun getDesignations(): Response<List<Map<String,String>>>
 }

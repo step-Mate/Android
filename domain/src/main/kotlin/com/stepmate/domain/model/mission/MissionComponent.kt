@@ -18,6 +18,7 @@ interface MissionCommon : MissionComponent {
     val intro: String
     override fun getMissionDesignation(): String = designation
     override fun getMissionIntro(): String = intro
+    fun getMissionTitle(): String
 }
 
 /**
@@ -32,6 +33,7 @@ data class StepMission(
     override fun getMissionAchieved(): Int = achieved
     override fun getMissionGoal(): Int = goal
     override fun getReward(): Int = goal / 1000
+    override fun getMissionTitle(): String = "걸음수 미션"
 }
 
 /**
@@ -46,4 +48,5 @@ data class CalorieMission(
     override fun getMissionAchieved(): Int = achieved
     override fun getMissionGoal(): Int = goal
     override fun getReward(): Int = goal / 10
+    override fun getMissionTitle(): String = "칼로리 미션"
 }

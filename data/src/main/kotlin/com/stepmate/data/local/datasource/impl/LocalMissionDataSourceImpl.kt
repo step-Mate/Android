@@ -6,7 +6,7 @@ import com.stepmate.data.local.database.entity.MissionLeaf
 import com.stepmate.data.local.database.entity.MissionType
 import com.stepmate.data.local.database.entity.toMissionDataList
 import com.stepmate.data.local.datasource.LocalMissionDataSource
-import com.stepmate.domain.model.mission.MissionList
+import com.stepmate.domain.model.mission.MissionCommon
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
@@ -17,12 +17,19 @@ import javax.inject.Inject
 internal class LocalMissionDataSourceImpl @Inject constructor(
     private val missionLocal: MissionLocal,
 ) : LocalMissionDataSource {
-    override fun getAllMissionList(): Flow<List<MissionList>> =
-        missionLocal.getAllMissionList()
-            .map { it.toMissionDataList().sortedBy { missions -> missions.title } }
+    override fun getAllMissionList(): Flow<Map<String, List<MissionCommon>>> =
+        missionLocal.getAllMissionList().map { it.toMissionDataList() }
 
-    override fun getMissionList(title: String): Flow<MissionList> =
-        missionLocal.getMissionList(title).map { it.toMissionDataList().first() }
+    override fun getMissionList(title: String): Flow<List<MissionCommon>> =
+        missionLocal.getMissionList(title).map {
+            it.toMissionDataList().getOrDefault(
+                title,
+                emptyList()
+            )
+        }
+
+    override suspend fun getDesignationList(): List<String> =
+        missionLocal.getDesignationList().sorted()
 
     override suspend fun addMissions(vararg mission: Mission) =
         missionLocal.addMissions(*mission)

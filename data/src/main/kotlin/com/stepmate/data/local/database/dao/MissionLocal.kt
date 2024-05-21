@@ -22,6 +22,9 @@ interface MissionLocal {
     @Query("SELECT * FROM mission WHERE title = :title")
     fun getMissionList(title: String): Flow<List<LocalMissionList>>
 
+    @Query("SELECT designation FROM missionleaf group by designation HAVING achieved > goal")
+    suspend fun getDesignationList(): List<String>
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun addMissions(vararg mission: Mission)
 
