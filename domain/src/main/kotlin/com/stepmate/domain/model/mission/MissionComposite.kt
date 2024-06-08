@@ -12,7 +12,6 @@ interface MissionFigure {
     fun getMissionGoal(): Int
     fun getMissionProgress() =
         (getMissionAchieved().toFloat() / getMissionGoal().toFloat()).coerceAtMost(1f)
-
     fun getReward(): Int
 }
 
@@ -22,10 +21,9 @@ interface MissionFigure {
  * @sample StepMissionLeaf
  * @sample CalorieMissionLeaf
  */
-abstract class MissionLeaf(
-    open val achieved: Int,
-    open val goal: Int,
-) : MissionFigure {
+interface MissionLeaf : MissionFigure {
+    val achieved: Int
+    val goal: Int
     override fun getMissionAchieved(): Int = achieved
     override fun getMissionGoal(): Int = goal
 }
@@ -36,7 +34,7 @@ abstract class MissionLeaf(
 data class StepMissionLeaf(
     override val achieved: Int,
     override val goal: Int,
-) : MissionLeaf(achieved = achieved, goal = goal) {
+) : MissionLeaf {
     override fun getReward(): Int = goal / 1000
 }
 
@@ -46,7 +44,7 @@ data class StepMissionLeaf(
 data class CalorieMissionLeaf(
     override val achieved: Int,
     override val goal: Int,
-) : MissionLeaf(achieved = achieved, goal = goal) {
+) : MissionLeaf {
     override fun getReward(): Int = goal / 10
 }
 
@@ -59,11 +57,8 @@ data class CalorieMissionLeaf(
 data class MissionComposite(
     override val designation: String,
     override val intro: String,
-    val missions: List<MissionFigure> = emptyList(),
-) : MissionCommon(
-    designation = designation,
-    intro = intro,
-) {
+    val missions: List<MissionLeaf> = emptyList(),
+) : MissionCommon {
 
     override fun getMissionAchieved(): Int = missions.sumOf { mission ->
         mission.getMissionAchieved()
@@ -85,13 +80,7 @@ data class MissionComposite(
             else -> throw IllegalArgumentException("$mission 은 정해지지 않은 미션 입니다.")
         }
     }
+
+    override fun getMissionTitle(): String = "주간 미션"
 }
 
-data class MissionList(
-    val title: String,
-    val list: List<MissionCommon>
-)
-
-enum class MissionType {
-    Step, Calorie
-}

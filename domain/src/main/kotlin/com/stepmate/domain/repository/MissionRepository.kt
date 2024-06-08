@@ -1,16 +1,15 @@
 package com.stepmate.domain.repository
 
-import com.stepmate.domain.model.DesignationState
-import com.stepmate.domain.model.mission.MissionList
+import com.stepmate.domain.model.mission.MissionCommon
 import kotlinx.coroutines.flow.Flow
 
 interface MissionRepository {
-    fun getAllMissionList(): Flow<List<MissionList>>
-    fun getMissionList(title: String): Flow<MissionList>
-    suspend fun updateMissionList(): List<String>
-    suspend fun updateMission(achieved: Int)
     suspend fun selectDesignation(designation: String)
-    fun getDesignation(): Flow<DesignationState>
-    suspend fun checkUpdateMission(): List<String>
+    fun getDesignation(): Flow<List<String>>
+    suspend fun checkCompleteMission(): List<String>
+    fun getAllLocalMissionList(): Flow<Map<String, List<MissionCommon>>>
+    fun getLocalMissionList(title: String): Flow<List<MissionCommon>>
+    suspend fun synchronizationMissionList()
+    suspend fun updateStepAndCalories(step: Int)
     suspend fun resetMissionTime()
 }

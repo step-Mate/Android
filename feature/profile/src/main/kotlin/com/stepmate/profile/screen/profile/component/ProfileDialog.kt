@@ -26,8 +26,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.stepmate.profile.screen.profile.PasswordValid
 import com.stepmate.core.MAX_PASS_LENGTH
 import com.stepmate.design.R
 import com.stepmate.design.component.DefaultOutlinedTextField
@@ -37,19 +35,17 @@ import com.stepmate.design.component.HorizontalDivider
 import com.stepmate.design.component.VerticalSpacer
 import com.stepmate.design.component.clickableAvoidingDuplication
 import com.stepmate.design.theme.StepWalkColor
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
+import com.stepmate.profile.screen.profile.PasswordValid
 
 @Composable
 internal fun PasswordDialog(
-    passwordValid: StateFlow<PasswordValid>,
+    passwordValid: PasswordValid,
     onNewValue: (String) -> Unit,
     isShown: Boolean,
     onPositiveCallback: () -> Unit,
     properties: DialogProperties = DialogProperties(),
     hideDialog: () -> Unit,
 ) {
-    val passwordValidState by passwordValid.collectAsStateWithLifecycle()
     var password by remember { mutableStateOf("") }
     if (isShown)
         Dialog(
@@ -83,7 +79,7 @@ internal fun PasswordDialog(
                                 onNewValue(text)
                             }
                         },
-                        passwordValid = passwordValidState
+                        passwordValid = passwordValid
                     )
                     HorizontalDivider()
                     DescriptionSmallText(
@@ -92,7 +88,7 @@ internal fun PasswordDialog(
                         modifier = Modifier
                             .padding(vertical = 15.dp)
                             .clickableAvoidingDuplication {
-                                if (passwordValidState == PasswordValid.Valid)
+                                if (passwordValid == PasswordValid.Valid)
                                     onPositiveCallback()
                             },
                         textAlign = TextAlign.Center,
@@ -119,7 +115,7 @@ internal fun PasswordField(
             else -> "비밀번호를 입력해주세요."
         },
         value = value,
-        isError = passwordValid == PasswordValid.NotValid || passwordValid == PasswordValid.NotMatch ,
+        isError = passwordValid == PasswordValid.NotValid || passwordValid == PasswordValid.NotMatch,
         keyboardType = KeyboardType.Password,
         leadingIcon = { Icon(imageVector = Icons.Default.Lock, contentDescription = "Lock") },
         trailingIcon = {
@@ -142,7 +138,7 @@ private fun PasswordDialogPreview(
 
 ) {
     PasswordDialog(
-        passwordValid = MutableStateFlow(PasswordValid.Blank),
+        passwordValid = PasswordValid.Blank,
         onNewValue = {},
         isShown = true,
         onPositiveCallback = {},

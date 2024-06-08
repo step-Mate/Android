@@ -44,8 +44,6 @@ import com.stepmate.design.component.DescriptionSmallText
 import com.stepmate.design.component.HeadlineText
 import com.stepmate.design.component.StepMateBoxDefaultTopBar
 import com.stepmate.design.component.layout.DefaultLayout
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 
 @Composable
 internal fun EditScreen(
@@ -56,6 +54,16 @@ internal fun EditScreen(
 ) {
     val state by editViewModel.saveState.collectAsStateWithLifecycle()
     val uiState by editViewModel.uiState.collectAsStateWithLifecycle(initialValue = EditViewModel.UiState.Loading)
+    val nicknameValid by editViewModel.nicknameValid.collectAsStateWithLifecycle()
+    val ageValid by editViewModel.ageValid.collectAsStateWithLifecycle()
+    val heightValid by editViewModel.heightValid.collectAsStateWithLifecycle()
+    val weightValid by editViewModel.weightValid.collectAsStateWithLifecycle()
+    val nickname by editViewModel.nickname.collectAsStateWithLifecycle()
+    val designation by editViewModel.designation.collectAsStateWithLifecycle()
+    val designationList by editViewModel.designationList.collectAsStateWithLifecycle()
+    val age by editViewModel.age.collectAsStateWithLifecycle()
+    val height by editViewModel.height.collectAsStateWithLifecycle()
+    val weight by editViewModel.weight.collectAsStateWithLifecycle()
     val snackBarMessage by editViewModel.snackBarState.collectAsStateWithLifecycle(
         initialValue = SnackBarMessage.getInitValues()
     )
@@ -77,16 +85,16 @@ internal fun EditScreen(
     }
 
     EditScreen(
-        nickname = editViewModel.nickname,
-        designation = editViewModel.designation,
-        designationList = editViewModel.designationList,
-        nicknameValid = editViewModel.nicknameValid,
-        ageValid = editViewModel.ageValid,
-        heightValid = editViewModel.heightValid,
-        weightValid = editViewModel.weightValid,
-        age = editViewModel.age,
-        height = editViewModel.height,
-        weight = editViewModel.weight,
+        nickname = nickname,
+        designation = designation,
+        designationList = designationList,
+        nicknameValid = nicknameValid,
+        ageValid = ageValid,
+        heightValid = heightValid,
+        weightValid = weightValid,
+        age = age,
+        height = height,
+        weight = weight,
         loginState = editViewModel.anonymousState,
         onEvent = editViewModel::onEvent,
         popBackStack = popBackStack
@@ -95,30 +103,21 @@ internal fun EditScreen(
 
 @Composable
 private fun EditScreen(
-    nickname: StateFlow<String>,
-    designation: StateFlow<String>,
-    designationList: StateFlow<List<String>>,
-    nicknameValid: StateFlow<Valid>,
-    ageValid: StateFlow<Boolean>,
-    heightValid: StateFlow<Boolean>,
-    weightValid: StateFlow<Boolean>,
-    age: StateFlow<String>,
-    height: StateFlow<String>,
-    weight: StateFlow<String>,
+    nickname: String,
+    designation: String,
+    designationList: List<String>,
+    nicknameValid: Valid,
+    ageValid: Boolean,
+    heightValid: Boolean,
+    weightValid: Boolean,
+    age: String,
+    height: String,
+    weight: String,
     loginState: Boolean,
     onEvent: (EditUserEvent) -> Unit,
     popBackStack: () -> Unit
 ) {
-    val nicknameValidState by nicknameValid.collectAsStateWithLifecycle()
-    val ageValidState by ageValid.collectAsStateWithLifecycle()
-    val heightValidState by heightValid.collectAsStateWithLifecycle()
-    val weightValidState by weightValid.collectAsStateWithLifecycle()
-    val nicknameState by nickname.collectAsStateWithLifecycle()
-    val designationState by designation.collectAsStateWithLifecycle()
-    val designationListState by designationList.collectAsStateWithLifecycle()
-    val ageState by age.collectAsStateWithLifecycle()
-    val heightState by height.collectAsStateWithLifecycle()
-    val weightState by weight.collectAsStateWithLifecycle()
+
 
     DefaultLayout(
         modifier = Modifier
@@ -143,10 +142,10 @@ private fun EditScreen(
                 DefaultOutlinedTextField(
                     modifier = Modifier.padding(top = 20.dp),
                     informationText = "닉네임",
-                    errorMessage = if (nicknameValidState == Valid.Duplication) "중복된 닉네임이 존재합니다."
+                    errorMessage = if (nicknameValid == Valid.Duplication) "중복된 닉네임이 존재합니다."
                     else "한글,영어,숫자가능,특수문자불가,2~10글자까지 입력가능",
-                    value = nicknameState,
-                    isError = nicknameValidState != Valid.Success
+                    value = nickname,
+                    isError = nicknameValid != Valid.Success
                 ) {
                     val text = it.trim()
                     if (text.length <= MAX_NICKNAME_LENGTH)
@@ -182,11 +181,11 @@ private fun EditScreen(
                                     shape = RoundedCornerShape(5.dp)
                                 )
                                 .padding(vertical = 10.dp),
-                            text = designationState,
+                            text = designation,
                             textAlign = TextAlign.Center
                         )
                     }
-                    items(items = designationListState, key = { it }) { designation ->
+                    items(items = designationList, key = { it }) { designation ->
                         DescriptionLargeText(
                             modifier = Modifier
                                 .padding(vertical = 5.dp)
@@ -205,8 +204,8 @@ private fun EditScreen(
                 modifier = Modifier.padding(top = 20.dp),
                 informationText = "나이",
                 errorMessage = "정확한 나이를 입력해주세요.",
-                value = ageState,
-                isError = ageValidState,
+                value = age,
+                isError = ageValid,
                 keyboardType = KeyboardType.NumberPassword
             ) {
                 val text = it.trim()
@@ -218,8 +217,8 @@ private fun EditScreen(
             DefaultOutlinedTextField(
                 informationText = "키",
                 errorMessage = "정확한 키를 입력해주세요.",
-                value = heightState,
-                isError = heightValidState,
+                value = height,
+                isError = heightValid,
                 keyboardType = KeyboardType.NumberPassword,
                 suffix = {
                     DescriptionSmallText(text = "cm")
@@ -234,8 +233,8 @@ private fun EditScreen(
             DefaultOutlinedTextField(
                 informationText = "몸무게",
                 errorMessage = "정확한 몸무게를 입력해주세요.",
-                value = weightState,
-                isError = weightValidState,
+                value = weight,
+                isError = weightValid,
                 keyboardType = KeyboardType.NumberPassword,
                 suffix = {
                     DescriptionSmallText(text = "kg")
@@ -256,13 +255,13 @@ private fun EditScreen(
             onClick = {
                 onEvent(EditUserEvent.Save)
             },
-            enabled = (nicknameValidState == Valid.Success && !ageValidState && !heightValidState && !weightValidState),
+            enabled = (nicknameValid == Valid.Success && !ageValid && !heightValid && !weightValid),
             backgroundColor = MaterialTheme.colorScheme.primary,
             shape = RoundedCornerShape(5.dp)
         ) {
             DescriptionLargeText(
                 text = "저장",
-                color = MaterialTheme.colorScheme.onPrimary.copy(alpha = if (!(nicknameValidState != Valid.Success && ageValidState && heightValidState && weightValidState)) 1f else 0.3f)
+                color = MaterialTheme.colorScheme.onPrimary.copy(alpha = if (!(nicknameValid != Valid.Success && ageValid && heightValid && weightValid)) 1f else 0.3f)
             )
         }
     }
@@ -273,16 +272,16 @@ private fun EditScreen(
 private fun PreviewEditLogin(
 ) {
     EditScreen(
-        nickname = MutableStateFlow(""),
-        designation = MutableStateFlow("test21312"),
-        designationList = MutableStateFlow(listOf("test", "test12", "testset")),
-        nicknameValid = MutableStateFlow(Valid.Success),
-        ageValid = MutableStateFlow(false),
-        heightValid = MutableStateFlow(false),
-        weightValid = MutableStateFlow(false),
-        age = MutableStateFlow(""),
-        height = MutableStateFlow(""),
-        weight = MutableStateFlow(""),
+        nickname = "",
+        designation = "test21312",
+        designationList = listOf("test", "test12", "testset"),
+        nicknameValid = Valid.Success,
+        ageValid = false,
+        heightValid = false,
+        weightValid = false,
+        age = "",
+        height = "",
+        weight = "",
         loginState = false,
         onEvent = {}
     ) {
@@ -294,16 +293,16 @@ private fun PreviewEditLogin(
 private fun PreviewEditAnonymous(
 ) {
     EditScreen(
-        nickname = MutableStateFlow(""),
-        designation = MutableStateFlow("test21312"),
-        designationList = MutableStateFlow(listOf("test", "test12", "testset")),
-        nicknameValid = MutableStateFlow(Valid.Success),
-        ageValid = MutableStateFlow(false),
-        heightValid = MutableStateFlow(false),
-        weightValid = MutableStateFlow(false),
-        age = MutableStateFlow(""),
-        height = MutableStateFlow(""),
-        weight = MutableStateFlow(""),
+        nickname = "",
+        designation = "test21312",
+        designationList = listOf("test", "test12", "testset"),
+        nicknameValid = Valid.Success,
+        ageValid = false,
+        heightValid = false,
+        weightValid = false,
+        age = "",
+        height = "",
+        weight = "",
         loginState = true,
         onEvent = {}
     ) {

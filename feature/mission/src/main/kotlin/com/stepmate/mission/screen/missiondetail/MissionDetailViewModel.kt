@@ -4,11 +4,11 @@ import androidx.compose.runtime.Stable
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import dagger.hilt.android.lifecycle.HiltViewModel
 import com.stepmate.core.catchDataFlow
-import com.stepmate.domain.model.mission.MissionList
+import com.stepmate.domain.model.mission.MissionCommon
 import com.stepmate.domain.usecase.auth.CheckHasTokenUseCase
 import com.stepmate.domain.usecase.mission.GetMissionListUseCases
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -34,11 +34,8 @@ internal class MissionDetailViewModel @Inject constructor(
 
     val title: String = savedStateHandle.get<String>("title") ?: ""
 
-    private val _missionList: MutableStateFlow<MissionList> = MutableStateFlow(
-        MissionList(
-            title = "",
-            list = listOf()
-        )
+    private val _missionList: MutableStateFlow<List<MissionCommon>> = MutableStateFlow(
+        emptyList()
     )
     val missionList get() = _missionList.asStateFlow()
 

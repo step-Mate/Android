@@ -3,17 +3,16 @@ package com.stepmate.mission.screen.mission
 import androidx.compose.runtime.Stable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import dagger.hilt.android.lifecycle.HiltViewModel
 import com.stepmate.core.catchDataFlow
-import com.stepmate.domain.model.mission.MissionList
+import com.stepmate.domain.model.mission.MissionCommon
 import com.stepmate.domain.usecase.auth.CheckHasTokenUseCase
 import com.stepmate.domain.usecase.mission.GetAllMissionListUseCases
-import com.stepmate.domain.usecase.mission.UpdateMissionListUseCases
+import com.stepmate.domain.usecase.mission.SynchronizationMissionListUseCases
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.flatMapLatest
@@ -29,25 +28,22 @@ import javax.inject.Inject
 internal class MissionViewModel @Inject constructor(
     getAllMissionListUseCases: GetAllMissionListUseCases,
     checkHasTokenUseCase: CheckHasTokenUseCase,
-    private val updateMissionListUseCases: UpdateMissionListUseCases,
+    private val synchronizationMissionListUseCases: SynchronizationMissionListUseCases,
 ) : ViewModel() {
     private val _uiState: MutableSharedFlow<UiState> = MutableSharedFlow(replay = 1)
     val uiState: SharedFlow<UiState> get() = _uiState.asSharedFlow()
 
-    private val _missionList: MutableStateFlow<List<MissionList>> = MutableStateFlow(emptyList())
+    private val _missionList: MutableStateFlow<List<List<MissionCommon>>> = MutableStateFlow(
+        emptyList()
+    )
     val missionList get() = _missionList.asStateFlow()
-
-    private val _designation: MutableStateFlow<List<String>> = MutableStateFlow(emptyList())
-    val designation: StateFlow<List<String>> get() = _designation.asStateFlow()
 
     init {
         checkHasTokenUseCase().flatMapLatest { token ->
             if (token) {
-                val completeMission = updateMissionListUseCases()
-                if (completeMission.isNotEmpty())
-                    _designation.update { completeMission }
+                synchronizationMissionListUseCases()
                 getAllMissionListUseCases().onEach { missions ->
-                    _missionList.update { missions }
+                    _missionList.update { missions.map { it.value } }
                     _uiState.emit(UiState.Success)
                 }
             } else {

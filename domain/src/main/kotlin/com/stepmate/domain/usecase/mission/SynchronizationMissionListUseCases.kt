@@ -3,8 +3,9 @@ package com.stepmate.domain.usecase.mission
 import com.stepmate.domain.repository.MissionRepository
 import javax.inject.Inject
 
-class UpdateMissionListUseCases @Inject constructor(
+class SynchronizationMissionListUseCases @Inject constructor(
     private val missionRepository: MissionRepository
-){
-    suspend operator fun invoke() : List<String> = missionRepository.updateMissionList()
+) {
+    suspend operator fun invoke() =
+        missionRepository.synchronizationMissionList()
 }

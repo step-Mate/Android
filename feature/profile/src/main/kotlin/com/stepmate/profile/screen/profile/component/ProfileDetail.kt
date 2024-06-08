@@ -26,7 +26,6 @@ import androidx.compose.ui.text.drawText
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.LottieConstants
@@ -37,28 +36,24 @@ import com.stepmate.design.component.FooterText
 import com.stepmate.design.component.HorizontalSpacer
 import com.stepmate.domain.model.BodyData
 import com.stepmate.domain.model.user.User
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 
 @Composable
 internal fun ProfileDetail(
     modifier: Modifier = Modifier,
-    user: StateFlow<User>,
-    bodyData: StateFlow<BodyData>,
+    user: User,
+    bodyData: BodyData,
     backgroundColor: Color = MaterialTheme.colorScheme.surface,
     circleColor: Color = MaterialTheme.colorScheme.primaryContainer
 ) {
-    val userState by user.collectAsStateWithLifecycle()
-    val bodyDataState by bodyData.collectAsStateWithLifecycle()
-    val composition by rememberLottieComposition(LottieCompositionSpec.Asset(userState.character))
+    val composition by rememberLottieComposition(LottieCompositionSpec.Asset(user.character))
     val lottieProgress by animateLottieCompositionAsState(
         composition,
         iterations = LottieConstants.IterateForever
     )
     val textStyle = MaterialTheme.typography.bodyMedium
     val textMeasurer = rememberTextMeasurer()
-    val textLayoutResult = remember(userState.level.toString(), textStyle) {
-        textMeasurer.measure("LV.${userState.level}", textStyle)
+    val textLayoutResult = remember(user.level.toString(), textStyle) {
+        textMeasurer.measure("LV.${user.level}", textStyle)
     }
 
     Box(
@@ -73,36 +68,40 @@ internal fun ProfileDetail(
                 .fillMaxWidth()
         ) {
             Row(
-                modifier = Modifier.padding(start = 30.dp, top = 50.dp).height(IntrinsicSize.Min),
+                modifier = Modifier
+                    .padding(start = 30.dp, top = 50.dp)
+                    .height(IntrinsicSize.Min),
                 verticalAlignment = Alignment.Bottom,
             ) {
                 FooterText(
-                    text = userState.designation.ifEmpty { "뉴비" },
+                    text = user.designation.ifEmpty { "뉴비" },
                     color = MaterialTheme.colorScheme.onSurface
                 )
                 HorizontalSpacer(width = 4.dp)
                 DescriptionSmallText(
-                    text = if (userState.name.isEmpty()) "" else "${userState.name} 님",
+                    text = if (user.name.isEmpty()) "" else "${user.name} 님",
                     color = MaterialTheme.colorScheme.onSurface
                 )
             }
 
             Row(
                 verticalAlignment = Alignment.Bottom,
-                modifier = Modifier.padding(start = 30.dp, top = 10.dp, bottom = 20.dp).height(IntrinsicSize.Min)
+                modifier = Modifier
+                    .padding(start = 30.dp, top = 10.dp, bottom = 20.dp)
+                    .height(IntrinsicSize.Min)
             ) {
                 DescriptionSmallText(
-                    text = "${bodyDataState.age} 세",
+                    text = "${bodyData.age} 세",
                     color = MaterialTheme.colorScheme.onSurface
                 )
                 HorizontalSpacer(width = 4.dp)
                 DescriptionSmallText(
-                    text = "${bodyDataState.height} cm",
+                    text = "${bodyData.height} cm",
                     color = MaterialTheme.colorScheme.onSurface
                 )
                 HorizontalSpacer(width = 4.dp)
                 DescriptionSmallText(
-                    text = "${bodyDataState.weight} kg",
+                    text = "${bodyData.weight} kg",
                     color = MaterialTheme.colorScheme.onSurface
                 )
             }
@@ -142,7 +141,7 @@ private fun PreviewProfileDetail(
 
 ) {
     ProfileDetail(
-        user = MutableStateFlow(User.getInitValues()),
-        bodyData = MutableStateFlow(BodyData())
+        user = User.getInitValues(),
+        bodyData = BodyData()
     )
 }

@@ -20,11 +20,6 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavOptions
-import com.stepmate.profile.screen.profile.ProfileViewModel.Companion.CANNOT_LOGIN_EXCEPTION
-import com.stepmate.profile.screen.profile.component.PasswordDialog
-import com.stepmate.profile.screen.profile.component.ProfileButton
-import com.stepmate.profile.screen.profile.component.ProfileDetail
-import com.stepmate.profile.screen.profile.component.ProfileEnterButton
 import com.stepmate.core.SnackBarMessage
 import com.stepmate.design.component.DialogState
 import com.stepmate.design.component.HeadlineText
@@ -34,8 +29,11 @@ import com.stepmate.design.component.VerticalSpacer
 import com.stepmate.design.component.layout.DefaultLayout
 import com.stepmate.domain.model.BodyData
 import com.stepmate.domain.model.user.User
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
+import com.stepmate.profile.screen.profile.ProfileViewModel.Companion.CANNOT_LOGIN_EXCEPTION
+import com.stepmate.profile.screen.profile.component.PasswordDialog
+import com.stepmate.profile.screen.profile.component.ProfileButton
+import com.stepmate.profile.screen.profile.component.ProfileDetail
+import com.stepmate.profile.screen.profile.component.ProfileEnterButton
 
 @Composable
 internal fun ProfileScreen(
@@ -46,6 +44,9 @@ internal fun ProfileScreen(
     showSnackBar: (SnackBarMessage) -> Unit
 ) {
     val uiState by profileViewModel.uiState.collectAsStateWithLifecycle()
+    val passwordValid by profileViewModel.passwordValid.collectAsStateWithLifecycle()
+    val user by profileViewModel.user.collectAsStateWithLifecycle()
+    val bodyData by profileViewModel.bodyData.collectAsStateWithLifecycle()
 
     LaunchedEffect(key1 = uiState) {
         if (uiState is ProfileViewModel.UiState.Error) {
@@ -72,9 +73,9 @@ internal fun ProfileScreen(
 
         ProfileViewModel.UiState.Login -> {
             ProfileScreen(
-                user = profileViewModel.user,
-                passwordValid = profileViewModel.passwordValid,
-                bodyData = profileViewModel.bodyData,
+                user = user,
+                passwordValid = passwordValid,
+                bodyData = bodyData,
                 anonymous = false,
                 onEvent = profileViewModel::onEvent,
                 navigateToEditUser = navigateToEditUser,
@@ -85,9 +86,9 @@ internal fun ProfileScreen(
 
         ProfileViewModel.UiState.Anonymous, is ProfileViewModel.UiState.Error -> {
             ProfileScreen(
-                user = profileViewModel.user,
-                passwordValid = profileViewModel.passwordValid,
-                bodyData = profileViewModel.bodyData,
+                user = user,
+                passwordValid = passwordValid,
+                bodyData = bodyData,
                 anonymous = true,
                 onEvent = profileViewModel::onEvent,
                 navigateToEditUser = navigateToEditUser,
@@ -100,23 +101,21 @@ internal fun ProfileScreen(
 
 @Composable
 private fun ProfileScreen(
-    user: StateFlow<User>,
-    passwordValid: StateFlow<PasswordValid>,
-    bodyData: StateFlow<BodyData>,
+    user: User,
+    passwordValid: PasswordValid,
+    bodyData: BodyData,
     anonymous: Boolean,
     onEvent: (ProfileEvent) -> Unit,
     navigateToEditUser: (String, String, Boolean) -> Unit,
     navigateToTerms: () -> Unit,
     navigateToLogin: (NavOptions?) -> Unit,
 ) {
-    val passwordValidState by passwordValid.collectAsStateWithLifecycle()
     var logoutState by remember { mutableStateOf(false) }
     var withdrawalState by remember { mutableStateOf(false) }
     var passwordState by remember { mutableStateOf(false) }
 
-
-    LaunchedEffect(key1 = passwordValidState) {
-        if (passwordValidState == PasswordValid.Success)
+    LaunchedEffect(key1 = passwordValid) {
+        if (passwordValid == PasswordValid.Success)
             passwordState = false
     }
 
@@ -221,9 +220,9 @@ private fun ProfileScreen(
 private fun PreviewProfileLogin(
 ) {
     ProfileScreen(
-        user = MutableStateFlow(User.getInitValues()),
-        passwordValid = MutableStateFlow(PasswordValid.Blank),
-        bodyData = MutableStateFlow(BodyData()),
+        user = User.getInitValues(),
+        passwordValid = PasswordValid.Blank,
+        bodyData = BodyData(),
         anonymous = false,
         onEvent = {},
         navigateToEditUser = { _, _, _ -> },
@@ -237,9 +236,9 @@ private fun PreviewProfileLogin(
 private fun PreviewProfileAnonymous(
 ) {
     ProfileScreen(
-        user = MutableStateFlow(User.getInitValues()),
-        passwordValid = MutableStateFlow(PasswordValid.Blank),
-        bodyData = MutableStateFlow(BodyData()),
+        user = User.getInitValues(),
+        passwordValid = PasswordValid.Blank,
+        bodyData = BodyData(),
         anonymous = true,
         onEvent = {},
         navigateToEditUser = { _, _, _ -> },

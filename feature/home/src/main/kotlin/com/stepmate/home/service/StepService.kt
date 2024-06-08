@@ -2,7 +2,6 @@ package com.stepmate.home.service
 
 import android.Manifest
 import android.app.AlarmManager
-import android.app.Notification
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
@@ -16,13 +15,9 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
-import androidx.core.content.ContextCompat
-import androidx.core.content.PackageManagerCompat
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleService
 import androidx.lifecycle.lifecycleScope
-import androidx.work.ExistingWorkPolicy
-import androidx.work.WorkManager
 import com.stepmate.home.R
 import com.stepmate.home.utils.StepMateChannelId
 import com.stepmate.home.utils.createChannel
@@ -104,7 +99,11 @@ internal class StepService : LifecycleService() {
                     ) {
                         if (::notification.isInitialized)
                             NotificationManagerCompat.from(this@StepService)
-                                .notify(NOTIFICATION_STEP_ID, notification.setCustomContentView(getStepRemoteViews(stepData.current)).build())
+                                .notify(
+                                    NOTIFICATION_STEP_ID,
+                                    notification.setCustomContentView(getStepRemoteViews(stepData.current))
+                                        .build()
+                                )
                     }
                 }
             }
@@ -133,8 +132,21 @@ internal class StepService : LifecycleService() {
             }
 
             launch {
-                stepSensorViewModel.missionUpdate.collectLatest {
-                    setWorker(it.second)
+                stepSensorViewModel.completeMissionList.collectLatest { missions ->
+                    if (ActivityCompat.checkSelfPermission(
+                            this@StepService,
+                            Manifest.permission.POST_NOTIFICATIONS
+                        ) == PackageManager.PERMISSION_GRANTED
+                    ) {
+                        if (::notification.isInitialized)
+                            missions.forEach { mission ->
+                                NotificationManagerCompat.from(this@StepService)
+                                    .notify(
+                                        NOTIFICATION_MISSION_ID,
+                                        setMissionNotification(mission).build()
+                                    )
+                            }
+                    }
                 }
             }
         }
@@ -223,9 +235,26 @@ internal class StepService : LifecycleService() {
                 .setContentIntent(contentPendingIntent)
     }
 
-    private fun getStepRemoteViews(step: Long) = RemoteViews(packageName, R.layout.step_notification).apply {
-        setTextViewText(R.id.tv_stepHeader, DecimalFormat("#,###").format(step))
-    }
+    private fun getStepRemoteViews(step: Long) =
+        RemoteViews(packageName, R.layout.step_notification).apply {
+            setTextViewText(R.id.tv_stepHeader, DecimalFormat("#,###").format(step))
+        }
+
+    private fun setMissionNotification(designation: String): NotificationCompat.Builder =
+        NotificationCompat.Builder(this, StepMateChannelId)
+            .setSmallIcon(com.stepmate.design.R.drawable.ic_person_walking)
+            .setStyle(NotificationCompat.DecoratedCustomViewStyle())
+            .setContentTitle("미션 달성")
+            .setContentText("$designation 을 완료하였습니다.")
+            .setContentIntent(
+                PendingIntent.getActivity(
+                    this,
+                    NOTIFICATION_MISSION_ID,
+                    Intent(this, Class.forName(StepMateActivity)),
+                    PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+                )
+            )
+
 
     private fun registerSensor() {
         stepSensorManager.registerSensor()
@@ -251,23 +280,13 @@ internal class StepService : LifecycleService() {
         )
     }
 
-    private fun setWorker(walked: Long) {
-        WorkManager
-            .getInstance(this)
-            .beginUniqueWork(
-                "missionUpdateWorker",
-                ExistingWorkPolicy.REPLACE,
-                stepSensorViewModel.getMissionUpdateWorker(walked)
-            )
-            .then(stepSensorViewModel.getMissionCheckWorker()).enqueue()
-    }
-
     private fun cancelResettingDailyStepAlarm() {
         alarmManager.cancel(dailyStepPendingIntent)
     }
 
     companion object {
         private const val NOTIFICATION_STEP_ID = 999
+        private const val NOTIFICATION_MISSION_ID = 100
         private const val StepMateActivity = "com.stepmate.app.StepMateActivity"
     }
 }

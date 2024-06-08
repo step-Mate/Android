@@ -4,8 +4,7 @@ import com.stepmate.domain.model.mission.CalorieMission
 import com.stepmate.domain.model.mission.CalorieMissionLeaf
 import com.stepmate.domain.model.mission.MissionCommon
 import com.stepmate.domain.model.mission.MissionComposite
-import com.stepmate.domain.model.mission.MissionFigure
-import com.stepmate.domain.model.mission.MissionList
+import com.stepmate.domain.model.mission.MissionLeaf
 import com.stepmate.domain.model.mission.StepMission
 import com.stepmate.domain.model.mission.StepMissionLeaf
 
@@ -52,7 +51,7 @@ data class MissionDetailResponse(
     val goal: Int
 )
 
-internal fun List<MissionsResponse>.toMissionList(): List<MissionList> {
+internal fun List<MissionsResponse>.toMissionList(): Map<String, List<MissionCommon>> {
     val missionList = HashMap<String, ArrayList<MissionCommon>>()
     this.forEach { missionResponse ->
         if (missionResponse.detail.size == 1) {
@@ -94,7 +93,7 @@ internal fun List<MissionsResponse>.toMissionList(): List<MissionList> {
                 }
             }
         } else {
-            val leafList = ArrayList<MissionFigure>()
+            val leafList = ArrayList<MissionLeaf>()
             missionResponse.detail.forEach { detail ->
                 when (detail.missionType) {
                     "STEP" -> {
@@ -132,7 +131,5 @@ internal fun List<MissionsResponse>.toMissionList(): List<MissionList> {
             missionList[missionResponse.title] = missions
         }
     }
-    return missionList.map {
-        MissionList(it.key, it.value)
-    }
+    return missionList.mapValues { it.value.toList() }
 }

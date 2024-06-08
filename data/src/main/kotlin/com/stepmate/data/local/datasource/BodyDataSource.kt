@@ -9,4 +9,5 @@ interface BodyDataSource {
     suspend fun setHeight(height: Int)
     suspend fun setWeight(weight: Int)
     suspend fun setBodyData(body: BodyData)
+    suspend fun getCalories(step : Int) : Double
 }
