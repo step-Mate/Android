@@ -122,8 +122,9 @@ internal class StepService : LifecycleService() {
                                         StepException.NEED_RE_LOGIN,
                                         StepException.NEED_RE_LOGIN
                                     )
-                                    flags = Intent.FLAG_ACTIVITY_NEW_TASK
-                                })
+                                    flags = Intent.FLAG_ACTIVITY_SINGLE_TOP
+                                }
+                            )
                         }
 
                         else -> {}

@@ -7,7 +7,6 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.provider.Settings
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContract
@@ -26,6 +25,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -37,6 +37,7 @@ import androidx.health.connect.client.PermissionController
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.LifecycleStartEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.stepmate.app.ui.UnderApi31Permission
 import com.stepmate.core.SnackBarMessage
 import com.stepmate.design.component.DescriptionLargeText
 import com.stepmate.design.component.DescriptionSmallText
@@ -53,6 +54,7 @@ import com.stepmate.home.HealthConnector.Companion.healthConnectPermissions
 
 @Composable
 internal fun PermissionScreen(
+    underApi31Permission: UnderApi31Permission,
     modifier: Modifier = Modifier,
     permissionViewModel: PermissionViewModel = hiltViewModel(),
     showSnackBar: (SnackBarMessage) -> Unit,
@@ -63,15 +65,31 @@ internal fun PermissionScreen(
     val exactAlarmPermission by permissionViewModel.exactAlarmPermission.collectAsStateWithLifecycle()
     val healthConnectPermission by permissionViewModel.healthConnectPermission.collectAsStateWithLifecycle()
     val dialogState by permissionViewModel.dialogState.collectAsStateWithLifecycle()
+    val healthConnectPermissionContract = remember {
+        permissionViewModel.healthConnectPermissionContract
+    }
+
+    val underApi31PermissionGranted by produceState(
+        initialValue = false,
+        key1 = underApi31Permission.isActivityRecognitionGranted,
+        key2 = underApi31Permission.isHealthConnectGranted,
+    ) {
+        this.value =
+            underApi31Permission.isActivityRecognitionGranted && underApi31Permission.isHealthConnectGranted
+    }
 
     SideEffect {
-        if (notificationPermission && activityRecognitionPermission && exactAlarmPermission && healthConnectPermission)
-            navigateToHomeGraph()
+        if (Build.VERSION.SDK_INT >= 31) {
+            if (notificationPermission && activityRecognitionPermission && exactAlarmPermission && healthConnectPermission)
+                navigateToHomeGraph()
+        } else
+            if (underApi31PermissionGranted)
+                navigateToHomeGraph()
     }
 
     PermissionScreen(
         modifier = modifier,
-        healthConnectPermissionContract = permissionViewModel::healthConnectPermissionContract.get(),
+        healthConnectPermissionContract = healthConnectPermissionContract,
         requireInstallHealthApk = permissionViewModel::requireInstallHealthApk,
         showSnackBar = showSnackBar,
         notificationPermission = notificationPermission,
@@ -182,7 +200,6 @@ private fun PermissionScreen(
             desc = "수집한 걸음수를 저장하기 위해 헬스 커넥트에 읽고 쓸수 있는 권한이 필요해요.\nStepMate는 차후 걸음수 뿐만 아니라 다양한 헬스 데이터를 활용하여 더 좋은 경험을 제공해 드릴 예정이에요.",
             permissionContract = healthConnectPermissionContract,
             onPermissionResult = { result ->
-                Log.d("test", result.toString())
                 val isGranted = result.containsAll(
                     healthConnectPermissions
                 )
@@ -250,7 +267,7 @@ internal fun <I, O> PermissionActivityResultDescription(
                 ActivityCompat.requestPermissions(
                     context as ComponentActivity,
                     when (permission) {
-                        is Set<*> -> permission.map { it.toString() }.toTypedArray()
+                        is Set<*> -> permission.filterIsInstance<String>().toTypedArray()
                         is String -> arrayOf(permission)
                         else -> emptyArray()
                     },

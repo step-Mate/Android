@@ -14,7 +14,7 @@ import com.stepmate.domain.model.BodyData
 import com.stepmate.domain.model.onException
 import com.stepmate.domain.model.onSuccess
 import com.stepmate.domain.usecase.auth.CheckNicknameUseCase
-import com.stepmate.domain.usecase.user.GetBodyDataUseCases
+import com.stepmate.domain.usecase.user.GetBodyDataUseCase
 import com.stepmate.domain.usecase.user.GetDesignationsUseCases
 import com.stepmate.domain.usecase.user.SelectDesignationUseCases
 import com.stepmate.domain.usecase.user.SetBodyLocalUseCases
@@ -56,7 +56,7 @@ enum class Valid {
 class EditViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val checkNicknameUseCase: CheckNicknameUseCase,
-    private val getBodyDataUseCases: GetBodyDataUseCases,
+    private val getBodyDataUseCase: GetBodyDataUseCase,
     private val setBodyUseCases: SetBodyUseCases,
     private val setBodyLocalUseCases: SetBodyLocalUseCases,
     getDesignationsUseCases: GetDesignationsUseCases,
@@ -123,7 +123,7 @@ class EditViewModel @Inject constructor(
         _designation.value = if (tempDesignation == "-1") "" else tempDesignation
 
         viewModelScope.launch(Dispatchers.IO) {
-            val response = getBodyDataUseCases().first()
+            val response = getBodyDataUseCase().first()
             _age.update { response.age.toString() }
             _height.update { response.height.toString() }
             _weight.update { response.weight.toString() }

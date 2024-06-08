@@ -11,7 +11,7 @@ import com.stepmate.domain.model.BodyData
 import com.stepmate.domain.model.user.User
 import com.stepmate.domain.usecase.auth.CheckHasTokenUseCase
 import com.stepmate.domain.usecase.auth.LogoutUseCases
-import com.stepmate.domain.usecase.user.GetBodyDataUseCases
+import com.stepmate.domain.usecase.user.GetBodyDataUseCase
 import com.stepmate.domain.usecase.user.GetMyInfoUseCases
 import com.stepmate.domain.usecase.user.WithdrawAccountUseCases
 import kotlinx.coroutines.Dispatchers
@@ -47,7 +47,7 @@ class ProfileViewModel @Inject constructor(
     private val logoutUseCases: LogoutUseCases,
     checkHasTokenUseCase: CheckHasTokenUseCase,
     private val withdrawAccountUseCases: WithdrawAccountUseCases,
-    getBodyDataUseCases: GetBodyDataUseCases
+    getBodyDataUseCase: GetBodyDataUseCase
 ) : ViewModel() {
     private val _uiState: MutableStateFlow<UiState> = MutableStateFlow(UiState.Loading)
     val uiState: StateFlow<UiState> get() = _uiState.asStateFlow()
@@ -88,7 +88,7 @@ class ProfileViewModel @Inject constructor(
             }
         ).launchIn(viewModelScope)
 
-        getBodyDataUseCases().onEach { bodyData ->
+        getBodyDataUseCase().onEach { bodyData ->
             _bodyData.update { bodyData }
         }.launchIn(viewModelScope)
     }
