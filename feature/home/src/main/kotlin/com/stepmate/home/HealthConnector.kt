@@ -15,11 +15,6 @@ import androidx.health.connect.client.records.metadata.DataOrigin
 import androidx.health.connect.client.request.AggregateGroupByDurationRequest
 import androidx.health.connect.client.request.AggregateGroupByPeriodRequest
 import androidx.health.connect.client.time.TimeRangeFilter
-import dagger.Module
-import dagger.Provides
-import dagger.hilt.InstallIn
-import dagger.hilt.android.qualifiers.ApplicationContext
-import dagger.hilt.components.SingletonComponent
 import com.stepmate.home.screen.home.state.HealthCare
 import com.stepmate.home.screen.home.state.HealthCareExtras
 import com.stepmate.home.screen.home.state.HealthCareFactory
@@ -28,6 +23,11 @@ import com.stepmate.home.screen.home.state.HeartRateFactory
 import com.stepmate.home.screen.home.state.Step
 import com.stepmate.home.screen.home.state.StepFactory
 import com.stepmate.home.utils.onKorea
+import dagger.Module
+import dagger.Provides
+import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
+import dagger.hilt.components.SingletonComponent
 import java.time.Duration
 import java.time.Instant
 import java.time.LocalDateTime
@@ -73,25 +73,27 @@ class HealthConnector @Inject constructor(
 
     private fun checkAvailability() = HealthConnectClient.getSdkStatus(context)
 
-    init {
-        if (checkAvailability() == HealthConnectClient.SDK_UNAVAILABLE_PROVIDER_UPDATE_REQUIRED)
-            requireInstallHealthApk()
-    }
-
     fun requireInstallHealthApk() {
         val providerPackageName = "com.google.android.apps.healthdata"
         val uriString =
             "market://details?id=$providerPackageName&url=healthconnect%3A%2F%2Fonboarding"
+        val playStorePackageName = "com.android.vending"
 
-        context.startActivity(
-            Intent(Intent.ACTION_VIEW).apply {
-                setPackage("com.android.vending")
-                data = Uri.parse(uriString)
-                putExtra("overlay", true)
-                putExtra("callerId", context.packageName)
-                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        runCatching {
+            context.packageManager.getPackageInfo(playStorePackageName, 0)
+        }.onSuccess {
+            kotlin.runCatching {
+                context.startActivity(
+                    Intent(Intent.ACTION_VIEW).apply {
+                        setPackage(playStorePackageName)
+                        data = Uri.parse(uriString)
+                        putExtra("overlay", true)
+                        putExtra("callerId", context.packageName)
+                        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                    }
+                )
             }
-        )
+        }
     }
 
     suspend fun insertSteps(

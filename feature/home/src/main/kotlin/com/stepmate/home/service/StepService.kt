@@ -1,17 +1,23 @@
 package com.stepmate.home.service
 
+import android.Manifest
 import android.app.AlarmManager
 import android.app.Notification
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.content.pm.ServiceInfo
 import android.os.Build
 import android.widget.RemoteViews
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
+import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
+import androidx.core.content.ContextCompat
+import androidx.core.content.PackageManagerCompat
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleService
 import androidx.lifecycle.lifecycleScope
@@ -23,6 +29,7 @@ import com.stepmate.home.utils.createChannel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import java.text.DecimalFormat
 import java.time.DayOfWeek
 import java.time.ZonedDateTime
 import java.util.Calendar
@@ -34,11 +41,12 @@ internal class StepService : LifecycleService() {
     @Inject
     lateinit var stepSensorViewModel: StepSensorViewModel
 
-    private var stepNotiLayout: RemoteViews? = null
-    private lateinit var notification: Notification
+    private lateinit var notification: NotificationCompat.Builder
     private var exitFlag: Boolean? = null
 
     private val alarmManager: AlarmManager by lazy { getSystemService(Context.ALARM_SERVICE) as AlarmManager }
+    private var isServiceKilledBySystem: Boolean = false
+    private var isCreated = true
     private val stepSensorManager: StepSensorManager by lazy {
         StepSensorManager(
             context = this@StepService,
@@ -46,7 +54,20 @@ internal class StepService : LifecycleService() {
                 val stepBySensor = event?.values?.first()?.toLong() ?: 0L
 
                 lifecycleScope.launch {
-                    stepSensorViewModel.onSensorChanged(stepBySensor)
+                    stepSensorViewModel.onSensorChanged(
+                        stepBySensor = stepBySensor,
+                        isCreated = isCreated
+                    )
+
+                    if (isCreated) {
+                        if (isServiceKilledBySystem)
+                            stepSensorViewModel.getYesterdayStepIfKilledBySystem()
+                        else {
+                            stepSensorViewModel.initYesterdayStep()
+                        }
+
+                        isCreated = false
+                    }
                 }
             }
         )
@@ -63,8 +84,6 @@ internal class StepService : LifecycleService() {
         )
     }
 
-    private var isCreated = true
-
     override fun onCreate() {
         super.onCreate()
 
@@ -78,9 +97,15 @@ internal class StepService : LifecycleService() {
         lifecycleScope.launch {
             launch {
                 stepSensorViewModel.step.collectLatest { stepData ->
-                    stepNotiLayout?.setTextViewText(R.id.tv_stepHeader, stepData.current.toString())
-                    if (::notification.isInitialized)
-                        notificationManager.notify(NOTIFICATION_STEP_ID, notification)
+                    if (ActivityCompat.checkSelfPermission(
+                            this@StepService,
+                            Manifest.permission.POST_NOTIFICATIONS
+                        ) == PackageManager.PERMISSION_GRANTED
+                    ) {
+                        if (::notification.isInitialized)
+                            NotificationManagerCompat.from(this@StepService)
+                                .notify(NOTIFICATION_STEP_ID, notification.setCustomContentView(getStepRemoteViews(stepData.current)).build())
+                    }
                 }
             }
 
@@ -97,8 +122,9 @@ internal class StepService : LifecycleService() {
                                         StepException.NEED_RE_LOGIN,
                                         StepException.NEED_RE_LOGIN
                                     )
-                                    flags = Intent.FLAG_ACTIVITY_NEW_TASK
-                                })
+                                    flags = Intent.FLAG_ACTIVITY_SINGLE_TOP
+                                }
+                            )
                         }
 
                         else -> {}
@@ -141,24 +167,19 @@ internal class StepService : LifecycleService() {
                 if (intent != null)
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
                         startForeground(
-                            NOTIFICATION_STEP_ID, notification,
+                            NOTIFICATION_STEP_ID, notification.build(),
                             ServiceInfo.FOREGROUND_SERVICE_TYPE_HEALTH
                         )
                     else
-                        startForeground(NOTIFICATION_STEP_ID, notification)
+                        startForeground(NOTIFICATION_STEP_ID, notification.build())
 
-                if (intent == null || isCreated) {
-                    lifecycleScope.launch {
+                lifecycleScope.launch {
+                    if (isCreated) {
+                        if (intent == null)
+                            isServiceKilledBySystem = true
+
                         stepSensorViewModel.initStep()
                         registerSensor()
-
-                        if (intent == null)
-                            stepSensorViewModel.getYesterdayStepIfKilledBySystem()
-                        else if (isCreated) {
-                            stepSensorViewModel.initYesterdayStep()
-                        }
-
-                        isCreated = false
                     }
                 }
             }
@@ -191,20 +212,19 @@ internal class StepService : LifecycleService() {
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
-        stepNotiLayout = RemoteViews(packageName, R.layout.step_notification).apply {
-            setTextViewText(R.id.tv_stepHeader, stepSensorViewModel.step.value.current.toString())
-        }
-
         notification =
             NotificationCompat.Builder(this, StepMateChannelId)
                 .setSmallIcon(com.stepmate.design.R.drawable.ic_stepmate_shoes)
                 .setStyle(NotificationCompat.DecoratedCustomViewStyle())
-                .setCustomContentView(stepNotiLayout)
+                .setCustomContentView(getStepRemoteViews(0L))
                 .setColor(Color(0xFFA5D6A7).toArgb())
                 .setOngoing(true)
                 .addAction(com.stepmate.design.R.drawable.ic_time, "끄기", exitPendingIntent)
                 .setContentIntent(contentPendingIntent)
-                .build()
+    }
+
+    private fun getStepRemoteViews(step: Long) = RemoteViews(packageName, R.layout.step_notification).apply {
+        setTextViewText(R.id.tv_stepHeader, DecimalFormat("#,###").format(step))
     }
 
     private fun registerSensor() {

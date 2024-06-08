@@ -1,0 +1,48 @@
+package com.stepmate.app.ui.navigation.permission
+
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.padding
+import androidx.compose.ui.Modifier
+import androidx.navigation.NavGraphBuilder
+import androidx.navigation.NavOptions
+import androidx.navigation.compose.composable
+import androidx.navigation.navOptions
+import androidx.navigation.navigation
+import com.stepmate.app.ui.UnderApi31Permission
+import com.stepmate.app.ui.navigation.permission.PermissionRoute.permissionGraph
+import com.stepmate.app.ui.navigation.permission.PermissionRoute.permissionRoute
+import com.stepmate.core.SnackBarMessage
+
+object PermissionRoute {
+    const val permissionGraph = "permissionGraph"
+    const val permissionRoute = "permissionRoute"
+}
+
+fun NavGraphBuilder.permissionNavGraph(
+    underApi31Permission: UnderApi31Permission,
+    paddingValues: PaddingValues,
+    showSnackBar: (SnackBarMessage) -> Unit,
+    navigateToHomeGraph: (NavOptions?) -> Unit,
+) {
+    navigation(
+        route = permissionGraph,
+        startDestination = permissionRoute,
+    ) {
+        composable(route = permissionRoute) {
+            PermissionScreen(
+                underApi31Permission = underApi31Permission,
+                modifier = Modifier.padding(paddingValues),
+                showSnackBar = showSnackBar,
+                navigateToHomeGraph = {
+                    navigateToHomeGraph(
+                        navOptions {
+                            popUpTo(permissionRoute) {
+                                inclusive = true
+                            }
+                        }
+                    )
+                },
+            )
+        }
+    }
+}

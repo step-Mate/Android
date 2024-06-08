@@ -6,22 +6,31 @@ import androidx.navigation.NavOptions
 import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import androidx.navigation.navOptions
 import androidx.navigation.navigation
 import com.stepmate.core.SnackBarMessage
+import com.stepmate.home.navigation.HomeRoute.calendarLink
+import com.stepmate.home.navigation.HomeRoute.calendarRoute
+import com.stepmate.home.navigation.HomeRoute.homeGraph
+import com.stepmate.home.navigation.HomeRoute.homeRoute
+import com.stepmate.home.navigation.HomeRoute.homeSettingRoute
+import com.stepmate.home.navigation.HomeRoute.homeUserBody
 import com.stepmate.home.screen.calendar.CalendarScreen
 import com.stepmate.home.screen.home.HomeScreen
 import com.stepmate.home.screen.homeSetting.HomeSettingScreen
 import com.stepmate.home.screen.homeUserBody.HomeUserBodyScreen
 
-const val homeGraph = "homeGraph"
-const val homeRoute = "home"
-const val homeUserBody = "homeUserBody"
-private const val calendarRoute = "calendar"
-private const val calendarLink = "$calendarRoute/{start}"
-private const val homeSettingRoute = "homeSetting"
+object HomeRoute {
+    const val homeGraph = "homeGraph"
+    const val homeRoute = "home"
+    const val homeUserBody = "homeUserBody"
+    internal const val calendarRoute = "calendar"
+    internal const val calendarLink = "$calendarRoute/{start}"
+    internal const val homeSettingRoute = "homeSetting"
+}
 
 fun NavGraphBuilder.homeNavGraph(
-    startDestination: String,
+    hasBodyData: Boolean,
     navigateToCalendar: (Long) -> Unit,
     popBackStack: () -> Unit,
     showSnackBar: (SnackBarMessage) -> Unit,
@@ -30,11 +39,19 @@ fun NavGraphBuilder.homeNavGraph(
 ) {
     navigation(
         route = homeGraph,
-        startDestination = startDestination
+        startDestination = if (hasBodyData) homeRoute else homeUserBody,
     ) {
         composable(route = homeUserBody) {
             HomeUserBodyScreen(
-                navigateToHome = navigateToHome,
+                navigateToHome = {
+                    navigateToHome(
+                        navOptions {
+                            popUpTo(homeUserBody) {
+                                inclusive = true
+                            }
+                        }
+                    )
+                },
                 showSnackBar = showSnackBar,
             )
         }

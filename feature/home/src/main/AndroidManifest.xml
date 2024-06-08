@@ -5,6 +5,8 @@
         android:name="android.permission.FOREGROUND_SERVICE_HEALTH"
         android:minSdkVersion="34" />
 
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+
     <application>
         <service
             android:name=".service.StepService"

@@ -11,8 +11,8 @@ android {
     defaultConfig {
         applicationId = "com.stepmate.app"
         targetSdk = 34
-        versionCode = 2
-        versionName = "1.0.0"
+        versionCode = 8
+        versionName = "1.0.1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -20,20 +20,6 @@ android {
         }
     }
 
-    packaging {
-        resources {
-            excludes += "/META-INF/{AL2.0,LGPL2.1,LICENSE.md,LICENSE-notice.md}"
-        }
-    }
-
-    configurations.all {
-        resolutionStrategy {
-            exclude(
-                group = "org.jetbrains.kotlinx",
-                module = "kotlinx-coroutines-debug"
-            )
-        }
-    }
 }
 
 dependencies {

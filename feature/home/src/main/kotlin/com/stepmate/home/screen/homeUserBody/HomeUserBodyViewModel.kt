@@ -2,7 +2,7 @@ package com.stepmate.home.screen.homeUserBody
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.stepmate.domain.usecase.user.GetBodyDataUseCases
+import com.stepmate.domain.usecase.user.GetBodyDataUseCase
 import com.stepmate.domain.usecase.user.SetBodyLocalUseCases
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -16,7 +16,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class HomeUserBodyViewModel @Inject constructor(
-    private val getBodyDataUseCases: GetBodyDataUseCases,
+    private val getBodyDataUseCase: GetBodyDataUseCase,
     private val setBodyLocalUseCases: SetBodyLocalUseCases,
 ) : ViewModel() {
 
@@ -51,7 +51,7 @@ class HomeUserBodyViewModel @Inject constructor(
         }
     }
 
-    private fun getUserBody() = getBodyDataUseCases().onEach { bodyData ->
+    private fun getUserBody() = getBodyDataUseCase().onEach { bodyData ->
         _age.update { bodyData.age }
         _height.update { bodyData.height }
         _weight.update { bodyData.weight }

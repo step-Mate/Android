@@ -86,9 +86,8 @@ internal fun RankBoard(
     }
 
     val scrollBarState = rememberScrollBarState(
-        maxHeight = with(density) {
-            //아이템 사이즈가 늘어날 때 마다 처음 보이는 화면의 크기만큼은 스크롤이 발생하면서 시작하기 때문에 차감해야 함
-            val perViewPortHeight = viewPortSize.height * (rankBoard.page)
+        viewHeight = with(density) {
+            val perViewPortHeight = viewPortSize.height
 
             (rankItemHeight * rankBoard.remain.size + top3RankHeight - rankBoardHeightPadding * 2).toPx() - perViewPortHeight
         }
