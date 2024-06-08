@@ -1,11 +1,11 @@
 package com.stepmate.app.ui.navigation
 
 import androidx.annotation.DrawableRes
-import com.stepmate.profile.navigation.profileRoute
 import com.stepmate.design.R
-import com.stepmate.home.navigation.homeRoute
-import com.stepmate.ranking.navigation.rankingRoute
+import com.stepmate.home.navigation.HomeRoute.homeRoute
 import com.stepmate.mission.navigation.missionRoute
+import com.stepmate.profile.navigation.profileRoute
+import com.stepmate.ranking.navigation.rankingRoute
 
 enum class NavigationDestination(
     val title: String,

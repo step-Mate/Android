@@ -8,15 +8,12 @@ import android.provider.Settings
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.stepmate.design.component.DialogState
-import com.stepmate.domain.usecase.user.GetBodyDataUseCases
 import com.stepmate.home.HealthConnector
 import com.stepmate.home.HealthConnector.Companion.healthConnectPermissions
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -25,7 +22,6 @@ import javax.inject.Inject
 class PermissionViewModel @Inject constructor(
     @ApplicationContext private val applicationContext: Context,
     private val healthConnector: HealthConnector,
-    private val getBodyDataUseCases: GetBodyDataUseCases,
 ) : ViewModel() {
     val healthConnectPermissionContract = healthConnector.requestPermissionsActivityContract()
 
@@ -54,34 +50,27 @@ class PermissionViewModel @Inject constructor(
         _dialogState.update { d }
     }
 
-    private val _isBodyDataExist = MutableStateFlow(false)
-    val isBodyDataExist get() = _isBodyDataExist.asStateFlow()
-
-    private suspend fun isBodyDataExist() = getBodyDataUseCases().onEach { bodyData ->
-        _isBodyDataExist.update { bodyData.age != 0 && bodyData.height != 0 && bodyData.weight != 0 }
-    }.first()
-
     init {
-        _notificationPermission.update {
+        updateNotification(
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
                 PermissionRequester.checkNotification(applicationContext)
             else
                 true
-        }
+        )
 
         if (PermissionRequester.checkActivityRecognition(applicationContext))
-            _activityRecognitionPermission.update { true }
+            updateActivityRecognition(true)
 
-        _exactAlarmPermission.update {
+        updateExactAlarm(
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S)
                 PermissionRequester.checkExactAlarm(applicationContext)
             else
                 true
-        }
+        )
 
         viewModelScope.launch {
             if (checkHealthConnectPermissions())
-                _healthConnectPermission.update { true }
+                updateHealthConnect(true)
         }
     }
 
@@ -93,33 +82,6 @@ class PermissionViewModel @Inject constructor(
     fun updateActivityRecognition(bool: Boolean) = _activityRecognitionPermission.update { bool }
     fun updateExactAlarm(bool: Boolean) = _exactAlarmPermission.update { bool }
     fun updateHealthConnect(bool: Boolean) = _healthConnectPermission.update { bool }
-
-    suspend fun checkPermission() {
-        val isNotificationGranted =
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
-                PermissionRequester.checkNotification(applicationContext)
-            else
-                true
-
-        val isActivityRecognitionGranted =
-            PermissionRequester.checkActivityRecognition(applicationContext)
-
-        val isExactAlarmGranted =
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S)
-                PermissionRequester.checkExactAlarm(applicationContext)
-            else
-                true
-
-        val isHealthConnectGranted = runCatching {
-            healthConnector.checkPermissions(healthConnectPermissions)
-        }.getOrDefault(false)
-
-        updateNotification(isNotificationGranted)
-        updateActivityRecognition(isActivityRecognitionGranted)
-        updateExactAlarm(isExactAlarmGranted)
-        updateHealthConnect(isHealthConnectGranted)
-        isBodyDataExist()
-    }
 
     fun onPermissionResult(permission: Permission, result: Boolean, context: Context) {
         val text = when (permission) {
@@ -144,11 +106,18 @@ class PermissionViewModel @Inject constructor(
             }
         }
 
+        val healthConnectPermissionMessage =
+            "헬스 커넥트 권한이 수락되지 않았어요.\n 헬스 커넥트 설정 > 앱 권한 > StepMate > 걸음수 권한 허용 으로 변경해 주세요."
+        val systemPermissionMessage = "${text}이 수락되지 않았어요.\n 앱 설정 > 앱 권한 > $text 허용 으로 변경해 주세요."
+
         if (!result)
             _dialogState.update { state ->
                 state.copy(
-                    content = if (permission == Permission.HEALTH_CONNECT) "헬스 커넥트 권한이 수락되지 않았어요.\n 헬스 커넥트 설정 > 앱 권한 > StepMate > 걸음수 권한 허용 으로 변경해 주세요."
-                    else "${text}이 수락되지 않았어요.\n 앱 설정 > 앱 권한 > $text 허용 으로 변경해 주세요.",
+                    content =
+                    if (permission == Permission.HEALTH_CONNECT)
+                        healthConnectPermissionMessage
+                    else
+                        systemPermissionMessage,
                     onPositiveCallback = {
                         when (permission) {
                             Permission.NOTIFICATION, Permission.ACTIVITY_RECOGNITION, Permission.EXACT_ALARM -> context.requireAppSettings()

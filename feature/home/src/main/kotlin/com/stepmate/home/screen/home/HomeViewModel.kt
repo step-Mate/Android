@@ -7,7 +7,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import com.stepmate.core.catchDataFlow
 import com.stepmate.domain.usecase.auth.CheckHasTokenUseCase
 import com.stepmate.domain.usecase.setting.StepGoalUseCase
-import com.stepmate.domain.usecase.user.GetBodyDataUseCases
+import com.stepmate.domain.usecase.user.GetBodyDataUseCase
 import com.stepmate.domain.usecase.user.GetMyInfoUseCases
 import com.stepmate.home.HealthConnector
 import com.stepmate.home.screen.home.state.Day
@@ -58,7 +58,7 @@ internal class HomeViewModel @Inject constructor(
     private val stepGoalUseCase: StepGoalUseCase,
     tokenUseCase: CheckHasTokenUseCase,
     private val getMyInfoUseCase: GetMyInfoUseCases,
-    private val getBodyDataUseCases: GetBodyDataUseCases,
+    private val getBodyDataUseCase: GetBodyDataUseCase,
 ) : ViewModel() {
 
     private val _uiState: MutableStateFlow<HomeUiState> =
@@ -82,7 +82,7 @@ internal class HomeViewModel @Inject constructor(
     init {
         tokenUseCase.invoke().onEach { hasToken ->
             if (hasToken)
-                getMyInfoUseCase().zip(getBodyDataUseCases()) { user, bodyData ->
+                getMyInfoUseCase().zip(getBodyDataUseCase()) { user, bodyData ->
                     _user.update {
                         user.toHomeUserState().copy(
                             age = bodyData.age,

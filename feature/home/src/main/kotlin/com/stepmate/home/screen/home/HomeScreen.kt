@@ -41,7 +41,6 @@ import com.stepmate.home.screen.home.state.Day
 import com.stepmate.home.screen.home.state.Time
 import com.stepmate.home.screen.home.state.User
 import com.stepmate.home.service.StepService
-import com.stepmate.home.utils.onKorea
 import java.time.Duration
 import java.time.Instant
 import java.time.temporal.ChronoUnit
@@ -63,33 +62,14 @@ internal fun HomeScreen(
     }
 
     LaunchedEffect(time) {
-        if (homeViewModel::checkPermissions.invoke()) {
-            val instant = Instant.now().onKorea()
-
-            /*(0..23).forEach { count ->
-                healthConnector.insertSteps(
-                    step = count * 100L + 100L,
-                    startTime = instant.truncatedTo(ChronoUnit.DAYS).toInstant().plus(count.toLong(), ChronoUnit.HOURS),
-                    endTime = instant.truncatedTo(ChronoUnit.DAYS).toInstant().plus(count.toLong(), ChronoUnit.HOURS).plus(30L,ChronoUnit.MINUTES)
-                )
-            }
-
-            (0..23).forEach { count ->
-                healthConnector.insertHeartRates(
-                    heartRate = (count % 4) * 40L,
-                    startTime = instant.truncatedTo(ChronoUnit.DAYS).toInstant().plus(count.toLong(), ChronoUnit.HOURS),
-                    endTime = instant.truncatedTo(ChronoUnit.DAYS).toInstant().plus(count.toLong(), ChronoUnit.HOURS).plus(30L,ChronoUnit.MINUTES)
-                )
-            }*/
-            // 데이터 -범위 예외처리
-
+        if (homeViewModel.checkPermissions()) {
             when (time) {
                 Day -> {
-                    homeViewModel::setDurationHealthData.invoke(Duration.ofHours(1L))
+                    homeViewModel.setDurationHealthData(Duration.ofHours(1L))
                 }
 
                 else -> {
-                    homeViewModel::setPeriodHealthData.invoke()
+                    homeViewModel.setPeriodHealthData()
                 }
             }
         } else {

@@ -31,8 +31,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.navigation.NavOptions
-import androidx.navigation.navOptions
 import com.stepmate.core.SnackBarMessage
 import com.stepmate.design.component.DefaultOutlinedTextField
 import com.stepmate.design.component.DescriptionLargeText
@@ -41,12 +39,11 @@ import com.stepmate.design.component.StepMateBoxDefaultTopBar
 import com.stepmate.design.component.VerticalSpacer
 import com.stepmate.design.component.layout.DefaultLayout
 import com.stepmate.design.theme.StepMateTheme
-import com.stepmate.home.navigation.homeUserBody
 
 @Composable
 internal fun HomeUserBodyScreen(
     homeUserBodyViewModel: HomeUserBodyViewModel = hiltViewModel(),
-    navigateToHome: (NavOptions?) -> Unit,
+    navigateToHome: () -> Unit,
     showSnackBar: (SnackBarMessage) -> Unit,
 ) {
     val age by homeUserBodyViewModel.age.collectAsStateWithLifecycle()
@@ -73,7 +70,7 @@ private fun HomeUserBodyScreen(
     updateAge: (Int) -> Unit,
     updateWeight: (Int) -> Unit,
     updateHeight: (Int) -> Unit,
-    navigateToHome: (NavOptions?) -> Unit,
+    navigateToHome: () -> Unit,
     showSnackBar: (SnackBarMessage) -> Unit,
 ) {
     val focusManager = LocalFocusManager.current
@@ -107,11 +104,7 @@ private fun HomeUserBodyScreen(
                             )
                         )
                     else
-                        navigateToHome(navOptions {
-                            popUpTo(homeUserBody) {
-                                inclusive = true
-                            }
-                        })
+                        navigateToHome()
                 },
             )
         }

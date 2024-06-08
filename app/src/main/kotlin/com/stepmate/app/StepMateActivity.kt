@@ -1,7 +1,10 @@
 package com.stepmate.app
 
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Bundle
+import android.view.View
+import android.view.ViewTreeObserver
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
@@ -29,20 +32,21 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.findNavController
 import com.stepmate.app.ui.StepMateViewModel
 import com.stepmate.app.ui.navigation.NavigationDefaults
 import com.stepmate.app.ui.navigation.NavigationGraph
 import com.stepmate.app.ui.navigation.Router
 import com.stepmate.app.ui.navigation.isShownBar
+import com.stepmate.app.ui.navigation.permission.PermissionViewModel
 import com.stepmate.app.ui.navigation.stepMateNavigationSuiteItems
 import com.stepmate.design.component.StepMateSnackBar
 import com.stepmate.design.theme.StepMateTheme
-import com.stepmate.home.navigation.homeRoute
-import com.stepmate.home.navigation.homeUserBody
 import com.stepmate.home.service.StepException
 import com.stepmate.login.navigation.navigateToLogin
 import dagger.hilt.android.AndroidEntryPoint
@@ -55,17 +59,30 @@ class StepMateActivity : ComponentActivity() {
     private val stepMateViewModel: StepMateViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        installSplashScreen()
         super.onCreate(savedInstanceState)
 
         WindowCompat.setDecorFitsSystemWindows(window, false)
 
-        lifecycleScope.launch {
-            setContent {
-                StepMateTheme {
-                    StepMateApp()
+        val content: View = findViewById(android.R.id.content)
+
+        content.viewTreeObserver.addOnPreDrawListener(
+            object : ViewTreeObserver.OnPreDrawListener {
+                override fun onPreDraw(): Boolean {
+                    return run callback@{
+                        lifecycleScope.launch {
+                            stepMateViewModel.checkPermission()
+                            setContent {
+                                StepMateTheme {
+                                    StepMateApp()
+                                }
+                            }
+                            content.viewTreeObserver.removeOnPreDrawListener(this@callback)
+                        }.isCompleted
+                    }
                 }
             }
-        }
+        )
     }
 
     override fun onNewIntent(intent: Intent?) {
@@ -76,6 +93,22 @@ class StepMateActivity : ComponentActivity() {
         isNeedReLogin?.let {
             stepMateViewModel.updateIsNeedLogin(true)
         }
+    }
+
+    @Deprecated("Deprecated in Java")
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray,
+    ) {
+        when (requestCode) {
+            PermissionViewModel.ACTIVITY_RECOGNITION_CODE ->
+                stepMateViewModel.updateActivityRecognition(grantResults.first() == PackageManager.PERMISSION_GRANTED)
+
+            PermissionViewModel.HEALTH_CONNECT_CODE ->
+                stepMateViewModel.updateHealthConnect(grantResults.all { r -> r == PackageManager.PERMISSION_GRANTED })
+        }
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
     }
 
     @OptIn(
@@ -99,16 +132,23 @@ class StepMateActivity : ComponentActivity() {
             }
         }
 
-        val currentDestination = router.currentDestination
-        val navigationSuiteItemColors = NavigationSuiteItemColors(
-            navigationBarItemColors = NavigationBarItemDefaults.colors(
-                indicatorColor = NavigationDefaults.navigationIndicatorColor()
-            ),
-            navigationRailItemColors = NavigationRailItemDefaults.colors(
-                indicatorColor = NavigationDefaults.navigationIndicatorColor()
-            ),
-            navigationDrawerItemColors = NavigationDrawerItemDefaults.colors(),
+        val navBarItemColors = NavigationBarItemDefaults.colors(
+            indicatorColor = NavigationDefaults.navigationIndicatorColor()
         )
+        val railBarItemColors = NavigationRailItemDefaults.colors(
+            indicatorColor = NavigationDefaults.navigationIndicatorColor()
+        )
+        val drawerItemColors = NavigationDrawerItemDefaults.colors()
+
+        val navigationSuiteItemColors = remember {
+            NavigationSuiteItemColors(
+                navigationBarItemColors = navBarItemColors,
+                navigationRailItemColors = railBarItemColors,
+                navigationDrawerItemColors = drawerItemColors,
+            )
+        }
+
+        val currentDestination by rememberUpdatedState(newValue = router.currentDestination)
         val currentWindowAdaptiveInfo =
             NavigationSuiteScaffoldDefaults.calculateFromAdaptiveInfo(currentWindowAdaptiveInfo())
 
@@ -118,6 +158,8 @@ class StepMateActivity : ComponentActivity() {
             else
                 currentWindowAdaptiveInfo
         )
+
+        val startDestinationInfo by stepMateViewModel.startDestinationInfo.collectAsStateWithLifecycle()
 
         CompositionLocalProvider(value = LocalTonalElevationEnabled provides false) {
             NavigationSuiteScaffold(
@@ -153,9 +195,10 @@ class StepMateActivity : ComponentActivity() {
                     }
                 ) { paddingValues ->
                     NavigationGraph(
-                        router = router,
                         modifier = Modifier,
-                        homeStartDestination = if (stepMateViewModel.isBodyDataExist) homeRoute else homeUserBody,
+                        paddingValues = paddingValues,
+                        router = router,
+                        startDestinationInfo = startDestinationInfo,
                         showSnackBar = { snackBarMessage ->
                             coroutineScope.launch {
                                 snackBarHostState.showSnackbar(
@@ -166,7 +209,6 @@ class StepMateActivity : ComponentActivity() {
                             }
                         }
                     )
-                    paddingValues
                 }
             }
         }

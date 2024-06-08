@@ -1,5 +1,6 @@
 package com.stepmate.app.ui.navigation
 
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.material.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.adaptive.navigationsuite.ExperimentalMaterial3AdaptiveNavigationSuiteApi
@@ -13,11 +14,15 @@ import androidx.compose.ui.res.vectorResource
 import androidx.navigation.NavDestination
 import androidx.navigation.compose.NavHost
 import androidx.navigation.navOptions
+import com.stepmate.app.ui.StartDestinationInfo
+import com.stepmate.app.ui.navigation.permission.PermissionRoute
+import com.stepmate.app.ui.navigation.permission.permissionNavGraph
 import com.stepmate.core.SnackBarMessage
-import com.stepmate.home.navigation.homeGraph
+import com.stepmate.home.navigation.HomeRoute.homeGraph
 import com.stepmate.home.navigation.homeNavGraph
 import com.stepmate.home.navigation.navigateToCalendar
 import com.stepmate.home.navigation.navigateToHome
+import com.stepmate.home.navigation.navigateToHomeGraph
 import com.stepmate.home.navigation.navigateToHomeSetting
 import com.stepmate.login.navigation.authNavGraph
 import com.stepmate.login.navigation.navigateToFindId
@@ -42,20 +47,28 @@ import com.stepmate.ranking.navigation.rankingRoute
 
 @Composable
 internal fun NavigationGraph(
-    router: Router,
     modifier: Modifier = Modifier,
-    homeStartDestination: String,
+    paddingValues: PaddingValues,
+    router: Router,
+    startDestinationInfo: StartDestinationInfo,
     showSnackBar: (SnackBarMessage) -> Unit,
 ) {
     val navController = router.navController
 
     NavHost(
         navController = navController,
-        startDestination = homeGraph,
+        startDestination = if (startDestinationInfo.hasPermission) homeGraph else PermissionRoute.permissionGraph,
         modifier = modifier
     ) {
+        permissionNavGraph(
+            underApi31Permission = startDestinationInfo.underApi31HasPermission,
+            paddingValues = paddingValues,
+            showSnackBar = showSnackBar,
+            navigateToHomeGraph = navController::navigateToHomeGraph,
+        )
+
         homeNavGraph(
-            startDestination = homeStartDestination,
+            hasBodyData = startDestinationInfo.hasBodyData,
             navigateToCalendar = navController::navigateToCalendar,
             popBackStack = navController::popBackStackIfCan,
             showSnackBar = showSnackBar,
