@@ -20,7 +20,7 @@ android {
 }
 
 fun getApiKey(propertyKey:String):String{
-    return gradleLocalProperties(rootDir).getProperty(propertyKey)
+    return gradleLocalProperties(rootDir, providers).getProperty(propertyKey)
 }
 
 dependencies {
@@ -29,7 +29,6 @@ dependencies {
     implementation(libs.bundles.square)
 
     implementation(libs.androidx.room.ktx)
-    annotationProcessor(libs.androidx.room.compiler)
     ksp(libs.androidx.room.compiler)
     testImplementation(libs.androidx.room.testing)
 }

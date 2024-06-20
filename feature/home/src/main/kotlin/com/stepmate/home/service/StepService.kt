@@ -2,7 +2,6 @@ package com.stepmate.home.service
 
 import android.Manifest
 import android.app.AlarmManager
-import android.app.Notification
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
@@ -16,13 +15,12 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
-import androidx.core.content.ContextCompat
-import androidx.core.content.PackageManagerCompat
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleService
 import androidx.lifecycle.lifecycleScope
 import androidx.work.ExistingWorkPolicy
 import androidx.work.WorkManager
+import com.stepmate.domain.model.isRebootDevice
 import com.stepmate.home.R
 import com.stepmate.home.utils.StepMateChannelId
 import com.stepmate.home.utils.createChannel
@@ -45,33 +43,9 @@ internal class StepService : LifecycleService() {
     private var exitFlag: Boolean? = null
 
     private val alarmManager: AlarmManager by lazy { getSystemService(Context.ALARM_SERVICE) as AlarmManager }
-    private var isServiceKilledBySystem: Boolean = false
+    private var isDestroyedBySystem: Boolean = false
     private var isCreated = true
-    private val stepSensorManager: StepSensorManager by lazy {
-        StepSensorManager(
-            context = this@StepService,
-            onSensorChanged = { event ->
-                val stepBySensor = event?.values?.first()?.toLong() ?: 0L
-
-                lifecycleScope.launch {
-                    stepSensorViewModel.onSensorChanged(
-                        stepBySensor = stepBySensor,
-                        isCreated = isCreated
-                    )
-
-                    if (isCreated) {
-                        if (isServiceKilledBySystem)
-                            stepSensorViewModel.getYesterdayStepIfKilledBySystem()
-                        else {
-                            stepSensorViewModel.initYesterdayStep()
-                        }
-
-                        isCreated = false
-                    }
-                }
-            }
-        )
-    }
+    private lateinit var stepSensorManager: StepSensorManager
 
     private val dailyStepPendingIntent by lazy {
         PendingIntent.getForegroundService(
@@ -104,7 +78,11 @@ internal class StepService : LifecycleService() {
                     ) {
                         if (::notification.isInitialized)
                             NotificationManagerCompat.from(this@StepService)
-                                .notify(NOTIFICATION_STEP_ID, notification.setCustomContentView(getStepRemoteViews(stepData.current)).build())
+                                .notify(
+                                    NOTIFICATION_STEP_ID,
+                                    notification.setCustomContentView(getStepRemoteViews(stepData.current))
+                                        .build()
+                                )
                     }
                 }
             }
@@ -176,9 +154,36 @@ internal class StepService : LifecycleService() {
                 lifecycleScope.launch {
                     if (isCreated) {
                         if (intent == null)
-                            isServiceKilledBySystem = true
+                            isDestroyedBySystem = true
 
-                        stepSensorViewModel.initStep()
+                        stepSensorManager = StepSensorManager(
+                            context = this@StepService,
+                            onSensorChanged = { event ->
+                                val stepBySensor = event?.values?.first()?.toLong() ?: 0L
+
+                                lifecycleScope.launch {
+                                    if (isCreated) {
+                                        val isReboot = isRebootDevice(stepBySensor)
+
+                                        if (!isReboot && !isDestroyedBySystem) {
+                                            stepSensorViewModel.initStepData(stepBySensor)
+                                        }
+
+                                        stepSensorViewModel.onRebootDevice(isReboot)
+
+                                        if (isDestroyedBySystem)
+                                            stepSensorViewModel.addMissedStepDestroyedBySystem()
+
+                                        isCreated = false
+                                    }
+
+                                    stepSensorViewModel.onSensorChanged(
+                                        stepBySensor = stepBySensor,
+                                    )
+                                }
+                            }
+                        )
+
                         registerSensor()
                     }
                 }
@@ -189,6 +194,7 @@ internal class StepService : LifecycleService() {
     }
 
     override fun onDestroy() {
+        stepSensorViewModel.storeStepDataBeforeDestroyByUser()
         unRegisterSensor()
         cancelResettingDailyStepAlarm()
 
@@ -223,16 +229,19 @@ internal class StepService : LifecycleService() {
                 .setContentIntent(contentPendingIntent)
     }
 
-    private fun getStepRemoteViews(step: Long) = RemoteViews(packageName, R.layout.step_notification).apply {
-        setTextViewText(R.id.tv_stepHeader, DecimalFormat("#,###").format(step))
-    }
+    private fun getStepRemoteViews(step: Long) =
+        RemoteViews(packageName, R.layout.step_notification).apply {
+            setTextViewText(R.id.tv_stepHeader, DecimalFormat("#,###").format(step))
+        }
 
     private fun registerSensor() {
-        stepSensorManager.registerSensor()
+        if (::stepSensorManager.isInitialized)
+            stepSensorManager.registerSensor()
     }
 
     private fun unRegisterSensor() {
-        stepSensorManager.unRegisterSensor()
+        if (::stepSensorManager.isInitialized)
+            stepSensorManager.unRegisterSensor()
     }
 
     private fun alarmResettingDailyStep() {

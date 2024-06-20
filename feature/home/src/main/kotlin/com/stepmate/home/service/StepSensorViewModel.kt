@@ -101,50 +101,64 @@ internal class StepSensorViewModel @Inject constructor(
         }.launchIn(viewModelScope)
     }
 
-    suspend fun initStep() {
-        val todayStep = healthConnector.getTodayTotalStep()
-        val diff = manageStepUseCase.getTodayStep().first() - todayStep
+    suspend fun initStepData(stepBySensor: Long) {
+        val healthConnectTodayStep = healthConnector.getTodayTotalStep()
 
-        val notAddedStep = if (diff > 0) diff else 0L
+        val missedTodayStep = if (healthConnectTodayStep > 0L)
+            healthConnectTodayStep
+        else
+            0L
+
+        manageStepUseCase.setMissedTodayStepAfterReboot(missedTodayStep)
+        manageStepUseCase.setYesterdayStep(stepBySensor)
+
+    }
+
+    suspend fun addMissedStepDestroyedBySystem() {
+        val healthConnectTodayStep = healthConnector.getTodayTotalStep()
 
         _step.update { state ->
             state.copy(
-                current = todayStep,
-                stepAfterReboot = todayStep + notAddedStep,
-                last = todayStep,
+                last = healthConnectTodayStep,
             )
         }
     }
 
-    suspend fun getYesterdayStepIfKilledBySystem() {
-        val yesterdayStep = manageStepUseCase.getYesterdayStep().first()
+    suspend fun onRebootDevice(isReboot: Boolean) {
+        val todayStep = manageStepUseCase.getTodayStep().first()
+        val yesterdayStepOnDisk = manageStepUseCase.getYesterdayStep().first()
+        val missedTodayStepAfterRebootOnDisk =
+            manageStepUseCase.getMissedTodayStepAfterReboot().first()
 
-        _step.update { state ->
-            state.copy(
+        val missedTodayStepAfterReboot =
+            if (isReboot) todayStep else missedTodayStepAfterRebootOnDisk
+        val yesterdayStep = if (isReboot) 0L else yesterdayStepOnDisk
+
+        if (isReboot) {
+            manageStepUseCase.setMissedTodayStepAfterReboot(missedTodayStepAfterReboot)
+            manageStepUseCase.setYesterdayStep(yesterdayStep)
+        }
+
+        _step.update { stepData ->
+            stepData.copy(
+                missedTodayStepAfterReboot = missedTodayStepAfterReboot,
                 yesterday = yesterdayStep,
-                stepAfterReboot = state.stepAfterReboot - state.current
             )
         }
     }
 
-    suspend fun initYesterdayStep() {
-        manageStepUseCase.setYesterdayStep(step.value.yesterday)
-    }
-
-    suspend fun onSensorChanged(stepBySensor: Long, second: Int = 30, isCreated: Boolean) =
+    suspend fun onSensorChanged(stepBySensor: Long, second: Int = 30) =
         withContext(sensorDispatcher + coroutineExceptionHandler) {
-            _step.update { state -> state.getTodayStep(stepBySensor, isCreated) }
+            _step.update { state -> state.copy(current = state.getTodayStep(stepBySensor)) }
 
-            if (!isCreated) {
-                manageStepUseCase.setTodayStep(step.value.current)
+            manageStepUseCase.setTodayStep(step.value.current)
 
-                if (!sensorTimeScheduler.isRunning)
-                    startTime = ZonedDateTime.now()
+            if (!sensorTimeScheduler.isRunning)
+                startTime = ZonedDateTime.now()
 
-                sensorTimeScheduler.setTime(second * 1000L)
+            sensorTimeScheduler.setTime(second * 1000L)
 
-                endTime = ZonedDateTime.now()
-            }
+            endTime = ZonedDateTime.now()
         }
 
     private suspend fun updateStepBySensor() {
@@ -157,18 +171,23 @@ internal class StepSensorViewModel @Inject constructor(
                 endTime = endTime,
             )
 
-            _step.update { state -> state.copy(last = step.value.current) }
-
             if (isLoginUser) {
                 setUserDayStepUseCase.addStep(walked.toInt())
             }
         }
+
+        _step.update { state -> state.copy(last = step.value.current) }
+    }
+
+    fun storeStepDataBeforeDestroyByUser() {
+        sensorTimeScheduler.setTime(0L)
     }
 
     fun getStepInsertWorkerUpdatingOnNewDay() {
         viewModelScope.launch(Dispatchers.IO) {
             val walked = step.value.current - step.value.last
-            val yesterday = step.value.current + step.value.yesterday - step.value.stepAfterReboot
+            val stepBySensor =
+                (step.value.current + step.value.yesterday) - step.value.missedTodayStepAfterReboot
 
             healthConnector.insertSteps(
                 step = walked,
@@ -176,24 +195,22 @@ internal class StepSensorViewModel @Inject constructor(
                 endTime = endTime,
             )
 
-            _step.update { state ->
-                state.copy(
-                    last = 0L,
-                    yesterday = yesterday,
-                    stepAfterReboot = 0L,
-                    current = 0L
+            _step.update { _ ->
+                StepData.getInitValues().copy(
+                    yesterday = stepBySensor,
                 )
             }
 
             manageStepUseCase.setTodayStep(0L)
-            manageStepUseCase.setYesterdayStep(yesterday)
+            manageStepUseCase.setYesterdayStep(stepBySensor)
+            manageStepUseCase.setMissedTodayStepAfterReboot(0L)
 
             startTime = ZonedDateTime.now()
             endTime = ZonedDateTime.now()
 
             if (isLoginUser) {
                 setUserDayStepUseCase.queryDailyStep(
-                    step.value.current.toInt()
+                    walked.toInt()
                 )
             }
         }

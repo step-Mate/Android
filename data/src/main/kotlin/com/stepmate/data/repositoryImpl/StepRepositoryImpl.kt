@@ -19,4 +19,9 @@ class StepRepositoryImpl @Inject constructor(
     }
 
     override fun getYesterdayStep(): Flow<Long> = cacheSettingsDataSource.getYesterdayStep()
+    override fun getMissedTodayStepAfterReboot(): Flow<Long> = cacheSettingsDataSource.getMissedTodayStepAfterReboot()
+
+    override suspend fun setMissedTodayStepAfterReboot(step: Long) {
+        cacheSettingsDataSource.setMissedTodayStepAfterReboot(step)
+    }
 }

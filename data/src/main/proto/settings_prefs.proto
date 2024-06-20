@@ -6,4 +6,5 @@ message SettingsPreferences {
   int32 stepGoal = 1;
   int64 todayStep = 2;
   int64 yesterdayStep = 3;
+  int64 missedTodayStepAfterReboot = 4;
 }

@@ -9,4 +9,6 @@ interface CacheSettingsDataSource {
     fun getTodayStep(): Flow<Long>
     suspend fun setYesterdayStep(step: Long)
     fun getYesterdayStep(): Flow<Long>
+    fun getMissedTodayStepAfterReboot(): Flow<Long>
+    suspend fun setMissedTodayStepAfterReboot(step: Long)
 }
