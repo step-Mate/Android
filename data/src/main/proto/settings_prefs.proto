@@ -7,4 +7,5 @@ message SettingsPreferences {
   int64 todayStep = 2;
   int64 yesterdayStep = 3;
   int64 missedTodayStepAfterReboot = 4;
+  int64 latestEndEpochSecond = 5;
 }

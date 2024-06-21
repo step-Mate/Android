@@ -1,3 +1,9 @@
+<a href="https://play.google.com/store/apps/details?id=com.jinproject.twomillustratedbook">
+	<img src="https://img.shields.io/badge/PlayStore-v1.0.1-4285F4?style=for-the-badge&logo=googleplay&logoColor=white&link=https://play.google.com/store/apps/details?id=com.jinproject.twomillustratedbook" />
+</a>
+
+<br/>
+
 [![Kotlin](https://img.shields.io/badge/Kotlin-1.9.20-blue.svg)](https://kotlinlang.org)
 [![Gradle](https://img.shields.io/badge/gradle-8.1.0-green.svg)](https://gradle.org/)
 [![minSdkVersion](https://img.shields.io/badge/minSdkVersion-29-red)](https://developer.android.com/distribute/best-practices/develop/target-sdk)

@@ -9,4 +9,7 @@ interface StepRepository {
     fun getYesterdayStep(): Flow<Long>
     fun getMissedTodayStepAfterReboot(): Flow<Long>
     suspend fun setMissedTodayStepAfterReboot(step: Long)
+    fun getLatestEndEpochSecond(): Flow<Long>
+
+    suspend fun setLatestEndTime(epochSecond: Long)
 }

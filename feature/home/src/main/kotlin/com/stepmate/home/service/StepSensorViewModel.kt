@@ -34,6 +34,8 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.time.Instant
+import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.util.Calendar
 import javax.inject.Inject
@@ -102,26 +104,48 @@ internal class StepSensorViewModel @Inject constructor(
     }
 
     suspend fun initStepData(stepBySensor: Long) {
-        val healthConnectTodayStep = healthConnector.getTodayTotalStep()
+        val todayStep = manageStepUseCase.getTodayStep().first()
 
-        val missedTodayStep = if (healthConnectTodayStep > 0L)
-            healthConnectTodayStep
+        val missedTodayStep = if (todayStep > 0L)
+            todayStep
         else
             0L
 
+        //헬스커넥트에 저장이 되지 않은 상태에서 서비스를 껏다가 다시 켰을 경우
+        val latestEndTime = manageStepUseCase.getLatestEndEpochSecond().first()
+        val insertTime =
+            ZonedDateTime.ofInstant(Instant.ofEpochSecond(latestEndTime), ZoneId.of("+9"))
+
+        val healthConnectTodayStep = healthConnector.getSpecificDayTotalStep(latestEndTime)
+
+        if (todayStep > 0 && healthConnectTodayStep < todayStep) {
+
+            val walked = todayStep - healthConnectTodayStep
+
+            healthConnector.insertSteps(
+                step = walked,
+                startTime = insertTime,
+                endTime = insertTime,
+            )
+
+            if (isLoginUser) {
+                setUserDayStepUseCase.addStep(walked.toInt())
+            }
+        }
+
         manageStepUseCase.setMissedTodayStepAfterReboot(missedTodayStep)
         manageStepUseCase.setYesterdayStep(stepBySensor)
-
     }
 
-    suspend fun addMissedStepDestroyedBySystem() {
+    suspend fun initLastValueByHealthConnect() {
         val healthConnectTodayStep = healthConnector.getTodayTotalStep()
 
-        _step.update { state ->
-            state.copy(
-                last = healthConnectTodayStep,
-            )
-        }
+        if (healthConnectTodayStep > 0)
+            _step.update { state ->
+                state.copy(
+                    last = healthConnectTodayStep,
+                )
+            }
     }
 
     suspend fun onRebootDevice(isReboot: Boolean) {
@@ -137,6 +161,7 @@ internal class StepSensorViewModel @Inject constructor(
         if (isReboot) {
             manageStepUseCase.setMissedTodayStepAfterReboot(missedTodayStepAfterReboot)
             manageStepUseCase.setYesterdayStep(yesterdayStep)
+            _step.update { stepData -> stepData.copy(last = healthConnector.getTodayTotalStep()) }
         }
 
         _step.update { stepData ->

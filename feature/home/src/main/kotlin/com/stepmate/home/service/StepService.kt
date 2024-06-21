@@ -170,9 +170,7 @@ internal class StepService : LifecycleService() {
                                         }
 
                                         stepSensorViewModel.onRebootDevice(isReboot)
-
-                                        if (isDestroyedBySystem)
-                                            stepSensorViewModel.addMissedStepDestroyedBySystem()
+                                        stepSensorViewModel.initLastValueByHealthConnect()
 
                                         isCreated = false
                                     }

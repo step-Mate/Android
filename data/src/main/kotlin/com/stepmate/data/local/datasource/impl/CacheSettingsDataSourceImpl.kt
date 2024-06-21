@@ -63,4 +63,16 @@ class CacheSettingsDataSourceImpl @Inject constructor(
                 .build()
         }
     }
+
+    override fun getLatestEndEpochSecond(): Flow<Long> =
+        data.map { prefs -> prefs.latestEndEpochSecond }
+
+    override suspend fun setLatestEndTime(epochSecond: Long) {
+        dataStore.updateData { pref ->
+            pref
+                .toBuilder()
+                .setLatestEndEpochSecond(epochSecond)
+                .build()
+        }
+    }
 }

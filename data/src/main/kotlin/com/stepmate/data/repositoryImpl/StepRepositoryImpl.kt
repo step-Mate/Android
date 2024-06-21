@@ -7,8 +7,8 @@ import javax.inject.Inject
 
 class StepRepositoryImpl @Inject constructor(
     private val cacheSettingsDataSource: CacheSettingsDataSource,
-): StepRepository  {
-    override fun getTodayStep(): Flow<Long> =  cacheSettingsDataSource.getTodayStep()
+) : StepRepository {
+    override fun getTodayStep(): Flow<Long> = cacheSettingsDataSource.getTodayStep()
 
     override suspend fun setTodayStep(todayStep: Long) {
         cacheSettingsDataSource.setTodayStep(todayStep)
@@ -19,9 +19,15 @@ class StepRepositoryImpl @Inject constructor(
     }
 
     override fun getYesterdayStep(): Flow<Long> = cacheSettingsDataSource.getYesterdayStep()
-    override fun getMissedTodayStepAfterReboot(): Flow<Long> = cacheSettingsDataSource.getMissedTodayStepAfterReboot()
+    override fun getMissedTodayStepAfterReboot(): Flow<Long> =
+        cacheSettingsDataSource.getMissedTodayStepAfterReboot()
 
     override suspend fun setMissedTodayStepAfterReboot(step: Long) {
         cacheSettingsDataSource.setMissedTodayStepAfterReboot(step)
     }
+
+    override fun getLatestEndEpochSecond(): Flow<Long> = cacheSettingsDataSource.getLatestEndEpochSecond()
+
+    override suspend fun setLatestEndTime(epochSecond: Long) =
+        cacheSettingsDataSource.setLatestEndTime(epochSecond)
 }

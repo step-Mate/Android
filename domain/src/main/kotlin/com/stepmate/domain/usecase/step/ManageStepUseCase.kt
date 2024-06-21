@@ -4,7 +4,6 @@ import com.stepmate.domain.repository.StepRepository
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
-import dagger.hilt.android.components.ViewModelComponent
 import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
@@ -26,6 +25,10 @@ class ManageStepUseCaseImpl @Inject constructor(
 
     override suspend fun setMissedTodayStepAfterReboot(step: Long) =
         stepRepository.setMissedTodayStepAfterReboot(step)
+
+    override fun getLatestEndEpochSecond(): Flow<Long> = stepRepository.getLatestEndEpochSecond()
+
+    override suspend fun setLatestEndTime(epochSecond: Long) = stepRepository.setLatestEndTime(epochSecond)
 }
 
 interface ManageStepUseCase {
@@ -40,6 +43,10 @@ interface ManageStepUseCase {
     fun getMissedTodayStepAfterReboot(): Flow<Long>
 
     suspend fun setMissedTodayStepAfterReboot(step: Long)
+
+    fun getLatestEndEpochSecond(): Flow<Long>
+
+    suspend fun setLatestEndTime(epochSecond: Long)
 }
 
 @Module
