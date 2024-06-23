@@ -52,4 +52,27 @@ class CacheSettingsDataSourceImpl @Inject constructor(
     }
 
     override fun getYesterdayStep(): Flow<Long> = data.map { prefs -> prefs.yesterdayStep }
+    override fun getMissedTodayStepAfterReboot(): Flow<Long> =
+        data.map { prefs -> prefs.missedTodayStepAfterReboot }
+
+    override suspend fun setMissedTodayStepAfterReboot(step: Long) {
+        dataStore.updateData { pref ->
+            pref
+                .toBuilder()
+                .setMissedTodayStepAfterReboot(step)
+                .build()
+        }
+    }
+
+    override fun getLatestEndEpochSecond(): Flow<Long> =
+        data.map { prefs -> prefs.latestEndEpochSecond }
+
+    override suspend fun setLatestEndTime(epochSecond: Long) {
+        dataStore.updateData { pref ->
+            pref
+                .toBuilder()
+                .setLatestEndEpochSecond(epochSecond)
+                .build()
+        }
+    }
 }

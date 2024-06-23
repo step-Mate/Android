@@ -1,6 +1,7 @@
 package com.stepmate.design.component.lazyList
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
@@ -30,7 +31,7 @@ fun rememberTimeScheduler(
  *
  * 예시: 드래그가 요구치 만큼 발생하면, 타이머가 셋팅되면서 뷰가 보이고 타이머가 0이되어 종료되면 뷰가 보이지 않음
  */
-
+@Stable
 class TimeScheduler(
     private val scope: CoroutineScope,
     private val callBack: suspend () -> Unit = {},
