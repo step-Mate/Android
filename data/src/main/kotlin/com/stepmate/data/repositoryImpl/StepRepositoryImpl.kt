@@ -28,6 +28,6 @@ class StepRepositoryImpl @Inject constructor(
 
     override fun getLatestEndEpochSecond(): Flow<Long> = cacheSettingsDataSource.getLatestEndEpochSecond()
 
-    override suspend fun setLatestEndTime(epochSecond: Long) =
-        cacheSettingsDataSource.setLatestEndTime(epochSecond)
+    override suspend fun setLatestEndEpochSecond(epochSecond: Long) =
+        cacheSettingsDataSource.setLatestEndEpochSecond(epochSecond)
 }

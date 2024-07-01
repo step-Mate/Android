@@ -35,7 +35,7 @@ internal class ManageStepUseCaseFake : ManageStepUseCase {
 
     override fun getLatestEndEpochSecond(): Flow<Long> = flow { emit(latestEpochSecond) }
 
-    override suspend fun setLatestEndTime(epochSecond: Long) {
+    override suspend fun setLatestEndEpochSecond(epochSecond: Long) {
         latestEpochSecond = epochSecond
     }
 

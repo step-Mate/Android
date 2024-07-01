@@ -6,17 +6,23 @@ import com.stepmate.domain.usecase.step.SetUserDayStepUseCase
 import com.stepmate.home.fake.ManageStepUseCaseFake
 import com.stepmate.home.service.StepSensorViewModel
 import io.kotest.core.spec.style.BehaviorSpec
+import io.kotest.matchers.longs.shouldBeGreaterThan
+import io.kotest.matchers.longs.shouldBeLessThan
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
 import io.mockk.coEvery
 import io.mockk.mockk
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.test.TestDispatcher
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.setMain
 import java.time.Instant
+import java.time.ZoneId
+import java.time.ZonedDateTime
 
 @OptIn(ExperimentalCoroutinesApi::class)
 internal abstract class StepSensorViewModelTest : BehaviorSpec({
@@ -112,13 +118,21 @@ internal class ScenarioOnFirstInstall : StepSensorViewModelTest() {
                     then("앱 최초 실행시, 헬스커넥트에 저장된 걸음수가 없기 때문에 last 는 0 이다.") {
                         viewModel.step.value.last shouldBe 0L
                     }
+
+                    then("저장된 이전의 endTime 은 0이 아니며, 과거 이어야 한다.") {
+                        delay(1000L)
+                        val latestEndTime = manageStepUseCase.getLatestEndEpochSecond().first()
+
+                        latestEndTime shouldNotBe 0L
+                        latestEndTime shouldBeLessThan ZonedDateTime.now().toEpochSecond()
+                    }
                 }
             }
         }
     }
 }
 
-internal class ScenarioReExecuteServiceAfterInstall : StepSensorViewModelTest() {
+internal class ScenarioReExecuteServiceOnTodayAfterInstallOnYesterday : StepSensorViewModelTest() {
 
     init {
         given("앱 설치 이후") {
@@ -134,8 +148,61 @@ internal class ScenarioReExecuteServiceAfterInstall : StepSensorViewModelTest() 
                     coEvery { healthConnector.getSpecificDayTotalStep(any()) } returns 0L
                     manageStepUseCase.setTodayStep(notAddedStep)
 
+                    and("서비스를 어제 껏다가, 오늘 재실행 하는 상황일 때") {
+                        manageStepUseCase.setLatestEndEpochSecond(ZonedDateTime.now().minusDays(1L).toEpochSecond())
+
+                        sensorCallBack(
+                            isCreated = true,
+                            isReboot = false,
+                            isDestroyedBySystem = false,
+                        )
+
+                        and("100 걸음을 걸었다면") {
+                            val walked = 100
+
+                            testWalking(walked)
+
+                            then("어제 값에 센서값이 저장 된다.") {
+                                viewModel.step.value.yesterday shouldBe step
+                            }
+
+                            then("서비스 실행 이전에 저장되지 않은 걸음수는 0 이다.") {
+                                viewModel.step.value.missedTodayStepAfterReboot shouldBe 0L
+                            }
+
+                            then("오늘 걸음수는 100 이다.") {
+                                viewModel.step.value.current shouldBe walked
+                            }
+
+                            then("헬스커넥트에 저장된 오늘의 걸음수가 0 이므로, last 는 0 이다.") {
+                                viewModel.step.value.last shouldBe 0L
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+internal class ScenarioReExecuteServiceOnTodayAfterInstallOnToday : StepSensorViewModelTest() {
+
+    init {
+        given("앱 설치 이후") {
+            coEvery { hasTokenUseCase() } returns flow { emit(false) }
+
+            `when`("걸음수 센서의 값이 100일 때") {
+                val step = 100L
+                stepBySensor = step
+
+                and("서비스 재실행 이전에 헬스커넥트에 저장되지 않은 걸음수가 50 일 때 (타이머 완료 이전에 서비스 종료)") {
+                    val notAddedStep = 50L
+                    coEvery { healthConnector.getTodayTotalStep() } returns notAddedStep
+                    coEvery { healthConnector.getSpecificDayTotalStep(any()) } returns 0L
+                    manageStepUseCase.setTodayStep(notAddedStep)
+
                     and("서비스를 당일에 껏다가 재실행 하는 상황일 때") {
-                        manageStepUseCase.setLatestEndTime(Instant.now().epochSecond)
+                        manageStepUseCase.setLatestEndEpochSecond(Instant.now().epochSecond)
 
                         viewModel = StepSensorViewModel(
                             setUserDayStepUseCase = setUserDayStepUseCase,
@@ -152,6 +219,8 @@ internal class ScenarioReExecuteServiceAfterInstall : StepSensorViewModelTest() 
                         viewModel.onRebootDevice(false)
 
                         viewModel.initLastValueByHealthConnect()
+
+                        viewModel.onSensorChanged(stepBySensor)
 
                         and("100 걸음을 걸었다면") {
                             val walked = 100

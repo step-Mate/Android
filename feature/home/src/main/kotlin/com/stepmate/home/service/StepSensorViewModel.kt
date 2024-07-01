@@ -104,19 +104,22 @@ internal class StepSensorViewModel @Inject constructor(
     }
 
     suspend fun initStepData(stepBySensor: Long) {
+        val latestEndEpochSecond = manageStepUseCase.getLatestEndEpochSecond().first()
+        val latestEndZonedDateTime = Instant.ofEpochSecond(latestEndEpochSecond).atZone(ZoneId.systemDefault())
+
         val todayStep = manageStepUseCase.getTodayStep().first()
 
-        val missedTodayStep = if (todayStep > 0L)
-            todayStep
-        else
-            0L
+        val missedTodayStep =
+            if (latestEndZonedDateTime.dayOfYear < ZonedDateTime.now().dayOfYear)
+                0L
+            else
+                todayStep
 
-        //헬스커넥트에 저장이 되지 않은 상태에서 서비스를 껏다가 다시 켰을 경우
-        val latestEndTime = manageStepUseCase.getLatestEndEpochSecond().first()
+        //헬스커넥트에 저장이 되지 않은 상태에서 서비스를 껏다가 다시 켰을 경우, 차이만큼을 헬스커넥트에 저장해줌
         val insertTime =
-            ZonedDateTime.ofInstant(Instant.ofEpochSecond(latestEndTime), ZoneId.of("+9"))
+            ZonedDateTime.ofInstant(Instant.ofEpochSecond(latestEndEpochSecond), ZoneId.systemDefault())
 
-        val healthConnectTodayStep = healthConnector.getSpecificDayTotalStep(latestEndTime)
+        val healthConnectTodayStep = healthConnector.getSpecificDayTotalStep(latestEndEpochSecond)
 
         if (todayStep > 0 && healthConnectTodayStep < todayStep) {
 
@@ -180,6 +183,8 @@ internal class StepSensorViewModel @Inject constructor(
 
             if (!sensorTimeScheduler.isRunning)
                 startTime = ZonedDateTime.now()
+
+            manageStepUseCase.setLatestEndEpochSecond(startTime.toEpochSecond())
 
             sensorTimeScheduler.setTime(second * 1000L)
 
