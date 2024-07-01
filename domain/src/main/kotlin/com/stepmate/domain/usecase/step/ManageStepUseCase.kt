@@ -28,7 +28,7 @@ class ManageStepUseCaseImpl @Inject constructor(
 
     override fun getLatestEndEpochSecond(): Flow<Long> = stepRepository.getLatestEndEpochSecond()
 
-    override suspend fun setLatestEndTime(epochSecond: Long) = stepRepository.setLatestEndTime(epochSecond)
+    override suspend fun setLatestEndEpochSecond(epochSecond: Long) = stepRepository.setLatestEndEpochSecond(epochSecond)
 }
 
 interface ManageStepUseCase {
@@ -46,7 +46,7 @@ interface ManageStepUseCase {
 
     fun getLatestEndEpochSecond(): Flow<Long>
 
-    suspend fun setLatestEndTime(epochSecond: Long)
+    suspend fun setLatestEndEpochSecond(epochSecond: Long)
 }
 
 @Module
