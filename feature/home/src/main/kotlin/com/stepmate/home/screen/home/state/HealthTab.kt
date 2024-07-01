@@ -1,6 +1,7 @@
 package com.stepmate.home.screen.home.state
 
 import androidx.compose.runtime.Stable
+import kotlinx.collections.immutable.PersistentList
 
 internal abstract class HealthTabFactory<T : HealthCare>(
     open var healthCareList: List<T>,
@@ -15,8 +16,8 @@ internal abstract class HealthTabFactory<T : HealthCare>(
 @Stable
 internal data class HealthTab(
     val header: HealthPage,
-    val graph: List<Long>,
-    val menu: List<MenuItem>,
+    val graph: PersistentList<Long>,
+    val menu: PersistentList<MenuItem>,
 ) {
     companion object {
         fun getDefaultGraphItems(dayCount: Int): ArrayList<Long> = ArrayList<Long>(dayCount).apply {

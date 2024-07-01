@@ -39,6 +39,8 @@ import com.stepmate.home.screen.home.state.User
 import com.stepmate.home.screen.home.state.Week
 import com.stepmate.home.utils.displayOnKorea
 import com.stepmate.home.utils.toDayOfWeekString
+import kotlinx.collections.immutable.PersistentList
+import kotlinx.collections.immutable.persistentListOf
 import java.time.LocalDate
 
 @Composable
@@ -88,7 +90,7 @@ internal fun ColumnScope.HealthTabLayout(
                     )
                 }
             },
-            barColor = listOf(
+            barColor = persistentListOf(
                 StepWalkColor.blue_700.color,
                 StepWalkColor.blue_600.color,
                 StepWalkColor.blue_500.color,
@@ -104,10 +106,10 @@ internal fun ColumnScope.HealthTabLayout(
 
 @Composable
 internal fun ColumnScope.HealthChart(
-    graph: List<Long>,
+    graph: PersistentList<Long>,
     modifier: Modifier = Modifier,
     header: @Composable () -> Unit,
-    barColor: List<Color>,
+    barColor: PersistentList<Color>,
     popUpState: PopUpState,
     setPopUpState: (PopUpState) -> Unit,
 ) {

@@ -10,4 +10,5 @@ android {
 dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.airbnb.android.lottie.compose)
+    implementation(libs.jetbraints.kotlinx.collections.immutable)
 }
