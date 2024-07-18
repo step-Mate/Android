@@ -36,6 +36,7 @@ import com.stepmate.design.component.VerticalSpacer
 import com.stepmate.design.component.clickableAvoidingDuplication
 import com.stepmate.design.component.layout.DefaultLayout
 import com.stepmate.design.theme.StepMateTheme
+import kotlinx.collections.immutable.toPersistentList
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -63,7 +64,7 @@ private fun HomeSettingScreen(
     val sheetState = rememberModalBottomSheetState()
 
     val pagerItems = remember {
-        (0..50000 step 100).toList()
+        (0..50000 step 100).toPersistentList()
     }
 
     val pagerState = rememberPagerState(50) {

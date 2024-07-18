@@ -18,13 +18,14 @@ import com.stepmate.home.screen.home.state.Month
 import com.stepmate.home.screen.home.state.Time
 import com.stepmate.home.screen.home.state.Week
 import com.stepmate.home.screen.home.state.Year
+import kotlinx.collections.immutable.PersistentList
 
 @Composable
 internal fun ColumnScope.CalendarHealthChart(
-    graph: List<Long>,
+    graph: PersistentList<Long>,
     header: String,
     type: Time,
-    barColor: List<androidx.compose.ui.graphics.Color>,
+    barColor: PersistentList<androidx.compose.ui.graphics.Color>,
     popUpState: PopUpState,
     setPopUpState: (PopUpState) -> Unit,
 ) {

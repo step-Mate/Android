@@ -23,8 +23,8 @@ import com.stepmate.design.component.VerticalSpacer
 import com.stepmate.design.component.layout.DefaultLayout
 import com.stepmate.design.component.layout.chart.PopUpState
 import com.stepmate.design.component.layout.chart.addChartPopUpDismiss
-import com.stepmate.design.theme.StepWalkColor
 import com.stepmate.design.theme.StepMateTheme
+import com.stepmate.design.theme.StepWalkColor
 import com.stepmate.home.screen.calendar.component.CalendarAppBar
 import com.stepmate.home.screen.calendar.component.calendar.CalendarLayout
 import com.stepmate.home.screen.calendar.component.chart.CalendarHealthChart
@@ -32,7 +32,8 @@ import com.stepmate.home.screen.home.HomeUiState
 import com.stepmate.home.screen.home.HomeUiStatePreviewParameters
 import com.stepmate.home.screen.home.state.CaloriesMenuFactory
 import com.stepmate.home.screen.home.state.TimeMenuFactory
-import com.stepmate.home.screen.home.state.User
+import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.toPersistentList
 import kotlin.math.ceil
 import kotlin.math.roundToLong
 
@@ -42,14 +43,15 @@ internal fun CalendarScreen(
     popBackStack: () -> Unit,
     showSnackBar: (SnackBarMessage) -> Unit,
 ) {
-    val calendarData by calendarViewModel.calendarData.collectAsStateWithLifecycle()
     val uiState by calendarViewModel.uiState.collectAsStateWithLifecycle()
-    val user by calendarViewModel.user.collectAsStateWithLifecycle()
-
+    val userWeight = remember<() -> Int> {
+        {
+            calendarViewModel.userWeight
+        }
+    }
     CalendarScreen(
         uiState = uiState,
-        user = user,
-        calendarData = calendarData,
+        weight = userWeight,
         popBackStack = popBackStack,
         setCalendarData = calendarViewModel::setCalendarData,
         showSnackBar = showSnackBar,
@@ -59,8 +61,7 @@ internal fun CalendarScreen(
 @Composable
 internal fun CalendarScreen(
     uiState: CalendarViewModel.UiState,
-    user: User,
-    calendarData: CalendarData,
+    weight: () -> Int,
     popBackStack: () -> Unit,
     setCalendarData: (CalendarData) -> Unit,
     showSnackBar: (SnackBarMessage) -> Unit,
@@ -73,8 +74,7 @@ internal fun CalendarScreen(
         is CalendarViewModel.UiState.Success -> {
             OnSuccessCalendarScreen(
                 uiState = uiState,
-                user = user,
-                calendarData = calendarData,
+                weight = weight,
                 popBackStack = popBackStack,
                 setCalendarData = setCalendarData,
             )
@@ -94,8 +94,7 @@ internal fun CalendarScreen(
 @Composable
 internal fun OnSuccessCalendarScreen(
     uiState: CalendarViewModel.UiState.Success,
-    user: User,
-    calendarData: CalendarData,
+    weight: () -> Int,
     popBackStack: () -> Unit,
     setCalendarData: (CalendarData) -> Unit,
 ) {
@@ -115,7 +114,7 @@ internal fun OnSuccessCalendarScreen(
         contentPaddingValues = PaddingValues(vertical = 16.dp, horizontal = 12.dp),
         topBar = {
             CalendarAppBar(
-                calendarData = calendarData,
+                calendarData = uiState.calendarData,
                 popBackStack = popBackStack,
                 setCalendarData = setCalendarData,
             )
@@ -123,17 +122,17 @@ internal fun OnSuccessCalendarScreen(
     ) {
 
         CalendarLayout(
-            calendarData = calendarData,
+            calendarData = uiState.calendarData,
             setCalendarData = setCalendarData
         )
 
         VerticalSpacer(height = 20.dp)
 
         CalendarHealthChart(
-            graph = uiState.healthTab.graph,
+            graph = uiState.steps,
             header = "걸음수",
-            type = calendarData.type,
-            barColor = listOf(
+            type = uiState.calendarData.type,
+            barColor = persistentListOf(
                 StepWalkColor.blue_700.color,
                 StepWalkColor.blue_600.color,
                 StepWalkColor.blue_500.color,
@@ -148,16 +147,16 @@ internal fun OnSuccessCalendarScreen(
         VerticalSpacer(height = 20.dp)
 
         CalendarHealthChart(
-            graph = uiState.healthTab.graph.map {
+            graph = uiState.steps.map {
                 ceil(
                     CaloriesMenuFactory(
-                        weight = user.weight,
+                        weight = weight(),
                     ).cal(it.toFloat()).toDouble()
                 ).roundToLong()
-            },
+            }.toPersistentList(),
             header = "칼로리(Kcal)",
-            type = calendarData.type,
-            barColor = listOf(
+            type = uiState.calendarData.type,
+            barColor = persistentListOf(
                 StepWalkColor.orange_700.color,
                 StepWalkColor.orange_600.color,
                 StepWalkColor.orange_500.color,
@@ -172,12 +171,12 @@ internal fun OnSuccessCalendarScreen(
         VerticalSpacer(height = 20.dp)
 
         CalendarHealthChart(
-            graph = uiState.healthTab.graph.map {
+            graph = uiState.steps.map {
                 TimeMenuFactory.cal(it).roundToLong()
-            },
+            }.toPersistentList(),
             header = "걸은 시간(분)",
-            type = calendarData.type,
-            barColor = listOf(
+            type = uiState.calendarData.type,
+            barColor = persistentListOf(
                 StepWalkColor.green_700.color,
                 StepWalkColor.green_600.color,
                 StepWalkColor.green_500.color,
@@ -199,9 +198,11 @@ private fun PreviewCalendarScreen(
     uiState: HomeUiState,
 ) = StepMateTheme {
     CalendarScreen(
-        uiState = CalendarViewModel.UiState.Success(uiState.step),
-        user = User.getInitValues(),
-        calendarData = CalendarData.getInitValues(),
+        uiState = CalendarViewModel.UiState.Success(
+            steps = uiState.step.graph,
+            calendarData = CalendarData.getInitValues()
+        ),
+        weight = { 65 },
         popBackStack = {},
         setCalendarData = {},
         showSnackBar = {},

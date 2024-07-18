@@ -24,6 +24,7 @@ internal class AndroidFeaturePlugin : Plugin<Project> {
 
             "implementation"(libs.findLibrary("androidx.hilt.navigation.compose").get())
             "implementation"(libs.findBundle("lifecycle").get())
+            "implementation"(libs.findLibrary("jetbraints-kotlinx-collections-immutable").get())
         }
     }
 }
