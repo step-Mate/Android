@@ -1,6 +1,8 @@
 package com.stepmate.home.screen.home.state
 
 import androidx.compose.runtime.Stable
+import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.toPersistentList
 import java.time.ZonedDateTime
 
 @Stable
@@ -56,8 +58,8 @@ internal class HeartRateTabFactory(
         return kotlin.runCatching {
             HealthTab(
                 header = HealthPage(total, goal, title = "심박수"),
-                graph = time.getGraph(healthCareList),
-                menu = getMenuList()
+                graph = time.getGraph(healthCareList).toPersistentList(),
+                menu = getMenuList().toPersistentList()
             )
         }.getOrElse { e ->
             if (e is IllegalArgumentException) {
@@ -76,11 +78,12 @@ internal class HeartRateTabFactory(
     override fun getDefaultValues(time: Time): HealthTab =
         HealthTab(
             header = HealthPage(-1, 1, title = "심박수"),
-            graph = HealthTab.getDefaultGraphItems(time.toNumberOfDays()),
+            graph = HealthTab.getDefaultGraphItems(time.toNumberOfDays()).toPersistentList(),
             menu = kotlin.run {
                 val now = ZonedDateTime.now()
-                val defaultList = listOf(HeartRateFactory.instance.create(now, now, 0))
-                listOf(
+                val defaultList = persistentListOf(HeartRateFactory.instance.create(now, now, 0))
+
+                persistentListOf(
                     HeartMaxMenuFactory.create(defaultList),
                     HeartAvgMenuFactory.create(defaultList),
                     HeartMinMenuFactory.create(defaultList)

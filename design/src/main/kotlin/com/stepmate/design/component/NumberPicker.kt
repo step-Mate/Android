@@ -25,13 +25,15 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.lerp
 import com.stepmate.design.theme.StepMateTheme
+import kotlinx.collections.immutable.PersistentList
+import kotlinx.collections.immutable.toPersistentList
 import kotlin.math.absoluteValue
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun StepMateNumberPicker(
     isSheetVisible: Boolean,
-    items: List<Int>,
+    items: PersistentList<Int>,
     pagerState: PagerState,
     sheetState: SheetState,
     updateIsSheetVisibility: (Boolean) -> Unit,
@@ -102,7 +104,7 @@ fun StepMateNumberPicker(
 private fun PreviewStepMateNumberPicker() = StepMateTheme {
     StepMateNumberPicker(
         isSheetVisible = true,
-        items = (0..50000 step 100).toList(),
+        items = (0..50000 step 100).toPersistentList(),
         pagerState = rememberPagerState(50) {
             50000 / 100 + 1
         },

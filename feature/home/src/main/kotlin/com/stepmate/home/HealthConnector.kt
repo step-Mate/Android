@@ -163,9 +163,10 @@ class HealthConnector @Inject constructor(
         factory = StepFactory.instance
     )
 
-    internal suspend fun getTodayTotalStep(): Long = kotlin.run {
+    internal suspend fun getTodayTotalStep(): Long = getSpecificDayTotalStep(Instant.now().epochSecond)
+    internal suspend fun getSpecificDayTotalStep(epochSecond: Long): Long = kotlin.run {
         val instant = Instant
-            .now()
+            .ofEpochSecond(epochSecond)
             .onKorea()
             .truncatedTo(ChronoUnit.DAYS)
             .toLocalDateTime()

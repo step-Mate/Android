@@ -1,5 +1,11 @@
+<a href="https://play.google.com/store/apps/details?id=com.stepmate.app">
+	<img src="https://img.shields.io/badge/PlayStore-v1.0.2-4285F4?style=for-the-badge&logo=googleplay&logoColor=white&link=https://play.google.com/store/apps/details?id=com.stepmate.app" />
+</a>
+
+<br/>
+
 [![Kotlin](https://img.shields.io/badge/Kotlin-1.9.20-blue.svg)](https://kotlinlang.org)
-[![Gradle](https://img.shields.io/badge/gradle-8.1.0-green.svg)](https://gradle.org/)
+[![Gradle](https://img.shields.io/badge/gradle-8.3.0-green.svg)](https://gradle.org/)
 [![minSdkVersion](https://img.shields.io/badge/minSdkVersion-29-red)](https://developer.android.com/distribute/best-practices/develop/target-sdk)
 [![targetSdkVersion](https://img.shields.io/badge/targetSdkVersion-34-orange)](https://developer.android.com/distribute/best-practices/develop/target-sdk)
 
@@ -24,22 +30,30 @@
 
 # Stacks
 
- - Kotlin
- - Compose
- - Compose - Navigation ( Single Activity )
- - Kotlin.Coroutines.Flow
- - Room
- - DataStore(proto)
- - AlarmManager
- - Service
- - Hilt
- - Retrofit2 & Okhttp3
- - HealthConnect
+| Category | Lib |
+| ----- | ----- |
+| Language | Kotlin |
+| UI toolkit | Compose |
+| Android | Activity, Service, Lifecycle, Compose-Navigation, HealthConnect, AlarmManager, WorkManager |
+| Asynchronous | Kotlin.Coroutines, Kotlin.Coroutines.Flow |
+| Dependency Injection | Hilt |
+| Data | Room, DataStore(proto3), Retrofit2 & Okhttp3 |
+| Unit Test | Junit, Kotest, mockk |
 
-# Point
+# Structure
 
-- Material3 디자인 가이드라인 및 팀 간의 약속에 따라 color, theme 을 분류 및 다크테마에 대응하였습니다.
-- Compose 의 Composition-Layout-Drawing 3단계를 이해한 뒤 달력, progress indicator 와 같은 custom 한 layout을 만들었 습니다. 중첩 스크롤, 드래그와 같은 상호작용이 viewTree 내에서 우선순위를 어떻게 가지는지 이해하여 드래그에 따라 상단바가 사라지는 design component 를 만들었으며, custom 한 pushRefreshState 를 만들어 위로 드래그시 페이징으로 나뉘어진 랭킹리스트의 다음 페이지를 추가로 가져오는 커스텀 UI를 구현하였습니다.
-- 앱 실행시 androidx.core.splashscreen api로 splash 노출 후 제거 타이밍을 앱 실행에 필요한 권한들의 승인 여부 완료까지 지연시킨뒤, 권한이 필요하면 권한 화면을 노출하고 그렇지않으면 홈화면으로 전환하는 권한 관리 플로우를 구현하였습니다.
-- 포그라운드 서비스의 특성을 활용하여 실시간으로 걸음수를 수집 및 필터링하여 헬스커넥트와 서버로 저장하고 가져오는 알고리즘을 구현하였습니다.
-- Compose 에서 순수함수 특성(멱등성) 과 SideEffect 를 다루기 위한 api 들을 이해한 뒤, 이를 이용하여 Compose-State 를 최적화 함으로써 불필요한 recomposition 을 방지하도록 구현하였습니다.
+> Clean & MVVM & UDF
+
+<img src="documentation/structure.PNG" /> 
+
+# Member
+
+> **황진호 ([jowunnal](https://github.com/jowunnal "github link"))** 
+
+> **공경일 ([kyungil9](https://github.com/kyungil9 "github link"))** 
+
+<br>
+
+| 황진호 | 공경일 |
+| ----- | ----- |
+| 걸음수 수집 & 홈 화면, 랭킹 화면 | 미션 화면, 내정보 화면 |

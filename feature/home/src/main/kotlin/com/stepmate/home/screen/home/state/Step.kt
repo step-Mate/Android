@@ -1,6 +1,9 @@
 package com.stepmate.home.screen.home.state
 
 import androidx.compose.runtime.Stable
+import kotlinx.collections.immutable.PersistentList
+import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.toPersistentList
 import java.time.ZonedDateTime
 
 @Stable
@@ -51,7 +54,7 @@ internal class StepTabFactory(
         return kotlin.runCatching {
             HealthTab(
                 header = HealthPage(total, goal, title = "걸음수"),
-                graph = time.getGraph(healthCareList),
+                graph = time.getGraph(healthCareList).toPersistentList(),
                 menu = getMenuList(
                     figure = total,
                     weight = user.weight,
@@ -68,11 +71,11 @@ internal class StepTabFactory(
     override fun getDefaultValues(time: Time): HealthTab =
         HealthTab(
             header = HealthPage(-1, 1, title = "걸음수"),
-            graph = HealthTab.getDefaultGraphItems(time.toNumberOfDays()),
+            graph = HealthTab.getDefaultGraphItems(time.toNumberOfDays()).toPersistentList(),
             menu = run {
                 val user = User.getInitValues()
 
-                listOf(
+                persistentListOf(
                     DistanceMenuFactory.create(0),
                     TimeMenuFactory.create(0),
                     CaloriesMenuFactory(
@@ -94,7 +97,7 @@ internal class StepTabFactory(
             return _instance!!
         }
 
-        fun getMenuList(figure: Long, weight: Int): List<MenuItem> = listOf(
+        fun getMenuList(figure: Long, weight: Int): PersistentList<MenuItem> = persistentListOf(
             DistanceMenuFactory.create(figure),
             TimeMenuFactory.create(figure),
             CaloriesMenuFactory(
