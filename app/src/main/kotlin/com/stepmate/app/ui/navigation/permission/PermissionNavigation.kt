@@ -8,7 +8,6 @@ import androidx.navigation.NavOptions
 import androidx.navigation.compose.composable
 import androidx.navigation.navOptions
 import androidx.navigation.navigation
-import com.stepmate.app.ui.UnderApi31Permission
 import com.stepmate.app.ui.navigation.permission.PermissionRoute.permissionGraph
 import com.stepmate.app.ui.navigation.permission.PermissionRoute.permissionRoute
 import com.stepmate.core.SnackBarMessage
@@ -19,7 +18,6 @@ object PermissionRoute {
 }
 
 fun NavGraphBuilder.permissionNavGraph(
-    underApi31Permission: UnderApi31Permission,
     paddingValues: PaddingValues,
     showSnackBar: (SnackBarMessage) -> Unit,
     navigateToHomeGraph: (NavOptions?) -> Unit,
@@ -30,7 +28,6 @@ fun NavGraphBuilder.permissionNavGraph(
     ) {
         composable(route = permissionRoute) {
             PermissionScreen(
-                underApi31Permission = underApi31Permission,
                 modifier = Modifier.padding(paddingValues),
                 showSnackBar = showSnackBar,
                 navigateToHomeGraph = {

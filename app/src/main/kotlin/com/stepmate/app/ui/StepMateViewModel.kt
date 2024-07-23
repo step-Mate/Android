@@ -27,26 +27,6 @@ internal class StepMateViewModel @Inject constructor(
 
     fun updateIsNeedLogin(bool: Boolean) = _isNeedReLogin.update { bool }
 
-    fun updateActivityRecognition(bool: Boolean) {
-        _startDestinationInfo.update { info ->
-            info.copy(
-                underApi31HasPermission = info.underApi31HasPermission.copy(
-                    isActivityRecognitionGranted = bool
-                )
-            )
-        }
-    }
-
-    fun updateHealthConnect(bool: Boolean) {
-        _startDestinationInfo.update { info ->
-            info.copy(
-                underApi31HasPermission = info.underApi31HasPermission.copy(
-                    isHealthConnectGranted = bool
-                )
-            )
-        }
-    }
-
     private val _startDestinationInfo = MutableStateFlow(StartDestinationInfo())
 
     val startDestinationInfo = _startDestinationInfo.asStateFlow()
@@ -56,20 +36,11 @@ internal class StepMateViewModel @Inject constructor(
     }.first()
 
     suspend fun checkPermission() {
-        val isNotificationGranted =
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
-                PermissionRequester.checkNotification(applicationContext)
-            else
-                true
+        val permissionResults = PermissionRequester.checkAllPermissions(applicationContext)
 
-        val isActivityRecognitionGranted =
-            PermissionRequester.checkActivityRecognition(applicationContext)
-
-        val isExactAlarmGranted =
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S)
-                PermissionRequester.checkExactAlarm(applicationContext)
-            else
-                true
+        val isNotificationGranted = permissionResults.notification
+        val isActivityRecognitionGranted = permissionResults.activityRecognition
+        val isExactAlarmGranted = permissionResults.exactAlarm
 
         val isHealthConnectGranted = runCatching {
             healthConnector.checkPermissions(HealthConnector.healthConnectPermissions)
@@ -87,10 +58,4 @@ internal class StepMateViewModel @Inject constructor(
 data class StartDestinationInfo(
     val hasPermission: Boolean = false,
     val hasBodyData: Boolean = false,
-    val underApi31HasPermission: UnderApi31Permission = UnderApi31Permission(),
-)
-
-data class UnderApi31Permission(
-    val isActivityRecognitionGranted: Boolean = false,
-    val isHealthConnectGranted: Boolean = false,
 )

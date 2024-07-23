@@ -1,13 +1,11 @@
 package com.stepmate.app.ui.navigation.permission
 
-import android.Manifest
 import android.app.AlarmManager
 import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.provider.Settings
-import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContract
 import androidx.activity.result.contract.ActivityResultContracts
@@ -25,19 +23,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.core.app.ActivityCompat
-import androidx.health.connect.client.PermissionController
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.LifecycleStartEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.stepmate.app.ui.UnderApi31Permission
 import com.stepmate.core.SnackBarMessage
 import com.stepmate.design.component.DescriptionLargeText
 import com.stepmate.design.component.DescriptionSmallText
@@ -50,11 +44,11 @@ import com.stepmate.design.component.VerticalSpacer
 import com.stepmate.design.component.clickableAvoidingDuplication
 import com.stepmate.design.component.layout.DefaultLayout
 import com.stepmate.design.theme.StepMateTheme
+import com.stepmate.home.HealthConnector
 import com.stepmate.home.HealthConnector.Companion.healthConnectPermissions
 
 @Composable
 internal fun PermissionScreen(
-    underApi31Permission: UnderApi31Permission,
     modifier: Modifier = Modifier,
     permissionViewModel: PermissionViewModel = hiltViewModel(),
     showSnackBar: (SnackBarMessage) -> Unit,
@@ -65,31 +59,14 @@ internal fun PermissionScreen(
     val exactAlarmPermission by permissionViewModel.exactAlarmPermission.collectAsStateWithLifecycle()
     val healthConnectPermission by permissionViewModel.healthConnectPermission.collectAsStateWithLifecycle()
     val dialogState by permissionViewModel.dialogState.collectAsStateWithLifecycle()
-    val healthConnectPermissionContract = remember {
-        permissionViewModel.healthConnectPermissionContract
-    }
-
-    val underApi31PermissionGranted by produceState(
-        initialValue = false,
-        key1 = underApi31Permission.isActivityRecognitionGranted,
-        key2 = underApi31Permission.isHealthConnectGranted,
-    ) {
-        this.value =
-            underApi31Permission.isActivityRecognitionGranted && underApi31Permission.isHealthConnectGranted
-    }
 
     SideEffect {
-        if (Build.VERSION.SDK_INT >= 31) {
-            if (notificationPermission && activityRecognitionPermission && exactAlarmPermission && healthConnectPermission)
-                navigateToHomeGraph()
-        } else
-            if (underApi31PermissionGranted)
-                navigateToHomeGraph()
+        if (notificationPermission && activityRecognitionPermission && exactAlarmPermission && healthConnectPermission)
+            navigateToHomeGraph()
     }
 
     PermissionScreen(
         modifier = modifier,
-        healthConnectPermissionContract = healthConnectPermissionContract,
         requireInstallHealthApk = permissionViewModel::requireInstallHealthApk,
         showSnackBar = showSnackBar,
         notificationPermission = notificationPermission,
@@ -107,7 +84,6 @@ internal fun PermissionScreen(
 private fun PermissionScreen(
     modifier: Modifier = Modifier,
     context: Context = LocalContext.current,
-    healthConnectPermissionContract: ActivityResultContract<Set<String>, Set<String>>,
     requireInstallHealthApk: () -> Unit,
     showSnackBar: (SnackBarMessage) -> Unit,
     notificationPermission: Boolean,
@@ -162,7 +138,6 @@ private fun PermissionScreen(
             PermissionActivityResultDescription(
                 buttonStatus = notificationPermission,
                 headline = "알림",
-                type = PermissionViewModel.Permission.NOTIFICATION,
                 desc = "실시간 만보기 수치 표시, 미션 달성, 친구 신청, 공지 사항 등의 기능을 수신하기 위한 알림 권한이 필요해요.",
                 permissionContract = ActivityResultContracts.RequestPermission(),
                 onPermissionResult = { result ->
@@ -172,13 +147,12 @@ private fun PermissionScreen(
                         context
                     )
                 },
-                permission = Manifest.permission.POST_NOTIFICATIONS,
+                permission = PermissionViewModel.Permission.NOTIFICATION.toAppSettingsPermissionOrNull(),
                 showSnackBar = showSnackBar,
             )
         VerticalSpacer(height = 40.dp)
         PermissionActivityResultDescription(
             buttonStatus = activityRecognitionPermission,
-            type = PermissionViewModel.Permission.ACTIVITY_RECOGNITION,
             headline = "신체 활동",
             desc = "만보기 기능을 이용하기 위해 실시간으로 스마트폰의 센서로 부터 걸음수를 수집하고 있어요.\n해당 권한을 수락해 주셔야 걸음수를 수집할 수 있어요.",
             permissionContract = ActivityResultContracts.RequestPermission(),
@@ -189,16 +163,15 @@ private fun PermissionScreen(
                     context
                 )
             },
-            permission = Manifest.permission.ACTIVITY_RECOGNITION,
+            permission = PermissionViewModel.Permission.ACTIVITY_RECOGNITION.toAppSettingsPermissionOrNull(),
             showSnackBar = showSnackBar,
         )
         VerticalSpacer(height = 40.dp)
         PermissionActivityResultDescription(
             buttonStatus = healthConnectPermission,
-            type = PermissionViewModel.Permission.HEALTH_CONNECT,
             headline = "헬스 커넥트",
             desc = "수집한 걸음수를 저장하기 위해 헬스 커넥트에 읽고 쓸수 있는 권한이 필요해요.\nStepMate는 차후 걸음수 뿐만 아니라 다양한 헬스 데이터를 활용하여 더 좋은 경험을 제공해 드릴 예정이에요.",
-            permissionContract = healthConnectPermissionContract,
+            permissionContract = HealthConnector.requestPermissionsActivityContract(),
             onPermissionResult = { result ->
                 val isGranted = result.containsAll(
                     healthConnectPermissions
@@ -210,7 +183,7 @@ private fun PermissionScreen(
                     context
                 )
             },
-            permission = healthConnectPermissions,
+            permission = PermissionViewModel.Permission.HEALTH_CONNECT.toHealthConnectPermissionOrNull(),
             showSnackBar = showSnackBar,
             onException = { t ->
                 if (t is ActivityNotFoundException)
@@ -236,14 +209,12 @@ private fun PermissionScreen(
 
 @Composable
 internal fun <I, O> PermissionActivityResultDescription(
-    context: Context = LocalContext.current,
     buttonStatus: Boolean,
-    type: PermissionViewModel.Permission,
     headline: String,
     desc: String,
     permissionContract: ActivityResultContract<I, O>,
     onPermissionResult: (O) -> Unit,
-    permission: I,
+    permission: I?,
     showSnackBar: (SnackBarMessage) -> Unit,
     onException: (Throwable) -> Unit = {},
 ) {
@@ -257,26 +228,13 @@ internal fun <I, O> PermissionActivityResultDescription(
         headline = headline,
         desc = desc,
         requestPermission = {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R)
-                runCatching {
+            runCatching {
+                permission?.let {
                     permissionLauncher.launch(permission)
-                }.onFailure { e ->
-                    onException(e)
-                }
-            else
-                ActivityCompat.requestPermissions(
-                    context as ComponentActivity,
-                    when (permission) {
-                        is Set<*> -> permission.filterIsInstance<String>().toTypedArray()
-                        is String -> arrayOf(permission)
-                        else -> emptyArray()
-                    },
-                    when (type) {
-                        PermissionViewModel.Permission.ACTIVITY_RECOGNITION -> PermissionViewModel.ACTIVITY_RECOGNITION_CODE
-                        PermissionViewModel.Permission.HEALTH_CONNECT -> PermissionViewModel.HEALTH_CONNECT_CODE
-                        else -> 0
-                    }
-                )
+                } ?: onException(Throwable("[$permission] 은 잘못된 권한 입니다."))
+            }.onFailure { e ->
+                onException(e)
+            }
         },
         showSnackBar = showSnackBar,
     )
@@ -333,7 +291,6 @@ internal fun PermissionDescription(
 @Preview
 private fun PreviewPermissionScreen() = StepMateTheme {
     PermissionScreen(
-        healthConnectPermissionContract = PermissionController.createRequestPermissionResultContract(),
         showSnackBar = {},
         notificationPermission = true,
         activityRecognitionPermission = false,

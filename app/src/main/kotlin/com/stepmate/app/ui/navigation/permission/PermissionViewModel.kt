@@ -1,5 +1,6 @@
 package com.stepmate.app.ui.navigation.permission
 
+import android.Manifest
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
@@ -23,8 +24,6 @@ class PermissionViewModel @Inject constructor(
     @ApplicationContext private val applicationContext: Context,
     private val healthConnector: HealthConnector,
 ) : ViewModel() {
-    val healthConnectPermissionContract = healthConnector.requestPermissionsActivityContract()
-
     private val _notificationPermission: MutableStateFlow<Boolean> = MutableStateFlow(false)
     val notificationPermission get() = _notificationPermission.asStateFlow()
 
@@ -51,26 +50,14 @@ class PermissionViewModel @Inject constructor(
     }
 
     init {
-        updateNotification(
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
-                PermissionRequester.checkNotification(applicationContext)
-            else
-                true
-        )
+        val permissionResults = PermissionRequester.checkAllPermissions(applicationContext)
 
-        if (PermissionRequester.checkActivityRecognition(applicationContext))
-            updateActivityRecognition(true)
-
-        updateExactAlarm(
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S)
-                PermissionRequester.checkExactAlarm(applicationContext)
-            else
-                true
-        )
+        updateNotification(permissionResults.notification)
+        updateActivityRecognition(permissionResults.activityRecognition)
+        updateExactAlarm(permissionResults.exactAlarm)
 
         viewModelScope.launch {
-            if (checkHealthConnectPermissions())
-                updateHealthConnect(true)
+            updateHealthConnect(checkHealthConnectPermissions())
         }
     }
 
@@ -143,11 +130,17 @@ class PermissionViewModel @Inject constructor(
         NOTIFICATION,
         ACTIVITY_RECOGNITION,
         EXACT_ALARM,
-        HEALTH_CONNECT,
-    }
+        HEALTH_CONNECT;
 
-    companion object {
-        const val ACTIVITY_RECOGNITION_CODE = 100
-        const val HEALTH_CONNECT_CODE = 101
+        fun toAppSettingsPermissionOrNull() = when (this) {
+            NOTIFICATION -> if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) Manifest.permission.POST_NOTIFICATIONS else null
+            ACTIVITY_RECOGNITION -> Manifest.permission.ACTIVITY_RECOGNITION
+            else -> null
+        }
+
+        fun toHealthConnectPermissionOrNull() = when (this) {
+            HEALTH_CONNECT -> healthConnectPermissions
+            else -> null
+        }
     }
 }

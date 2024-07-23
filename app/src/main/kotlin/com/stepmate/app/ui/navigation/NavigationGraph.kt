@@ -61,7 +61,6 @@ internal fun NavigationGraph(
         modifier = modifier
     ) {
         permissionNavGraph(
-            underApi31Permission = startDestinationInfo.underApi31HasPermission,
             paddingValues = paddingValues,
             showSnackBar = showSnackBar,
             navigateToHomeGraph = navController::navigateToHomeGraph,
