@@ -61,10 +61,6 @@ class HealthConnector @Inject constructor(
             ?.containsAll(permissions) ?: false
     }
 
-    fun requestPermissionsActivityContract(): ActivityResultContract<Set<String>, Set<String>> {
-        return PermissionController.createRequestPermissionResultContract()
-    }
-
     private fun getHealthClient(): HealthConnectClient? =
         if (checkAvailability() == HealthConnectClient.SDK_AVAILABLE) {
             HealthConnectClient.getOrCreate(context)
@@ -163,7 +159,9 @@ class HealthConnector @Inject constructor(
         factory = StepFactory.instance
     )
 
-    internal suspend fun getTodayTotalStep(): Long = getSpecificDayTotalStep(Instant.now().epochSecond)
+    internal suspend fun getTodayTotalStep(): Long =
+        getSpecificDayTotalStep(Instant.now().epochSecond)
+
     internal suspend fun getSpecificDayTotalStep(epochSecond: Long): Long = kotlin.run {
         val instant = Instant
             .ofEpochSecond(epochSecond)
@@ -303,5 +301,9 @@ class HealthConnector @Inject constructor(
             }.toMutableSet().apply {
                 addAll(healthDataTypes.map { HealthPermission.getWritePermission(it) })
             }.toSet()
+
+        fun requestPermissionsActivityContract(): ActivityResultContract<Set<String>, Set<String>> {
+            return PermissionController.createRequestPermissionResultContract()
+        }
     }
 }

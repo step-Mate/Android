@@ -29,10 +29,39 @@ object PermissionRequester {
     }
 
     @RequiresApi(Build.VERSION_CODES.S)
-    fun checkExactAlarm(context: Context) : Boolean {
+    fun checkExactAlarm(context: Context): Boolean {
         val alarmManager =
             context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
 
         return alarmManager.canScheduleExactAlarms()
+    }
+
+    class PermissionResults(
+        val notification: Boolean = false,
+        val activityRecognition: Boolean = false,
+        val exactAlarm: Boolean = false,
+    )
+
+    fun checkAllPermissions(applicationContext: Context): PermissionResults {
+        val isNotificationGranted =
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
+                checkNotification(applicationContext)
+            else
+                true
+
+        val isActivityRecognitionGranted =
+            checkActivityRecognition(applicationContext)
+
+        val isExactAlarmGranted =
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S)
+                checkExactAlarm(applicationContext)
+            else
+                true
+
+        return PermissionResults(
+            notification = isNotificationGranted,
+            activityRecognition = isActivityRecognitionGranted,
+            exactAlarm = isExactAlarmGranted,
+        )
     }
 }
