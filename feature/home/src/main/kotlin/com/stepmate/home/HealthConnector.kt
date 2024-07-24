@@ -265,8 +265,8 @@ class HealthConnector @Inject constructor(
                     }
                 }
                 factory.create(
-                    startTime = ZonedDateTime.ofInstant(record.startTime, ZoneId.of("+0")),
-                    endTime = ZonedDateTime.ofInstant(record.endTime, ZoneId.of("+0")),
+                    startTime = ZonedDateTime.ofInstant(record.startTime, ZoneId.of("+9")),
+                    endTime = ZonedDateTime.ofInstant(record.endTime, ZoneId.of("+9")),
                     extras = extras,
                 )
             }

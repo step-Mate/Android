@@ -77,6 +77,7 @@ internal class HomeViewModel @Inject constructor(
         get() = today
             .withHour(23)
             .withMinute(59)
+            .withSecond(59)
             .toLocalDateTime()
 
     init {
