@@ -1,7 +1,6 @@
 package com.stepmate.app
 
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.os.Bundle
 import android.view.View
 import android.view.ViewTreeObserver
@@ -37,13 +36,11 @@ import androidx.core.view.WindowCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.compose.rememberNavController
-import androidx.navigation.findNavController
 import com.stepmate.app.ui.StepMateViewModel
 import com.stepmate.app.ui.navigation.NavigationDefaults
 import com.stepmate.app.ui.navigation.NavigationGraph
 import com.stepmate.app.ui.navigation.Router
 import com.stepmate.app.ui.navigation.isShownBar
-import com.stepmate.app.ui.navigation.permission.PermissionViewModel
 import com.stepmate.app.ui.navigation.stepMateNavigationSuiteItems
 import com.stepmate.design.component.StepMateSnackBar
 import com.stepmate.design.theme.StepMateTheme
@@ -93,22 +90,6 @@ class StepMateActivity : ComponentActivity() {
         isNeedReLogin?.let {
             stepMateViewModel.updateIsNeedLogin(true)
         }
-    }
-
-    @Deprecated("Deprecated in Java")
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray,
-    ) {
-        when (requestCode) {
-            PermissionViewModel.ACTIVITY_RECOGNITION_CODE ->
-                stepMateViewModel.updateActivityRecognition(grantResults.first() == PackageManager.PERMISSION_GRANTED)
-
-            PermissionViewModel.HEALTH_CONNECT_CODE ->
-                stepMateViewModel.updateHealthConnect(grantResults.all { r -> r == PackageManager.PERMISSION_GRANTED })
-        }
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
     }
 
     @OptIn(
