@@ -1,5 +1,5 @@
 <a href="https://play.google.com/store/apps/details?id=com.stepmate.app">
-	<img src="https://img.shields.io/badge/PlayStore-v1.0.2-4285F4?style=for-the-badge&logo=googleplay&logoColor=white&link=https://play.google.com/store/apps/details?id=com.stepmate.app" />
+	<img src="https://img.shields.io/badge/PlayStore-v1.0.3-4285F4?style=for-the-badge&logo=googleplay&logoColor=white&link=https://play.google.com/store/apps/details?id=com.stepmate.app" />
 </a>
 
 <br/>
