@@ -8,6 +8,10 @@ Home 은 로그인을 하지 않아도 이용 가능한 걸음수 수집 및 시
 
 # UI
 
+### Home
 
+https://github.com/user-attachments/assets/f6715b82-efee-4f49-b4a8-34f55e820d75
 
+### Calendar
 
+https://github.com/user-attachments/assets/d722819e-689d-4344-a350-08f51be7d971
