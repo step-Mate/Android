@@ -8,6 +8,4 @@ Ranking 은 사용자들의 한달 간의 걸음수를 리스트화 하여 경�
 
 # UI
 
-
-
-
+https://github.com/user-attachments/assets/2c78f480-9c80-4ff3-b466-f084bbf63244
