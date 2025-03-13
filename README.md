@@ -28,20 +28,6 @@
 - **미션 기능** : 사용자는 실시간으로 수집된 걸음수를 바탕으로 만들어진 미션들의 조건에 충족하면 “미션 클리어 알림” 을 수신하고, 해당 미션의 보상으로 경험치와 칭호를 획득할 수 있으며 완성된 미션과 미완성 미션을 확인할 수 있다.
 - **내 정보 변경** : 사용자의 신체 정보, 닉네임 과 미션 달성시 획득한 칭호들을 변경할 수 있고, 로그아웃과 회원탈퇴를 수행할 수 있다.
 
-# Stacks
-
-| Category | Skill Set |
-| ----- | ----- |
-| Language | Kotlin |
-| UI toolkit | Compose |
-| Architecture | Clean Architecture |
-| Design Pattern | MVVM, Factory Pattern, Composite Pattern |
-| Android | Activity, Service, Lifecycle, Compose-Navigation, HealthConnect, AlarmManager, WorkManager |
-| Asynchronous | Kotlinx.Coroutines, Kotlinx.Coroutines.Flow |
-| Dependency Injection | Hilt |
-| Data | Room, DataStore(proto3), Retrofit2 & Okhttp3 |
-| Unit Test | Junit, Kotest, mockk |
-
 # As-Is / Challenge / To-Be
 
 <details>
@@ -57,8 +43,8 @@
 ### Challenge
 - **걸음수 데이터**
   - **데이터 출처**
-    - 안드로이드에서 걸음수를 수집하는 방법은 걸음수 감지 센서와 걸음수 측정기 센서를 이용할 수 있습니다.
-    - 걸음수 감지 센서는 걸음이 발생할 때 마다 1의 값을 콜백 받는데, 이보다 측정기 센서의 값이 더 정확하여 측정기 센서값을 이용하였습니다.
+    - 안드로이드에서 걸음수를 수집하는 방법은 걸음수 감지 센서와 걸음수 계수기 센서를 이용할 수 있습니다.
+    - 걸음수 감지 센서는 걸음이 발생할 때 마다 1의 값을 콜백 받는데, 이보다 계수기 센서의 값이 더 정확하여 계수기 센서값을 이용하였습니다.
   - **데이터 관리**
     - 걸음수 데이터는 필요한 형태(년/월/일 등)로 가공되어야 하기 때문에 이러한 다양한 API 를 제공하는 Health Connect 에 저장하여 관리하였습니다.
 - **걸음수 수집**
@@ -69,22 +55,22 @@
   - 걸음이 계속 발생한다면, 반복적으로 타이머의 시간을 1분으로 설정합니다.
 - **걸음수 수집 플로우**
   - 기본적으로 다음 공식으로 오늘의 걸음수를 계산할 수 있습니다.
-    - **오늘의 걸음수 = 걸음수 측정기 센서값 - 어제 걸음수 + 재부팅 전 걸음수**
+    - **오늘의 걸음수 = 걸음수 계수기 센서값 - 어제 걸음수 + 재부팅 전 걸음수**
   - 걸음수 수집 플로우에서 중요한 시나리오는 다음 3가지 입니다.
     - "분할 걸음수" 가 저장되지 않은 상태에서 **Foreground Service** 가 프로세스에 의해 종료 후 재시작 되었을 경우
       - DataStore 로 걸음이 발생할 때 마다 **오늘 걸음수**를 저장합니다.
       - **Foreground Service** 가 프로세스에 의해 종료 후 재시작 되었다면 **onStartCommand(Intent) 의 intent 가 null** 입니다
       - 이 때 **헬스커넥트**에 저장된 오늘 걸음수와 **DataStore** 에 저장된 오늘 걸음수를 비교하여 **차이만큼 헬스커넥트에 저장**해 줍니다.
       - 분할 걸음수?
-        - 헬스커넥트에 데이터를 저장할 때 걸음수 측정기 센서에서 1걸음이 발생할 때 마다 저장한다면, **너무 많은 양의 데이터가 나눠진 형태**로 저장될 것 입니다.
+        - 헬스커넥트에 데이터를 저장할 때 걸음수 계수기 센서에서 1걸음이 발생할 때 마다 저장한다면, **너무 많은 양의 데이터가 나눠진 형태**로 저장될 것 입니다.
         - 예) 10시 0분 0초 : 1걸음, 10시 0분 1초 : 1걸음, 10시 0분 2초 : 1걸음 의 형태로 1년의 데이터가 쌓였다면, **특정 기준으로 합계하여 가져오기에 성능이 좋지 않을 것** 입니다.
         - 또한, 사용자 관점에서 바라봤을 때, **횡단보도를 기다리는 동안 걷지 않는 점**을 이용하여, 이 시점을 걸음수 분할 기준으로 이용하였습니다.
-        - 이를 토대로 걸음수 측정기 센서에서 걸음이 발생할 때 마다 더한뒤, **코루틴을 활용한 1분 타이머를 이용하여 쌓인 분할 걸음수**를 저장하도록 구현하였습니다.
+        - 이를 토대로 걸음수 계수기 센서에서 걸음이 발생할 때 마다 더한뒤, **코루틴을 활용한 1분 타이머를 이용하여 쌓인 분할 걸음수**를 저장하도록 구현하였습니다.
     - 하루가 지났을 때
-      - 자정이 되면 정시에 동작해야 하므로 **AlarmManager#setAlarmClock** 을 이용하였고, 쌓여진 "분할 걸음수" 를 헬스커넥트에 저장하고, **어제 걸음수** 에 **걸음수 측정기 센서값** 을 저장하고, **재부팅 전 걸음수** 를 0 으로 초기화 합니다.
+      - 자정이 되면 정시에 동작해야 하므로 **AlarmManager#setAlarmClock** 을 이용하였고, 쌓여진 "분할 걸음수" 를 헬스커넥트에 저장하고, **어제 걸음수** 에 **걸음수 계수기 센서값** 을 저장하고, **재부팅 전 걸음수** 를 0 으로 초기화 합니다.
       - 바뀌어진 값들로 오늘 걸음수를 계산하면 0 이 됩니다.
     - 디바이스가 재부팅 되었을 때
-      - 디바이스가 재부팅 되면, **걸음수 측정기 센서**의 값은 0 이 됩니다.
+      - 디바이스가 재부팅 되면, **걸음수 계수기 센서**의 값은 0 이 됩니다.
       - 따라서 앱이 설치된 상태에서 디바이스가 재부팅 되었다면, 재부팅 전 까지의 **오늘 걸음수** 를 **재부팅 전 걸음수** 로 저장하고 이를 **오늘 걸음수** 계산에 이용합니다. 또한, **재부팅 전 걸음수**는 DataStore로 캐싱해둡니다.
       - 재부팅을 하지 않았다면, 기본적으로 **재부팅 전 걸음수** 는 0 이 됩니다.
 - 알고리즘 검증을 위해 [단위테스트](https://github.com/step-Mate/Android/blob/main/feature/home/src/test/java/com/stepmate/home/StepSensorViewModelTest.kt)를 Kotlin 기반 라이브러리인 **Kotest** 와 **mockk** 를 이용하여 작성하였습니다.
@@ -201,6 +187,20 @@
 
 </div>
 </details>
+
+# Stacks
+
+| Category | Skill Set |
+| ----- | ----- |
+| Language | Kotlin |
+| UI toolkit | Compose |
+| Architecture | Clean Architecture |
+| Design Pattern | MVVM, Factory Pattern, Composite Pattern |
+| Android | Activity, Service, Lifecycle, Compose-Navigation, HealthConnect, AlarmManager, WorkManager |
+| Asynchronous | Kotlinx.Coroutines, Kotlinx.Coroutines.Flow |
+| Dependency Injection | Hilt |
+| Data | Room, DataStore(proto3), Retrofit2 & Okhttp3 |
+| Unit Test | Junit, Kotest, mockk |
 
 # Member
 
