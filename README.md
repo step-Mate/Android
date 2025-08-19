@@ -1,9 +1,3 @@
-<a href="https://play.google.com/store/apps/details?id=com.stepmate.app">
-	<img src="https://img.shields.io/badge/PlayStore-v1.0.3-4285F4?style=for-the-badge&logo=googleplay&logoColor=white&link=https://play.google.com/store/apps/details?id=com.stepmate.app" />
-</a>
-
-<br/>
-
 [![Kotlin](https://img.shields.io/badge/Kotlin-1.9.20-blue.svg)](https://kotlinlang.org)
 [![Gradle](https://img.shields.io/badge/gradle-8.3.0-green.svg)](https://gradle.org/)
 [![minSdkVersion](https://img.shields.io/badge/minSdkVersion-29-red)](https://developer.android.com/distribute/best-practices/develop/target-sdk)
@@ -19,7 +13,7 @@
 
 일정 걸음수를 달성할 때 마다 해당되는 미션들을 클리어 함으로써
 
-단순한 걷기를 넘어서 좀 더 재미를 담아 건강 관리에 도움을 주는 앱 입니다.
+단순한 걷기를 넘어서 좀 더 재미를 담아 건강 관리에 도움을 주는 사이드 프로젝트 앱 입니다.
 
 # Operations
 
